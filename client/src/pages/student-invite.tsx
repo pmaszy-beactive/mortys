@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { CheckCircle, AlertCircle, Loader2, Eye, EyeOff, GraduationCap } from "lucide-react";
-import mortysLogo from '@assets/mortys-logo.png';
+import mortysLogo from '@/assets/mortys-logo.png';
 
 export default function StudentInvite() {
   const [, params] = useRoute("/student-invite/:token");

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Car, Users, Calendar, FileText, BarChart3, LogIn, UserCheck, Award, Shield, Clock, CheckCircle2, Star, MapPin, Phone, Mail, ArrowRight, BookOpen, Target, Trophy, User, Bike, Truck, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
-import mortysLogo from '@assets/mortys-logo.png';
+import mortysLogo from '@/assets/mortys-logo.png';
 
 export default function Landing() {
 
