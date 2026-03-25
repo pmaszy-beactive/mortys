@@ -1,0 +1,40 @@
+modules = ["nodejs-20", "web", "postgresql-16"]
+run = "npm run dev"
+hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["chromium", "postgresql", "glib", "nss", "nspr", "atk", "at-spi2-atk", "cups", "dbus", "expat", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXrandr", "xorg.libxcb", "xorg.libX11", "xorg.libXext", "xorg.libXfixes", "mesa", "pango", "cairo", "alsa-lib", "libxkbcommon", "vim"]
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["npm", "run", "build"]
+run = ["npm", "run", "start"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[agent]
+integrations = ["javascript_log_in_with_replit:1.0.0", "javascript_sendgrid:1.0.0", "javascript_database:1.0.0", "javascript_stripe:1.0.0"]

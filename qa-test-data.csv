@@ -1,0 +1,34 @@
+Category,Item,Value,Notes
+Test Accounts,Admin Email,qa-admin@mortys.com,Full system access
+Test Accounts,Admin Password,TestQA2024!,
+Test Accounts,Instructor Email,qa-instructor@mortys.com,Car + Motorcycle specialization
+Test Accounts,Instructor Password,TestQA2024!,
+Test Accounts,Student (Car) Email,qa-student-car@test.com,Car course Phase 1
+Test Accounts,Student (Car) Password,TestQA2024!,
+Test Accounts,Student (Motorcycle) Email,qa-student-moto@test.com,Motorcycle course
+Test Accounts,Student (Motorcycle) Password,TestQA2024!,
+Test Accounts,Student (Scooter) Email,qa-student-scooter@test.com,Scooter course
+Test Accounts,Student (Scooter) Password,TestQA2024!,
+Test Accounts,Parent Email,qa-parent@test.com,Linked to car student
+Test Accounts,Parent Password,TestQA2024!,
+Stripe Test Cards,Successful Payment,4242424242424242,Any future expiry and any CVC
+Stripe Test Cards,Declined Card,4000000000000002,Card will be declined
+Stripe Test Cards,3D Secure Required,4000002760003184,Triggers 3D Secure authentication
+Stripe Test Cards,Insufficient Funds,4000000000009995,Decline due to insufficient funds
+Stripe Test Cards,Expired Card,4000000000000069,Card expired
+Stripe Test Cards,Incorrect CVC,4000000000000127,CVC check fails
+URLs,Admin Portal,/login,Traditional login or Replit OAuth
+URLs,Admin Dashboard,/dashboard,Main admin dashboard
+URLs,Instructor Portal,/instructor/login,Instructor login page
+URLs,Student Portal,/student/login,Student login page
+URLs,Student Signup,/student/signup,New student registration
+URLs,Parent Portal,/parent/login,Parent/guardian login
+Acceptance Criteria,Critical Path 1,All user types can log in,Must pass before release
+Acceptance Criteria,Critical Path 2,Students can book classes within phase,Must pass before release
+Acceptance Criteria,Critical Path 3,Payments process via Stripe,Must pass before release
+Acceptance Criteria,Critical Path 4,Email notifications delivered,Must pass before release
+Acceptance Criteria,Critical Path 5,Instructors can check-in/check-out,Must pass before release
+Acceptance Criteria,Critical Path 6,Admin can manage all entities,Must pass before release
+Acceptance Criteria,Critical Path 7,Parent portal respects permissions,Must pass before release
+Acceptance Criteria,Critical Path 8,Session expiration works,Must pass before release
+Acceptance Criteria,Critical Path 9,No unauthorized access,Must pass before release
