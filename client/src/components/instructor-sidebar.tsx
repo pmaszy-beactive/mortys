@@ -177,11 +177,6 @@ export default function InstructorSidebar() {
             </div>
           </nav>
 
-          {/* Version */}
-          <div className="px-4 py-1 text-center">
-            <span className="text-[10px] text-gray-400 font-mono tracking-wide" data-testid="text-version-instructor">v{version}</span>
-          </div>
-
           {/* User Profile & Logout */}
           <div className="flex-shrink-0 border-t border-gray-200 bg-gray-50">
             <div className="p-4">
@@ -209,6 +204,7 @@ export default function InstructorSidebar() {
                 <LogOut className="h-4 w-4 mr-2" />
                 {logoutMutation.isPending ? "Logging out..." : "Logout"}
               </Button>
+              <p className="mt-3 text-[10px] text-gray-400 font-mono tracking-wide text-center" data-testid="text-version-instructor">© Morty's Driving School · <span>{version}</span></p>
             </div>
           </div>
         </div>

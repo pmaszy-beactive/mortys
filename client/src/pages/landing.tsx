@@ -3,6 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Car, Users, Calendar, FileText, BarChart3, LogIn, UserCheck, Award, Shield, Clock, CheckCircle2, Star, MapPin, Phone, Mail, ArrowRight, BookOpen, Target, Trophy, User, Bike, Truck, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
 import mortysLogo from '@/assets/mortys-logo.png';
+import versionData from '../../../version.json';
+
+const version: string = versionData.version;
 
 export default function Landing() {
 
@@ -615,7 +618,7 @@ export default function Landing() {
           </div>
           
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
-            <p>© 2025 Morty's Driving School. All rights reserved.</p>
+            <p>© 2025 Morty's Driving School. All rights reserved. <span className="font-mono text-gray-500">{version}</span></p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="hover:text-primary transition-colors" data-testid="link-privacy">Privacy Policy</a>
               <a href="#" className="hover:text-primary transition-colors" data-testid="link-terms">Terms of Service</a>
