@@ -16,7 +16,7 @@ RUN node_modules/.bin/esbuild server/index.prod.ts \
     --packages=external \
     --bundle \
     --format=esm \
-    --outdir=dist
+    --outfile=dist/index.js
 
 FROM node:20-alpine AS production
 
