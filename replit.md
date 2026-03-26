@@ -58,10 +58,11 @@ Class terminology: Use "Theory Classes" and "Driving Classes" (not "Practical Cl
 ## Deployment
 
 ### Docker / ActiveAI Backbone
-- **`Dockerfile`**: Multi-stage build — Node 20 Alpine builder (runs `npm run build`) then production image (`npm ci --omit=dev`).
+- **`Dockerfile`**: Multi-stage build. Builder stage installs all deps (including devDeps), runs `vite build` for the frontend, then compiles `server/index.prod.ts` with esbuild into `dist/index.js`. Production stage runs `npm ci --omit=dev` and copies only the compiled `dist/` folder.
+- **`server/index.prod.ts`**: Production-only server entry — mirrors `server/index.ts` but has NO `vite` imports. Uses inline static file serving (`express.static`). This prevents the `ERR_MODULE_NOT_FOUND: vite` crash that occurs when vite (a devDependency) is missing in the production container.
 - **`docker-compose.yml`**: Build-only config (single `app` service). Runtime config is managed by the Backbone deploy script.
 - **`.deploy.env`**: Deploy settings — `APP_NAME=mortys`, `APP_INTERNAL_PORT=5000`, `HAPROXY_FRONTEND_PORT=8300`, `HEALTH_ENDPOINT=/health`, no worker.
-- **Health endpoint**: `GET /health` returns `{ status: "ok", timestamp }`. Added to `server/index.ts` before route registration.
+- **Health endpoint**: `GET /health` returns `{ status: "ok", timestamp }`. Defined in both `server/index.ts` (dev) and `server/index.prod.ts` (prod).
 - **Deploy command** (on server): `cd /path/to/repo && bash /etc/backbone/scripts/deploy.sh`
 
 ### S3 File Storage

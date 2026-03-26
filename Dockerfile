@@ -6,7 +6,17 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
+
+# Build frontend with vite (devDeps available here)
+RUN node_modules/.bin/vite build
+
+# Build production server from vite-free entry point
+RUN node_modules/.bin/esbuild server/index.prod.ts \
+    --platform=node \
+    --packages=external \
+    --bundle \
+    --format=esm \
+    --outdir=dist
 
 FROM node:20-alpine AS production
 

@@ -1,0 +1,107 @@
+import express, { type Request, Response, NextFunction } from "express";
+import { registerRoutes } from "./routes";
+import { initializeDatabase } from "./init-db";
+import { startScheduledMessageWorker } from "./scheduled-message-sender";
+import { readFileSync, existsSync } from "fs";
+import { resolve } from "path";
+import path from "path";
+
+function log(message: string, source = "express") {
+  const formattedTime = new Date().toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
+
+const app = express();
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin,X-Requested-With,Content-Type,Accept,Authorization,Cookie");
+  if (req.method === "OPTIONS") {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: false, limit: "10mb" }));
+
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+app.get("/api/version", (_req, res) => {
+  try {
+    const versionPath = resolve(process.cwd(), "version.json");
+    const data = JSON.parse(readFileSync(versionPath, "utf-8"));
+    res.json(data);
+  } catch {
+    res.json({ version: "unknown", updated_at: null });
+  }
+});
+
+app.use((req, res, next) => {
+  const start = Date.now();
+  const reqPath = req.path;
+  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+
+  const originalResJson = res.json;
+  res.json = function (bodyJson, ...args) {
+    capturedJsonResponse = bodyJson;
+    return originalResJson.apply(res, [bodyJson, ...args]);
+  };
+
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    if (reqPath.startsWith("/api")) {
+      let logLine = `${req.method} ${reqPath} ${res.statusCode} in ${duration}ms`;
+      if (capturedJsonResponse) {
+        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+      }
+      if (logLine.length > 80) {
+        logLine = logLine.slice(0, 79) + "…";
+      }
+      log(logLine);
+    }
+  });
+
+  next();
+});
+
+(async () => {
+  await initializeDatabase();
+
+  const server = await registerRoutes(app);
+
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).json({ message });
+    throw err;
+  });
+
+  // Serve compiled frontend — no vite required
+  const distPath = path.resolve(import.meta.dirname, "public");
+  if (!existsSync(distPath)) {
+    throw new Error(
+      `Build directory not found: ${distPath}. Run 'npm run build' first.`
+    );
+  }
+  app.use(express.static(distPath));
+  app.use("*", (_req, res) => {
+    res.sendFile(path.resolve(distPath, "index.html"));
+  });
+
+  const port = 5000;
+  server.listen({ port, host: "0.0.0.0", reusePort: true }, () => {
+    log(`serving on port ${port}`);
+    startScheduledMessageWorker();
+  });
+})();
