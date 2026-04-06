@@ -217,7 +217,7 @@ CREATE TABLE "instructor_reminder_settings" (
 --> statement-breakpoint
 CREATE TABLE "instructors" (
         "id" serial PRIMARY KEY NOT NULL,
-        "user_id" integer,
+        "user_id" varchar,
         "first_name" text NOT NULL,
         "last_name" text NOT NULL,
         "email" text NOT NULL,
@@ -674,7 +674,7 @@ CREATE TABLE "student_transactions" (
 --> statement-breakpoint
 CREATE TABLE "students" (
         "id" serial PRIMARY KEY NOT NULL,
-        "user_id" integer,
+        "user_id" varchar,
         "first_name" text NOT NULL,
         "last_name" text NOT NULL,
         "email" text NOT NULL,
