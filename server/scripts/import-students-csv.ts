@@ -148,7 +148,7 @@ async function importStudentsFromCSV(csvFilePath: string): Promise<ImportResult>
   return results;
 }
 
-const csvPath = path.join(process.cwd(), 'attached_assets/student_search_results12_1765479780885.csv');
+const csvPath = path.join(process.cwd(), 'server/scripts/data/student_search_results12_1765479780885.csv');
 
 importStudentsFromCSV(csvPath)
   .then(results => {

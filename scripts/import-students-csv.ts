@@ -4,7 +4,7 @@ import { eq, or } from "drizzle-orm";
 import * as fs from "fs";
 import * as readline from "readline";
 
-const CSV_FILE = "attached_assets/student_detailed_results_LastOne_5-01_afterClearingCheckpoint_1767966163297.csv";
+const CSV_FILE = "server/scripts/data/student_detailed_results_LastOne_5-01_afterClearingCheckpoint_1767966163297.csv";
 
 function parseDate(dateStr: string): string | null {
   if (!dateStr || dateStr.trim() === "" || dateStr === "Date of Birth") return null;

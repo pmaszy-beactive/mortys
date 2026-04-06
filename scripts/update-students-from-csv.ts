@@ -3,7 +3,7 @@ import { students, locations } from "../shared/schema";
 import { eq } from "drizzle-orm";
 import * as fs from "fs";
 
-const CSV_FILE = "attached_assets/student_detailed_results_LastOne_5-01_updated_addresses_1768229143510.csv";
+const CSV_FILE = "server/scripts/data/student_detailed_results_LastOne_5-01_updated_addresses_1768229143510.csv";
 
 function parseDate(dateStr: string): string | null {
   if (!dateStr || dateStr.trim() === "" || dateStr === "Date of Birth") return null;
