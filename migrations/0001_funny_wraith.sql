@@ -10,6 +10,9 @@ CREATE TABLE "student_notes" (
 	"updated_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
+ALTER TABLE "communications" ALTER COLUMN "author_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "notes" ALTER COLUMN "author_id" SET DATA TYPE varchar;--> statement-breakpoint
+ALTER TABLE "zoom_attendance" ALTER COLUMN "adjusted_by" SET DATA TYPE varchar;--> statement-breakpoint
 ALTER TABLE "evaluations" ADD COLUMN "student_signature" text;--> statement-breakpoint
 ALTER TABLE "evaluations" ADD COLUMN "student_signature_date" text;--> statement-breakpoint
 ALTER TABLE "students" ADD COLUMN "learner_permit_valid_date" text;--> statement-breakpoint

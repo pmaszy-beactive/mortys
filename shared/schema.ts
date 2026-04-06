@@ -395,7 +395,7 @@ export const evaluations = pgTable("evaluations", {
 export const notes = pgTable("notes", {
   id: serial("id").primaryKey(),
   studentId: integer("student_id").references(() => students.id),
-  authorId: integer("author_id").references(() => users.id),
+  authorId: varchar("author_id").references(() => users.id),
   content: text("content").notNull(),
   visibility: text("visibility").notNull(), // office-only, student-visible, instructor-only
   noteDate: text("note_date").notNull(),
@@ -403,7 +403,7 @@ export const notes = pgTable("notes", {
 
 export const communications = pgTable("communications", {
   id: serial("id").primaryKey(),
-  authorId: integer("author_id").references(() => users.id),
+  authorId: varchar("author_id").references(() => users.id),
   subject: text("subject").notNull(),
   message: text("message").notNull(),
   recipients: json("recipients"), // JSON array of recipient IDs and types
@@ -461,7 +461,7 @@ export const zoomAttendance = pgTable("zoom_attendance", {
   duration: integer("duration").notNull(), // in minutes
   attendanceStatus: text("attendance_status").notNull().default("present"), // present, absent, partial
   isManuallyAdjusted: boolean("is_manually_adjusted").notNull().default(false),
-  adjustedBy: integer("adjusted_by").references(() => users.id),
+  adjustedBy: varchar("adjusted_by").references(() => users.id),
   adjustmentReason: text("adjustment_reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

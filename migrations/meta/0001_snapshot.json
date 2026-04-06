@@ -1,5 +1,5 @@
 {
-  "id": "331eb0d6-07d3-4387-9775-08f326a217d5",
+  "id": "fc1c00ab-9651-48e0-828b-b6126652540e",
   "prevId": "ea13da04-794a-45a3-be37-9093a6ac73a4",
   "version": "7",
   "dialect": "postgresql",
@@ -715,7 +715,7 @@
         },
         "author_id": {
           "name": "author_id",
-          "type": "integer",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -2239,7 +2239,7 @@
         },
         "author_id": {
           "name": "author_id",
-          "type": "integer",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -6159,7 +6159,7 @@
         },
         "adjusted_by": {
           "name": "adjusted_by",
-          "type": "integer",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
