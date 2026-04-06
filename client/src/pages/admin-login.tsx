@@ -13,7 +13,7 @@ import { useLocation, Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 const loginSchema = z.object({
-  username: z.string().min(1, "Username is required"),
+  username: z.string().email("Valid email required"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -28,8 +28,8 @@ export default function AdminLogin() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "demo",
-      password: "demo123",
+      username: "",
+      password: "",
     },
   });
 
@@ -123,11 +123,11 @@ export default function AdminLogin() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700 font-medium">Username</FormLabel>
+                      <FormLabel className="text-gray-700 font-medium">Email</FormLabel>
                       <FormControl>
                         <Input
-                          type="text"
-                          placeholder="admin"
+                          type="email"
+                          placeholder="you@example.com"
                           className="h-11 border-gray-200 focus:border-[#ECC462] focus:ring-[#ECC462]"
                           data-testid="input-username"
                           {...field}

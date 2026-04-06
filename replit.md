@@ -28,7 +28,8 @@ Class terminology: Use "Theory Classes" and "Driving Classes" (not "Practical Cl
 - **Session Management**: Express sessions with PostgreSQL store (1-hour expiration with automatic cleanup)
 - **API Design**: RESTful API with JSON responses
 - **Data Storage**: Full CRUD operations with DatabaseStorage implementation.
-- **Security**: Automatic session expiration after 1 hour of inactivity; frontend interceptor redirects expired sessions to login with user-friendly message. Passwords hashed with bcrypt.
+- **Security**: Automatic session expiration after 1 hour of inactivity; frontend interceptor redirects expired sessions to login with user-friendly message. Passwords hashed with bcrypt. Password hashes are never returned in API responses (`/api/auth/user`, `/api/admin/users`).
+- **Admin Authentication**: Email-based login (no hardcoded credentials). Passwords stored as bcrypt hashes in `users.password` column. Accounts: paul@beactive.ai, daniel@beactive.ai, morty@mortysdriving.com, demo@mortysdriving.com, admin@mortys.com, pasindu@empowerdigitaldata.com.
 
 ### Database Design
 - **ORM**: Drizzle ORM for PostgreSQL.
@@ -54,6 +55,7 @@ Class terminology: Use "Theory Classes" and "Driving Classes" (not "Practical Cl
 - **Student Notes System**: Two-tier notes — internal notes (office/instructor only) and student-visible notes. Notes tracked with author, role, and timestamps. Accessible from admin student profile, instructor detail view, and student dashboard.
 - **Phase-Based Booking Rules Engine**: Hard-coded 4-phase progression rules enforced at all booking points (student portal, admin enrollment, available-classes filter). Rules in `shared/bookingRules.ts`: Phase 1 (T1 must be first, T5 requires 28 days and all prior theory); Phase 2 (T6→T7 in order, In-Car 1-4 sequential 60-min-only, In-Car 4 requires 28 days from T6); Phase 3 (T8 first, flexible after, min 56 days to Phase 4 entry); Phase 4 (T11 first, T12 and In-Car 11-14 before In-Car 15, In-Car 12/13 must be shared 2-student sessions, In-Car 15 is 60-min-only, min 56 days). Admin with override permission can bypass with mandatory reason.
 - **Admin Dashboard Widgets**: Student Quick Search (inline dropdown), Instructor Availability Alert (shows instructors without availability set), Registration Summary (this week/month by course type with bar charts), Theory Class Attendance Sheet (date-picker + expandable class/student rows).
+- **Admin User Management**: Full CRUD for admin accounts in Settings → Admin Users tab. Add/edit/delete users with email, role (owner/admin/manager/staff), password, and booking-policy-override permission. Passwords hashed server-side; never exposed to client.
 
 ## Deployment
 

@@ -1,34 +1,20 @@
 import { storage } from "./storage";
 import type { RequestHandler } from "express";
 
-// Traditional auth for development/demos
 export const loginUser = async (username: string, password: string) => {
   try {
-    // Demo credentials for both environments
-    const demoCredentials = [
-      { username: "admin", password: "demo123", id: "demo-admin" },
-      { username: "demo", password: "demo123", id: "demo-user" },
-      { username: "morty", password: "driving2025", id: "morty-admin" }
-    ];
+    const bcrypt = await import("bcryptjs");
 
-    const credential = demoCredentials.find(c => c.username === username && c.password === password);
-    
-    if (!credential) {
+    // Look up user by email (username field accepts email)
+    const user = await storage.getUserByEmail(username);
+
+    if (!user || !user.password) {
       return { success: false, message: "Invalid credentials" };
     }
 
-    // Get or create demo user
-    let user = await storage.getUserByUsernamePassword(credential.username);
-    
-    if (!user) {
-      // Create demo user
-      user = await storage.createDemoUser({
-        id: credential.id,
-        email: `${credential.username}@mortysdriving.com`,
-        firstName: credential.username === "morty" ? "Morty" : "Demo",
-        lastName: credential.username === "morty" ? "Smith" : "User",
-        profileImageUrl: null
-      });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return { success: false, message: "Invalid credentials" };
     }
 
     return { success: true, user };
@@ -38,11 +24,10 @@ export const loginUser = async (username: string, password: string) => {
   }
 };
 
-// Traditional auth middleware for development
 export const isAuthenticatedTraditional: RequestHandler = async (req, res, next) => {
   try {
     const userId = (req.session as any)?.userId;
-    
+
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -52,7 +37,6 @@ export const isAuthenticatedTraditional: RequestHandler = async (req, res, next)
       return res.status(401).json({ message: "User not found" });
     }
 
-    // Add user to request
     (req as any).user = user;
     next();
   } catch (error) {

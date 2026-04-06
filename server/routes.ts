@@ -506,7 +506,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           });
 
-          res.json({ success: true, user: result.user });
+          const { password: _pw, ...safeUser } = result.user as any;
+          res.json({ success: true, user: safeUser });
         } else {
           res.status(401).json({ success: false, message: result.message });
         }
@@ -519,22 +520,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Hybrid auth endpoint - check both Replit auth and session
     app.get("/api/auth/user", async (req: any, res) => {
       try {
+        const stripPassword = (u: any) => { const { password: _, ...safe } = u; return safe; };
+
         // First try Replit auth
         if (req.user && req.user.claims) {
           const userId = req.user.claims.sub;
           const user = await storage.getUser(userId);
-          if (user) {
-            return res.json(user);
-          }
+          if (user) return res.json(stripPassword(user));
         }
 
         // Fallback to session-based auth
         const sessionUserId = (req.session as any)?.userId;
         if (sessionUserId) {
           const user = await storage.getUser(sessionUserId);
-          if (user) {
-            return res.json(user);
-          }
+          if (user) return res.json(stripPassword(user));
         }
 
         res.status(401).json({ message: "Unauthorized" });
@@ -604,7 +603,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           });
 
-          res.json({ success: true, user: result.user });
+          const { password: _pw, ...safeUser } = result.user as any;
+          res.json({ success: true, user: safeUser });
         } else {
           res.status(401).json({ success: false, message: result.message });
         }
@@ -619,8 +619,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       isAuthenticatedTraditional,
       async (req: any, res) => {
         try {
-          const user = req.user;
-          res.json(user);
+          const { password: _, ...safe } = req.user as any;
+          res.json(safe);
         } catch (error) {
           console.error("Error fetching user:", error);
           res.status(500).json({ message: "Failed to fetch user" });
@@ -9938,6 +9938,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error sending test notification:", error);
       res.status(500).json({ message: "Failed to send test notification" });
+    }
+  });
+
+  // ─── Admin User Management ───────────────────────────────────────────────
+  app.get("/api/admin/users", authMiddleware, async (req, res) => {
+    try {
+      const allUsers = await storage.getUsers();
+      // Never return password hashes to the client
+      const safe = allUsers.map(({ password: _, ...u }) => u);
+      res.json(safe);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.post("/api/admin/users", authMiddleware, async (req, res) => {
+    try {
+      const { email, firstName, lastName, role, password, canOverrideBookingPolicies } = req.body;
+      if (!email || !password) return res.status(400).json({ message: "Email and password are required" });
+      const existing = await storage.getUserByEmail(email);
+      if (existing) return res.status(409).json({ message: "A user with that email already exists" });
+      const bcrypt = await import("bcryptjs");
+      const hashed = await bcrypt.hash(password, 10);
+      const user = await storage.createUser({
+        email,
+        firstName: firstName || "",
+        lastName: lastName || "",
+        role: role || "admin",
+        password: hashed,
+        canOverrideBookingPolicies: canOverrideBookingPolicies ?? false,
+      } as any);
+      const { password: _, ...safe } = user as any;
+      res.status(201).json(safe);
+    } catch (error) {
+      console.error("Create user error:", error);
+      res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
+  app.put("/api/admin/users/:id", authMiddleware, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { firstName, lastName, email, role, password, canOverrideBookingPolicies } = req.body;
+      const updateData: any = { firstName, lastName, email, role, canOverrideBookingPolicies };
+      if (password) {
+        const bcrypt = await import("bcryptjs");
+        updateData.password = await bcrypt.hash(password, 10);
+      }
+      const updated = await storage.updateAdminUser(id, updateData);
+      if (!updated) return res.status(404).json({ message: "User not found" });
+      const { password: _, ...safe } = updated as any;
+      res.json(safe);
+    } catch (error) {
+      console.error("Update user error:", error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  app.delete("/api/admin/users/:id", authMiddleware, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const currentUserId = (req.session as any)?.userId;
+      if (id === currentUserId) return res.status(400).json({ message: "You cannot delete your own account" });
+      await storage.deleteAdminUser(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete user" });
     }
   });
 

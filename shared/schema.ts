@@ -24,6 +24,7 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   role: varchar("role").default("staff"), // owner, admin, staff, manager
   canOverrideBookingPolicies: boolean("can_override_booking_policies").default(false),
+  password: varchar("password"), // bcrypt hashed password for admin users
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

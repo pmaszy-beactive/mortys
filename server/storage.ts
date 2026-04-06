@@ -41,8 +41,11 @@ export interface IStorage {
   // Users - Basic Auth methods
   getUsers(): Promise<User[]>;
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: UpsertUser): Promise<User>;
+  updateAdminUser(id: string, data: { firstName?: string; lastName?: string; email?: string; role?: string; password?: string; canOverrideBookingPolicies?: boolean }): Promise<User | undefined>;
+  deleteAdminUser(id: string): Promise<void>;
   // (IMPORTANT) this user operation is mandatory for Replit Auth.
   upsertUser(user: UpsertUser): Promise<User>;
   
@@ -1531,6 +1534,27 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async updateAdminUser(id: string, data: { firstName?: string; lastName?: string; email?: string; role?: string; password?: string; canOverrideBookingPolicies?: boolean }): Promise<User | undefined> {
+    const updateData: any = { updatedAt: new Date() };
+    if (data.firstName !== undefined) updateData.firstName = data.firstName;
+    if (data.lastName !== undefined) updateData.lastName = data.lastName;
+    if (data.email !== undefined) updateData.email = data.email;
+    if (data.role !== undefined) updateData.role = data.role;
+    if (data.password !== undefined) updateData.password = data.password;
+    if (data.canOverrideBookingPolicies !== undefined) updateData.canOverrideBookingPolicies = data.canOverrideBookingPolicies;
+    const [updated] = await db.update(users).set(updateData).where(eq(users.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async deleteAdminUser(id: string): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
   }
 
   // Traditional Auth methods for demo/development
