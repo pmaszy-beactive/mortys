@@ -18,6 +18,14 @@ RUN node_modules/.bin/esbuild server/index.prod.ts \
     --format=esm \
     --outfile=dist/index.js
 
+# Build migration runner (runs at container startup to create/update tables)
+RUN node_modules/.bin/esbuild server/migrate.ts \
+    --platform=node \
+    --packages=external \
+    --bundle \
+    --format=esm \
+    --outfile=dist/migrate.js
+
 # Build one-time legacy seed script (delete after first use)
 RUN node_modules/.bin/esbuild server/scripts/seed-legacy-data.ts \
     --platform=node \
@@ -35,13 +43,20 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
+# SQL migration files — needed by dist/migrate.js at startup
+COPY --from=builder /app/migrations ./dist/migrations
+
 # Include legacy seed data files (needed by dist/seed-legacy.js)
 # To run: docker exec <container> node dist/seed-legacy.js
 # Delete dist/seed-legacy.js and server/scripts/data/ after first use
 COPY --from=builder /app/server/scripts/data ./server/scripts/data
 
+# Entrypoint: apply migrations then start the app
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 EXPOSE 5000
 
 ENV NODE_ENV=production
 
-CMD ["node", "dist/index.js"]
+CMD ["/docker-entrypoint.sh"]

@@ -8,6 +8,13 @@
       "when": 1769631083623,
       "tag": "0000_majestic_vanisher",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1775485271637,
+      "tag": "0001_misty_korvac",
+      "breakpoints": true
     }
   ]
 }

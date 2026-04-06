@@ -60,7 +60,9 @@ Class terminology: Use "Theory Classes" and "Driving Classes" (not "Practical Cl
 ## Deployment
 
 ### Docker / ActiveAI Backbone
-- **`Dockerfile`**: Multi-stage build. Builder stage installs all deps (including devDeps), runs `vite build` for the frontend, then compiles `server/index.prod.ts` with esbuild into `dist/index.js`. Production stage runs `npm ci --omit=dev` and copies only the compiled `dist/` folder.
+- **`Dockerfile`**: Multi-stage build. Builder stage installs all deps (including devDeps), runs `vite build` for the frontend, then compiles `server/index.prod.ts` → `dist/index.js`, `server/migrate.ts` → `dist/migrate.js`, and `server/scripts/seed-legacy-data.ts` → `dist/seed-legacy.js` with esbuild. Production stage runs `npm ci --omit=dev`, copies `dist/`, `dist/migrations/` (SQL files), and `server/scripts/data/`.
+- **`docker-entrypoint.sh`**: Container startup script — runs `node dist/migrate.js` first (applies all pending SQL migrations), then `exec node dist/index.js`. This ensures tables exist before the app tries to query them.
+- **`server/migrate.ts`**: Compiled migration runner using `drizzle-orm/node-postgres/migrator`. Reads SQL files from `dist/migrations/` and applies any that haven't run yet (idempotent — safe to run on every boot).
 - **`server/index.prod.ts`**: Production-only server entry — mirrors `server/index.ts` but has NO `vite` imports. Uses inline static file serving (`express.static`). This prevents the `ERR_MODULE_NOT_FOUND: vite` crash that occurs when vite (a devDependency) is missing in the production container.
 - **`docker-compose.yml`**: Build-only config (single `app` service). Runtime config is managed by the Backbone deploy script.
 - **`.deploy.env`**: Deploy settings — `APP_NAME=mortys`, `APP_INTERNAL_PORT=5000`, `HAPROXY_FRONTEND_PORT=8300`, `HEALTH_ENDPOINT=/health`, no worker.
