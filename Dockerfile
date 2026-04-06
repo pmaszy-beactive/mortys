@@ -18,6 +18,14 @@ RUN node_modules/.bin/esbuild server/index.prod.ts \
     --format=esm \
     --outfile=dist/index.js
 
+# Build one-time legacy seed script (delete after first use)
+RUN node_modules/.bin/esbuild server/scripts/seed-legacy-data.ts \
+    --platform=node \
+    --packages=external \
+    --bundle \
+    --format=esm \
+    --outfile=dist/seed-legacy.js
+
 FROM node:20-alpine AS production
 
 WORKDIR /app
@@ -26,6 +34,11 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
+
+# Include legacy seed data files (needed by dist/seed-legacy.js)
+# To run: docker exec <container> node dist/seed-legacy.js
+# Delete dist/seed-legacy.js and server/scripts/data/ after first use
+COPY --from=builder /app/server/scripts/data ./server/scripts/data
 
 EXPOSE 5000
 
