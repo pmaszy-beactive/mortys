@@ -42,6 +42,7 @@ export interface IStorage {
   getUsers(): Promise<User[]>;
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByAdminResetToken(token: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: UpsertUser): Promise<User>;
   updateAdminUser(id: string, data: { firstName?: string; lastName?: string; email?: string; role?: string; password?: string; canOverrideBookingPolicies?: boolean }): Promise<User | undefined>;
@@ -691,6 +692,10 @@ export class MemStorage implements IStorage {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(user => user.email === username);
+  }
+
+  async getUserByAdminResetToken(token: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => (user as any).resetPasswordToken === token);
   }
 
   async createUser(insertUser: UpsertUser): Promise<User> {
@@ -1538,6 +1543,11 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async getUserByAdminResetToken(token: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.resetPasswordToken, token));
     return user || undefined;
   }
 

@@ -59,6 +59,8 @@ import ExtraLessons from "@/pages/student/extra-lessons";
 import StudentPortalLayout from "@/components/student-portal-layout";
 import InstructorPortalLayout from "@/components/instructor-portal-layout";
 import AdminLogin from "@/pages/admin-login";
+import AdminForgotPassword from "@/pages/admin-forgot-password";
+import AdminResetPassword from "@/pages/admin-reset-password";
 import ParentLogin from "@/pages/parent/parent-login";
 import ParentSelectStudent from "@/pages/parent/select-student";
 import ParentDashboard from "@/pages/parent/parent-dashboard";
@@ -168,8 +170,10 @@ function Router() {
       <Route path="/parent/select-student" component={ParentSelectStudent} />
       <Route path="/parent/dashboard" component={ParentDashboard} />
       
-      {/* Admin Login - Public route */}
+      {/* Admin Login - Public routes */}
       <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/forgot-password" component={AdminForgotPassword} />
+      <Route path="/admin/reset-password/:token" component={AdminResetPassword} />
       
       {!isAuthenticated ? (
         <Route path="*" component={Landing} />

@@ -636,6 +636,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({ success: true });
       });
     });
+
+    // Admin forgot password — send reset email
+    app.post("/api/auth/forgot-password", async (req, res) => {
+      try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: "Email is required" });
+
+        const user = await storage.getUserByEmail(email);
+        // Always return success to avoid user enumeration
+        if (!user) return res.json({ success: true, message: "If that email is registered, a reset link has been sent" });
+
+        const token = generateInviteToken();
+        const expiry = new Date();
+        expiry.setHours(expiry.getHours() + 1);
+
+        const { db } = await import("./db");
+        const { users: usersTable } = await import("../shared/schema");
+        const { eq } = await import("drizzle-orm");
+        await db.update(usersTable).set({ resetPasswordToken: token, resetPasswordExpiry: expiry }).where(eq(usersTable.id, user.id));
+
+        const { sendAdminPasswordResetEmail } = await import("./services/sendgrid");
+        sendAdminPasswordResetEmail(user.email!, user.firstName || "Admin", token).catch((e) =>
+          console.error("Failed to send admin reset email:", e)
+        );
+
+        res.json({ success: true, message: "If that email is registered, a reset link has been sent" });
+      } catch (error) {
+        console.error("Admin forgot-password error:", error);
+        res.status(500).json({ message: "Failed to process request" });
+      }
+    });
+
+    // Validate admin reset token
+    app.get("/api/auth/reset-password/:token/validate", async (req, res) => {
+      try {
+        const user = await storage.getUserByAdminResetToken(req.params.token);
+        if (!user) return res.status(404).json({ message: "Invalid or expired reset link" });
+        if (user.resetPasswordExpiry && new Date() > new Date(user.resetPasswordExpiry)) {
+          return res.status(410).json({ message: "Reset link has expired. Please request a new one." });
+        }
+        res.json({ valid: true, firstName: user.firstName, email: user.email });
+      } catch (error) {
+        console.error("Admin reset token validation error:", error);
+        res.status(500).json({ message: "Failed to validate token" });
+      }
+    });
+
+    // Complete admin password reset
+    app.post("/api/auth/reset-password/:token", async (req, res) => {
+      try {
+        const { password } = req.body;
+        if (!password || password.length < 8) {
+          return res.status(400).json({ message: "Password must be at least 8 characters" });
+        }
+
+        const user = await storage.getUserByAdminResetToken(req.params.token);
+        if (!user) return res.status(404).json({ message: "Invalid or expired reset link" });
+        if (user.resetPasswordExpiry && new Date() > new Date(user.resetPasswordExpiry)) {
+          return res.status(410).json({ message: "Reset link has expired. Please request a new one." });
+        }
+
+        const bcrypt = await import("bcryptjs");
+        const hashed = await bcrypt.hash(password, 10);
+
+        const { db } = await import("./db");
+        const { users: usersTable } = await import("../shared/schema");
+        const { eq } = await import("drizzle-orm");
+        await db.update(usersTable).set({ password: hashed, resetPasswordToken: null, resetPasswordExpiry: null }).where(eq(usersTable.id, user.id));
+
+        res.json({ success: true, message: "Password reset successfully. You can now log in." });
+      } catch (error) {
+        console.error("Admin reset password error:", error);
+        res.status(500).json({ message: "Failed to reset password" });
+      }
+    });
   }
 
   // Production troubleshooting endpoints

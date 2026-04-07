@@ -38,6 +38,8 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
+RUN apk add --no-cache bash
+
 COPY package*.json ./
 RUN npm ci --omit=dev
 

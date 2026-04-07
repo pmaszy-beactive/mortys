@@ -25,6 +25,8 @@ export const users = pgTable("users", {
   role: varchar("role").default("staff"), // owner, admin, staff, manager
   canOverrideBookingPolicies: boolean("can_override_booking_policies").default(false),
   password: varchar("password"), // bcrypt hashed password for admin users
+  resetPasswordToken: varchar("reset_password_token").unique(),
+  resetPasswordExpiry: timestamp("reset_password_expiry"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
