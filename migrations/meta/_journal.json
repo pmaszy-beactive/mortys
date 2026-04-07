@@ -15,6 +15,13 @@
       "when": 1775503653248,
       "tag": "0001_fixed_pandemic",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775574500000,
+      "tag": "0002_admin_password_reset",
+      "breakpoints": true
     }
   ]
 }
