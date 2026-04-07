@@ -310,7 +310,7 @@ async function main() {
         student = byEmail.get(studentEmail)!;
       } else {
         try {
-          const [newStudent] = await db.insert(students).values({
+          const insertValues: any = {
             firstName,
             lastName,
             dateOfBirth: dob,
@@ -326,7 +326,10 @@ async function main() {
             progress: 0,
             primaryLanguage: lang,
             legacyId: legacyStudentId,
-          } as any).returning();
+            emergencyContact: "",
+            emergencyPhone: "",
+          };
+          const [newStudent] = await db.insert(students).values(insertValues).returning();
 
           if (newStudent) {
             student = { id: newStudent.id, legacyId: legacyStudentId, email: studentEmail, phone, address };
@@ -335,7 +338,10 @@ async function main() {
             created++;
           }
         } catch (e: any) {
-          // Likely unique constraint on email — skip
+          if (notFound < 3) {
+            console.error(`\n[INSERT ERROR row ${processed}] legacyId=${legacyStudentId} email=${studentEmail}`);
+            console.error(`  ${e.message}`);
+          }
           notFound++;
           continue;
         }
