@@ -201,7 +201,11 @@ export default function SchoolPermitsPage() {
   };
 
   const handleDelete = (permit: SchoolPermit) => {
-    if (confirm(`Are you sure you want to delete permit ${permit.permitCode}? This will remove all associated permit numbers.`)) {
+    const assigned = permit.totalNumbers - permit.availableNumbers;
+    const assignedNote = assigned > 0
+      ? ` ${assigned} permit number(s) are currently assigned to students and will also be removed.`
+      : "";
+    if (confirm(`Are you sure you want to delete permit range ${permit.permitCode} (${permit.startNumber}–${permit.endNumber})?${assignedNote} This cannot be undone.`)) {
       deletePermitMutation.mutate(permit.id);
     }
   };
@@ -380,7 +384,6 @@ export default function SchoolPermitsPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleDelete(permit)}
-                                  disabled={permit.totalNumbers - permit.availableNumbers > 0}
                                   className="h-6 w-6 p-0"
                                 >
                                   <Trash2 className="h-3 w-3" />
@@ -508,7 +511,6 @@ export default function SchoolPermitsPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleDelete(permit)}
-                                  disabled={permit.totalNumbers - permit.availableNumbers > 0}
                                   className="h-6 w-6 p-0"
                                 >
                                   <Trash2 className="h-3 w-3" />
