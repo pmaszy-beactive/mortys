@@ -4100,7 +4100,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/locations", async (req, res) => {
     try {
-      const locationData = insertLocationSchema.parse(req.body);
+      const body = {
+        ...req.body,
+        locationCode: req.body.locationCode?.trim() || null,
+      };
+      const locationData = insertLocationSchema.parse(body);
       const location = await storage.createLocation(locationData);
       res.status(201).json(location);
     } catch (error) {
@@ -4142,6 +4146,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/locations/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      const assignedStudents = await storage.getStudentsByLocationId(id);
+      if (assignedStudents.length > 0) {
+        return res.status(400).json({
+          message: `${assignedStudents.length} student(s) are still assigned to this location. Please reassign them before deleting.`,
+        });
+      }
       await storage.deleteLocation(id);
       res.status(204).send();
     } catch (error) {

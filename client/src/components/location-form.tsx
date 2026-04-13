@@ -131,6 +131,7 @@ export default function LocationForm({ location, onSuccess }: LocationFormProps)
   const onSubmit = (data: FormData) => {
     const finalData: InsertLocation = {
       ...data,
+      locationCode: data.locationCode?.trim() || null,
       operatingHours: JSON.stringify(operatingHours),
     };
     

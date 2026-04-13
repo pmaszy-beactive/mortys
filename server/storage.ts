@@ -305,6 +305,7 @@ export interface IStorage {
   getActiveLocations(): Promise<Location[]>;
   createLocation(location: InsertLocation): Promise<Location>;
   updateLocation(id: number, location: Partial<InsertLocation>): Promise<Location>;
+  getStudentsByLocationId(locationId: number): Promise<Student[]>;
   deleteLocation(id: number): Promise<void>;
   
   // Vehicles
@@ -3270,6 +3271,10 @@ export class DatabaseStorage implements IStorage {
       .where(eq(locations.id, id))
       .returning();
     return location;
+  }
+
+  async getStudentsByLocationId(locationId: number): Promise<Student[]> {
+    return await db.select().from(students).where(eq(students.locationId, locationId));
   }
 
   async deleteLocation(id: number): Promise<void> {
