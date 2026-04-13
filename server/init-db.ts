@@ -19,43 +19,38 @@ export async function initializeDatabase() {
       throw dbError;
     }
     
-    // Check if admin user exists using direct database query
-    let adminUser;
-    try {
-      const [existingAdmin] = await db.select().from(users).where(eq(users.email, "admin@mortys.com"));
-      adminUser = existingAdmin;
-    } catch (error) {
-      console.error("Error checking for admin user:", error);
-      adminUser = null;
-    }
-    
-    if (!adminUser) {
-      console.log("No admin user found. Creating default admin user...");
-      try {
-        const [newAdmin] = await db.insert(users).values({
-          id: "admin-default",
-          email: "admin@mortys.com",
-          firstName: "Admin",
-          lastName: "User",
-          profileImageUrl: null
-        }).returning();
-        console.log("Admin user created successfully:", {
-          id: newAdmin.id,
-          email: newAdmin.email
-        });
-      } catch (createError) {
-        console.error("Failed to create admin user:", createError);
-        throw createError;
-      }
-    } else {
-      console.log("Admin user already exists:", {
-        id: adminUser.id,
-        email: adminUser.email,
-        firstName: adminUser.firstName,
-        lastName: adminUser.lastName
-      });
-      
+    const defaultPassword = await bcrypt.hash("Leader12345", 10);
 
+    const seedAdmins = [
+      { id: "admin-default",  email: "admin@mortys.com",               firstName: "Admin",    lastName: "User",     role: "owner" },
+      { id: "admin-morty",    email: "morty@mortysdriving.com",         firstName: "Morty",    lastName: "Owner",    role: "owner" },
+      { id: "admin-paul",     email: "paul@beactive.ai",                firstName: "Paul",     lastName: "Maszewski", role: "owner" },
+      { id: "admin-daniel",   email: "daniel@beactive.ai",              firstName: "Daniel",   lastName: "Beactive", role: "admin" },
+      { id: "admin-manju",    email: "manju@beactive.ai",               firstName: "Manju",    lastName: "Beactive", role: "admin" },
+      { id: "admin-pasindu",  email: "pasindu@empowerdigitaldata.com",  firstName: "Pasindu",  lastName: "Empowered", role: "admin" },
+      { id: "admin-demo",     email: "demo@mortysdriving.com",          firstName: "Demo",     lastName: "Admin",    role: "staff" },
+    ];
+
+    for (const admin of seedAdmins) {
+      try {
+        const [existing] = await db.select().from(users).where(eq(users.email, admin.email));
+        if (!existing) {
+          await db.insert(users).values({
+            id: admin.id,
+            email: admin.email,
+            firstName: admin.firstName,
+            lastName: admin.lastName,
+            role: admin.role,
+            password: defaultPassword,
+            profileImageUrl: null,
+          });
+          console.log(`Admin user created: ${admin.email}`);
+        } else {
+          console.log(`Admin user already exists: ${admin.email}`);
+        }
+      } catch (err: any) {
+        console.error(`Failed to create admin ${admin.email}:`, err.message);
+      }
     }
     
     // Initialize sample locations if they don't exist
