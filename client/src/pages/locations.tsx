@@ -70,10 +70,10 @@ export default function Locations() {
         description: "Location deleted successfully",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to delete location",
+        description: error?.message || "Failed to delete location",
         variant: "destructive",
       });
     },
