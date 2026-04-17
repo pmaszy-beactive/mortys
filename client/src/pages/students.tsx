@@ -15,6 +15,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import TransferStudentForm from "@/components/transfer-student-form";
+import StudentForm from "@/components/student-form";
 import type { Student, Location } from "@shared/schema";
 
 export default function Students() {
@@ -35,6 +36,7 @@ export default function Students() {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [enrollmentDate, setEnrollmentDate] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
 
   // Transfer Students tab search state
   const [transferSearch, setTransferSearch] = useState("");
@@ -211,29 +213,54 @@ export default function Students() {
               </div>
               <p className="text-sm text-gray-500">Search and manage student profiles, contracts, and progress.</p>
             </div>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] font-medium shadow-sm">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Transfer Student
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[95vh] overflow-hidden flex flex-col">
-                <DialogHeader className="flex-shrink-0">
-                  <DialogTitle>Add Transfer Student</DialogTitle>
-                  <DialogDescription>Enter student details and check off which classes they completed at their previous school.</DialogDescription>
-                </DialogHeader>
-                <div className="flex-1 overflow-y-auto">
-                  <TransferStudentForm
-                    onSuccess={() => {
-                      setIsCreateDialogOpen(false);
-                      refetch();
-                      refetchTransfers();
-                    }}
-                  />
-                </div>
-              </DialogContent>
-            </Dialog>
+            <div className="flex gap-2">
+              <Dialog open={isAddStudentOpen} onOpenChange={setIsAddStudentOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] font-medium shadow-sm">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Student
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[95vh] overflow-hidden flex flex-col">
+                  <DialogHeader className="flex-shrink-0">
+                    <DialogTitle>Add Student</DialogTitle>
+                    <DialogDescription>Create a new student record.</DialogDescription>
+                  </DialogHeader>
+                  <div className="flex-1 overflow-y-auto">
+                    <StudentForm
+                      onSuccess={() => {
+                        setIsAddStudentOpen(false);
+                        refetch();
+                      }}
+                    />
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="border-gray-300 text-gray-700 font-medium">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Transfer Student
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[95vh] overflow-hidden flex flex-col">
+                  <DialogHeader className="flex-shrink-0">
+                    <DialogTitle>Add Transfer Student</DialogTitle>
+                    <DialogDescription>Enter student details and check off which classes they completed at their previous school.</DialogDescription>
+                  </DialogHeader>
+                  <div className="flex-1 overflow-y-auto">
+                    <TransferStudentForm
+                      onSuccess={() => {
+                        setIsCreateDialogOpen(false);
+                        refetch();
+                        refetchTransfers();
+                      }}
+                    />
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 
