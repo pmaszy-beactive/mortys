@@ -66,7 +66,7 @@ export default function OverrideAuditLogs() {
   });
 
   const { data: users = [], isLoading: usersLoading } = useQuery<UserType[]>({
-    queryKey: ["/api/users"],
+    queryKey: ["/api/admin/users"],
   });
 
   const { data: studentsResponse, isLoading: studentsLoading } = useQuery<{ students: Student[] }>({

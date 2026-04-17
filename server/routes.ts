@@ -1048,8 +1048,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { staffUserId, studentId, startDate, endDate } = req.query;
       const filters: any = {};
-      if (staffUserId) filters.staffUserId = parseInt(staffUserId);
-      if (studentId) filters.studentId = parseInt(studentId);
+      if (staffUserId) filters.staffUserId = staffUserId as string;
+      if (studentId) filters.studentId = parseInt(studentId as string);
       if (startDate) filters.startDate = startDate;
       if (endDate) filters.endDate = endDate;
 

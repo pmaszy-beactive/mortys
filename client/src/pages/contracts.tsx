@@ -22,9 +22,10 @@ export default function Contracts() {
     queryKey: ["/api/contracts"],
   });
 
-  const { data: students = [] } = useQuery<Student[]>({
+  const { data: studentsData } = useQuery<{ students: Student[] }>({
     queryKey: ["/api/students"],
   });
+  const students = studentsData?.students || [];
 
   const generateAttestationMutation = useMutation({
     mutationFn: (contractId: number) => {

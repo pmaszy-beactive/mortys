@@ -27,9 +27,10 @@ export default function ChangeRequests() {
     queryKey: ["/api/instructors"],
   });
 
-  const { data: students = [] } = useQuery<Student[]>({
+  const { data: studentsData } = useQuery<{ students: Student[] }>({
     queryKey: ["/api/students"],
   });
+  const students = studentsData?.students || [];
 
   const { data: enrollments = [] } = useQuery<ClassEnrollment[]>({
     queryKey: ["/api/class-enrollments"],
