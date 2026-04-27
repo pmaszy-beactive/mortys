@@ -4215,7 +4215,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const vehicleData = insertVehicleSchema.parse(req.body);
 
-      // Convert empty optional strings to null to avoid unique constraint and DB issues
+      // Convert empty optional fields to null
+      if (vehicleData.vehicleNumber === undefined || vehicleData.vehicleNumber === null || isNaN(vehicleData.vehicleNumber as any)) vehicleData.vehicleNumber = null;
       if (!vehicleData.vin) vehicleData.vin = null;
       if (!vehicleData.registrationExpiry) vehicleData.registrationExpiry = null;
       if (!vehicleData.insuranceExpiry) vehicleData.insuranceExpiry = null;
@@ -4241,11 +4242,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       if (error.code === "23505") {
         const detail = (error.detail || "").toLowerCase();
+        const constraint = (error.constraint || "").toLowerCase();
         if (detail.includes("license_plate") || detail.includes("licenseplate")) {
           return res.status(409).json({ message: "A vehicle with this license plate already exists. Please use a different license plate." });
         }
         if (detail.includes("vin")) {
           return res.status(409).json({ message: "A vehicle with this VIN already exists. Please check the VIN number." });
+        }
+        if (detail.includes("vehicle_number") || constraint.includes("type_number")) {
+          return res.status(409).json({ message: "This vehicle number is already used by another vehicle of the same type. Each Auto or Moto vehicle must have a unique number." });
         }
         return res.status(409).json({ message: "A vehicle with these details already exists. Please check the license plate and VIN." });
       }
@@ -4259,6 +4264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updateData = req.body;
 
       // Convert empty optional strings to null
+      if (updateData.vehicleNumber === "" || updateData.vehicleNumber === undefined) updateData.vehicleNumber = null;
       if (updateData.vin === "") updateData.vin = null;
       if (updateData.registrationExpiry === "") updateData.registrationExpiry = null;
       if (updateData.insuranceExpiry === "") updateData.insuranceExpiry = null;
@@ -4284,11 +4290,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       if (error.code === "23505") {
         const detail = (error.detail || "").toLowerCase();
+        const constraint = (error.constraint || "").toLowerCase();
         if (detail.includes("license_plate") || detail.includes("licenseplate")) {
           return res.status(409).json({ message: "A vehicle with this license plate already exists. Please use a different license plate." });
         }
         if (detail.includes("vin")) {
           return res.status(409).json({ message: "A vehicle with this VIN already exists. Please check the VIN number." });
+        }
+        if (detail.includes("vehicle_number") || constraint.includes("type_number")) {
+          return res.status(409).json({ message: "This vehicle number is already used by another vehicle of the same type. Each Auto or Moto vehicle must have a unique number." });
         }
         return res.status(409).json({ message: "A vehicle with these details already exists. Please check the license plate and VIN." });
       }

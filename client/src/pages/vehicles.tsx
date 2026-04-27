@@ -32,6 +32,7 @@ import {
 // Vehicle type
 interface Vehicle {
   id: number;
+  vehicleNumber?: number | null;
   licensePlate: string;
   make: string;
   model: string;
@@ -51,6 +52,10 @@ interface Vehicle {
 
 // Form schema
 const vehicleFormSchema = z.object({
+  vehicleNumber: z.number({ invalid_type_error: "Must be a whole number" })
+    .int("Must be a whole number")
+    .positive("Must be greater than 0")
+    .optional(),
   licensePlate: z.string().min(1, "License plate is required"),
   make: z.string().min(1, "Make is required"),
   model: z.string().min(1, "Model is required"),
@@ -89,6 +94,7 @@ function VehicleForm({
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleFormSchema),
     defaultValues: {
+      vehicleNumber: vehicle?.vehicleNumber ?? undefined,
       licensePlate: vehicle?.licensePlate || "",
       make: vehicle?.make || "",
       model: vehicle?.model || "",
@@ -230,13 +236,27 @@ function VehicleForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="licensePlate"
+            name="vehicleNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>License Plate *</FormLabel>
+                <FormLabel>Vehicle # <span className="text-gray-400 font-normal text-xs">(optional — unique per type)</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="ABC-1234" {...field} data-testid="input-license-plate" />
+                  <Input
+                    type="number"
+                    min={1}
+                    placeholder="e.g. 1"
+                    {...field}
+                    value={field.value ?? ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      field.onChange(val === "" ? undefined : parseInt(val, 10));
+                    }}
+                    data-testid="input-vehicle-number"
+                  />
                 </FormControl>
+                <FormDescription className="text-xs text-gray-500">
+                  Controls display order. Auto #1 and Moto #1 are separate.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -260,6 +280,20 @@ function VehicleForm({
                     <SelectItem value="scooter">Scooter</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="licensePlate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>License Plate *</FormLabel>
+                <FormControl>
+                  <Input placeholder="ABC-1234" {...field} data-testid="input-license-plate" />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -813,6 +847,7 @@ export default function VehiclesPage() {
                         <Table>
                           <TableHeader>
                             <TableRow className="bg-gradient-to-r from-amber-50 to-yellow-50">
+                              <TableHead className="font-bold text-gray-700 w-12">#</TableHead>
                               <TableHead className="font-bold text-gray-700">License Plate</TableHead>
                               <TableHead className="font-bold text-gray-700">Vehicle</TableHead>
                               {tab === "all" && <TableHead className="font-bold text-gray-700">Type</TableHead>}
@@ -828,6 +863,15 @@ export default function VehiclesPage() {
                                 key={vehicle.id}
                                 className="hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 transition-colors duration-200"
                               >
+                                <TableCell>
+                                  {vehicle.vehicleNumber != null ? (
+                                    <Badge className="bg-[#111111] text-[#ECC462] border-0 font-bold min-w-[2rem] justify-center">
+                                      {vehicle.vehicleNumber}
+                                    </Badge>
+                                  ) : (
+                                    <span className="text-gray-300 text-xs">—</span>
+                                  )}
+                                </TableCell>
                                 <TableCell className="font-bold text-gray-900">{vehicle.licensePlate}</TableCell>
                                 <TableCell>
                                   <div>

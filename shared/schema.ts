@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, varchar, index, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, varchar, index, jsonb, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { sql } from 'drizzle-orm';
@@ -195,6 +195,7 @@ export const studentCourses = pgTable("student_courses", {
 
 export const vehicles = pgTable("vehicles", {
   id: serial("id").primaryKey(),
+  vehicleNumber: integer("vehicle_number"), // display order number, unique per vehicleType
   licensePlate: text("license_plate").notNull().unique(),
   make: text("make").notNull(),
   model: text("model").notNull(),
@@ -210,7 +211,9 @@ export const vehicles = pgTable("vehicles", {
   fuelType: text("fuel_type"), // gasoline, electric, hybrid
   transmission: text("transmission"), // manual, automatic
   notes: text("notes"),
-});
+}, (table) => ({
+  typeNumberUnique: unique("vehicles_type_number_unique").on(table.vehicleType, table.vehicleNumber),
+}));
 
 export const instructors = pgTable("instructors", {
   id: serial("id").primaryKey(),
