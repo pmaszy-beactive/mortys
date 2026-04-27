@@ -86,10 +86,18 @@ export default function Reports() {
   // Check if user has payroll access (owner or admin only)
   const canViewPayroll = user?.role === 'owner' || user?.role === 'admin';
 
-  const { data: studentsResponse } = useQuery<{students: Student[]}>({
+  const { data: studentsResponse } = useQuery<{students: Student[], total: number}>({
     queryKey: ["/api/students"],
   });
   const students = studentsResponse?.students || [];
+
+  const { data: dashboardStats } = useQuery<{
+    totalStudents: number;
+    activeStudents: number;
+    completedStudents: number;
+  }>({
+    queryKey: ["/api/dashboard/stats"],
+  });
 
   const { data: instructors = [] } = useQuery<Instructor[]>({
     queryKey: ["/api/instructors"],
@@ -322,7 +330,9 @@ export default function Reports() {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-600 mb-1">Total Students</p>
-              <p className="text-3xl font-bold text-gray-900">{safeStudents.length}</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {(dashboardStats?.totalStudents ?? 0).toLocaleString()}
+              </p>
             </div>
             <Users className="text-gray-400 h-6 w-6" />
           </div>
@@ -333,7 +343,9 @@ export default function Reports() {
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-600 mb-1">Completion Rate</p>
               <p className="text-3xl font-bold text-gray-900">
-                {safeStudents.length > 0 ? Math.round((completionStats.completed / safeStudents.length) * 100) : 0}%
+                {dashboardStats && dashboardStats.totalStudents > 0
+                  ? Math.round((dashboardStats.completedStudents / dashboardStats.totalStudents) * 100)
+                  : 0}%
               </p>
             </div>
             <TrendingUp className="text-gray-400 h-6 w-6" />

@@ -11,7 +11,7 @@ import {
 } from "./services/s3";
 import { storage } from "./storage";
 import { db } from "./db";
-import { sql, eq, and, not, isNull } from "drizzle-orm";
+import { sql, eq, and, not, isNull, count } from "drizzle-orm";
 import {
   lessonRecords,
   students,
@@ -2606,19 +2606,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard stats endpoint
   app.get("/api/dashboard/stats", async (req, res) => {
     try {
-      const students = await storage.getStudents();
+      const [totalRow] = await db.select({ value: count() }).from(students);
+      const [activeRow] = await db.select({ value: count() }).from(students).where(eq(students.status, "active"));
+      const [completedRow] = await db.select({ value: count() }).from(students).where(eq(students.status, "completed"));
+
       const instructors = await storage.getInstructors();
-      const classes = await storage.getClasses();
+      const allClasses = await storage.getClasses();
       const contracts = await storage.getContracts();
 
       const stats = {
-        activeStudents: students.filter((s) => s.status === "active").length,
-        totalStudents: students.length,
-        activeInstructors: instructors.filter((i) => i.status === "active")
-          .length,
-        classesThisWeek: classes.filter((c) => c.status === "scheduled").length,
-        pendingContracts: contracts.filter((c) => c.status === "pending")
-          .length,
+        totalStudents: Number(totalRow?.value ?? 0),
+        activeStudents: Number(activeRow?.value ?? 0),
+        completedStudents: Number(completedRow?.value ?? 0),
+        activeInstructors: instructors.filter((i) => i.status === "active").length,
+        classesThisWeek: allClasses.filter((c) => c.status === "scheduled").length,
+        pendingContracts: contracts.filter((c) => c.status === "pending").length,
         totalContracts: contracts.length,
       };
 
