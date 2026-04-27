@@ -4215,25 +4215,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const vehicleData = insertVehicleSchema.parse(req.body);
 
-      // Convert empty VIN string to null to avoid unique constraint violations
-      if (vehicleData.vin === "") {
-        vehicleData.vin = null;
-      }
+      // Convert empty optional strings to null to avoid unique constraint and DB issues
+      if (!vehicleData.vin) vehicleData.vin = null;
+      if (!vehicleData.registrationExpiry) vehicleData.registrationExpiry = null;
+      if (!vehicleData.insuranceExpiry) vehicleData.insuranceExpiry = null;
+      if (!vehicleData.lastMaintenanceDate) vehicleData.lastMaintenanceDate = null;
+      if (!vehicleData.color) vehicleData.color = null;
+      if (!vehicleData.maintenanceNotes) vehicleData.maintenanceNotes = null;
+      if (!vehicleData.fuelType) vehicleData.fuelType = null;
+      if (!vehicleData.transmission) vehicleData.transmission = null;
+      if (!vehicleData.notes) vehicleData.notes = null;
 
       const vehicle = await storage.createVehicle(vehicleData);
       res.status(201).json(vehicle);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Vehicle creation error:", error);
       if (error.name === "ZodError") {
         const fieldErrors = error.errors
-          .map((err) => `${err.path.join(".")}: ${err.message}`)
+          .map((err: any) => `${err.path.join(".")}: ${err.message}`)
           .join(", ");
         return res.status(400).json({
           message: `Validation failed: ${fieldErrors}`,
           errors: error.errors,
         });
       }
-      res.status(400).json({ message: "Invalid vehicle data" });
+      if (error.code === "23505") {
+        const detail = (error.detail || "").toLowerCase();
+        if (detail.includes("license_plate") || detail.includes("licenseplate")) {
+          return res.status(409).json({ message: "A vehicle with this license plate already exists. Please use a different license plate." });
+        }
+        if (detail.includes("vin")) {
+          return res.status(409).json({ message: "A vehicle with this VIN already exists. Please check the VIN number." });
+        }
+        return res.status(409).json({ message: "A vehicle with these details already exists. Please check the license plate and VIN." });
+      }
+      res.status(500).json({ message: "Failed to create vehicle. Please try again." });
     }
   });
 
@@ -4241,20 +4257,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const updateData = req.body;
+
+      // Convert empty optional strings to null
+      if (updateData.vin === "") updateData.vin = null;
+      if (updateData.registrationExpiry === "") updateData.registrationExpiry = null;
+      if (updateData.insuranceExpiry === "") updateData.insuranceExpiry = null;
+      if (updateData.lastMaintenanceDate === "") updateData.lastMaintenanceDate = null;
+      if (updateData.color === "") updateData.color = null;
+      if (updateData.maintenanceNotes === "") updateData.maintenanceNotes = null;
+      if (updateData.fuelType === "") updateData.fuelType = null;
+      if (updateData.transmission === "") updateData.transmission = null;
+      if (updateData.notes === "") updateData.notes = null;
+
       const vehicle = await storage.updateVehicle(id, updateData);
       res.json(vehicle);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Vehicle update error:", error);
       if (error.name === "ZodError") {
         const fieldErrors = error.errors
-          .map((err) => `${err.path.join(".")}: ${err.message}`)
+          .map((err: any) => `${err.path.join(".")}: ${err.message}`)
           .join(", ");
         return res.status(400).json({
           message: `Validation failed: ${fieldErrors}`,
           errors: error.errors,
         });
       }
-      res.status(400).json({ message: "Failed to update vehicle" });
+      if (error.code === "23505") {
+        const detail = (error.detail || "").toLowerCase();
+        if (detail.includes("license_plate") || detail.includes("licenseplate")) {
+          return res.status(409).json({ message: "A vehicle with this license plate already exists. Please use a different license plate." });
+        }
+        if (detail.includes("vin")) {
+          return res.status(409).json({ message: "A vehicle with this VIN already exists. Please check the VIN number." });
+        }
+        return res.status(409).json({ message: "A vehicle with these details already exists. Please check the license plate and VIN." });
+      }
+      res.status(500).json({ message: "Failed to update vehicle. Please try again." });
     }
   });
 
