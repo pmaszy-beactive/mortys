@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Plus, Edit, Trash2, MapPin, Car, Bike, Calendar, AlertTriangle, CheckCircle, Clock, Upload, FileUp, Download, Eye } from "lucide-react";
+import { FileText, Plus, Edit, MapPin, Car, Bike, Calendar, AlertTriangle, CheckCircle, Clock, Upload, FileUp, Download, Eye } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { SchoolPermit, InsertSchoolPermit, Location } from "@shared/schema";
 
@@ -124,25 +124,6 @@ export default function SchoolPermitsPage() {
     },
   });
 
-  const deletePermitMutation = useMutation({
-    mutationFn: (id: number) =>
-      apiRequest("DELETE", `/api/school-permits/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/school-permits"] });
-      toast({
-        title: "Success",
-        description: "School permit deleted successfully",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to delete school permit",
-        variant: "destructive",
-      });
-    },
-  });
-
   const onSubmit = (data: SchoolPermitFormData) => {
     const endNumber = data.startNumber + data.quantity - 1;
     
@@ -200,15 +181,6 @@ export default function SchoolPermitsPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = (permit: SchoolPermit) => {
-    const assigned = permit.totalNumbers - permit.availableNumbers;
-    const assignedNote = assigned > 0
-      ? ` ${assigned} permit number(s) are currently assigned to students and will also be removed.`
-      : "";
-    if (confirm(`Are you sure you want to delete permit range ${permit.permitCode} (${permit.startNumber}–${permit.endNumber})?${assignedNote} This cannot be undone.`)) {
-      deletePermitMutation.mutate(permit.id);
-    }
-  };
 
   const handleOpenDialog = () => {
     setEditingPermit(null);
@@ -380,14 +352,6 @@ export default function SchoolPermitsPage() {
                                 >
                                   <Edit className="h-3 w-3" />
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDelete(permit)}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
                               </div>
                             </div>
                           </div>
@@ -506,14 +470,6 @@ export default function SchoolPermitsPage() {
                                   className="h-6 w-6 p-0"
                                 >
                                   <Edit className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDelete(permit)}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <Trash2 className="h-3 w-3" />
                                 </Button>
                               </div>
                             </div>
