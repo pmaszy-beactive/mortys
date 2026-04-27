@@ -202,6 +202,25 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
     createMutation.mutate(data);
   };
 
+  const onInvalidSubmit = (errors: Record<string, any>) => {
+    // Scroll to the first error field so the user can see what needs fixing
+    const firstErrorKey = Object.keys(errors)[0];
+    if (firstErrorKey) {
+      const el =
+        document.querySelector<HTMLElement>(`[name="${firstErrorKey}"]`) ||
+        document.querySelector<HTMLElement>(`[data-testid="input-${firstErrorKey.toLowerCase()}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.focus();
+      }
+    }
+    toast({
+      title: "Please complete the form",
+      description: "Fill in all required fields marked with * before saving.",
+      variant: "destructive",
+    });
+  };
+
   const toggleSpecialization = (courseType: string, type: 'theory' | 'practical') => {
     console.log(`toggleSpecialization called: ${courseType}, ${type}`);
     const current = form.getValues('specializationsData');
@@ -243,7 +262,7 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalidSubmit)} className="space-y-6">
         {/* Personal Information */}
         <Card>
           <CardHeader>

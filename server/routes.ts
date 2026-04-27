@@ -1585,18 +1585,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       res.status(201).json(instructor);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Instructor creation error:", error);
       if (error.name === "ZodError") {
         const fieldErrors = error.errors
-          .map((err) => `${err.path.join(".")}: ${err.message}`)
+          .map((err: any) => `${err.path.join(".")}: ${err.message}`)
           .join(", ");
         return res.status(400).json({
           message: `Validation failed: ${fieldErrors}`,
           errors: error.errors,
         });
       }
-      res.status(400).json({ message: "Invalid instructor data" });
+      // Handle PostgreSQL unique constraint violations
+      if (error.code === "23505") {
+        const detail = error.detail || "";
+        if (detail.includes("email")) {
+          return res.status(400).json({ message: "An instructor with this email address already exists. Please use a different email." });
+        }
+        return res.status(400).json({ message: "An instructor with these details already exists in the system." });
+      }
+      res.status(500).json({ message: "Failed to create instructor. Please try again." });
     }
   });
 
@@ -1612,18 +1620,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const instructor = await storage.updateInstructor(id, updateData);
       console.log("Updated instructor result:", instructor);
       res.json(instructor);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Instructor update error:", error);
       if (error.name === "ZodError") {
         const fieldErrors = error.errors
-          .map((err) => `${err.path.join(".")}: ${err.message}`)
+          .map((err: any) => `${err.path.join(".")}: ${err.message}`)
           .join(", ");
         return res.status(400).json({
           message: `Validation failed: ${fieldErrors}`,
           errors: error.errors,
         });
       }
-      res.status(400).json({ message: "Failed to update instructor" });
+      if (error.code === "23505") {
+        const detail = error.detail || "";
+        if (detail.includes("email")) {
+          return res.status(400).json({ message: "An instructor with this email address already exists." });
+        }
+        return res.status(400).json({ message: "An instructor with these details already exists in the system." });
+      }
+      res.status(500).json({ message: "Failed to update instructor. Please try again." });
     }
   });
 
