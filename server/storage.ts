@@ -35,7 +35,7 @@ import {
   type StudentNote, type InsertStudentNote
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, sql, gte, lte, isNotNull, isNull } from "drizzle-orm";
+import { eq, and, sql, gte, lte, isNotNull, isNull, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // Users - Basic Auth methods
@@ -2453,6 +2453,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteClass(id: number): Promise<void> {
+    // Cascade: delete zoom attendance for all zoom meetings of this class
+    const meetingIds = await db.select({ id: zoomMeetings.id }).from(zoomMeetings).where(eq(zoomMeetings.classId, id));
+    if (meetingIds.length > 0) {
+      await db.delete(zoomAttendance).where(inArray(zoomAttendance.zoomMeetingId, meetingIds.map(m => m.id)));
+    }
+    // Delete related records before deleting the class
+    await db.delete(zoomMeetings).where(eq(zoomMeetings.classId, id));
+    await db.delete(classEnrollments).where(eq(classEnrollments.classId, id));
+    await db.delete(evaluations).where(eq(evaluations.classId, id));
+    await db.delete(policyOverrideLogs).where(eq(policyOverrideLogs.classId, id));
     await db.delete(classes).where(eq(classes.id, id));
   }
 

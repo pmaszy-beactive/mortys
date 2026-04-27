@@ -49,6 +49,28 @@ export default function Scheduling() {
     },
   });
 
+  // Delete class mutation
+  const deleteClassMutation = useMutation({
+    mutationFn: async (classId: number) => {
+      return apiRequest('DELETE', `/api/classes/${classId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/classes"] });
+      toast({
+        title: "Class Deleted",
+        description: "The class has been removed from the schedule.",
+        className: "bg-gradient-to-r from-[#ECC462] to-amber-500 text-[#111111] border-0",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete this class. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Drag and drop handlers
   const handleDragStart = (e: DragEvent<HTMLDivElement>, cls: Class) => {
     setDraggedClass(cls);
@@ -755,6 +777,12 @@ export default function Scheduling() {
                           size="sm" 
                           className="hover:bg-red-50 hover:text-red-600 transition-colors"
                           data-testid={`button-delete-class-${classItem.id}`}
+                          disabled={deleteClassMutation.isPending}
+                          onClick={() => {
+                            if (window.confirm(`Delete "${classItem.name}" on ${classItem.date}? This cannot be undone.`)) {
+                              deleteClassMutation.mutate(classItem.id);
+                            }
+                          }}
                         >
                           <X className="h-4 w-4" />
                         </Button>
