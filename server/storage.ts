@@ -2582,7 +2582,7 @@ export class DatabaseStorage implements IStorage {
         and(
           eq(classes.status, 'scheduled'),
           sql`CAST(${classes.date} AS DATE) >= CURRENT_DATE`,
-          sql`CAST(${classes.date} AS DATE) <= CURRENT_DATE + INTERVAL '3 months'`,
+          sql`CAST(${classes.date} AS DATE) <= CURRENT_DATE + INTERVAL '13 months'`,
           sql`${classes.id} NOT IN (
             SELECT ${classEnrollments.classId} 
             FROM ${classEnrollments} 

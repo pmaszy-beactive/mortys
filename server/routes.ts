@@ -1775,6 +1775,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bulk class generation — creates recurring classes over a date range
+  app.post("/api/admin/classes/bulk", authMiddleware, async (req, res) => {
+    try {
+      const {
+        courseType, classType, classNumber, daysOfWeek, time, duration,
+        instructorId, maxStudents, lessonType, startDate, endDate, hasTest, zoomLink
+      } = req.body;
+
+      if (!courseType || !classType || !classNumber || !daysOfWeek?.length || !time || !startDate || !endDate) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const start = new Date(startDate + "T00:00:00");
+      const end = new Date(endDate + "T00:00:00");
+      if (end < start) return res.status(400).json({ message: "End date must be after start date" });
+
+      const daysDiff = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysDiff > 366) return res.status(400).json({ message: "Date range cannot exceed 1 year" });
+
+      const dates: string[] = [];
+      const cur = new Date(start);
+      while (cur <= end) {
+        if (daysOfWeek.includes(cur.getDay())) {
+          dates.push(cur.toISOString().slice(0, 10));
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
+
+      if (dates.length === 0) return res.status(400).json({ message: "No dates match the selected days of week in this range" });
+
+      const created = [];
+      for (const date of dates) {
+        const cls = await storage.createClass({
+          courseType,
+          classType,
+          classNumber: parseInt(classNumber),
+          date,
+          time,
+          duration: parseInt(duration) || 120,
+          instructorId: instructorId ? parseInt(instructorId) : null,
+          maxStudents: parseInt(maxStudents) || 15,
+          lessonType: lessonType || 'regular',
+          hasTest: hasTest || false,
+          zoomLink: zoomLink || null,
+          status: 'scheduled',
+        });
+        created.push(cls);
+      }
+
+      res.status(201).json({ created: created.length, dates });
+    } catch (error) {
+      console.error("Bulk class creation error:", error);
+      res.status(500).json({ message: "Failed to create classes bulk" });
+    }
+  });
+
   app.put("/api/classes/:id", authMiddleware, async (req, res) => {
     try {
       const id = parseInt(req.params.id);

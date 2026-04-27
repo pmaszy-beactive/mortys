@@ -1,15 +1,19 @@
-import { useState, DragEvent } from "react";
+import { useState, DragEvent, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Calendar, ChevronLeft, ChevronRight, Car, Bike, Users, Edit, Eye, X, Sparkles, CalendarClock, BookOpen, MapPin, AlertTriangle, Clock, GripVertical } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Calendar, ChevronLeft, ChevronRight, Car, Bike, Users, Edit, Eye, X, Sparkles, CalendarClock, BookOpen, MapPin, AlertTriangle, Clock, GripVertical, Wand2, Loader2 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import ClassForm from "@/components/class-form";
 import type { Class, Instructor } from "@shared/schema";
-import { startOfWeek, endOfWeek, parse, format } from "date-fns";
+import { startOfWeek, endOfWeek, parse, format, addDays } from "date-fns";
 
 export default function Scheduling() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -27,6 +31,26 @@ export default function Scheduling() {
   const [draggedClass, setDraggedClass] = useState<Class | null>(null);
   const [dragOverDate, setDragOverDate] = useState<Date | null>(null);
   const { toast } = useToast();
+
+  // Generate Schedule dialog state
+  const [isGenerateOpen, setIsGenerateOpen] = useState(false);
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const oneYearLater = format(addDays(new Date(), 365), 'yyyy-MM-dd');
+  const [genForm, setGenForm] = useState({
+    courseType: 'auto',
+    classType: 'theory',
+    classNumber: 1,
+    daysOfWeek: [] as number[], // 0=Sun, 1=Mon, ...6=Sat
+    time: '09:00',
+    duration: 120,
+    instructorId: '',
+    maxStudents: 15,
+    lessonType: 'regular',
+    startDate: todayStr,
+    endDate: oneYearLater,
+    hasTest: false,
+    zoomLink: '',
+  });
 
   // Reschedule class mutation
   const rescheduleClassMutation = useMutation({
@@ -70,6 +94,53 @@ export default function Scheduling() {
       });
     },
   });
+
+  // Bulk schedule generation mutation
+  const generateScheduleMutation = useMutation({
+    mutationFn: async (payload: typeof genForm) => {
+      return apiRequest('POST', '/api/admin/classes/bulk', {
+        ...payload,
+        instructorId: payload.instructorId ? parseInt(payload.instructorId) : null,
+      });
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/classes"] });
+      setIsGenerateOpen(false);
+      toast({
+        title: `Schedule Generated!`,
+        description: `Created ${data.created} classes successfully.`,
+        className: "bg-gradient-to-r from-[#ECC462] to-amber-500 text-[#111111] border-0",
+      });
+    },
+    onError: (err: any) => {
+      const msg = err?.message || "Failed to generate schedule.";
+      toast({ title: "Error", description: msg, variant: "destructive" });
+    },
+  });
+
+  // Preview: count how many dates will be created
+  const previewCount = useMemo(() => {
+    if (!genForm.startDate || !genForm.endDate || genForm.daysOfWeek.length === 0) return 0;
+    const start = new Date(genForm.startDate + "T00:00:00");
+    const end = new Date(genForm.endDate + "T00:00:00");
+    if (end < start) return 0;
+    let count = 0;
+    const cur = new Date(start);
+    while (cur <= end) {
+      if (genForm.daysOfWeek.includes(cur.getDay())) count++;
+      cur.setDate(cur.getDate() + 1);
+    }
+    return count;
+  }, [genForm.startDate, genForm.endDate, genForm.daysOfWeek]);
+
+  const toggleGenDay = (day: number) => {
+    setGenForm(prev => ({
+      ...prev,
+      daysOfWeek: prev.daysOfWeek.includes(day)
+        ? prev.daysOfWeek.filter(d => d !== day)
+        : [...prev.daysOfWeek, day],
+    }));
+  };
 
   // Drag and drop handlers
   const handleDragStart = (e: DragEvent<HTMLDivElement>, cls: Class) => {
@@ -350,26 +421,36 @@ export default function Scheduling() {
                 Schedule and manage theory classes for Auto, Moto, and Scooter courses.
               </p>
             </div>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button 
-                  data-testid="button-schedule-class"
-                  className="bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] font-medium rounded-md transition-all duration-200"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Schedule Class
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Schedule New Class</DialogTitle>
-                  <DialogDescription>
-                    Create a new theory class session with instructor and room assignment.
-                  </DialogDescription>
-                </DialogHeader>
-                <ClassForm onSuccess={() => setIsCreateDialogOpen(false)} />
-              </DialogContent>
-            </Dialog>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                className="border-[#ECC462] text-[#111111] hover:bg-amber-50 font-medium rounded-md"
+                onClick={() => setIsGenerateOpen(true)}
+              >
+                <Wand2 className="mr-2 h-4 w-4 text-[#ECC462]" />
+                Generate Schedule
+              </Button>
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button 
+                    data-testid="button-schedule-class"
+                    className="bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] font-medium rounded-md transition-all duration-200"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Schedule Class
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Schedule New Class</DialogTitle>
+                    <DialogDescription>
+                      Create a new theory class session with instructor and room assignment.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <ClassForm onSuccess={() => setIsCreateDialogOpen(false)} />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 
@@ -829,6 +910,213 @@ export default function Scheduling() {
             </DialogContent>
           </Dialog>
         )}
+
+        {/* Generate Schedule Dialog */}
+        <Dialog open={isGenerateOpen} onOpenChange={setIsGenerateOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Wand2 className="h-5 w-5 text-[#ECC462]" />
+                Generate Recurring Schedule
+              </DialogTitle>
+              <DialogDescription>
+                Create classes automatically for a date range — up to 1 year in advance.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-5 py-2">
+              {/* Course & Class Type */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Course Type</Label>
+                  <Select value={genForm.courseType} onValueChange={v => setGenForm(p => ({ ...p, courseType: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="auto">Auto</SelectItem>
+                      <SelectItem value="moto">Moto</SelectItem>
+                      <SelectItem value="scooter">Scooter</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Class Type</Label>
+                  <Select value={genForm.classType} onValueChange={v => setGenForm(p => ({ ...p, classType: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="theory">Theory Class</SelectItem>
+                      <SelectItem value="driving">Driving Class</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Class Number & Duration */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Class Number</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={15}
+                    value={genForm.classNumber}
+                    onChange={e => setGenForm(p => ({ ...p, classNumber: parseInt(e.target.value) || 1 }))}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Duration</Label>
+                  <Select value={String(genForm.duration)} onValueChange={v => setGenForm(p => ({ ...p, duration: parseInt(v) }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="60">60 min</SelectItem>
+                      <SelectItem value="90">90 min</SelectItem>
+                      <SelectItem value="120">120 min</SelectItem>
+                      <SelectItem value="180">180 min</SelectItem>
+                      <SelectItem value="240">240 min</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Days of Week */}
+              <div className="space-y-2">
+                <Label>Days of Week <span className="text-red-500">*</span></Label>
+                <div className="flex gap-2 flex-wrap">
+                  {[
+                    { label: 'Sun', day: 0 },
+                    { label: 'Mon', day: 1 },
+                    { label: 'Tue', day: 2 },
+                    { label: 'Wed', day: 3 },
+                    { label: 'Thu', day: 4 },
+                    { label: 'Fri', day: 5 },
+                    { label: 'Sat', day: 6 },
+                  ].map(({ label, day }) => (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => toggleGenDay(day)}
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
+                        genForm.daysOfWeek.includes(day)
+                          ? 'bg-[#ECC462] border-[#ECC462] text-[#111111]'
+                          : 'bg-white border-gray-200 text-gray-600 hover:border-[#ECC462]'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Time & Instructor */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Start Time <span className="text-red-500">*</span></Label>
+                  <Input
+                    type="time"
+                    value={genForm.time}
+                    onChange={e => setGenForm(p => ({ ...p, time: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Instructor (optional)</Label>
+                  <Select value={genForm.instructorId} onValueChange={v => setGenForm(p => ({ ...p, instructorId: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Assign later" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Assign later</SelectItem>
+                      {instructors.map(inst => (
+                        <SelectItem key={inst.id} value={String(inst.id)}>
+                          {inst.firstName} {inst.lastName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Max Students & Lesson Type */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Max Students</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={50}
+                    value={genForm.maxStudents}
+                    onChange={e => setGenForm(p => ({ ...p, maxStudents: parseInt(e.target.value) || 15 }))}
+                  />
+                </div>
+                {genForm.classType === 'driving' && (
+                  <div className="space-y-1.5">
+                    <Label>Lesson Type</Label>
+                    <Select value={genForm.lessonType} onValueChange={v => setGenForm(p => ({ ...p, lessonType: v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="regular">Regular</SelectItem>
+                        <SelectItem value="one_off">One-Off</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+
+              {/* Date Range */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Start Date <span className="text-red-500">*</span></Label>
+                  <Input
+                    type="date"
+                    value={genForm.startDate}
+                    min={todayStr}
+                    onChange={e => setGenForm(p => ({ ...p, startDate: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>End Date <span className="text-red-500">*</span></Label>
+                  <Input
+                    type="date"
+                    value={genForm.endDate}
+                    min={genForm.startDate}
+                    max={format(addDays(new Date(genForm.startDate || todayStr), 365), 'yyyy-MM-dd')}
+                    onChange={e => setGenForm(p => ({ ...p, endDate: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              {/* Preview count */}
+              <div className={`rounded-lg p-4 text-sm font-medium ${
+                previewCount > 0
+                  ? 'bg-amber-50 border border-[#ECC462] text-[#111111]'
+                  : 'bg-gray-50 border border-gray-200 text-gray-500'
+              }`}>
+                {previewCount > 0
+                  ? `Will create ${previewCount} class${previewCount !== 1 ? 'es' : ''} between ${genForm.startDate} and ${genForm.endDate}`
+                  : 'Select at least one day of the week and a valid date range to see a preview'}
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setIsGenerateOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                className="bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] font-medium"
+                disabled={previewCount === 0 || generateScheduleMutation.isPending}
+                onClick={() => generateScheduleMutation.mutate(genForm)}
+              >
+                {generateScheduleMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    Generate {previewCount > 0 ? `${previewCount} Classes` : 'Schedule'}
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

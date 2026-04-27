@@ -396,7 +396,7 @@ export default function BookClasses() {
                     <ul className="space-y-2 text-gray-600">
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span>Book classes up to 30 days in advance</span>
+                        <span>Book classes up to 1 year in advance</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
