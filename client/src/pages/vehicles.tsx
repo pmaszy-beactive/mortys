@@ -24,8 +24,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
-  Plus, Search, Edit, Trash2, Car, Settings, AlertTriangle, CheckCircle, Wrench, Loader2 
+  Plus, Search, Edit, Trash2, Car, AlertTriangle, CheckCircle, Wrench, Loader2, Bike
 } from "lucide-react";
 
 // Vehicle type
@@ -502,7 +503,7 @@ function VehicleForm({
 export default function VehiclesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState<"all" | "auto" | "moto">("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
 
@@ -545,18 +546,23 @@ export default function VehiclesPage() {
     },
   });
 
-  // Filter vehicles
-  const filteredVehicles = vehicles.filter(vehicle => {
-    const matchesSearch = 
-      vehicle.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.model.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || vehicle.status === statusFilter;
-    const matchesType = typeFilter === "all" || vehicle.vehicleType === typeFilter;
-    
-    return matchesSearch && matchesStatus && matchesType;
-  });
+  // Split vehicles by tab
+  const autoVehicles = vehicles.filter(v => v.vehicleType === "auto");
+  const motoVehicles = vehicles.filter(v => v.vehicleType === "motorcycle" || v.vehicleType === "scooter");
+
+  const filterVehicles = (list: Vehicle[]) =>
+    list.filter(vehicle => {
+      const matchesSearch =
+        vehicle.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vehicle.model.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "all" || vehicle.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+
+  const filteredVehicles = filterVehicles(vehicles);
+  const filteredAuto = filterVehicles(autoVehicles);
+  const filteredMoto = filterVehicles(motoVehicles);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -668,226 +674,230 @@ export default function VehiclesPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-xl bg-gradient-to-br from-amber-600 to-yellow-700 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+          <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300 hover:scale-105">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 shadow-lg">
-                  <Wrench className="h-7 w-7 text-white" />
+                  <Car className="h-7 w-7 text-white" />
                 </div>
                 <Badge className="bg-white/30 text-white border-0 shadow-md hover:bg-white/40">
-                  Service
+                  Auto
                 </Badge>
               </div>
               <div>
-                <p className="text-amber-100 text-sm font-semibold uppercase tracking-wide mb-1">Maintenance</p>
-                <p className="text-5xl font-bold text-white mb-1">
-                  {vehicles.filter(v => v.status === 'maintenance').length}
-                </p>
-                <p className="text-amber-100 text-xs">in service</p>
+                <p className="text-blue-100 text-sm font-semibold uppercase tracking-wide mb-1">Auto</p>
+                <p className="text-5xl font-bold text-white mb-1">{autoVehicles.length}</p>
+                <p className="text-blue-100 text-xs">automobiles</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-xl bg-gradient-to-br from-[#ECC462] to-amber-500 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+          <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-500 to-purple-600 hover:shadow-2xl transition-all duration-300 hover:scale-105">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 shadow-lg">
-                  <Settings className="h-7 w-7 text-white" />
+                  <Bike className="h-7 w-7 text-white" />
                 </div>
-                <Badge className="bg-white/30 text-[#111111] border-0 shadow-md hover:bg-white/40">
-                  Filtered
+                <Badge className="bg-white/30 text-white border-0 shadow-md hover:bg-white/40">
+                  Moto
                 </Badge>
               </div>
               <div>
-                <p className="text-amber-100 text-sm font-semibold uppercase tracking-wide mb-1">Filtered Results</p>
-                <p className="text-5xl font-bold text-white mb-1">{filteredVehicles.length}</p>
-                <p className="text-amber-100 text-xs">matching criteria</p>
+                <p className="text-purple-100 text-sm font-semibold uppercase tracking-wide mb-1">Moto</p>
+                <p className="text-5xl font-bold text-white mb-1">{motoVehicles.length}</p>
+                <p className="text-purple-100 text-xs">motorcycles &amp; scooters</p>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Search and Filters */}
-        <Card className="mb-8 border-0 shadow-xl bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-shadow duration-300">
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-600 h-4 w-4" />
-                <Input
-                  placeholder="Search by license plate, make, or model..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-amber-500"
-                  data-testid="input-search-vehicles"
-                />
+        {/* Tabs + Search/Filter + Table */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "all" | "auto" | "moto")}>
+          {/* Tab bar + filters row */}
+          <Card className="mb-6 border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+            <CardContent className="pt-5 pb-4">
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
+                <TabsList className="bg-gray-100 p-1 rounded-xl h-auto self-start">
+                  <TabsTrigger
+                    value="all"
+                    className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold data-[state=active]:bg-[#ECC462] data-[state=active]:text-[#111111] data-[state=active]:shadow-md"
+                  >
+                    <Car className="h-4 w-4" />
+                    All
+                    <Badge className="ml-1 bg-white/60 text-gray-700 border-0 text-xs px-1.5">{vehicles.length}</Badge>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="auto"
+                    className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold data-[state=active]:bg-[#ECC462] data-[state=active]:text-[#111111] data-[state=active]:shadow-md"
+                  >
+                    <Car className="h-4 w-4" />
+                    Auto
+                    <Badge className="ml-1 bg-white/60 text-gray-700 border-0 text-xs px-1.5">{autoVehicles.length}</Badge>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="moto"
+                    className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold data-[state=active]:bg-[#ECC462] data-[state=active]:text-[#111111] data-[state=active]:shadow-md"
+                  >
+                    <Bike className="h-4 w-4" />
+                    Moto
+                    <Badge className="ml-1 bg-white/60 text-gray-700 border-0 text-xs px-1.5">{motoVehicles.length}</Badge>
+                  </TabsTrigger>
+                </TabsList>
+
+                <div className="flex flex-1 gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-600 h-4 w-4" />
+                    <Input
+                      placeholder="Search by license plate, make, or model..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-amber-500"
+                      data-testid="input-search-vehicles"
+                    />
+                  </div>
+
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-44 transition-all duration-200 focus:ring-2 focus:ring-amber-500" data-testid="select-filter-status">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="maintenance">Maintenance</SelectItem>
+                      <SelectItem value="out_of_service">Out of Service</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => { setSearchTerm(""); setStatusFilter("all"); }}
+                    className="hover:bg-amber-50 hover:border-amber-300 transition-all duration-200"
+                    data-testid="button-clear-filters"
+                  >
+                    Clear
+                  </Button>
+                </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger 
-                  className="transition-all duration-200 focus:ring-2 focus:ring-amber-500"
-                  data-testid="select-filter-status"
-                >
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="maintenance">Maintenance</SelectItem>
-                  <SelectItem value="out_of_service">Out of Service</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger 
-                  className="transition-all duration-200 focus:ring-2 focus:ring-amber-500"
-                  data-testid="select-filter-type"
-                >
-                  <SelectValue placeholder="Filter by type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="auto">Auto</SelectItem>
-                  <SelectItem value="motorcycle">Motorcycle</SelectItem>
-                  <SelectItem value="scooter">Scooter</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setSearchTerm("");
-                  setStatusFilter("all");
-                  setTypeFilter("all");
-                }}
-                className="hover:bg-amber-50 hover:border-amber-300 transition-all duration-200"
-                data-testid="button-clear-filters"
-              >
-                Clear Filters
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Vehicles Table */}
-        <Card className="mb-8 border-0 shadow-xl bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-shadow duration-300">
-          <CardHeader className="border-b bg-gradient-to-r from-amber-50 to-yellow-50 pb-4">
-            <div>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#ECC462] to-amber-600 bg-clip-text text-transparent">
-                Vehicle Fleet ({filteredVehicles.length})
-              </CardTitle>
-              <CardDescription className="mt-1 text-gray-600">
-                Manage your driving school vehicle fleet and assignments.
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-          {filteredVehicles.length === 0 ? (
-            <div className="text-center py-8">
-              <Car className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No vehicles found</h3>
-              <p className="text-gray-500">
-                {vehicles.length === 0 
-                  ? "Get started by adding your first vehicle to the fleet." 
-                  : "Try adjusting your search or filter criteria."
-                }
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-gradient-to-r from-amber-50 to-yellow-50">
-                    <TableHead className="font-bold text-gray-700">License Plate</TableHead>
-                    <TableHead className="font-bold text-gray-700">Vehicle</TableHead>
-                    <TableHead className="font-bold text-gray-700">Type</TableHead>
-                    <TableHead className="font-bold text-gray-700">Year</TableHead>
-                    <TableHead className="font-bold text-gray-700">Status</TableHead>
-                    <TableHead className="font-bold text-gray-700">Transmission</TableHead>
-                    <TableHead className="font-bold text-gray-700 text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredVehicles.map((vehicle) => (
-                    <TableRow 
-                      key={vehicle.id}
-                      className="hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 transition-colors duration-200"
-                    >
-                      <TableCell className="font-bold text-gray-900">
-                        {vehicle.licensePlate}
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-bold text-gray-900">{vehicle.make} {vehicle.model}</div>
-                          {vehicle.color && (
-                            <div className="text-sm text-gray-500">{vehicle.color}</div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-gradient-to-r from-[#ECC462] to-amber-500 text-[#111111] shadow-md">
-                          {vehicle.vehicleType}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-medium text-gray-900">{vehicle.year}</TableCell>
-                      <TableCell>{getStatusBadge(vehicle.status)}</TableCell>
-                      <TableCell>
-                        {vehicle.transmission && (
-                          <Badge className="bg-gray-100 text-gray-800">
-                            {vehicle.transmission}
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end space-x-2">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => setEditingVehicle(vehicle)}
-                                className="hover:bg-amber-50 hover:border-amber-300 transition-all duration-200 shadow-sm hover:shadow-md"
-                                data-testid={`button-edit-vehicle-${vehicle.id}`}
+          {/* Reusable vehicle table */}
+          {(["all", "auto", "moto"] as const).map((tab) => {
+            const list = tab === "all" ? filteredVehicles : tab === "auto" ? filteredAuto : filteredMoto;
+            const emptyAll = tab === "all" ? vehicles.length === 0 : tab === "auto" ? autoVehicles.length === 0 : motoVehicles.length === 0;
+            const tabLabel = tab === "all" ? "Vehicle Fleet" : tab === "auto" ? "Auto Fleet" : "Moto Fleet";
+            return (
+              <TabsContent key={tab} value={tab}>
+                <Card className="mb-8 border-0 shadow-xl bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-shadow duration-300">
+                  <CardHeader className="border-b bg-gradient-to-r from-amber-50 to-yellow-50 pb-4">
+                    <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#ECC462] to-amber-600 bg-clip-text text-transparent">
+                      {tabLabel} ({list.length})
+                    </CardTitle>
+                    <CardDescription className="mt-1 text-gray-600">
+                      Manage your driving school vehicle fleet and assignments.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    {list.length === 0 ? (
+                      <div className="text-center py-8">
+                        {tab === "moto" ? <Bike className="mx-auto h-12 w-12 text-gray-400 mb-4" /> : <Car className="mx-auto h-12 w-12 text-gray-400 mb-4" />}
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No vehicles found</h3>
+                        <p className="text-gray-500">
+                          {emptyAll
+                            ? "Get started by adding your first vehicle to the fleet."
+                            : "Try adjusting your search or filter criteria."}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-gradient-to-r from-amber-50 to-yellow-50">
+                              <TableHead className="font-bold text-gray-700">License Plate</TableHead>
+                              <TableHead className="font-bold text-gray-700">Vehicle</TableHead>
+                              {tab === "all" && <TableHead className="font-bold text-gray-700">Type</TableHead>}
+                              <TableHead className="font-bold text-gray-700">Year</TableHead>
+                              <TableHead className="font-bold text-gray-700">Status</TableHead>
+                              <TableHead className="font-bold text-gray-700">Transmission</TableHead>
+                              <TableHead className="font-bold text-gray-700 text-right">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {list.map((vehicle) => (
+                              <TableRow
+                                key={vehicle.id}
+                                className="hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 transition-colors duration-200"
                               >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                              <DialogHeader>
-                                <DialogTitle>Edit Vehicle</DialogTitle>
-                                <DialogDescription>
-                                  Update vehicle information and details.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <VehicleForm 
-                                vehicle={editingVehicle!} 
-                                onSuccess={() => setEditingVehicle(null)} 
-                              />
-                            </DialogContent>
-                          </Dialog>
-                          
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              if (window.confirm("Are you sure you want to delete this vehicle?")) {
-                                deleteMutation.mutate(vehicle.id);
-                              }
-                            }}
-                            className="text-red-600 hover:text-red-900 hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow-md"
-                            data-testid={`button-delete-vehicle-${vehicle.id}`}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                                <TableCell className="font-bold text-gray-900">{vehicle.licensePlate}</TableCell>
+                                <TableCell>
+                                  <div>
+                                    <div className="font-bold text-gray-900">{vehicle.make} {vehicle.model}</div>
+                                    {vehicle.color && <div className="text-sm text-gray-500">{vehicle.color}</div>}
+                                  </div>
+                                </TableCell>
+                                {tab === "all" && (
+                                  <TableCell>
+                                    <Badge className="bg-gradient-to-r from-[#ECC462] to-amber-500 text-[#111111] shadow-md capitalize">
+                                      {vehicle.vehicleType}
+                                    </Badge>
+                                  </TableCell>
+                                )}
+                                <TableCell className="font-medium text-gray-900">{vehicle.year}</TableCell>
+                                <TableCell>{getStatusBadge(vehicle.status)}</TableCell>
+                                <TableCell>
+                                  {vehicle.transmission && (
+                                    <Badge className="bg-gray-100 text-gray-800 capitalize">{vehicle.transmission}</Badge>
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex justify-end space-x-2">
+                                    <Dialog>
+                                      <DialogTrigger asChild>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => setEditingVehicle(vehicle)}
+                                          className="hover:bg-amber-50 hover:border-amber-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                                          data-testid={`button-edit-vehicle-${vehicle.id}`}
+                                        >
+                                          <Edit className="h-4 w-4" />
+                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                                        <DialogHeader>
+                                          <DialogTitle>Edit Vehicle</DialogTitle>
+                                          <DialogDescription>Update vehicle information and details.</DialogDescription>
+                                        </DialogHeader>
+                                        <VehicleForm vehicle={editingVehicle!} onSuccess={() => setEditingVehicle(null)} />
+                                      </DialogContent>
+                                    </Dialog>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        if (window.confirm("Are you sure you want to delete this vehicle?")) {
+                                          deleteMutation.mutate(vehicle.id);
+                                        }
+                                      }}
+                                      className="text-red-600 hover:text-red-900 hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow-md"
+                                      data-testid={`button-delete-vehicle-${vehicle.id}`}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            );
+          })}
+        </Tabs>
       </div>
     </div>
   );
