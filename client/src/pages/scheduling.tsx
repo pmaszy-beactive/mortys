@@ -440,11 +440,11 @@ export default function Scheduling() {
                     Schedule Class
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>Schedule New Class</DialogTitle>
                     <DialogDescription>
-                      Create a new theory class session with instructor and room assignment.
+                      Create a new class session with instructor assignment.
                     </DialogDescription>
                   </DialogHeader>
                   <ClassForm onSuccess={() => setIsCreateDialogOpen(false)} />
@@ -896,7 +896,7 @@ export default function Scheduling() {
         {/* Edit Dialog */}
         {editingClass && (
           <Dialog open={true} onOpenChange={() => setEditingClass(null)}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Edit Class</DialogTitle>
                 <DialogDescription>
