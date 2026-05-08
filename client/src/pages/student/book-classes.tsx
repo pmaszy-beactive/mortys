@@ -38,6 +38,7 @@ interface AvailableClass {
   id: number;
   courseType: string;
   classNumber: number;
+  classType?: string;
   date: string;
   time: string;
   duration: number;
@@ -48,6 +49,10 @@ interface AvailableClass {
   enrolledCount: number;
   spotsRemaining: number;
   status: string;
+  /** Set by the server-side phase rules engine */
+  bookingAllowed?: boolean;
+  blockingReason?: string;
+  blockingRule?: string;
 }
 
 interface PhaseInfo {
@@ -196,11 +201,20 @@ export default function BookClasses() {
 
     const isFull = classItem.spotsRemaining <= 0;
     const isLowAvailability = classItem.spotsRemaining <= 3 && classItem.spotsRemaining > 0;
+    // bookingAllowed defaults to true for backward compatibility (non-auto courses etc.)
+    const isBlocked = classItem.bookingAllowed === false;
+    const classLabel = classItem.classType === "driving"
+      ? `${classItem.courseType.toUpperCase()} - In-Car #${classItem.classNumber}`
+      : `${classItem.courseType.toUpperCase()} - Theory #${classItem.classNumber}`;
 
     return (
       <Card
         key={classItem.id}
-        className="bg-white border border-gray-200 rounded-md shadow-sm hover:border-[#ECC462] transition-colors"
+        className={`rounded-md shadow-sm transition-colors ${
+          isBlocked
+            ? "bg-gray-50 border border-gray-200 opacity-75"
+            : "bg-white border border-gray-200 hover:border-[#ECC462]"
+        }`}
         data-testid={`card-available-class-${classItem.id}`}
       >
         <CardContent className="p-6">
@@ -209,16 +223,16 @@ export default function BookClasses() {
             <div className="flex-1 space-y-3">
               {/* Course Type and Class Number */}
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-md bg-gray-50 border border-gray-200">
-                  <span className="text-gray-600">
+                <div className={`p-2 rounded-md border ${isBlocked ? "bg-gray-100 border-gray-200" : "bg-gray-50 border-gray-200"}`}>
+                  <span className={isBlocked ? "text-gray-400" : "text-gray-600"}>
                     {getCourseIcon(classItem.courseType)}
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg text-gray-900" data-testid={`text-class-title-${classItem.id}`}>
-                    {classItem.courseType.toUpperCase()} - Class {classItem.classNumber}
+                  <h3 className={`font-semibold text-lg ${isBlocked ? "text-gray-400" : "text-gray-900"}`} data-testid={`text-class-title-${classItem.id}`}>
+                    {classLabel}
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-400">
                     <span className="flex items-center gap-1" data-testid={`text-instructor-${classItem.id}`}>
                       <User className="h-3 w-3" />
                       {classItem.instructorName}
@@ -228,16 +242,16 @@ export default function BookClasses() {
               </div>
 
               {/* Date and Time */}
-              <div className="flex flex-wrap gap-4 text-sm">
-                <div className="flex items-center gap-2 text-gray-600">
+              <div className={`flex flex-wrap gap-4 text-sm ${isBlocked ? "text-gray-400" : "text-gray-600"}`}>
+                <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span data-testid={`text-date-${classItem.id}`}>{formattedDate}</span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
                   <span data-testid={`text-time-${classItem.id}`}>{formattedTime}</span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
                   <span data-testid={`text-duration-${classItem.id}`}>{classItem.duration} min</span>
                 </div>
@@ -246,37 +260,53 @@ export default function BookClasses() {
               {/* Additional Details */}
               <div className="flex flex-wrap gap-3">
                 {classItem.room && (
-                  <div className="flex items-center gap-1 text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-md border border-gray-200" data-testid={`badge-room-${classItem.id}`}>
-                    <MapPin className="h-3 w-3 text-gray-500" />
+                  <div className={`flex items-center gap-1 text-sm px-3 py-1 rounded-md border ${isBlocked ? "bg-gray-100 text-gray-400 border-gray-200" : "bg-gray-100 text-gray-700 border-gray-200"}`} data-testid={`badge-room-${classItem.id}`}>
+                    <MapPin className="h-3 w-3" />
                     <span>Room {classItem.room}</span>
                   </div>
                 )}
-                
-                <div className={`flex items-center gap-1 text-sm px-3 py-1 rounded-md border ${
-                  isFull ? "bg-red-50 text-red-700 border-red-100" : isLowAvailability ? "bg-amber-50 text-amber-700 border-amber-100" : "bg-green-50 text-green-700 border-green-100"
-                }`} data-testid={`badge-availability-${classItem.id}`}>
-                  <Users className="h-3 w-3" />
-                  <span>
-                    {classItem.spotsRemaining} {classItem.spotsRemaining === 1 ? 'spot' : 'spots'} left
-                  </span>
-                </div>
+                {!isBlocked && (
+                  <div className={`flex items-center gap-1 text-sm px-3 py-1 rounded-md border ${
+                    isFull ? "bg-red-50 text-red-700 border-red-100" : isLowAvailability ? "bg-amber-50 text-amber-700 border-amber-100" : "bg-green-50 text-green-700 border-green-100"
+                  }`} data-testid={`badge-availability-${classItem.id}`}>
+                    <Users className="h-3 w-3" />
+                    <span>
+                      {classItem.spotsRemaining} {classItem.spotsRemaining === 1 ? 'spot' : 'spots'} left
+                    </span>
+                  </div>
+                )}
               </div>
+
+              {/* Phase blocking reason */}
+              {isBlocked && classItem.blockingReason && (
+                <div className="flex items-start gap-2 mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-amber-800">{classItem.blockingReason}</p>
+                </div>
+              )}
             </div>
 
             {/* Right Section - Booking Button */}
-            <div className="flex flex-col items-end gap-2">
-              <Button
-                onClick={() => handleBookClass(classItem)}
-                disabled={isFull || bookClassMutation.isPending}
-                className={`${
-                  isFull
-                    ? "bg-gray-100 text-gray-400 border-gray-200"
-                    : "bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] shadow-none"
-                }`}
-                data-testid={`button-book-${classItem.id}`}
-              >
-                {isFull ? "Class Full" : "Book Class"}
-              </Button>
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              {isBlocked ? (
+                <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-gray-100 border border-gray-200 text-sm text-gray-400 font-medium">
+                  <AlertCircle className="h-4 w-4" />
+                  Not Yet Available
+                </div>
+              ) : (
+                <Button
+                  onClick={() => handleBookClass(classItem)}
+                  disabled={isFull || bookClassMutation.isPending}
+                  className={`${
+                    isFull
+                      ? "bg-gray-100 text-gray-400 border-gray-200"
+                      : "bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] shadow-none"
+                  }`}
+                  data-testid={`button-book-${classItem.id}`}
+                >
+                  {isFull ? "Class Full" : "Book Class"}
+                </Button>
+              )}
             </div>
           </div>
         </CardContent>

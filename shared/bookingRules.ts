@@ -21,6 +21,12 @@ export interface TargetClassInfo {
   currentEnrollmentCount?: number;
   /** Is this class configured as a shared (2-student) session? */
   maxStudents?: number;
+  /**
+   * Phase 3 daily limit: total minutes already booked by this student on the
+   * same date (excluding the class being evaluated). Used to enforce the
+   * "max 3 hours per day in Phase 3" rule.
+   */
+  sameDayAlreadyBookedMinutes?: number;
 }
 
 export interface BookingValidationResult {
@@ -257,6 +263,17 @@ function validateAutoRules(
           detail: { prerequisitesNeeded: missing, phaseLabel: "Phase 3" },
         };
       }
+      // Phase 3 daily 3-hour limit
+      const sameDayT8 = target.sameDayAlreadyBookedMinutes ?? 0;
+      const durationT8 = target.duration ?? 120;
+      if (sameDayT8 + durationT8 > 180) {
+        return {
+          allowed: false,
+          reason: `Phase 3 allows a maximum of 3 hours (180 minutes) of classes per day. You already have ${sameDayT8} minutes booked on this day. Adding this ${durationT8}-minute theory class would bring the total to ${sameDayT8 + durationT8} minutes.`,
+          blockingRule: "phase3_max_3_hours_per_day",
+          detail: { phaseLabel: "Phase 3" },
+        };
+      }
       return { allowed: true };
     }
 
@@ -268,6 +285,17 @@ function validateAutoRules(
           reason: `Theory #${classNumber} requires Theory #8 to be completed first. Theory #8 is the start of Phase 3.`,
           blockingRule: "phase3_theory8_required",
           detail: { prerequisitesNeeded: ["Theory #8"], phaseLabel: "Phase 3" },
+        };
+      }
+      // Phase 3 daily 3-hour limit
+      const sameDayT = target.sameDayAlreadyBookedMinutes ?? 0;
+      const durationT = target.duration ?? 120;
+      if (sameDayT + durationT > 180) {
+        return {
+          allowed: false,
+          reason: `Phase 3 allows a maximum of 3 hours (180 minutes) of classes per day. You already have ${sameDayT} minutes booked on this day. Adding this ${durationT}-minute theory class would bring the total to ${sameDayT + durationT} minutes.`,
+          blockingRule: "phase3_max_3_hours_per_day",
+          detail: { phaseLabel: "Phase 3" },
         };
       }
       return { allowed: true };
@@ -413,6 +441,19 @@ function validateAutoRules(
           detail: { prerequisitesNeeded: ["Theory #8"], phaseLabel: "Phase 3" },
         };
       }
+
+      // Phase 3 daily 3-hour limit (max 180 minutes per day)
+      const sameDayIC = target.sameDayAlreadyBookedMinutes ?? 0;
+      const durationIC = duration ?? 60;
+      if (sameDayIC + durationIC > 180) {
+        return {
+          allowed: false,
+          reason: `Phase 3 allows a maximum of 3 hours (180 minutes) of classes per day. You already have ${sameDayIC} minutes booked on this day. Adding this ${durationIC}-minute in-car session would bring the total to ${sameDayIC + durationIC} minutes.`,
+          blockingRule: "phase3_max_3_hours_per_day",
+          detail: { phaseLabel: "Phase 3" },
+        };
+      }
+
       return { allowed: true };
     }
 
@@ -432,27 +473,10 @@ function validateAutoRules(
         };
       }
 
-      // In-Car 12 and 13: shared session validation
+      // In-Car 12 and 13: must be shared (2-student) sessions.
+      // In-Cars 11–14 can be done in any order — only T11 is required.
       if (classNumber === 12 || classNumber === 13) {
         const label = `In-Car #${classNumber}`;
-        // Check that In-Car 11 is completed (sequential within Phase 4 in-car)
-        if (classNumber === 12 && !hasCompleted(completed, "driving", 11)) {
-          return {
-            allowed: false,
-            reason: `In-Car #12 requires In-Car #11 to be completed first.`,
-            blockingRule: "phase4_incar12_requires_incar11",
-            detail: { prerequisitesNeeded: ["In-Car #11"], phaseLabel: "Phase 4" },
-          };
-        }
-        if (classNumber === 13 && !hasCompleted(completed, "driving", 12)) {
-          return {
-            allowed: false,
-            reason: `In-Car #13 requires In-Car #12 to be completed first.`,
-            blockingRule: "phase4_incar13_requires_incar12",
-            detail: { prerequisitesNeeded: ["In-Car #12"], phaseLabel: "Phase 4" },
-          };
-        }
-        // Shared session check: class must be configured for 2 students
         if (
           target.maxStudents != null &&
           target.maxStudents !== 2

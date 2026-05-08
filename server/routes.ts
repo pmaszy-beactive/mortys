@@ -6659,25 +6659,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const completedTheoryClasses = completedClassesAvail.filter(c => c.classType === 'theory').length;
         const completedInCarSessions = completedClassesAvail.filter(c => c.classType === 'driving').length;
 
+        // Build a map of date → total booked minutes for same-day limit checks (Phase 3)
+        const sameDayMinutesMapAvail: Record<string, number> = {};
+        for (const detail of enrollmentDetailsAvail) {
+          if (detail.date && detail.duration != null) {
+            sameDayMinutesMapAvail[detail.date] = (sameDayMinutesMapAvail[detail.date] ?? 0) + detail.duration;
+          }
+        }
+
         const availableClasses = await storage.getAvailableClasses(
           student.id,
           filters,
         );
 
-        // Filter using full booking rules engine — only show classes the student can actually book
+        // Annotate every class with booking eligibility — show all classes but mark
+        // blocked ones so the UI can grey them out with an explanation.
         const today = new Date().toISOString().slice(0, 10);
-        const filteredClasses = availableClasses.filter((classItem: any) => {
-          if (!classItem.classType || !classItem.classNumber) return false;
-          const target = {
-            classType: classItem.classType as "theory" | "driving",
-            classNumber: classItem.classNumber,
-            date: classItem.date || today,
-            duration: classItem.duration ?? undefined,
-            maxStudents: classItem.maxStudents ?? undefined,
-          };
-          const validation = validateClassBooking(target, completedClassesAvail, studentCourseTypeAvail);
-          return validation.allowed;
-        });
+        const filteredClasses = availableClasses
+          .filter((classItem: any) => classItem.classType && classItem.classNumber)
+          .map((classItem: any) => {
+            const classDate = classItem.date || today;
+            const target = {
+              classType: classItem.classType as "theory" | "driving",
+              classNumber: classItem.classNumber,
+              date: classDate,
+              duration: classItem.duration ?? undefined,
+              maxStudents: classItem.maxStudents ?? undefined,
+              sameDayAlreadyBookedMinutes: sameDayMinutesMapAvail[classDate] ?? 0,
+            };
+            const validation = validateClassBooking(target, completedClassesAvail, studentCourseTypeAvail);
+            return {
+              ...classItem,
+              bookingAllowed: validation.allowed,
+              blockingReason: validation.allowed ? undefined : validation.reason,
+              blockingRule: validation.allowed ? undefined : validation.blockingRule,
+            };
+          });
 
         // Phase info for UI display
         const phaseProgress = calculatePhaseProgress(student, completedTheoryClasses, completedInCarSessions, enrollments);
@@ -6981,13 +6998,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const completedClassesForRules = buildCompletedClasses(enrollmentDetails);
         const studentCourseType = (student.courseType || 'auto').toLowerCase();
 
+        // Build same-day minutes map for Phase 3 daily limit check
+        const sameDayMinutesMapBook: Record<string, number> = {};
+        for (const detail of enrollmentDetails) {
+          if (detail.date && detail.duration != null) {
+            sameDayMinutesMapBook[detail.date] = (sameDayMinutesMapBook[detail.date] ?? 0) + detail.duration;
+          }
+        }
+        const classDateForBook = classData.date ?? new Date().toISOString().slice(0, 10);
+        const sameDayAlreadyBookedBook = sameDayMinutesMapBook[classDateForBook] ?? 0;
+
         const bookingTarget = {
           classType: classData.classType as "theory" | "driving",
           classNumber: classData.classNumber ?? 0,
-          date: classData.date ?? new Date().toISOString().slice(0, 10),
+          date: classDateForBook,
           duration: classData.duration ?? undefined,
           currentEnrollmentCount: undefined as number | undefined,
           maxStudents: classData.maxStudents ?? undefined,
+          sameDayAlreadyBookedMinutes: sameDayAlreadyBookedBook,
         };
 
         // For shared session check on In-Car 12/13, count current non-cancelled enrollments
