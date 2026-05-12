@@ -16,11 +16,40 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const db = drizzle({ client: pool });
+async function createPoolWithSslFallback(): Promise<pg.Pool> {
+  const connectionString = process.env.DATABASE_URL!;
 
+  // Try with the connection string as-is first
+  const pool = new pg.Pool({ connectionString });
+  try {
+    const client = await pool.connect();
+    client.release();
+    return pool;
+  } catch (err: any) {
+    const isSslError =
+      err?.message?.includes("SSL") ||
+      err?.message?.includes("ssl") ||
+      err?.code === "EPROTO";
+    if (isSslError) {
+      console.log("[migrate] SSL connection failed — retrying without SSL...");
+      await pool.end().catch(() => {});
+      // Strip any sslmode/ssl params from the URL and force ssl: false
+      const noSslUrl = connectionString
+        .replace(/([?&])sslmode=[^&]*/g, "$1")
+        .replace(/([?&])ssl=[^&]*/g, "$1")
+        .replace(/[?&]+$/, "")
+        .replace(/\?&/, "?");
+      return new pg.Pool({ connectionString: noSslUrl, ssl: false });
+    }
+    throw err;
+  }
+}
+
+let pool: pg.Pool | undefined;
 try {
   console.log("[migrate] Running database migrations...");
+  pool = await createPoolWithSslFallback();
+  const db = drizzle({ client: pool });
   // The migrations folder is copied to the same directory as this script at build time
   const migrationsFolder = path.join(__dirname, "migrations");
   await migrate(db, { migrationsFolder });
@@ -29,5 +58,5 @@ try {
   console.error("[migrate] Migration failed:", err);
   process.exit(1);
 } finally {
-  await pool.end();
+  await pool?.end();
 }
