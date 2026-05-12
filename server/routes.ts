@@ -5795,6 +5795,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         emergencyContact: student.emergencyContact,
         emergencyPhone: student.emergencyPhone,
         profilePhoto: student.profilePhoto,
+        specialNeeds: student.specialNeeds,
+        accommodations: student.accommodations,
       });
     } catch (error) {
       console.error("Error fetching student profile:", error);
@@ -5819,6 +5821,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         emergencyContact,
         emergencyPhone,
         profilePhoto,
+        specialNeeds,
+        accommodations,
       } = req.body;
 
       // Update student profile
@@ -5836,6 +5840,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         emergencyContact,
         emergencyPhone,
         profilePhoto,
+        specialNeeds,
+        accommodations,
       });
 
       res.json({
@@ -5855,6 +5861,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           emergencyContact: updatedStudent.emergencyContact,
           emergencyPhone: updatedStudent.emergencyPhone,
           profilePhoto: updatedStudent.profilePhoto,
+          specialNeeds: updatedStudent.specialNeeds,
+          accommodations: updatedStudent.accommodations,
         },
       });
     } catch (error) {

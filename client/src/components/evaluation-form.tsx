@@ -96,7 +96,7 @@ const drivingChecklistItems = Object.entries(drivingChecklistCategories).flatMap
 
 export default function EvaluationForm({ evaluation, onSuccess, prefilledData }: EvaluationFormProps) {
   const { toast } = useToast();
-  const isEditing = !!evaluation;
+  const isEditing = !!evaluation?.id;
   const instructorSignaturePadRef = useRef<SignaturePadRef>(null);
   const studentSignaturePadRef = useRef<SignaturePadRef>(null);
   const [currentStep, setCurrentStep] = useState<EvaluationStep>('form');

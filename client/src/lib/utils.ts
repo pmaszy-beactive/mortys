@@ -14,12 +14,20 @@ export function formatCurrency(amount: string | number): string {
 }
 
 export function formatDate(dateString: string): string {
+  if (!dateString) return '';
+  // Parse YYYY-MM-DD manually to avoid timezone shift issues
+  const parts = dateString.split('-');
+  if (parts.length === 3 && parts[0].length === 4) {
+    const [year, month, day] = parts;
+    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+  }
+  // Fallback for other date formats
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
+  if (isNaN(date.getTime())) return dateString;
+  const d = date.getDate().toString().padStart(2, '0');
+  const m = (date.getMonth() + 1).toString().padStart(2, '0');
+  const y = date.getFullYear();
+  return `${d}/${m}/${y}`;
 }
 
 export function formatTime(timeString: string): string {

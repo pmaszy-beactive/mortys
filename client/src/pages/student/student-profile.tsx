@@ -13,7 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, User, Mail, Phone, Globe, MapPin, Users, AlertCircle, CheckCircle2, Upload, ArrowLeft, FileText, Trash2, Download, Clock, XCircle, Bell, CreditCard, Calendar, MessageSquare, Image } from "lucide-react";
+import { Loader2, User, Mail, Phone, Globe, MapPin, Users, AlertCircle, CheckCircle2, Upload, ArrowLeft, FileText, Trash2, Download, Clock, XCircle, Bell, CreditCard, Calendar, MessageSquare, Image, Heart } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation, Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -42,6 +43,8 @@ const profileSchema = z.object({
   province: z.string().optional(),
   emergencyContact: z.string().min(1, "Emergency contact name is required"),
   emergencyPhone: z.string().min(10, "Emergency contact phone is required"),
+  specialNeeds: z.string().optional(),
+  accommodations: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -276,6 +279,8 @@ export default function StudentProfile() {
       province: "Quebec",
       emergencyContact: "",
       emergencyPhone: "",
+      specialNeeds: "",
+      accommodations: "",
     },
   });
 
@@ -813,6 +818,60 @@ export default function StudentProfile() {
                       )}
                     />
                   </div>
+                </div>
+
+                {/* Special Accommodations */}
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold text-[#111111] flex items-center gap-2">
+                    <Heart className="h-5 w-5 text-[#ECC462]" />
+                    Special Accommodations
+                  </h3>
+
+                  <FormField
+                    control={form.control}
+                    name="specialNeeds"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 font-medium">
+                          Special Needs
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ""}
+                            placeholder="Describe any special needs or disabilities..."
+                            className="border-gray-200 focus:border-[#ECC462] focus:ring-[#ECC462] resize-none"
+                            rows={3}
+                            data-testid="textarea-special-needs"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="accommodations"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 font-medium">
+                          Required Accommodations
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ""}
+                            placeholder="Describe any accommodations required for learning or testing..."
+                            className="border-gray-200 focus:border-[#ECC462] focus:ring-[#ECC462] resize-none"
+                            rows={3}
+                            data-testid="textarea-accommodations"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 {/* Submit Button */}

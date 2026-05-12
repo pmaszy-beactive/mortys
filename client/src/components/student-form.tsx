@@ -113,6 +113,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
       learnerPermitNumber: student?.learnerPermitNumber ?? "",
       learnerPermitValidDate: (student as any)?.learnerPermitValidDate ?? "",
       learnerPermitExpiryDate: student?.learnerPermitExpiryDate ?? "",
+      testScores: student?.testScores ?? null,
     },
   });
 
@@ -655,6 +656,51 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
                   <FormMessage />
                 </FormItem>
               )}
+            />
+          </div>
+        )}
+
+        {isEditing && (
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="testScores"
+              render={({ field }) => {
+                const scores = (field.value as { module5Score?: number } | null) || {};
+                const currentScore = scores.module5Score;
+                return (
+                  <FormItem>
+                    <FormLabel>Module 5 Theory Test Score (out of 24)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="24"
+                        placeholder="Enter score (0–24)"
+                        value={currentScore !== undefined ? currentScore : ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === "") {
+                            field.onChange(null);
+                          } else {
+                            const num = parseInt(val);
+                            if (!isNaN(num) && num >= 0 && num <= 24) {
+                              field.onChange({ ...scores, module5Score: num });
+                            }
+                          }
+                        }}
+                        data-testid="input-module5-score"
+                      />
+                    </FormControl>
+                    {currentScore !== undefined && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {currentScore}/24 — {Math.round((currentScore / 24) * 100)}% — {currentScore >= 20 ? '✓ Pass' : '✗ Fail'}
+                      </p>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
           </div>
         )}

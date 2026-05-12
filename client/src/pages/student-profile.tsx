@@ -456,42 +456,44 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
 
             <Separator />
 
-            {/* Legacy Migration Data */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-gray-900">Legacy System Data</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Legacy ID</p>
-                  <p className="font-medium">{student.legacyId || 'Not migrated'}</p>
+            {/* Legacy Migration Data - only show if migrated from legacy system */}
+            {(student.legacyId || student.transferredFrom || (student.transferredCredits && student.transferredCredits > 0)) && (
+              <>
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-gray-900">Legacy System Data</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-600">Legacy ID</p>
+                      <p className="font-medium">{student.legacyId || 'Not migrated'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Enrollment Date</p>
+                      <p className="font-medium">{student.enrollmentDate ? formatDate(student.enrollmentDate) : 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Transferred From</p>
+                      <p className="font-medium">{student.transferredFrom || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Transferred Credits</p>
+                      <p className="font-medium">{student.transferredCredits || 0} hours</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Enrollment Date</p>
-                  <p className="font-medium">{student.enrollmentDate ? formatDate(student.enrollmentDate) : 'Not specified'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Transferred From</p>
-                  <p className="font-medium">{student.transferredFrom || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Transferred Credits</p>
-                  <p className="font-medium">{student.transferredCredits || 0} hours</p>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
+                <Separator />
+              </>
+            )}
 
             {/* Government & Compliance */}
             <div className="space-y-4">
               <h4 className="font-semibold text-gray-900">Government & Compliance</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600">Government ID</p>
-                  <p className="font-medium">{student.governmentId || 'Not provided'}</p>
-                </div>
-                <div>
                   <p className="text-sm text-gray-600">Driver License Number</p>
                   <p className="font-medium">{student.driverLicenseNumber || 'Not provided'}</p>
+                  {student.driverLicenseNumber && (
+                    <p className="text-xs text-gray-400 mt-0.5">Format: L9999-DDMMYYYY-NN</p>
+                  )}
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">License Expiry</p>
@@ -499,19 +501,7 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Attestation Number</p>
-                  <p className="font-medium">{student.attestationNumber || 'Not assigned'}</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <p className="text-sm text-gray-600">Medical Certificate:</p>
-                  <Badge variant={student.medicalCertificate ? "default" : "secondary"}>
-                    {student.medicalCertificate ? "Valid" : "Pending"}
-                  </Badge>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <p className="text-sm text-gray-600">Vision Test:</p>
-                  <Badge variant={student.visionTest ? "default" : "secondary"}>
-                    {student.visionTest ? "Completed" : "Pending"}
-                  </Badge>
+                  <p className="font-medium">{(student as any).attestationNumber || 'Not assigned'}</p>
                 </div>
               </div>
             </div>
@@ -538,20 +528,61 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                   <p className="text-sm text-gray-600">Driving Hours</p>
                   <p className="font-medium">{student.practicalHoursCompleted || 0} hours</p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Final Exam Score</p>
-                  <p className="font-medium">{student.finalExamScore ? `${student.finalExamScore}%` : 'Not taken'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Road Test Date</p>
-                  <p className="font-medium">{student.roadTestDate ? formatDate(student.roadTestDate) : 'Not scheduled'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Road Test Result</p>
-                  <Badge variant={student.roadTestResult === 'pass' ? "default" : student.roadTestResult === 'fail' ? "destructive" : "secondary"}>
-                    {student.roadTestResult || 'Pending'}
-                  </Badge>
-                </div>
+                {/* Module 5 Theory Test Score */}
+                {(() => {
+                  const scores = student.testScores as { module5Score?: number } | null;
+                  const score = scores?.module5Score;
+                  if (score !== undefined && score !== null) {
+                    const pct = Math.round((score / 24) * 100);
+                    const pass = score >= 20;
+                    return (
+                      <div className="sm:col-span-2">
+                        <p className="text-sm text-gray-600">Module 5 Theory Test Score</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="font-medium">{score}/24 &nbsp;{pct}%</p>
+                          <Badge className={pass ? "bg-green-100 text-green-800 border-0" : "bg-red-100 text-red-800 border-0"}>
+                            {pass ? 'Pass' : 'Fail'}
+                          </Badge>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="sm:col-span-2">
+                      <p className="text-sm text-gray-600">Module 5 Theory Test Score</p>
+                      <p className="font-medium text-gray-400">Not yet taken</p>
+                    </div>
+                  );
+                })()}
+                {/* SAAQ Due Dates — calculated from learner's permit issue date */}
+                {student.learnerPermitValidDate && (
+                  <>
+                    <div>
+                      <p className="text-sm text-gray-600">SAAQ Knowledge Test Due</p>
+                      <p className="font-medium">
+                        {(() => {
+                          const d = new Date(student.learnerPermitValidDate!);
+                          d.setMonth(d.getMonth() + 10);
+                          const dd = d.getDate().toString().padStart(2, '0');
+                          const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+                          return `${dd}/${mm}/${d.getFullYear()}`;
+                        })()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">SAAQ Road Test Due</p>
+                      <p className="font-medium">
+                        {(() => {
+                          const d = new Date(student.learnerPermitValidDate!);
+                          d.setMonth(d.getMonth() + 12);
+                          const dd = d.getDate().toString().padStart(2, '0');
+                          const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+                          return `${dd}/${mm}/${d.getFullYear()}`;
+                        })()}
+                      </p>
+                    </div>
+                  </>
+                )}
                 <div>
                   <p className="text-sm text-gray-600">Completion Date</p>
                   <p className="font-medium">{student.completionDate ? formatDate(student.completionDate) : 'In progress'}</p>
