@@ -484,10 +484,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     // Demo login endpoint for production
     app.post("/api/auth/login", async (req, res) => {
-      try {
-        const { username, password } = req.body;
+      const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
+      const { username, password } = req.body;
+      console.log(`[login] attempt: username="${username}" ip=${ip}`);
 
+      try {
         if (!username || !password) {
+          console.log(`[login] rejected: missing credentials`);
           return res.status(400).json({
             success: false,
             message: "Username and password required",
@@ -495,14 +498,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         const result = await loginUser(username, password);
+        console.log(`[login] loginUser result: success=${result.success} message="${result.message}"`);
 
         if (result.success && result.user) {
           (req.session as any).userId = result.user.id;
+          console.log(`[login] saving session for userId=${result.user.id}`);
 
           await new Promise<void>((resolve, reject) => {
             req.session.save((err) => {
-              if (err) reject(err);
-              else resolve();
+              if (err) {
+                console.error(`[login] session.save failed:`, err);
+                reject(err);
+              } else {
+                console.log(`[login] session saved OK, sessionID=${req.sessionID}`);
+                resolve();
+              }
             });
           });
 
@@ -511,9 +521,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } else {
           res.status(401).json({ success: false, message: result.message });
         }
-      } catch (error) {
-        console.error("Login error:", error);
-        res.status(500).json({ success: false, message: "Login failed" });
+      } catch (error: any) {
+        console.error(`[login] FATAL error for "${username}":`, error?.message || error);
+        console.error(`[login] stack:`, error?.stack);
+        res.status(500).json({ success: false, message: error?.message || "Login failed" });
       }
     });
 

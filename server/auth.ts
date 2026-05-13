@@ -2,26 +2,25 @@ import { storage } from "./storage";
 import type { RequestHandler } from "express";
 
 export const loginUser = async (username: string, password: string) => {
-  try {
-    const bcrypt = await import("bcryptjs");
+  const bcrypt = await import("bcryptjs");
 
-    // Look up user by email (username field accepts email)
-    const user = await storage.getUserByEmail(username);
+  console.log(`[auth] loginUser: looking up "${username}"`);
+  const user = await storage.getUserByEmail(username);
 
-    if (!user || !user.password) {
-      return { success: false, message: "Invalid credentials" };
-    }
-
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) {
-      return { success: false, message: "Invalid credentials" };
-    }
-
-    return { success: true, user };
-  } catch (error) {
-    console.error("Login error:", error);
-    return { success: false, message: "Login failed" };
+  if (!user || !user.password) {
+    console.log(`[auth] loginUser: user not found or no password for "${username}"`);
+    return { success: false, message: "Invalid credentials" };
   }
+
+  console.log(`[auth] loginUser: comparing password for "${username}"`);
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    console.log(`[auth] loginUser: password mismatch for "${username}"`);
+    return { success: false, message: "Invalid credentials" };
+  }
+
+  console.log(`[auth] loginUser: success for "${username}" (id=${user.id})`);
+  return { success: true, user };
 };
 
 export const isAuthenticatedTraditional: RequestHandler = async (req, res, next) => {

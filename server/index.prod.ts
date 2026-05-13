@@ -50,6 +50,7 @@ app.get("/api/version", (_req, res) => {
 app.use((req, res, next) => {
   const start = Date.now();
   const reqPath = req.path;
+  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
@@ -61,12 +62,16 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (reqPath.startsWith("/api")) {
-      let logLine = `${req.method} ${reqPath} ${res.statusCode} in ${duration}ms`;
+      const status = res.statusCode;
+      let logLine = `${req.method} ${reqPath} ${status} in ${duration}ms [${ip}]`;
       if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
+        const body = JSON.stringify(capturedJsonResponse);
+        // Always show full body for errors; truncate only successful large responses
+        if (status >= 400 || body.length <= 300) {
+          logLine += ` :: ${body}`;
+        } else {
+          logLine += ` :: ${body.slice(0, 299)}…`;
+        }
       }
       log(logLine);
     }
