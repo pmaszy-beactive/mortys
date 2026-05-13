@@ -462,7 +462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const sessionTtl = 60 * 60 * 1000; // 1 hour in milliseconds
     const pgStore = connectPg(session);
     const sessionStore = new pgStore({
-      conString: process.env.DATABASE_URL,
+      pool: (await import("./db")).pool,
       createTableIfMissing: false,
       ttl: sessionTtl / 1000, // Convert to seconds for PostgreSQL TTL
       tableName: "sessions",
@@ -559,7 +559,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const sessionTtl = 60 * 60 * 1000; // 1 hour in milliseconds
     const pgStore = connectPg(session);
     const sessionStore = new pgStore({
-      conString: process.env.DATABASE_URL,
+      pool: (await import("./db")).pool,
       createTableIfMissing: false,
       ttl: sessionTtl / 1000, // Convert to seconds for PostgreSQL TTL
       tableName: "sessions",
