@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertEvaluationSchema, type Evaluation, type Student, type Instructor } from "@shared/schema";
+import { insertEvaluationSchema, type Evaluation, type Student, type Instructor, type Class } from "@shared/schema";
 import { z } from "zod";
 import SignaturePad, { SignaturePadRef } from "./signature-pad";
 import SignatureDisplay from "./signature-display";
@@ -120,6 +120,12 @@ export default function EvaluationForm({ evaluation, onSuccess, prefilledData }:
   const { data: currentInstructor } = useQuery<Instructor>({
     queryKey: ["/api/instructor/me"],
     enabled: isInstructorPortal,
+  });
+
+  // Fetch classes for linking
+  const { data: classesData } = useQuery<Class[]>({
+    queryKey: ["/api/classes"],
+    enabled: !isInstructorPortal,
   });
 
   // Fetch all instructors if in admin portal
@@ -428,6 +434,44 @@ export default function EvaluationForm({ evaluation, onSuccess, prefilledData }:
             )}
           />
         </div>
+
+        {/* Linked Class — only show selector when NOT in a class context and in admin portal */}
+        {!isClassContext && !isInstructorPortal && classesData && classesData.length > 0 && (
+          <FormField
+            control={form.control}
+            name="classId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Linked Class <span className="text-gray-400 font-normal">(optional)</span></FormLabel>
+                <Select
+                  onValueChange={(value) => field.onChange(value === "none" ? null : parseInt(value))}
+                  value={field.value?.toString() || "none"}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a class to link..." />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="none">— No linked class —</SelectItem>
+                    {classesData.map((cls) => {
+                      const d = new Date(cls.date);
+                      const dateStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+                      const typeLabel = cls.classType === 'driving' ? 'Driving' : 'Theory';
+                      const courseLabel = cls.courseType ? `${cls.courseType.charAt(0).toUpperCase() + cls.courseType.slice(1)} ` : '';
+                      return (
+                        <SelectItem key={cls.id} value={cls.id.toString()}>
+                          {courseLabel}{typeLabel} Class {cls.classNumber} — {dateStr}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <FormField

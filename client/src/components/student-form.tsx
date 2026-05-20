@@ -728,6 +728,51 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
           </div>
         )}
 
+        {/* Special Accommodations */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide border-b pb-2">Special Accommodations</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="specialNeeds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Special Needs</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      value={field.value ?? ""}
+                      placeholder="Describe any special needs or disabilities..."
+                      rows={3}
+                      data-testid="textarea-special-needs"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="accommodations"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Required Accommodations</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      value={field.value ?? ""}
+                      placeholder="Describe any accommodations required for learning or testing..."
+                      rows={3}
+                      data-testid="textarea-accommodations"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
         <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 mt-6 border-t border-gray-200 dark:border-gray-700">
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
