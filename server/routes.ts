@@ -4236,7 +4236,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: error.errors,
         });
       }
-      res.status(400).json({ message: "Invalid location data" });
+      if (error.code === "23505") {
+        return res.status(400).json({ message: "A location with this location code already exists. Please use a different code." });
+      }
+      res.status(500).json({ message: error.message || "Failed to create location" });
     }
   });
 
@@ -5214,10 +5217,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             firstName: result.student.firstName,
             lastName: result.student.lastName,
             email: result.student.email,
+            phone: result.student.phone,
             courseType: result.student.courseType,
             status: result.student.status,
             progress: result.student.progress,
             phase: result.student.phase,
+            instructorId: result.student.instructorId,
+            attestationNumber: result.student.attestationNumber,
+            learnerPermitValidDate: result.student.learnerPermitValidDate,
           },
         });
       }
@@ -5792,6 +5799,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         phase: student.phase,
         instructorId: student.instructorId,
         attestationNumber: student.attestationNumber,
+        learnerPermitValidDate: student.learnerPermitValidDate,
       });
     } catch (error) {
       console.error("Error fetching student info:", error);

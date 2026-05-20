@@ -45,16 +45,14 @@ export default function StudentLogin() {
       const response = await apiRequest("POST", "/api/student/login", data);
       
       if (response.success) {
-        await queryClient.invalidateQueries({ queryKey: ["/api/student/me"] });
+        queryClient.setQueryData(["/api/student/me"], response.student);
         
         toast({
           title: "Login successful",
           description: `Welcome back, ${response.student.firstName}!`,
         });
         
-        setTimeout(() => {
-          setLocation("/student/classes");
-        }, 100);
+        setLocation("/student/classes");
       } else {
         if (response.errorType === "account_inactive") {
           setIsAccountInactive(true);
