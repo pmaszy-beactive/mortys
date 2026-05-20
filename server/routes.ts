@@ -576,6 +576,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       tableName: "sessions",
     });
 
+    // In Replit's preview pane the app runs inside an iframe (replit.com outer page),
+    // so cookies are treated as third-party and need SameSite=None; Secure.
+    const inReplitWorkspace = !!process.env.REPL_ID;
+
     app.use(
       session({
         secret: process.env.SESSION_SECRET || "dev-secret-key",
@@ -584,7 +588,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         saveUninitialized: false,
         cookie: {
           httpOnly: true,
-          secure: false, // Allow HTTP in development
+          secure: inReplitWorkspace, // Replit proxy is always HTTPS
+          sameSite: inReplitWorkspace ? "none" : "lax",
           maxAge: sessionTtl,
         },
       }),
