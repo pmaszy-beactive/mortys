@@ -34,6 +34,7 @@ import {
   BookOpen,
   Lock,
   AlertTriangle,
+  CalendarClock,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useStudentAuth } from "@/hooks/useStudentAuth";
@@ -1164,6 +1165,45 @@ export default function StudentClasses() {
             </Card>
           )}
         </section>
+
+        {/* SAAQ Important Dates */}
+        {student?.learnerPermitValidDate && (() => {
+          const permitDate = new Date(student.learnerPermitValidDate as string);
+          const knowledgeTestDue = new Date(permitDate);
+          knowledgeTestDue.setMonth(knowledgeTestDue.getMonth() + 10);
+          const roadTestDue = new Date(permitDate);
+          roadTestDue.setMonth(roadTestDue.getMonth() + 12);
+          const fmt = (d: Date) => {
+            const dd = d.getDate().toString().padStart(2, '0');
+            const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+            return `${dd}/${mm}/${d.getFullYear()}`;
+          };
+          const today = new Date();
+          const kOverdue = knowledgeTestDue < today;
+          const rOverdue = roadTestDue < today;
+          return (
+            <section>
+              <h2 className="text-xl font-bold text-[#111111] mb-4 flex items-center gap-2">
+                <CalendarClock className="h-5 w-5 text-[#ECC462]" />
+                SAAQ Important Dates
+              </h2>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className={`bg-white rounded-xl shadow-md p-6 border-l-4 ${kOverdue ? 'border-l-red-500' : 'border-l-[#ECC462]'}`}>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Knowledge Test Due</p>
+                  <p className={`text-2xl font-bold ${kOverdue ? 'text-red-600' : 'text-[#111111]'}`}>{fmt(knowledgeTestDue)}</p>
+                  <p className="text-xs text-gray-400 mt-1">10 months from learner's permit date</p>
+                  {kOverdue && <p className="text-xs text-red-500 font-medium mt-1">Past due — contact your school</p>}
+                </div>
+                <div className={`bg-white rounded-xl shadow-md p-6 border-l-4 ${rOverdue ? 'border-l-red-500' : 'border-l-[#ECC462]'}`}>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Road Test Due</p>
+                  <p className={`text-2xl font-bold ${rOverdue ? 'text-red-600' : 'text-[#111111]'}`}>{fmt(roadTestDue)}</p>
+                  <p className="text-xs text-gray-400 mt-1">12 months from learner's permit date</p>
+                  {rOverdue && <p className="text-xs text-red-500 font-medium mt-1">Past due — contact your school</p>}
+                </div>
+              </div>
+            </section>
+          );
+        })()}
 
         {/* Book a Class Button */}
         <section>
