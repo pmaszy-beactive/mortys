@@ -35,7 +35,7 @@ import { validateClassBooking, buildCompletedClasses } from "@shared/bookingRule
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { loginUser, isAuthenticatedTraditional } from "./auth";
 import { loginInstructor, isInstructorAuthenticated } from "./instructor-auth";
-import { loginStudent, isStudentAuthenticated } from "./student-auth";
+import { loginStudent, isStudentAuthenticated, generateStudentToken } from "./student-auth";
 import { loginParent, isParentAuthenticated } from "./parent-auth";
 import { initializeDatabase } from "./init-db";
 import { LegacyScraper } from "./services/legacy-scraper";
@@ -5217,6 +5217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         return res.json({
           success: true,
+          token: generateStudentToken(result.student.id),
           student: {
             id: result.student.id,
             firstName: result.student.firstName,

@@ -94,6 +94,15 @@ axios.interceptors.response.use(
   }
 );
 
+function getStudentAuthHeader(): Record<string, string> {
+  try {
+    const token = localStorage.getItem("student_auth_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  } catch {
+    return {};
+  }
+}
+
 export async function apiRequest(
   method: string,
   url: string,
@@ -106,6 +115,7 @@ export async function apiRequest(
       data,
       headers: {
         "Content-Type": "application/json",
+        ...getStudentAuthHeader(),
       },
       withCredentials: true,
     });
@@ -137,6 +147,7 @@ export const getQueryFn: <T>(options: {
     try {
       const response = await axios.get(queryKey[0] as string, {
         withCredentials: true,
+        headers: getStudentAuthHeader(),
       });
       
       return response.data;

@@ -45,6 +45,9 @@ export default function StudentLogin() {
       const response = await apiRequest("POST", "/api/student/login", data);
       
       if (response.success) {
+        if (response.token) {
+          localStorage.setItem("student_auth_token", response.token);
+        }
         queryClient.setQueryData(["/api/student/me"], response.student);
         
         toast({

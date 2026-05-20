@@ -87,6 +87,7 @@ export default function StudentSidebar() {
   });
 
   const handleLogout = () => {
+    localStorage.removeItem("student_auth_token");
     logoutMutation.mutate();
   };
 
