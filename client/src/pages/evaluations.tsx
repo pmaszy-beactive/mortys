@@ -9,7 +9,7 @@ import { Plus, Edit, Eye, CheckCircle, Star, FileSignature, Check, X } from "luc
 import EvaluationForm from "@/components/evaluation-form";
 import SignatureDisplay from "@/components/signature-display";
 import { formatDate } from "@/lib/utils";
-import type { Evaluation, Student, Instructor } from "@shared/schema";
+import type { Evaluation, Student, Instructor, Class } from "@shared/schema";
 
 const drivingChecklistCategories = {
   "Stopping": [
@@ -77,6 +77,18 @@ export default function Evaluations() {
   const { data: instructors = [] } = useQuery<Instructor[]>({
     queryKey: ["/api/instructors"],
   });
+
+  const { data: classes = [] } = useQuery<Class[]>({
+    queryKey: ["/api/classes"],
+  });
+
+  const getClassName = (classId: number | null) => {
+    if (!classId) return null;
+    const cls = classes.find(c => c.id === classId);
+    if (!cls) return null;
+    const typeLabel = cls.classType === "theory" ? "Theory" : "Driving";
+    return `${typeLabel} Class ${cls.classNumber ?? ""}${cls.date ? " – " + formatDate(cls.date) : ""}`.trim();
+  };
 
   const getStudentName = (studentId: number | null) => {
     if (!studentId) return "Unknown Student";
@@ -411,6 +423,12 @@ export default function Evaluations() {
                       {viewingEvaluation.sessionType === 'in-car' ? 'Driving Session' : 'Theory Session'}
                     </p>
                   </div>
+                  {viewingEvaluation.classId && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Linked Class</label>
+                      <p className="text-gray-900">{getClassName(viewingEvaluation.classId) ?? `Class #${viewingEvaluation.classId}`}</p>
+                    </div>
+                  )}
                   <div>
                     <label className="text-sm font-medium text-gray-700">Date</label>
                     <p className="text-gray-900">

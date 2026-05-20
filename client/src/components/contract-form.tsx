@@ -39,7 +39,7 @@ export default function ContractForm({ contract, onSuccess }: ContractFormProps)
       studentId: contract?.studentId || null,
       courseType: contract?.courseType || "auto",
       contractDate: contract?.contractDate || new Date().toISOString().split('T')[0],
-      amount: contract?.amount || "1200.00",
+      amount: contract?.amount || "1130.00",
       paymentMethod: contract?.paymentMethod || "full",
       status: contract?.status || "pending",
       specialNotes: contract?.specialNotes || "",
@@ -144,9 +144,9 @@ export default function ContractForm({ contract, onSuccess }: ContractFormProps)
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="auto">Auto - $1,200</SelectItem>
-                    <SelectItem value="moto">Moto - $800</SelectItem>
-                    <SelectItem value="scooter">Scooter - $600</SelectItem>
+                    <SelectItem value="auto">Auto - $1,130</SelectItem>
+                    <SelectItem value="moto">Moto - $1,100</SelectItem>
+                    <SelectItem value="scooter">Scooter - $375</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -200,7 +200,6 @@ export default function ContractForm({ contract, onSuccess }: ContractFormProps)
                   <SelectContent>
                     <SelectItem value="full">Full Payment</SelectItem>
                     <SelectItem value="installment">Installment Plan</SelectItem>
-                    <SelectItem value="transfer">Course Transfer</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

@@ -67,9 +67,9 @@ export function getStatusColor(status: string): string {
 
 export function getCoursePrice(courseType: string): number {
   switch (courseType) {
-    case "auto": return 1200;
-    case "moto": return 800;
-    case "scooter": return 600;
+    case "auto": return 1130;
+    case "moto": return 1100;
+    case "scooter": return 375;
     default: return 0;
   }
 }

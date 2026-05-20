@@ -534,7 +534,7 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                   const score = scores?.module5Score;
                   if (score !== undefined && score !== null) {
                     const pct = Math.round((score / 24) * 100);
-                    const pass = score >= 20;
+                    const pass = score >= 18;
                     return (
                       <div className="sm:col-span-2">
                         <p className="text-sm text-gray-600">Module 5 Theory Test Score</p>
@@ -650,19 +650,6 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Course Progress</span>
-                  <span>{progressPercentage}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-primary h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${progressPercentage}%` }}
-                  ></div>
-                </div>
-              </div>
-
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div className="p-3 bg-gradient-to-br from-[#ECC462]/20 to-amber-100 rounded-lg border border-[#ECC462]/30">
                   <p className="text-2xl font-bold text-[#111111]">{evaluations.length}</p>
@@ -688,11 +675,11 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
         </Card>
       </div>
 
-      {/* Phase Progress */}
+      {/* Academic Progress & Phase Progression */}
       <div className="mb-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <GraduationCap className="h-5 w-5 text-[#ECC462]" />
-          Phase Progress
+          Academic Progress &amp; Phase Progression
         </h2>
         {phaseLoading ? (
           <PhaseProgressTrackerSkeleton />

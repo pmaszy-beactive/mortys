@@ -114,6 +114,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
       learnerPermitValidDate: (student as any)?.learnerPermitValidDate ?? "",
       learnerPermitExpiryDate: student?.learnerPermitExpiryDate ?? "",
       testScores: student?.testScores ?? null,
+      driverLicenseNumber: student?.driverLicenseNumber ?? "",
     },
   });
 
@@ -473,6 +474,49 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
 
         {isEditing && (
           <>
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mt-4">Driver's License</h3>
+            <div className="grid grid-cols-1 gap-4">
+              <FormField
+                control={form.control}
+                name="driverLicenseNumber"
+                render={({ field }) => {
+                  const lastName = form.watch("lastName") || "";
+                  const dob = form.watch("dateOfBirth") || "";
+                  const license = (field.value as string) || "";
+                  const expectedFirstChar = lastName.charAt(0).toUpperCase();
+                  let warning: string | null = null;
+                  if (license.length >= 1 && expectedFirstChar && license.charAt(0).toUpperCase() !== expectedFirstChar) {
+                    warning = `First character must match first letter of last name (${expectedFirstChar}).`;
+                  } else if (license.length >= 14 && dob) {
+                    // Format: L9999-DDMMYYYY-NN, so chars 6-13 (0-indexed) = DDMMYYYY
+                    const licDob = license.substring(6, 14);
+                    const dobParts = dob.split("-");
+                    if (dobParts.length === 3) {
+                      const expectedDob = dobParts[2].padStart(2,"0") + dobParts[1].padStart(2,"0") + dobParts[0];
+                      if (licDob !== expectedDob) {
+                        warning = `Date portion (${licDob}) does not match date of birth (${expectedDob}).`;
+                      }
+                    }
+                  }
+                  return (
+                    <FormItem>
+                      <FormLabel>Driver License Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., A1234-15051990-00"
+                          {...field}
+                          value={field.value ?? ""}
+                          data-testid="input-driver-license-number"
+                        />
+                      </FormControl>
+                      <p className="text-xs text-gray-400 mt-0.5">Format: L9999-DDMMYYYY-NN (first letter of last name, then digits, then birthdate as DDMMYYYY)</p>
+                      {warning && <p className="text-xs text-amber-600 mt-1">⚠ {warning}</p>}
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+            </div>
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mt-4">Learner's Permit</h3>
             <div className="grid grid-cols-3 gap-4">
               <FormField
@@ -614,27 +658,6 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="progress"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Completed Classes (%)</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    min="0" 
-                    max="100" 
-                    placeholder="0"
-                    {...field} 
-                    onChange={e => field.onChange(parseInt(e.target.value) || 0)}
-                    data-testid="input-progress"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
         {isEditing && (
@@ -694,7 +717,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
                     </FormControl>
                     {currentScore !== undefined && (
                       <p className="text-xs text-gray-500 mt-1">
-                        {currentScore}/24 — {Math.round((currentScore / 24) * 100)}% — {currentScore >= 20 ? '✓ Pass' : '✗ Fail'}
+                        {currentScore}/24 — {Math.round((currentScore / 24) * 100)}% — {currentScore >= 18 ? '✓ Pass' : '✗ Fail'}
                       </p>
                     )}
                     <FormMessage />
