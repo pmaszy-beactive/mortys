@@ -1167,26 +1167,26 @@ export default function StudentClasses() {
         </section>
 
         {/* SAAQ Important Dates */}
-        {student?.learnerPermitValidDate && (() => {
-          const permitDate = new Date(student.learnerPermitValidDate as string);
-          const knowledgeTestDue = new Date(permitDate);
-          knowledgeTestDue.setMonth(knowledgeTestDue.getMonth() + 10);
-          const roadTestDue = new Date(permitDate);
-          roadTestDue.setMonth(roadTestDue.getMonth() + 12);
-          const fmt = (d: Date) => {
-            const dd = d.getDate().toString().padStart(2, '0');
-            const mm = (d.getMonth() + 1).toString().padStart(2, '0');
-            return `${dd}/${mm}/${d.getFullYear()}`;
-          };
-          const today = new Date();
-          const kOverdue = knowledgeTestDue < today;
-          const rOverdue = roadTestDue < today;
-          return (
-            <section>
-              <h2 className="text-xl font-bold text-[#111111] mb-4 flex items-center gap-2">
-                <CalendarClock className="h-5 w-5 text-[#ECC462]" />
-                SAAQ Important Dates
-              </h2>
+        <section>
+          <h2 className="text-xl font-bold text-[#111111] mb-4 flex items-center gap-2">
+            <CalendarClock className="h-5 w-5 text-[#ECC462]" />
+            SAAQ Important Dates
+          </h2>
+          {student?.learnerPermitValidDate ? (() => {
+            const permitDate = new Date(student.learnerPermitValidDate as string);
+            const knowledgeTestDue = new Date(permitDate);
+            knowledgeTestDue.setMonth(knowledgeTestDue.getMonth() + 10);
+            const roadTestDue = new Date(permitDate);
+            roadTestDue.setMonth(roadTestDue.getMonth() + 12);
+            const fmt = (d: Date) => {
+              const dd = d.getDate().toString().padStart(2, '0');
+              const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+              return `${dd}/${mm}/${d.getFullYear()}`;
+            };
+            const today = new Date();
+            const kOverdue = knowledgeTestDue < today;
+            const rOverdue = roadTestDue < today;
+            return (
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className={`bg-white rounded-xl shadow-md p-6 border-l-4 ${kOverdue ? 'border-l-red-500' : 'border-l-[#ECC462]'}`}>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Knowledge Test Due</p>
@@ -1201,9 +1201,13 @@ export default function StudentClasses() {
                   {rOverdue && <p className="text-xs text-red-500 font-medium mt-1">Past due — contact your school</p>}
                 </div>
               </div>
-            </section>
-          );
-        })()}
+            );
+          })() : (
+            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-l-gray-300">
+              <p className="text-sm text-gray-500">Your learner's permit date has not been recorded yet. Contact your school to update this information.</p>
+            </div>
+          )}
+        </section>
 
         {/* Book a Class Button */}
         <section>

@@ -253,9 +253,6 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
     return <XCircle className="h-4 w-4 text-red-600" />;
   };
 
-  const progressPercentage = student.status === "completed" ? 100 : 
-    student.status === "active" ? Math.min(85, (evaluations.length * 15) + 25) : 0;
-
   return (
     <div className="space-y-6 bg-gray-50 min-h-screen p-4 sm:p-6">
       {/* Back Navigation */}
@@ -508,90 +505,6 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
 
             <Separator />
 
-            {/* Academic Progress */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-gray-900">Academic Progress</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Total Hours Completed</p>
-                  <p className="font-medium">{student.totalHoursCompleted || 0} hours</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Total Hours Required</p>
-                  <p className="font-medium">{student.totalHoursRequired || 36} hours</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Theory Hours</p>
-                  <p className="font-medium">{student.theoryHoursCompleted || 0} hours</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Driving Hours</p>
-                  <p className="font-medium">{student.practicalHoursCompleted || 0} hours</p>
-                </div>
-                {/* Module 5 Theory Test Score */}
-                {(() => {
-                  const scores = student.testScores as { module5Score?: number } | null;
-                  const score = scores?.module5Score;
-                  if (score !== undefined && score !== null) {
-                    const pct = Math.round((score / 24) * 100);
-                    const pass = score >= 18;
-                    return (
-                      <div className="sm:col-span-2">
-                        <p className="text-sm text-gray-600">Module 5 Theory Test Score</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <p className="font-medium">{score}/24 &nbsp;{pct}%</p>
-                          <Badge className={pass ? "bg-green-100 text-green-800 border-0" : "bg-red-100 text-red-800 border-0"}>
-                            {pass ? 'Pass' : 'Fail'}
-                          </Badge>
-                        </div>
-                      </div>
-                    );
-                  }
-                  return (
-                    <div className="sm:col-span-2">
-                      <p className="text-sm text-gray-600">Module 5 Theory Test Score</p>
-                      <p className="font-medium text-gray-400">Not yet taken</p>
-                    </div>
-                  );
-                })()}
-                {/* SAAQ Due Dates — calculated from learner's permit issue date */}
-                {student.learnerPermitValidDate && (
-                  <>
-                    <div>
-                      <p className="text-sm text-gray-600">SAAQ Knowledge Test Due</p>
-                      <p className="font-medium">
-                        {(() => {
-                          const d = new Date(student.learnerPermitValidDate!);
-                          d.setMonth(d.getMonth() + 10);
-                          const dd = d.getDate().toString().padStart(2, '0');
-                          const mm = (d.getMonth() + 1).toString().padStart(2, '0');
-                          return `${dd}/${mm}/${d.getFullYear()}`;
-                        })()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">SAAQ Road Test Due</p>
-                      <p className="font-medium">
-                        {(() => {
-                          const d = new Date(student.learnerPermitValidDate!);
-                          d.setMonth(d.getMonth() + 12);
-                          const dd = d.getDate().toString().padStart(2, '0');
-                          const mm = (d.getMonth() + 1).toString().padStart(2, '0');
-                          return `${dd}/${mm}/${d.getFullYear()}`;
-                        })()}
-                      </p>
-                    </div>
-                  </>
-                )}
-                <div>
-                  <p className="text-sm text-gray-600">Completion Date</p>
-                  <p className="font-medium">{student.completionDate ? formatDate(student.completionDate) : 'In progress'}</p>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
             {/* Payment Information */}
             <div className="space-y-4">
               <h4 className="font-semibold text-gray-900">Payment Information</h4>
@@ -681,6 +594,85 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
           <GraduationCap className="h-5 w-5 text-[#ECC462]" />
           Academic Progress &amp; Phase Progression
         </h2>
+        <Card className="mobile-card mb-4">
+          <CardContent className="pt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <p className="text-sm text-gray-600">Hours Completed</p>
+                <p className="font-medium">{student.totalHoursCompleted || 0} / {student.totalHoursRequired || 36} hrs</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Theory Hours</p>
+                <p className="font-medium">{student.theoryHoursCompleted || 0} hrs</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Driving Hours</p>
+                <p className="font-medium">{student.practicalHoursCompleted || 0} hrs</p>
+              </div>
+              {(() => {
+                const scores = student.testScores as { module5Score?: number } | null;
+                const score = scores?.module5Score;
+                if (score !== undefined && score !== null) {
+                  const pct = Math.round((score / 24) * 100);
+                  const pass = score >= 18;
+                  return (
+                    <div>
+                      <p className="text-sm text-gray-600">Module 5 Score</p>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <p className="font-medium">{score}/24 {pct}%</p>
+                        <Badge className={pass ? "bg-green-100 text-green-800 border-0 text-xs" : "bg-red-100 text-red-800 border-0 text-xs"}>
+                          {pass ? 'Pass' : 'Fail'}
+                        </Badge>
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <div>
+                    <p className="text-sm text-gray-600">Module 5 Score</p>
+                    <p className="font-medium text-gray-400">Not yet taken</p>
+                  </div>
+                );
+              })()}
+            </div>
+            {student.learnerPermitValidDate ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-100">
+                <div>
+                  <p className="text-sm text-gray-600">Learner's Permit Date</p>
+                  <p className="font-medium">{formatDate(student.learnerPermitValidDate)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">SAAQ Knowledge Test Due</p>
+                  <p className="font-medium">
+                    {(() => {
+                      const d = new Date(student.learnerPermitValidDate!);
+                      d.setMonth(d.getMonth() + 10);
+                      return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+                    })()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">SAAQ Road Test Due</p>
+                  <p className="font-medium">
+                    {(() => {
+                      const d = new Date(student.learnerPermitValidDate!);
+                      d.setMonth(d.getMonth() + 12);
+                      return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+                    })()}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <p className="text-sm text-gray-500">No learner's permit date recorded — SAAQ deadlines not yet calculable.</p>
+              </div>
+            )}
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <p className="text-sm text-gray-600">Completion Date</p>
+              <p className="font-medium">{student.completionDate ? formatDate(student.completionDate) : 'In progress'}</p>
+            </div>
+          </CardContent>
+        </Card>
         {phaseLoading ? (
           <PhaseProgressTrackerSkeleton />
         ) : phaseProgressData ? (
