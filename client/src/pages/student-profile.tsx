@@ -25,6 +25,7 @@ import {
   Edit,
   Plus,
   ArrowLeft,
+  ArrowLeftRight,
   Users,
   Car,
   Bike,
@@ -309,6 +310,15 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
               >
                 <Eye className="h-4 w-4 mr-2" />
                 {impersonateMutation.isPending ? "Opening..." : "View Student Portal"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="touch-target border-gray-200 text-gray-700 hover:bg-gray-50"
+                onClick={() => setLocation(`/transfer-credits?studentId=${studentId}`)}
+              >
+                <ArrowLeftRight className="h-4 w-4 mr-2" />
+                Course Transfer
               </Button>
               <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogTrigger asChild>

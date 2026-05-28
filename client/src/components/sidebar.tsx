@@ -27,7 +27,6 @@ const navigation: NavItem[] = [
     children: [
       { name: "Payment Reconciliation", href: "/payment-reconciliation", icon: Receipt },
       { name: "Transaction Audit", href: "/transaction-audit", icon: DollarSign },
-      { name: "Course Transfer", href: "/transfer-credits", icon: CreditCard },
     ]
   },
   { 

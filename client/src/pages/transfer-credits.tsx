@@ -1,5 +1,6 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearch } from "wouter";
 import { Plus, CreditCard, GraduationCap, FileText, CheckCircle, XCircle, Clock, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -67,6 +68,8 @@ const transferFormSchema = insertTransferCreditSchema.extend({
 });
 
 export default function TransferCredits() {
+  const searchString = useSearch();
+  const urlStudentId = new URLSearchParams(searchString).get("studentId");
   const [showNewForm, setShowNewForm] = useState(false);
   const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
   const [completedCourses, setCompletedCourses] = useState<string[]>([]);
@@ -74,11 +77,18 @@ export default function TransferCredits() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showStudentDropdown, setShowStudentDropdown] = useState(false);
+  const preloadDone = useRef(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: transferCredits = [] } = useQuery<TransferCredit[]>({
     queryKey: ['/api/transfer-credits'],
+  });
+
+  const { data: preloadStudent } = useQuery<Student>({
+    queryKey: ['/api/students', urlStudentId],
+    queryFn: () => apiRequest('GET', `/api/students/${urlStudentId}`),
+    enabled: !!urlStudentId && !preloadDone.current,
   });
 
   // Debounced search for students
@@ -164,6 +174,16 @@ export default function TransferCredits() {
       creditValue: "0.00"
     }
   });
+
+  useEffect(() => {
+    if (preloadStudent && !preloadDone.current) {
+      preloadDone.current = true;
+      setSelectedStudent(preloadStudent);
+      setStudentSearchTerm(`${preloadStudent.firstName} ${preloadStudent.lastName}`);
+      form.setValue("studentId", preloadStudent.id);
+      setShowNewForm(true);
+    }
+  }, [preloadStudent]);
 
   const onSubmit = (data: z.infer<typeof transferFormSchema>) => {
     console.log('Form submitted with data:', data);
