@@ -24,7 +24,7 @@ const PAYMENT_METHODS = [
   { value: 'e_transfer', label: 'E-Transfer', icon: CreditCard },
   { value: 'cash', label: 'Cash', icon: Banknote },
   { value: 'cheque', label: 'Cheque', icon: Receipt },
-  { value: 'bank_transfer', label: 'Bank Transfer', icon: Building },
+  { value: 'credit_card', label: 'Credit Card', icon: CreditCard },
   { value: 'other', label: 'Other', icon: DollarSign },
 ];
 
@@ -126,8 +126,9 @@ export default function PaymentReconciliation() {
       setIsAddingPayment(false);
       resetNewPayment();
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to record payment.", variant: "destructive" });
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || error?.message || "Failed to record payment.";
+      toast({ title: "Error", description: msg, variant: "destructive" });
     },
   });
 

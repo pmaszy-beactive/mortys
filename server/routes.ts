@@ -8164,8 +8164,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/payments/intakes", authMiddleware, async (req, res) => {
     try {
       const userId = (req as any).user?.id;
+      const body = req.body;
+      // Validate required fields
+      if (!body.payerName || !body.payerName.trim()) {
+        return res.status(400).json({ message: "Payer name is required" });
+      }
+      if (!body.amount || isNaN(parseFloat(body.amount)) || parseFloat(body.amount) <= 0) {
+        return res.status(400).json({ message: "A valid amount greater than 0 is required" });
+      }
+      if (!body.receivedDate) {
+        return res.status(400).json({ message: "Received date is required" });
+      }
       const data = {
-        ...req.body,
+        ...body,
+        amount: String(body.amount),
         createdBy: userId,
         status: 'pending',
         allocatedAmount: '0.00',
@@ -8184,7 +8196,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(intake);
     } catch (error) {
       console.error("Error creating payment intake:", error);
-      res.status(400).json({ message: "Failed to record payment" });
+      const msg = error instanceof Error ? error.message : String(error);
+      res.status(500).json({ message: `Failed to record payment: ${msg}` });
     }
   });
 
