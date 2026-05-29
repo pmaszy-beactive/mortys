@@ -353,7 +353,7 @@ function TheoryAttendanceWidget() {
           <div className="space-y-2">
             {[1, 2].map(i => <div key={i} className="h-14 bg-gray-100 rounded-md animate-pulse" />)}
           </div>
-        ) : !data?.classes.length ? (
+        ) : !data?.classes?.length ? (
           <div className="text-center py-8">
             <Calendar className="h-8 w-8 text-gray-300 mx-auto mb-2" />
             <p className="text-sm text-gray-500">No theory classes scheduled for this date</p>
