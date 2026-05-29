@@ -43,16 +43,11 @@ import type { Class } from "@shared/schema";
 import type { PhaseProgressData } from "@shared/phaseConfig";
 import PhaseProgressTracker, { PhaseProgressTrackerSkeleton } from "@/components/phase-progress-tracker";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { getStripePromise } from "@/lib/stripe";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  console.warn('Missing VITE_STRIPE_PUBLIC_KEY - payment features will not work');
-}
-const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
-  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
-  : null;
+const stripePromise = getStripePromise();
 
 interface ClassWithDetails extends Class {
   enrollmentId?: number;

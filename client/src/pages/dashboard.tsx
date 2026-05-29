@@ -336,7 +336,7 @@ function TheoryAttendanceWidget() {
             <div>
               <CardTitle className="text-sm font-semibold text-gray-900">Theory Class Attendance</CardTitle>
               <CardDescription className="text-xs text-gray-500 mt-0.5">
-                {data?.classes.length || 0} theory class{data?.classes.length !== 1 ? "es" : ""} on this date
+                {data?.classes?.length || 0} theory class{data?.classes?.length !== 1 ? "es" : ""} on this date
               </CardDescription>
             </div>
           </div>

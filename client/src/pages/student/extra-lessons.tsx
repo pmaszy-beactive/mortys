@@ -32,13 +32,11 @@ import { useLocation } from "wouter";
 import { useStudentAuth } from "@/hooks/useStudentAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { loadStripe } from "@stripe/stripe-js";
+import { getStripePromise } from "@/lib/stripe";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { format } from "date-fns";
 
-const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY
-  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
-  : null;
+const stripePromise = getStripePromise();
 
 interface ExtraLesson {
   id: number;

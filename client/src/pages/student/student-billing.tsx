@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,10 +26,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useStudentAuth } from "@/hooks/useStudentAuth";
 import { useToast } from "@/hooks/use-toast";
 import { CardElement, useStripe, useElements, Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-
-const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
+import { getStripePromise } from "@/lib/stripe";
 
 interface PaymentMethod {
   id: number;
@@ -665,12 +662,22 @@ function StripeNotConfigured() {
 }
 
 export default function StudentBilling() {
-  if (!stripePromise) {
-    return <StripeNotConfigured />;
-  }
+  const [stripeReady, setStripeReady] = useState<boolean | null>(null);
+  const [stripePromise, setStripePromise] = useState<ReturnType<typeof getStripePromise> | null>(null);
+
+  useEffect(() => {
+    const p = getStripePromise();
+    p.then(s => {
+      setStripeReady(!!s);
+      if (s) setStripePromise(p);
+    });
+  }, []);
+
+  if (stripeReady === null) return null;
+  if (!stripeReady) return <StripeNotConfigured />;
 
   return (
-    <Elements stripe={stripePromise}>
+    <Elements stripe={stripePromise!}>
       <BillingContent />
     </Elements>
   );
