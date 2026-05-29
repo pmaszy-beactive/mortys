@@ -8764,7 +8764,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           amount: parseAmount(tx.amount),
           paymentMethod: normalizePaymentMethod(tx.paymentMethod),
           transactionType: tx.transactionType,
-          description: tx.description,
+          description: tx.description || '',
           studentId: tx.studentId,
           studentName: student ? `${student.firstName} ${student.lastName}` : null,
           referenceNumber: tx.referenceNumber,
@@ -8839,7 +8839,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (search) {
         const searchLower = (search as string).toLowerCase();
         filtered = filtered.filter(tx => 
-          tx.description.toLowerCase().includes(searchLower) ||
+          (tx.description || '').toLowerCase().includes(searchLower) ||
           tx.studentName?.toLowerCase().includes(searchLower) ||
           tx.referenceNumber?.toLowerCase().includes(searchLower)
         );

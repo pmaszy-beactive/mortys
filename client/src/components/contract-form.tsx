@@ -60,10 +60,10 @@ export default function ContractForm({ contract, onSuccess }: ContractFormProps)
       });
       onSuccess();
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to create contract",
+        description: error?.message || "Failed to create contract",
         variant: "destructive",
       });
     },
@@ -80,10 +80,10 @@ export default function ContractForm({ contract, onSuccess }: ContractFormProps)
       });
       onSuccess();
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to update contract",
+        description: error?.message || "Failed to update contract",
         variant: "destructive",
       });
     },

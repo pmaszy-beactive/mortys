@@ -9,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   DollarSign, CreditCard, Building, Banknote, ArrowDownRight, ArrowUpRight, 
-  Download, Search, RefreshCw, FileText, Calendar
+  Download, Search, RefreshCw, FileText, Calendar, AlertCircle
 } from "lucide-react";
 import Sidebar from "@/components/sidebar";
 
@@ -85,7 +86,7 @@ export default function TransactionAudit() {
   const [transactionType, setTransactionType] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, isLoading, refetch } = useQuery<AuditResponse>({
+  const { data, isLoading, error, refetch } = useQuery<AuditResponse>({
     queryKey: ["/api/admin/transactions/audit", dateRange.start, dateRange.end, paymentMethod, transactionType, searchQuery],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -117,8 +118,8 @@ export default function TransactionAudit() {
       tx.date,
       tx.transactionType,
       paymentMethodLabels[tx.paymentMethod] || tx.paymentMethod,
-      tx.amount.toFixed(2),
-      tx.description.replace(/,/g, ';'),
+      tx.amount?.toFixed(2) ?? '0.00',
+      (tx.description || '').replace(/,/g, ';'),
       tx.studentName || '-',
       tx.referenceNumber || '-',
       tx.status,
