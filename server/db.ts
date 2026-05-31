@@ -9,29 +9,43 @@ if (!process.env.DATABASE_URL) {
 }
 
 function buildPoolConfig(connectionString: string): pg.PoolConfig {
-  // The pg library does not reliably honour sslmode=prefer/disable in the
-  // connection string — passing ssl: false alongside a URL that still contains
-  // sslmode=prefer is NOT enough; pg still attempts SSL.
-  // Solution: if SSL is not strictly required, strip the sslmode param from
-  // the URL entirely AND set ssl: false so pg never negotiates SSL.
+  // Parse the sslmode from the connection string so we can make an informed
+  // decision about SSL negotiation.
+  //
+  // Historical note: the previous version forced ssl:false for sslmode=prefer.
+  // That broke the backbone production environment whose pg_hba.conf requires
+  // SSL (hostssl rule) even though the deploy script sends sslmode=prefer.
+  // The fix is to let pg handle SSL negotiation naturally for prefer/require,
+  // and only hard-disable SSL when the caller explicitly says sslmode=disable.
   try {
     const url = new URL(connectionString);
     const sslmode = url.searchParams.get("sslmode") ?? "";
 
-    if (sslmode === "require") {
-      // External services (e.g. Neon) — keep SSL on
+    if (sslmode === "disable") {
+      // Caller explicitly opted out of SSL — honour it.
+      url.searchParams.delete("sslmode");
+      url.searchParams.delete("ssl");
+      const cleanUrl = url.toString().replace(/\?$/, "");
+      return { connectionString: cleanUrl, ssl: false };
+    }
+
+    if (sslmode === "require" || sslmode === "prefer") {
+      // Pass the connection string through unchanged so pg can negotiate SSL.
+      // For sslmode=require the pg library skips cert verification (matching
+      // standard PostgreSQL client behaviour).
+      // For sslmode=prefer pg will try SSL first and succeed when the server
+      // supports it (backbone production), or skip SSL gracefully otherwise.
       return { connectionString };
     }
 
-    // sslmode=prefer / disable / unset (internal Docker postgres, etc.)
-    // Strip the param so pg can't read it, then hard-disable SSL.
+    // No sslmode set — local / dev environment without SSL.
+    // Strip any stale ssl params and disable SSL explicitly.
     url.searchParams.delete("sslmode");
     url.searchParams.delete("ssl");
-    // Remove trailing ? if no params remain
     const cleanUrl = url.toString().replace(/\?$/, "");
     return { connectionString: cleanUrl, ssl: false };
   } catch {
-    // URL parsing failed — fall back to disabling SSL
+    // URL parsing failed — conservative default: no SSL.
     return { connectionString, ssl: false };
   }
 }
