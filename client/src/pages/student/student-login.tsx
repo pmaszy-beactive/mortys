@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, GraduationCap, AlertCircle, Sparkles, Award, Home, Mail } from "lucide-react";
+import { Loader2, GraduationCap, AlertCircle, Award, Home, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation, Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -31,8 +31,8 @@ export default function StudentLogin() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "demo.student@example.com",
-      password: "demo123",
+      email: "",
+      password: "",
     },
   });
 
@@ -246,24 +246,6 @@ export default function StudentLogin() {
                 </Button>
               </form>
             </Form>
-
-            {/* Demo Credentials */}
-            <div className="mt-6 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl border border-[#ECC462]/30">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-4 w-4 text-amber-600" />
-                <h3 className="text-sm font-semibold text-amber-900">
-                  Demo Instructions
-                </h3>
-              </div>
-              <div className="space-y-1 text-sm text-amber-800">
-                <p><strong>Email:</strong> demo.student@example.com</p>
-                <p><strong>Password:</strong> demo123</p>
-                <p className="mt-2 text-xs text-amber-600 flex items-center gap-1">
-                  <Sparkles className="h-3 w-3" />
-                  Credentials are pre-filled for your convenience!
-                </p>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
