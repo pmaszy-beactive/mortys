@@ -7,10 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { 
   CreditCard, 
   DollarSign, 
-  Download, 
   Plus, 
   Trash2, 
   Check, 
@@ -19,7 +20,12 @@ import {
   Receipt,
   User,
   Users,
-  LogOut
+  LogOut,
+  ExternalLink,
+  RotateCcw,
+  Clock,
+  XCircle,
+  CheckCircle2
 } from "lucide-react";
 import { useLocation, Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -66,6 +72,10 @@ interface Transaction {
     date: string;
   } | null;
   coveredItems?: string | null;
+  refundStatus?: string | null;
+  refundRequestNote?: string | null;
+  refundAdminNote?: string | null;
+  refundAmount?: string | null;
 }
 
 interface BillingOverview {
@@ -76,6 +86,90 @@ interface BillingOverview {
   totalPaid: number;
   studentPayments: number;
   otherPayments: number;
+}
+
+function refundStatusBadge(status: string | null | undefined) {
+  if (!status || status === "none") return null;
+  if (status === "requested") return (
+    <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 rounded-sm text-[10px] font-semibold gap-1">
+      <Clock className="h-3 w-3" /> Refund Pending
+    </Badge>
+  );
+  if (status === "approved" || status === "refunded") return (
+    <Badge className="bg-green-50 text-green-700 border-green-200 rounded-sm text-[10px] font-semibold gap-1">
+      <CheckCircle2 className="h-3 w-3" /> Refunded
+    </Badge>
+  );
+  if (status === "denied") return (
+    <Badge className="bg-red-50 text-red-700 border-red-200 rounded-sm text-[10px] font-semibold gap-1">
+      <XCircle className="h-3 w-3" /> Refund Denied
+    </Badge>
+  );
+  return null;
+}
+
+function RequestRefundDialog({ transaction, onSuccess }: { transaction: Transaction; onSuccess: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const { toast } = useToast();
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("POST", `/api/student/billing/transactions/${transaction.id}/request-refund`, { reason });
+    },
+    onSuccess: () => {
+      toast({ title: "Refund request submitted", description: "We'll review your request and get back to you." });
+      setOpen(false);
+      setReason("");
+      onSuccess();
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to submit request", description: error.message || "Please try again.", variant: "destructive" });
+    },
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-gray-500 hover:text-orange-600 hover:bg-orange-50">
+          <RotateCcw className="h-3 w-3 mr-1" />
+          Request Refund
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Request a Refund</DialogTitle>
+          <DialogDescription>
+            Tell us why you're requesting a refund for this payment of ${parseFloat(transaction.total).toFixed(2)}.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="p-3 bg-gray-50 rounded-md text-sm text-gray-700 border border-gray-100">
+            <p className="font-medium">{transaction.description}</p>
+            <p className="text-gray-500 text-xs mt-0.5">${parseFloat(transaction.total).toFixed(2)} · {transaction.date}</p>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="refund-reason">Reason for refund <span className="text-red-500">*</span></Label>
+            <Textarea
+              id="refund-reason"
+              value={reason}
+              onChange={e => setReason(e.target.value)}
+              placeholder="Please explain why you're requesting a refund..."
+              rows={3}
+              className="resize-none"
+            />
+          </div>
+          <Button
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending || !reason.trim()}
+            className="w-full bg-[#ECC462] hover:bg-[#d4af56] text-[#111111] font-semibold shadow-none"
+          >
+            {mutation.isPending ? "Submitting..." : "Submit Refund Request"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 function BillingContent() {
@@ -108,10 +202,7 @@ function BillingContent() {
       await apiRequest("POST", "/api/auth/logout");
     },
     onSuccess: () => {
-      toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of your account.",
-      });
+      toast({ title: "Logged out successfully", description: "You have been logged out of your account." });
       setLocation("/student-login");
     },
   });
@@ -122,18 +213,11 @@ function BillingContent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/student/billing/methods"] });
-      toast({
-        title: "Card added successfully",
-        description: "Your payment method has been saved.",
-      });
+      toast({ title: "Card added successfully", description: "Your payment method has been saved." });
       setAddCardOpen(false);
     },
     onError: (error: any) => {
-      toast({
-        title: "Failed to add card",
-        description: error.message || "Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Failed to add card", description: error.message || "Please try again.", variant: "destructive" });
     },
   });
 
@@ -143,17 +227,10 @@ function BillingContent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/student/billing/methods"] });
-      toast({
-        title: "Card removed",
-        description: "Payment method has been deleted.",
-      });
+      toast({ title: "Card removed", description: "Payment method has been deleted." });
     },
     onError: (error: any) => {
-      toast({
-        title: "Failed to remove card",
-        description: error.message || "Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Failed to remove card", description: error.message || "Please try again.", variant: "destructive" });
     },
   });
 
@@ -163,9 +240,7 @@ function BillingContent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/student/billing/methods"] });
-      toast({
-        title: "Default payment method updated",
-      });
+      toast({ title: "Default payment method updated" });
     },
   });
 
@@ -176,18 +251,11 @@ function BillingContent() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/student/billing/overview"] });
       queryClient.invalidateQueries({ queryKey: ["/api/student/billing/history"] });
-      toast({
-        title: "Payment successful!",
-        description: "Your purchase has been completed.",
-      });
+      toast({ title: "Payment successful!", description: "Your purchase has been completed." });
       setSelectedPackage(null);
     },
     onError: (error: any) => {
-      toast({
-        title: "Payment failed",
-        description: error.message || "Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Payment failed", description: error.message || "Please try again.", variant: "destructive" });
     },
   });
 
@@ -198,20 +266,12 @@ function BillingContent() {
     onSuccess: async (data: any) => {
       if (data?.status === "requires_action" && data?.clientSecret) {
         if (!stripe) {
-          toast({
-            title: "Authentication required",
-            description: "Your bank requires additional verification, but Stripe is not ready. Please try again.",
-            variant: "destructive",
-          });
+          toast({ title: "Authentication required", description: "Your bank requires additional verification, but Stripe is not ready. Please try again.", variant: "destructive" });
           return;
         }
         const { error } = await stripe.handleNextAction({ clientSecret: data.clientSecret });
         if (error) {
-          toast({
-            title: "Authentication failed",
-            description: error.message || "Card authentication was not completed.",
-            variant: "destructive",
-          });
+          toast({ title: "Authentication failed", description: error.message || "Card authentication was not completed.", variant: "destructive" });
           return;
         }
         confirmAfter3dsMutation.mutate(data.paymentIntentId);
@@ -219,86 +279,45 @@ function BillingContent() {
       }
       queryClient.invalidateQueries({ queryKey: ["/api/student/billing/overview"] });
       queryClient.invalidateQueries({ queryKey: ["/api/student/billing/history"] });
-      toast({
-        title: "Payment successful!",
-        description: "Your purchase has been completed.",
-      });
+      toast({ title: "Payment successful!", description: "Your purchase has been completed." });
       setSelectedPackage(null);
     },
     onError: (error: any) => {
-      toast({
-        title: "Payment failed",
-        description: error.message || "Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Payment failed", description: error.message || "Please try again.", variant: "destructive" });
     },
   });
 
   const handleAddCard = async () => {
     if (!stripe || !elements) {
-      toast({
-        title: "Stripe not initialized",
-        description: "Please refresh the page and try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Stripe not initialized", description: "Please refresh the page and try again.", variant: "destructive" });
       return;
     }
-
     const cardElement = elements.getElement(CardElement);
     if (!cardElement) return;
-
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: "card",
-      card: cardElement,
-    });
-
+    const { error, paymentMethod } = await stripe.createPaymentMethod({ type: "card", card: cardElement });
     if (error) {
-      toast({
-        title: "Card validation failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Card validation failed", description: error.message, variant: "destructive" });
       return;
     }
-
     addCardMutation.mutate(paymentMethod.id);
   };
 
   const handlePurchasePackage = (pkg: LessonPackage) => {
     const defaultMethod = paymentMethods.find(m => m.isDefault);
     if (!defaultMethod) {
-      toast({
-        title: "No payment method",
-        description: "Please add a payment method first.",
-        variant: "destructive",
-      });
+      toast({ title: "No payment method", description: "Please add a payment method first.", variant: "destructive" });
       return;
     }
-
-    checkoutMutation.mutate({
-      type: "package",
-      packageId: pkg.id,
-      paymentMethodId: defaultMethod.id,
-    });
+    checkoutMutation.mutate({ type: "package", packageId: pkg.id, paymentMethodId: defaultMethod.id });
   };
 
   const handlePayBalance = () => {
     const defaultMethod = paymentMethods.find(m => m.isDefault);
     if (!defaultMethod || !overview) {
-      toast({
-        title: "Cannot process payment",
-        description: "Please add a payment method first.",
-        variant: "destructive",
-      });
+      toast({ title: "Cannot process payment", description: "Please add a payment method first.", variant: "destructive" });
       return;
     }
-
-    checkoutMutation.mutate({
-      type: "balance",
-      amount: overview.outstandingBalance,
-      paymentMethodId: defaultMethod.id,
-      description: "Outstanding balance payment",
-    });
+    checkoutMutation.mutate({ type: "balance", amount: overview.outstandingBalance, paymentMethodId: defaultMethod.id, description: "Outstanding balance payment" });
   };
 
   if (!authLoading && !isAuthenticated) {
@@ -323,12 +342,8 @@ function BillingContent() {
       <div className="bg-white border border-gray-200 rounded-md shadow-sm p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Checkout & Balances
-            </h1>
-            <p className="text-sm text-gray-600">
-              Manage payments, packages, and billing history
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900">Checkout & Balances</h1>
+            <p className="text-sm text-gray-600">Manage payments, packages, and billing history</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link href="/student/classes">
@@ -364,7 +379,7 @@ function BillingContent() {
                 </div>
               </div>
               {overview && overview.outstandingBalance > 0 && (
-                <Button 
+                <Button
                   onClick={handlePayBalance}
                   disabled={checkoutMutation.isPending || paymentMethods.length === 0}
                   className="w-full mt-6 bg-[#ECC462] hover:bg-[#d4af56] text-[#111111] shadow-none font-semibold"
@@ -386,9 +401,7 @@ function BillingContent() {
                   </p>
                   <div className="mt-2 space-y-1">
                     {overview && (overview.studentPayments > 0 || overview.otherPayments > 0) && (
-                      <p className="text-xs text-gray-500 flex items-center gap-1">
-                        Includes family contributions
-                      </p>
+                      <p className="text-xs text-gray-500 flex items-center gap-1">Includes family contributions</p>
                     )}
                   </div>
                 </div>
@@ -433,9 +446,7 @@ function BillingContent() {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Add Payment Method</DialogTitle>
-                  <DialogDescription>
-                    Add a new credit or debit card for payments
-                  </DialogDescription>
+                  <DialogDescription>Add a new credit or debit card for payments</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div className="p-4 border border-gray-200 rounded-md">
@@ -445,15 +456,13 @@ function BillingContent() {
                           base: {
                             fontSize: '16px',
                             color: '#111111',
-                            '::placeholder': {
-                              color: '#aab7c4',
-                            },
+                            '::placeholder': { color: '#aab7c4' },
                           },
                         },
                       }}
                     />
                   </div>
-                  <Button 
+                  <Button
                     onClick={handleAddCard}
                     disabled={addCardMutation.isPending || !stripe}
                     className="w-full bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] shadow-none font-semibold"
@@ -493,9 +502,7 @@ function BillingContent() {
                           {method.cardBrand?.toUpperCase()} •••• {method.last4}
                         </p>
                         <div className="flex items-center gap-3 mt-0.5">
-                          <p className="text-sm text-gray-500">
-                            Expires {method.expiryMonth}/{method.expiryYear}
-                          </p>
+                          <p className="text-sm text-gray-500">Expires {method.expiryMonth}/{method.expiryYear}</p>
                           {method.isDefault && (
                             <Badge className="bg-[#ECC462]/10 text-[#111111] border-[#ECC462]/30 text-[10px] uppercase tracking-wider h-5 px-1.5 font-bold rounded-sm">Default</Badge>
                           )}
@@ -561,43 +568,71 @@ function BillingContent() {
                       <TableHead className="font-semibold text-gray-700">Paid By</TableHead>
                       <TableHead className="font-semibold text-gray-700">Method</TableHead>
                       <TableHead className="text-right font-semibold text-gray-700">Amount</TableHead>
+                      <TableHead className="text-right font-semibold text-gray-700">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {transactions.map((tx) => (
-                      <TableRow key={tx.id} data-testid={`row-transaction-${tx.id}`} className="hover:bg-gray-50 transition-colors">
-                        <TableCell className="text-gray-600">{tx.date}</TableCell>
-                        <TableCell>
-                          <div className="space-y-0.5">
-                            <p className="font-medium text-gray-900">{tx.description}</p>
-                            {tx.coveredItems && (
-                              <p className="text-xs text-gray-500">
-                                {tx.coveredItems}
-                              </p>
+                    {transactions.map((tx) => {
+                      const isStudentTx = typeof tx.id === 'number';
+                      const canRequestRefund = isStudentTx && (!tx.refundStatus || tx.refundStatus === "none");
+                      return (
+                        <TableRow key={tx.id} data-testid={`row-transaction-${tx.id}`} className="hover:bg-gray-50 transition-colors">
+                          <TableCell className="text-gray-600 whitespace-nowrap">{tx.date}</TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <p className="font-medium text-gray-900">{tx.description}</p>
+                              {tx.coveredItems && (
+                                <p className="text-xs text-gray-500">{tx.coveredItems}</p>
+                              )}
+                              {refundStatusBadge(tx.refundStatus)}
+                              {tx.refundStatus === "denied" && tx.refundAdminNote && (
+                                <p className="text-xs text-red-500">Note: {tx.refundAdminNote}</p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {tx.paidBy === 'other' ? (
+                              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-100 rounded-sm">
+                                <Users className="h-3 w-3 mr-1" />
+                                {tx.payerName || 'Parent'}
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200 rounded-sm">
+                                <User className="h-3 w-3 mr-1" />
+                                You
+                              </Badge>
                             )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {tx.paidBy === 'other' ? (
-                            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-100 rounded-sm">
-                              <Users className="h-3 w-3 mr-1" />
-                              {tx.payerName || 'Parent'}
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200 rounded-sm">
-                              <User className="h-3 w-3 mr-1" />
-                              You
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-gray-600 text-sm">{tx.paymentMethod || "N/A"}</span>
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-gray-900">
-                          ${parseFloat(tx.total).toFixed(2)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-gray-600 text-sm">{tx.paymentMethod || "N/A"}</span>
+                          </TableCell>
+                          <TableCell className="text-right font-semibold text-gray-900 whitespace-nowrap">
+                            ${parseFloat(tx.total).toFixed(2)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              {isStudentTx && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 px-2 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                                  onClick={() => window.open(`/api/student/billing/receipt/${tx.id}`, '_blank')}
+                                >
+                                  <ExternalLink className="h-3 w-3 mr-1" />
+                                  Receipt
+                                </Button>
+                              )}
+                              {canRequestRefund && (
+                                <RequestRefundDialog
+                                  transaction={tx}
+                                  onSuccess={() => queryClient.invalidateQueries({ queryKey: ["/api/student/billing/history"] })}
+                                />
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
@@ -619,10 +654,7 @@ function StripeNotConfigured() {
       await apiRequest("POST", "/api/auth/logout");
     },
     onSuccess: () => {
-      toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of your account.",
-      });
+      toast({ title: "Logged out successfully", description: "You have been logged out of your account." });
       setLocation("/student-login");
     },
   });
@@ -651,15 +683,9 @@ function StripeNotConfigured() {
             <h1 className="text-3xl font-bold text-[#111111]">Checkout & Balances</h1>
             <div className="flex gap-2">
               <Link href="/student/classes">
-                <Button variant="outline" className="border-[#ECC462]">
-                  Back to Dashboard
-                </Button>
+                <Button variant="outline" className="border-[#ECC462]">Back to Dashboard</Button>
               </Link>
-              <Button 
-                variant="outline"
-                onClick={() => logoutMutation.mutate()}
-                disabled={logoutMutation.isPending}
-              >
+              <Button variant="outline" onClick={() => logoutMutation.mutate()} disabled={logoutMutation.isPending}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </Button>

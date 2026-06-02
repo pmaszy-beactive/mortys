@@ -11,7 +11,7 @@ import {
 } from "./services/s3";
 import { storage } from "./storage";
 import { db } from "./db";
-import { sql, eq, and, not, isNull, count } from "drizzle-orm";
+import { sql, eq, and, not, isNull, isNotNull, ne, count } from "drizzle-orm";
 import {
   lessonRecords,
   students,
@@ -8373,7 +8373,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           payerName: `${student.firstName} ${student.lastName}`,
           type: 'student_payment',
           linkedTo: null,
-          coveredItems: null
+          coveredItems: null,
+          refundStatus: (tx as any).refundStatus || null,
+          refundRequestNote: (tx as any).refundRequestNote || null,
+          refundAdminNote: (tx as any).refundAdminNote || null,
+          refundAmount: (tx as any).refundAmount || null,
         }));
 
         // Get payment allocations from parents/guardians with linked transaction details
@@ -8426,7 +8430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  // Download receipt
+  // View/download receipt (HTML printable page)
   app.get(
     "/api/student/billing/receipt/:id",
     isStudentAuthenticated,
@@ -8435,7 +8439,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const student = req.student;
         const transactionId = parseInt(req.params.id);
 
-        // Get transaction
         const transactions = await storage.getStudentPaymentHistory(student.id);
         const transaction = transactions.find(t => t.id === transactionId);
 
@@ -8443,28 +8446,312 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ message: "Receipt not found" });
         }
 
-        // For now, return a simple JSON receipt
-        // TODO: Generate PDF using a library like PDFKit
-        const receipt = {
-          receiptNumber: `REC-${transactionId}`,
-          date: transaction.date,
-          studentName: `${student.firstName} ${student.lastName}`,
-          description: transaction.description,
-          amount: transaction.amount,
-          gst: transaction.gst,
-          pst: transaction.pst,
-          total: transaction.total,
-          paymentMethod: transaction.paymentMethod,
-          referenceNumber: transaction.referenceNumber,
-        };
+        const receipt = await storage.getBillingReceipt(transactionId);
+        const receiptNumber = receipt?.receiptNumber || `REC-${transactionId}`;
+        const dateStr = transaction.createdAt
+          ? new Date(transaction.createdAt).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+          : transaction.date;
 
-        res.json(receipt);
+        const total = parseFloat(transaction.total?.toString() || "0");
+        const gst = parseFloat(transaction.gst?.toString() || "0");
+        const pst = parseFloat(transaction.pst?.toString() || "0");
+        const subtotal = total - gst - pst;
+
+        const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Receipt ${receiptNumber}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111; background: #fff; padding: 40px 20px; }
+    .receipt { max-width: 560px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+    .header { background: #111111; color: #ECC462; padding: 28px 32px; }
+    .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .header p { font-size: 13px; color: #d4af56; margin-top: 2px; }
+    .receipt-number { background: #ECC462; color: #111; padding: 10px 32px; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; }
+    .body { padding: 28px 32px; }
+    .section { margin-bottom: 24px; }
+    .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #6b7280; margin-bottom: 8px; font-weight: 600; }
+    .field { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px dashed #f3f4f6; }
+    .field:last-child { border-bottom: none; }
+    .field-label { font-size: 14px; color: #374151; }
+    .field-value { font-size: 14px; color: #111; font-weight: 500; text-align: right; }
+    .total-row { display: flex; justify-content: space-between; padding: 14px 0 0; border-top: 2px solid #111; margin-top: 8px; }
+    .total-label { font-size: 16px; font-weight: 700; }
+    .total-value { font-size: 18px; font-weight: 800; color: #111; }
+    .footer { background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 16px 32px; text-align: center; font-size: 12px; color: #9ca3af; }
+    @media print { body { padding: 0; } .receipt { border: none; border-radius: 0; } .no-print { display: none !important; } }
+    .print-btn { display: block; text-align: center; margin: 24px auto 0; padding: 10px 32px; background: #111; color: #ECC462; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <div class="header">
+      <h1>Morty's Driving School</h1>
+      <p>Payment Receipt</p>
+    </div>
+    <div class="receipt-number">
+      <span>Receipt #${receiptNumber}</span>
+      <span>${dateStr}</span>
+    </div>
+    <div class="body">
+      <div class="section">
+        <div class="section-title">Billed To</div>
+        <div class="field">
+          <span class="field-label">Student Name</span>
+          <span class="field-value">${student.firstName} ${student.lastName}</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Email</span>
+          <span class="field-value">${student.email}</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Payment Details</div>
+        <div class="field">
+          <span class="field-label">Description</span>
+          <span class="field-value">${transaction.description || 'Payment'}</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Payment Method</span>
+          <span class="field-value">${transaction.paymentMethod ? transaction.paymentMethod.charAt(0).toUpperCase() + transaction.paymentMethod.slice(1) : 'N/A'}</span>
+        </div>
+        ${transaction.referenceNumber ? `<div class="field"><span class="field-label">Reference #</span><span class="field-value" style="font-size:12px;word-break:break-all">${transaction.referenceNumber}</span></div>` : ''}
+      </div>
+      <div class="section">
+        <div class="section-title">Summary</div>
+        <div class="field">
+          <span class="field-label">Subtotal</span>
+          <span class="field-value">$${subtotal.toFixed(2)}</span>
+        </div>
+        ${gst > 0 ? `<div class="field"><span class="field-label">GST</span><span class="field-value">$${gst.toFixed(2)}</span></div>` : ''}
+        ${pst > 0 ? `<div class="field"><span class="field-label">PST</span><span class="field-value">$${pst.toFixed(2)}</span></div>` : ''}
+        <div class="total-row">
+          <span class="total-label">Total Paid</span>
+          <span class="total-value">$${total.toFixed(2)} CAD</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      Thank you for your payment. Keep this receipt for your records.
+    </div>
+  </div>
+  <button class="print-btn no-print" onclick="window.print()">Print Receipt</button>
+</body>
+</html>`;
+
+        res.setHeader("Content-Type", "text/html");
+        res.send(html);
       } catch (error) {
         console.error("Error fetching receipt:", error);
         res.status(500).json({ message: "Failed to fetch receipt" });
       }
     }
   );
+
+  // Student requests a refund on a transaction
+  app.post(
+    "/api/student/billing/transactions/:transactionId/request-refund",
+    isStudentAuthenticated,
+    async (req: any, res) => {
+      try {
+        const student = req.student;
+        const transactionId = parseInt(req.params.transactionId);
+        const { reason } = req.body;
+
+        if (!reason || !reason.trim()) {
+          return res.status(400).json({ message: "A reason is required for the refund request." });
+        }
+
+        const transaction = await storage.getStudentTransaction(transactionId);
+        if (!transaction || transaction.studentId !== student.id) {
+          return res.status(404).json({ message: "Transaction not found." });
+        }
+        if (transaction.transactionType !== "payment") {
+          return res.status(400).json({ message: "Only payments can be refunded." });
+        }
+        if (transaction.refundStatus && transaction.refundStatus !== "none") {
+          return res.status(400).json({ message: "A refund request already exists for this transaction." });
+        }
+
+        const updated = await storage.updateStudentTransaction(transactionId, {
+          refundStatus: "requested",
+          refundRequestNote: reason.trim(),
+        });
+
+        res.json({ success: true, transaction: updated });
+      } catch (error) {
+        console.error("Error submitting refund request:", error);
+        res.status(500).json({ message: "Failed to submit refund request." });
+      }
+    }
+  );
+
+  // ============================================
+  // Admin Refund Routes
+  // ============================================
+
+  // List all refund requests (pending and resolved)
+  app.get("/api/admin/refund-requests", authMiddleware, async (req, res) => {
+    try {
+      const rows = await db.select({
+        id: studentTransactions.id,
+        studentId: studentTransactions.studentId,
+        date: studentTransactions.date,
+        description: studentTransactions.description,
+        amount: studentTransactions.amount,
+        total: studentTransactions.total,
+        paymentMethod: studentTransactions.paymentMethod,
+        referenceNumber: studentTransactions.referenceNumber,
+        refundStatus: studentTransactions.refundStatus,
+        refundRequestNote: studentTransactions.refundRequestNote,
+        refundAdminNote: studentTransactions.refundAdminNote,
+        refundAmount: studentTransactions.refundAmount,
+        refundedAt: studentTransactions.refundedAt,
+        createdAt: studentTransactions.createdAt,
+        studentFirstName: students.firstName,
+        studentLastName: students.lastName,
+        studentEmail: students.email,
+      })
+        .from(studentTransactions)
+        .leftJoin(students, eq(studentTransactions.studentId, students.id))
+        .where(and(isNotNull(studentTransactions.refundStatus), ne(studentTransactions.refundStatus as any, 'none')))
+        .orderBy(studentTransactions.createdAt);
+      res.json(rows);
+    } catch (error) {
+      console.error("Error fetching refund requests:", error);
+      res.status(500).json({ message: "Failed to fetch refund requests." });
+    }
+  });
+
+  // Approve a refund request (executes Stripe refund if applicable)
+  app.post("/api/admin/refund-requests/:id/approve", authMiddleware, async (req, res) => {
+    try {
+      const transactionId = parseInt(req.params.id);
+      const { adminNote, amount } = req.body;
+
+      const transaction = await storage.getStudentTransaction(transactionId);
+      if (!transaction) {
+        return res.status(404).json({ message: "Transaction not found." });
+      }
+      if (transaction.refundStatus !== "requested") {
+        return res.status(400).json({ message: "This transaction does not have a pending refund request." });
+      }
+
+      const refundAmount = amount ? parseFloat(amount) : parseFloat(transaction.total?.toString() || "0");
+
+      let stripeRefundId: string | undefined;
+
+      // Attempt Stripe refund if there's a payment intent reference
+      if (stripe && transaction.referenceNumber && transaction.referenceNumber.startsWith("pi_")) {
+        try {
+          const refund = await stripe.refunds.create({
+            payment_intent: transaction.referenceNumber,
+            amount: Math.round(refundAmount * 100),
+            reason: "requested_by_customer",
+          });
+          stripeRefundId = refund.id;
+        } catch (stripeError: any) {
+          console.error("Stripe refund error:", stripeError.message);
+          return res.status(400).json({ message: `Stripe refund failed: ${stripeError.message}` });
+        }
+      }
+
+      const updated = await storage.updateStudentTransaction(transactionId, {
+        refundStatus: "refunded",
+        refundAdminNote: adminNote || null,
+        stripeRefundId: stripeRefundId || null,
+        refundAmount: String(refundAmount),
+        refundedAt: new Date(),
+      });
+
+      res.json({ success: true, transaction: updated });
+    } catch (error) {
+      console.error("Error approving refund:", error);
+      res.status(500).json({ message: "Failed to approve refund." });
+    }
+  });
+
+  // Deny a refund request
+  app.post("/api/admin/refund-requests/:id/deny", authMiddleware, async (req, res) => {
+    try {
+      const transactionId = parseInt(req.params.id);
+      const { adminNote } = req.body;
+
+      const transaction = await storage.getStudentTransaction(transactionId);
+      if (!transaction) {
+        return res.status(404).json({ message: "Transaction not found." });
+      }
+      if (transaction.refundStatus !== "requested") {
+        return res.status(400).json({ message: "This transaction does not have a pending refund request." });
+      }
+
+      const updated = await storage.updateStudentTransaction(transactionId, {
+        refundStatus: "denied",
+        refundAdminNote: adminNote || null,
+      });
+
+      res.json({ success: true, transaction: updated });
+    } catch (error) {
+      console.error("Error denying refund:", error);
+      res.status(500).json({ message: "Failed to deny refund." });
+    }
+  });
+
+  // Admin direct refund (no prior student request needed)
+  app.post("/api/admin/transactions/:transactionId/refund", authMiddleware, async (req, res) => {
+    try {
+      const transactionId = parseInt(req.params.transactionId);
+      const { amount, reason } = req.body;
+
+      if (!reason || !reason.trim()) {
+        return res.status(400).json({ message: "A reason is required." });
+      }
+
+      const transaction = await storage.getStudentTransaction(transactionId);
+      if (!transaction) {
+        return res.status(404).json({ message: "Transaction not found." });
+      }
+      if (transaction.transactionType !== "payment") {
+        return res.status(400).json({ message: "Only payments can be refunded." });
+      }
+      if (transaction.refundStatus === "refunded") {
+        return res.status(400).json({ message: "This transaction has already been refunded." });
+      }
+
+      const refundAmount = amount ? parseFloat(amount) : parseFloat(transaction.total?.toString() || "0");
+      let stripeRefundId: string | undefined;
+
+      if (stripe && transaction.referenceNumber && transaction.referenceNumber.startsWith("pi_")) {
+        try {
+          const refund = await stripe.refunds.create({
+            payment_intent: transaction.referenceNumber,
+            amount: Math.round(refundAmount * 100),
+            reason: "requested_by_customer",
+          });
+          stripeRefundId = refund.id;
+        } catch (stripeError: any) {
+          console.error("Stripe refund error:", stripeError.message);
+          return res.status(400).json({ message: `Stripe refund failed: ${stripeError.message}` });
+        }
+      }
+
+      const updated = await storage.updateStudentTransaction(transactionId, {
+        refundStatus: "refunded",
+        refundAdminNote: reason.trim(),
+        stripeRefundId: stripeRefundId || null,
+        refundAmount: String(refundAmount),
+        refundedAt: new Date(),
+      });
+
+      res.json({ success: true, transaction: updated });
+    } catch (error) {
+      console.error("Error processing direct refund:", error);
+      res.status(500).json({ message: "Failed to process refund." });
+    }
+  });
 
   // ============================================
   // Admin Payment Reconciliation Routes

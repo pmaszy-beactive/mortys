@@ -30,6 +30,7 @@ import OverrideAuditLogs from "@/pages/override-audit-logs";
 import DocumentVerification from "@/pages/document-verification";
 import PaymentReconciliation from "@/pages/payment-reconciliation";
 import TransactionAudit from "@/pages/transaction-audit";
+import RefundRequests from "@/pages/refund-requests";
 import ChangeRequests from "@/pages/change-requests";
 import NotFound from "@/pages/not-found";
 import InstructorInvite from "@/pages/instructor-invite";
@@ -204,6 +205,7 @@ function Router() {
           <Route path="/override-audit-logs" component={OverrideAuditLogs} />
           <Route path="/payment-reconciliation" component={PaymentReconciliation} />
           <Route path="/transaction-audit" component={TransactionAudit} />
+          <Route path="/refund-requests" component={RefundRequests} />
         </Layout>
       )}
       <Route component={NotFound} />

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Car, Users, Presentation, Calendar, ClipboardCheck, Mail, BarChart3, Menu, X, Video, FileText, CreditCard, MapPin, TrendingUp, Settings, LogOut, Shield, Receipt, DollarSign, ChevronDown, ChevronRight, Wallet } from "lucide-react";
+import { Car, Users, Presentation, Calendar, ClipboardCheck, Mail, BarChart3, Menu, X, Video, FileText, CreditCard, MapPin, TrendingUp, Settings, LogOut, Shield, Receipt, DollarSign, ChevronDown, ChevronRight, Wallet, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { NotificationCenter } from "@/components/notification-center";
@@ -27,6 +27,7 @@ const navigation: NavItem[] = [
     children: [
       { name: "Payment Reconciliation", href: "/payment-reconciliation", icon: Receipt },
       { name: "Transaction Audit", href: "/transaction-audit", icon: DollarSign },
+      { name: "Refund Requests", href: "/refund-requests", icon: RotateCcw },
     ]
   },
   { 
