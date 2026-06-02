@@ -460,17 +460,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
             console.log(`[webhook] Reschedule fee recorded for enrollment ${enrollmentId}`);
             // If the target class was stored in metadata, execute the reschedule now so the
-            // student's booking is moved even if the browser never calls /reschedule
+            // student's booking is moved even if the browser never calls /reschedule.
+            // Run the same availability check as the /reschedule endpoint to prevent booking
+            // a full, ineligible, or non-existent class via metadata.
             const newClassIdMeta = pi.metadata?.newClassId;
-            if (newClassIdMeta) {
+            const studentIdForReschedule = pi.metadata?.studentId;
+            if (newClassIdMeta && studentIdForReschedule) {
               const enrollmentRec = await storage.getClassEnrollment(parseInt(enrollmentId));
               if (enrollmentRec && !enrollmentRec.cancelledAt) {
                 const newCid = parseInt(newClassIdMeta);
-                await storage.updateClassEnrollment(parseInt(enrollmentId), {
-                  classId: newCid,
-                  lastPaymentIntentId: pi.id,
-                });
-                console.log(`[webhook] Reschedule executed: enrollment ${enrollmentId} → class ${newCid}`);
+                // Re-run availability/eligibility check identical to /reschedule endpoint
+                const availableClasses = await storage.getAvailableClasses(parseInt(studentIdForReschedule), {});
+                if (availableClasses.find(c => c.id === newCid)) {
+                  await storage.updateClassEnrollment(parseInt(enrollmentId), {
+                    classId: newCid,
+                    lastPaymentIntentId: pi.id,
+                  });
+                  console.log(`[webhook] Reschedule executed: enrollment ${enrollmentId} → class ${newCid}`);
+                } else {
+                  console.warn(`[webhook] Class ${newCid} not available/eligible for student ${studentIdForReschedule} — fee recorded, reschedule deferred to browser call`);
+                }
               }
             }
           }
@@ -7610,12 +7619,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const { policyFeePayments } = await import("@shared/schema");
             const existingPayment = await db.select().from(policyFeePayments).where(eq(policyFeePayments.paymentIntentId, paymentIntentId)).limit(1);
             if (existingPayment.length > 0) {
-              // Fee was already recorded (by Stripe webhook or a prior browser call).
-              // Verify it belongs to this enrollment to prevent cross-enrollment reuse.
+              // Fee was previously recorded. Two sub-cases:
               if (existingPayment[0].enrollmentId !== enrollmentId) {
+                // Payment was used for a completely different enrollment — reject.
                 return res.status(400).json({ message: "This payment has already been used for a different enrollment" });
               }
-              // Fee confirmed — fall through and execute the reschedule
+              if (enrollment.lastPaymentIntentId === paymentIntentId) {
+                // Reschedule already applied (webhook or prior browser call completed it).
+                // Return idempotent success — do NOT execute again or allow a new class change.
+                return res.json({ success: true, message: "Class rescheduled successfully", newClass });
+              }
+              // Fee recorded but reschedule not yet applied (webhook recorded fee but
+              // class update hasn't gone through yet) — fall through and execute it now.
             } else {
               // Fee not yet recorded — verify with Stripe and record it now
               const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
