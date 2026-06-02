@@ -317,31 +317,6 @@ function BillingContent() {
     );
   }
 
-  if (!stripePromise) {
-    return (
-      <div className="space-y-6">
-        <div className="bg-white border border-gray-200 rounded-md shadow-sm p-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Checkout & Balances</h1>
-            <div className="flex gap-2">
-              <Link href="/student/classes">
-                <Button variant="outline" className="border-gray-200">
-                  Back to Dashboard
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-        <Alert className="bg-amber-50 border-amber-200 text-amber-800">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Payment system is not configured. Please contact your administrator to set up Stripe payment processing.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
       {/* Header */}
