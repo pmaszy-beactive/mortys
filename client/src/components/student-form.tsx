@@ -357,9 +357,9 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="auto">Auto - $1,200</SelectItem>
-                    <SelectItem value="moto">Moto - $800</SelectItem>
-                    <SelectItem value="scooter">Scooter - $600</SelectItem>
+                    <SelectItem value="auto">Auto - $1,130</SelectItem>
+                    <SelectItem value="moto">Moto - $1,100</SelectItem>
+                    <SelectItem value="scooter">Scooter - $375</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

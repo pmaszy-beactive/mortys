@@ -286,7 +286,10 @@ export interface IStorage {
   
   // Student Transactions
   getStudentTransactions(studentId?: number): Promise<StudentTransaction[]>;
+  getStudentTransaction(id: number): Promise<StudentTransaction | undefined>;
   createStudentTransaction(transaction: InsertStudentTransaction): Promise<StudentTransaction>;
+  updateStudentTransaction(id: number, data: Partial<StudentTransaction>): Promise<StudentTransaction>;
+  getPendingRefundRequests(): Promise<Array<StudentTransaction & { studentFirstName: string; studentLastName: string; studentEmail: string }>>;
   
   // Payment Transactions (legacy)
   getPaymentTransactions(studentId?: number): Promise<PaymentTransaction[]>;
@@ -3204,6 +3207,28 @@ export class DatabaseStorage implements IStorage {
       .values(insertTransaction)
       .returning();
     return transaction;
+  }
+
+  async getStudentTransaction(id: number): Promise<StudentTransaction | undefined> {
+    const [tx] = await db.select().from(studentTransactions).where(eq(studentTransactions.id, id)).limit(1);
+    return tx || undefined;
+  }
+
+  async updateStudentTransaction(id: number, data: Partial<StudentTransaction>): Promise<StudentTransaction> {
+    const [updated] = await db.update(studentTransactions).set(data).where(eq(studentTransactions.id, id)).returning();
+    return updated;
+  }
+
+  async getPendingRefundRequests(): Promise<Array<StudentTransaction & { studentFirstName: string; studentLastName: string; studentEmail: string }>> {
+    const rows = await db.select({
+      ...Object.fromEntries(Object.keys(studentTransactions).map(k => [k, (studentTransactions as any)[k]])),
+      studentFirstName: students.firstName,
+      studentLastName: students.lastName,
+      studentEmail: students.email,
+    }).from(studentTransactions)
+      .leftJoin(students, eq(studentTransactions.studentId, students.id))
+      .where(eq(studentTransactions.refundStatus as any, 'requested'));
+    return rows as any;
   }
 
   // Payment Transactions (legacy migrated data)

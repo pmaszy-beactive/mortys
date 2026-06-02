@@ -77,9 +77,6 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
     return <XCircle className="h-4 w-4 text-red-600" />;
   };
 
-  const progressPercentage = student.status === "completed" ? 100 : 
-    student.status === "active" ? Math.min(85, (evaluations.length * 15) + 25) : 0;
-
   return (
     <div className="space-y-6">
       {/* Header with student basic info */}
@@ -214,19 +211,6 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Course Progress</span>
-                  <span>{progressPercentage}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-primary h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${progressPercentage}%` }}
-                  ></div>
-                </div>
-              </div>
-
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div className="p-3 bg-blue-50 rounded-lg">
                   <p className="text-2xl font-bold text-blue-600">{evaluations.length}</p>

@@ -709,6 +709,12 @@ export const studentTransactions = pgTable("student_transactions", {
   paymentMethod: text("payment_method"), // cash, credit, debit, check, e-transfer
   referenceNumber: text("reference_number"),
   notes: text("notes"),
+  refundStatus: text("refund_status").default("none"), // none, requested, approved, denied, refunded
+  refundRequestNote: text("refund_request_note"), // student's reason
+  refundAdminNote: text("refund_admin_note"), // admin note when approving/denying
+  stripeRefundId: text("stripe_refund_id"),
+  refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }),
+  refundedAt: timestamp("refunded_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

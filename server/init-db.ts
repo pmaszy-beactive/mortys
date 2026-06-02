@@ -1,7 +1,7 @@
 import { storage } from "./storage";
 import { db } from "./db";
 import { users, schoolPermits, permitNumbers, instructors, students, classes, contractTemplates } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 export async function initializeDatabase() {
@@ -17,6 +17,18 @@ export async function initializeDatabase() {
     } catch (dbError) {
       console.error("Database connection failed:", dbError);
       throw dbError;
+    }
+
+    // Idempotent schema migrations — add new columns if they don't exist yet
+    try {
+      await db.execute(sql`ALTER TABLE student_transactions ADD COLUMN IF NOT EXISTS refund_status text DEFAULT 'none'`);
+      await db.execute(sql`ALTER TABLE student_transactions ADD COLUMN IF NOT EXISTS refund_request_note text`);
+      await db.execute(sql`ALTER TABLE student_transactions ADD COLUMN IF NOT EXISTS refund_admin_note text`);
+      await db.execute(sql`ALTER TABLE student_transactions ADD COLUMN IF NOT EXISTS stripe_refund_id text`);
+      await db.execute(sql`ALTER TABLE student_transactions ADD COLUMN IF NOT EXISTS refund_amount numeric(10,2)`);
+      await db.execute(sql`ALTER TABLE student_transactions ADD COLUMN IF NOT EXISTS refunded_at timestamptz`);
+    } catch (migrationError) {
+      console.error("Non-critical migration error (columns may already exist):", migrationError);
     }
     
     const defaultPassword = await bcrypt.hash("Leader12345", 10);
