@@ -24,11 +24,7 @@ const instructorFormSchema = z.object({
   email: z.string()
     .min(1, "Email is required")
     .email("Please enter a valid email address (e.g., instructor@example.com)"),
-  phone: z.string().optional().refine((val) => {
-    if (!val || val.length === 0) return true;
-    const phoneRegex = /^[\d\s\-\(\)\+\.]+$/;
-    return phoneRegex.test(val) && val.replace(/\D/g, '').length >= 10;
-  }, "Please enter a valid phone number with at least 10 digits"),
+  phone: z.string().optional(),
   instructorLicenseNumber: z.string().optional(),
   permitNumber: z.string().optional(),
   locationAssignment: z.string().optional(),
@@ -36,11 +32,7 @@ const instructorFormSchema = z.object({
   hireDate: z.string().optional(),
   certificationExpiry: z.string().optional(),
   emergencyContact: z.string().optional(),
-  emergencyPhone: z.string().optional().refine((val) => {
-    if (!val || val.length === 0) return true;
-    const phoneRegex = /^[\d\s\-\(\)\+\.]+$/;
-    return phoneRegex.test(val) && val.replace(/\D/g, '').length >= 10;
-  }, "Please enter a valid emergency phone number with at least 10 digits"),
+  emergencyPhone: z.string().optional(),
   notes: z.string().optional(),
   status: z.string().default("active"),
   vehicleId: z.number().optional(),

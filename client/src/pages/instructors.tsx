@@ -681,12 +681,9 @@ export default function Instructors() {
                                 </DialogDescription>
                               </DialogHeader>
                               <InstructorForm 
-                                instructor={editingInstructor} 
+                                instructor={instructor} 
                                 onSuccess={() => {
                                   setEditingInstructor(null);
-                                  // The form component handles success, but we need to close our dialog
-                                  const closeButton = document.querySelector('[data-radix-collection-item]') as HTMLButtonElement;
-                                  closeButton?.click();
                                 }} 
                               />
                             </DialogContent>
