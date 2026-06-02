@@ -276,7 +276,7 @@ function VehicleForm({
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="auto">Auto</SelectItem>
-                    <SelectItem value="motorcycle">Motorcycle</SelectItem>
+                    <SelectItem value="moto">Motorcycle</SelectItem>
                     <SelectItem value="scooter">Scooter</SelectItem>
                   </SelectContent>
                 </Select>
@@ -582,7 +582,7 @@ export default function VehiclesPage() {
 
   // Split vehicles by tab
   const autoVehicles = vehicles.filter(v => v.vehicleType === "auto");
-  const motoVehicles = vehicles.filter(v => v.vehicleType === "motorcycle" || v.vehicleType === "scooter");
+  const motoVehicles = vehicles.filter(v => v.vehicleType === "moto" || v.vehicleType === "scooter");
 
   const filterVehicles = (list: Vehicle[]) =>
     list.filter(vehicle => {
