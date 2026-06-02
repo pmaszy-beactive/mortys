@@ -498,9 +498,23 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                 <div>
                   <p className="text-sm text-gray-600">Driver License Number</p>
                   <p className="font-medium">{student.driverLicenseNumber || 'Not provided'}</p>
-                  {student.driverLicenseNumber && (
-                    <p className="text-xs text-gray-400 mt-0.5">Format: L9999-DDMMYYYY-NN</p>
-                  )}
+                  {student.driverLicenseNumber && (() => {
+                    const lic = student.driverLicenseNumber!.toUpperCase();
+                    const errs: string[] = [];
+                    if (student.lastName && lic[0] !== student.lastName[0].toUpperCase()) {
+                      errs.push(`1st char should be "${student.lastName[0].toUpperCase()}" (last name initial)`);
+                    }
+                    if (student.dateOfBirth && lic.length >= 14) {
+                      const d = new Date(student.dateOfBirth);
+                      if (!isNaN(d.getTime())) {
+                        const expected = `${d.getDate().toString().padStart(2,'0')}${(d.getMonth()+1).toString().padStart(2,'0')}${d.getFullYear()}`;
+                        if (lic.substring(6, 14) !== expected) errs.push(`Chars 7–14 should be ${expected} (DDMMYYYY of DOB)`);
+                      }
+                    }
+                    if (errs.length === 0) return <p className="text-xs text-green-600 mt-0.5">✓ Format valid</p>;
+                    return <div className="mt-0.5">{errs.map((e,i) => <p key={i} className="text-xs text-red-500">✗ {e}</p>)}</div>;
+                  })()}
+                  {!student.driverLicenseNumber && <p className="text-xs text-gray-400 mt-0.5">Format: L9999-DDMMYYYY-NN</p>}
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">License Expiry</p>
