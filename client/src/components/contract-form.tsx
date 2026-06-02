@@ -81,9 +81,11 @@ export default function ContractForm({ contract, onSuccess }: ContractFormProps)
       onSuccess();
     },
     onError: (error: any) => {
+      const detail = error?.data?.message || error?.message || "Failed to update contract";
+      console.error("Contract update error:", detail, error);
       toast({
-        title: "Error",
-        description: error?.message || "Failed to update contract",
+        title: "Error updating contract",
+        description: detail,
         variant: "destructive",
       });
     },

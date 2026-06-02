@@ -98,14 +98,6 @@ function PhaseCard({ phase, compact }: { phase: PhaseProgress; compact?: boolean
             {phase.completedCount}/{phase.totalCount} completed
           </span>
         </div>
-        <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1">
-          <div
-            className={`h-1.5 rounded-full transition-all duration-500 ${
-              phase.isComplete ? 'bg-green-500' : 'bg-[#ECC462]'
-            }`}
-            style={{ width: `${(phase.completedCount / phase.totalCount) * 100}%` }}
-          />
-        </div>
       </CardHeader>
       <CardContent className={`${compact ? 'px-3 pb-3' : 'px-4 pb-4'} pt-0`}>
         <div className="space-y-0.5">

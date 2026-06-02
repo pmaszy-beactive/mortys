@@ -69,6 +69,13 @@ Class terminology: Use "Theory Classes" and "Driving Classes" (not "Practical Cl
 - **Health endpoint**: `GET /health` returns `{ status: "ok", timestamp }`. Defined in both `server/index.ts` (dev) and `server/index.prod.ts` (prod).
 - **Deploy command** (on server): `cd /path/to/repo && bash /etc/backbone/scripts/deploy.sh`
 
+### Stripe Payment Environment Variables
+- **`STRIPE_SECRET_KEY`**: Stripe secret key (already configured as Replit secret).
+- **`VITE_STRIPE_PUBLIC_KEY`**: Stripe publishable key (already configured as Replit secret).
+- **`STRIPE_WEBHOOK_SECRET`**: Signing secret for verifying Stripe webhook events. Get this from the Stripe Dashboard → Developers → Webhooks after creating the endpoint, or from `stripe listen` output during local testing. Required for `POST /api/stripe/webhook` to work. Without it the webhook endpoint returns 400 and all events are silently ignored.
+- **`APP_URL`**: Full base URL of the deployed app (e.g. `https://mortys.activeaidemo.com`). Used as the `return_url` for 3D-Secure card redirects in billing checkout. Falls back to `REPLIT_DEV_DOMAIN` in development, then `http://localhost:5000`.
+- **Local webhook testing**: `stripe listen --forward-to localhost:5000/api/stripe/webhook` (Stripe CLI required). Copy the printed signing secret into `STRIPE_WEBHOOK_SECRET`.
+
 ### S3 File Storage
 - **Service**: `server/services/s3.ts` — wraps `@aws-sdk/client-s3` pointing at the ActiveAI Backbone S3 proxy.
 - **Config env vars**: `S3_ENDPOINT` (e.g. `https://backbone.activeaidemo.com/s3`) and `S3_API_KEY` (Bearer token).

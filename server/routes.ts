@@ -415,6 +415,146 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ publicKey: process.env.VITE_STRIPE_PUBLIC_KEY || '' });
   });
 
+  // ─── Stripe Webhook ────────────────────────────────────────────────────────
+  // Must be registered before any session/auth middleware so it receives the
+  // raw Buffer body (set up by express.raw in index.ts).
+  // To test locally: stripe listen --forward-to localhost:5000/api/stripe/webhook
+  // Set STRIPE_WEBHOOK_SECRET to the signing secret shown by the CLI or dashboard.
+  app.post('/api/stripe/webhook', async (req: any, res: any) => {
+    const sig = req.headers['stripe-signature'];
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!webhookSecret) {
+      console.warn('[webhook] STRIPE_WEBHOOK_SECRET not set — skipping verification');
+      return res.status(400).json({ message: 'Webhook secret not configured' });
+    }
+
+    let event: any;
+    try {
+      const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-04-30.basil' });
+      event = stripeInstance.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } catch (err: any) {
+      console.error('[webhook] Signature verification failed:', err.message);
+      return res.status(400).json({ message: `Webhook signature invalid: ${err.message}` });
+    }
+
+    try {
+      const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-04-30.basil' });
+
+      if (event.type === 'payment_intent.succeeded') {
+        const pi = event.data.object as any;
+        const { type, purpose, enrollmentId, studentId, finalAmount, finalDescription, cardBrand } = pi.metadata || {};
+
+        // ── Reschedule fee paid ────────────────────────────────────────────
+        if (purpose === 'reschedule' && enrollmentId) {
+          const { policyFeePayments: pfp } = await import("@shared/schema");
+          const existing = await db.select().from(pfp)
+            .where(eq(pfp.paymentIntentId, pi.id)).limit(1);
+          if (existing.length === 0) {
+            await db.insert(pfp).values({
+              paymentIntentId: pi.id,
+              enrollmentId: parseInt(enrollmentId),
+              status: 'reschedule',
+              amount: pi.amount,
+              currency: pi.currency,
+            });
+            console.log(`[webhook] Reschedule fee recorded for enrollment ${enrollmentId}`);
+          }
+        }
+
+        // ── Cancel fee paid — record fee AND execute cancellation ──────────
+        if (purpose === 'cancel' && enrollmentId) {
+          const { policyFeePayments: pfp } = await import("@shared/schema");
+          const existing = await db.select().from(pfp)
+            .where(eq(pfp.paymentIntentId, pi.id)).limit(1);
+          if (existing.length === 0) {
+            await db.insert(pfp).values({
+              paymentIntentId: pi.id,
+              enrollmentId: parseInt(enrollmentId),
+              status: 'cancel',
+              amount: pi.amount,
+              currency: pi.currency,
+            });
+            const enrollment = await storage.getClassEnrollment(parseInt(enrollmentId));
+            if (enrollment && !enrollment.cancelledAt) {
+              await storage.updateClassEnrollment(parseInt(enrollmentId), {
+                cancelledAt: new Date(),
+                lastPaymentIntentId: pi.id,
+              });
+              console.log(`[webhook] Cancellation executed for enrollment ${enrollmentId}`);
+            }
+          }
+        }
+
+        // ── Extra lesson payment ───────────────────────────────────────────
+        if (type === 'extra_lesson') {
+          const { classEnrollments: ceTable } = await import("@shared/schema");
+          const [enrollment] = await db.select().from(ceTable)
+            .where(eq(ceTable.lastPaymentIntentId, pi.id)).limit(1);
+          if (enrollment && enrollment.paymentStatus !== 'paid') {
+            await storage.updateClassEnrollment(enrollment.id, {
+              paymentStatus: 'paid',
+              paidAmount: pi.amount,
+              lastPaymentIntentId: pi.id,
+            });
+            console.log(`[webhook] Extra lesson payment confirmed for enrollment ${enrollment.id}`);
+          }
+        }
+
+        // ── Billing checkout (package / lesson / balance) ──────────────────
+        if ((type === 'package' || type === 'lesson' || type === 'balance') && studentId) {
+          const { studentTransactions: stTable } = await import("@shared/schema");
+          const [existingTx] = await db.select().from(stTable)
+            .where(eq(stTable.referenceNumber, pi.id)).limit(1);
+          if (!existingTx) {
+            const amount = parseFloat(finalAmount || '0');
+            const desc = finalDescription || 'Payment';
+            const brand = cardBrand || 'card';
+            const studentIdInt = parseInt(studentId);
+            const transaction = await storage.createStudentTransaction({
+              studentId: studentIdInt,
+              date: new Date().toISOString().split('T')[0],
+              description: desc,
+              amount: String(amount),
+              gst: '0.00',
+              pst: '0.00',
+              total: String(amount),
+              transactionType: 'payment',
+              paymentMethod: brand,
+              referenceNumber: pi.id,
+            });
+            await storage.createBillingReceipt({
+              transactionId: transaction.id!,
+              receiptNumber: `REC-${Date.now()}-${studentIdInt}`,
+              pdfPath: null,
+            });
+            console.log(`[webhook] Billing transaction created for student ${studentId}`);
+          }
+        }
+      }
+
+      if (event.type === 'payment_intent.payment_failed') {
+        const pi = event.data.object as any;
+        const { type } = pi.metadata || {};
+        if (type === 'extra_lesson') {
+          const { classEnrollments: ceTable } = await import("@shared/schema");
+          const [enrollment] = await db.select().from(ceTable)
+            .where(eq(ceTable.lastPaymentIntentId, pi.id)).limit(1);
+          if (enrollment && enrollment.paymentStatus === 'pending') {
+            await storage.updateClassEnrollment(enrollment.id, { paymentStatus: 'failed' });
+            console.log(`[webhook] Extra lesson payment failed for enrollment ${enrollment.id}`);
+          }
+        }
+      }
+
+      res.json({ received: true });
+    } catch (err: any) {
+      console.error('[webhook] Handler error:', err);
+      res.status(500).json({ message: 'Webhook handler failed' });
+    }
+  });
+  // ─── End Stripe Webhook ────────────────────────────────────────────────────
+
   const isProduction = process.env.NODE_ENV === "production";
 
   // Choose appropriate auth middleware based on environment
@@ -7443,45 +7583,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const { policyFeePayments } = await import("@shared/schema");
             const existingPayment = await db.select().from(policyFeePayments).where(eq(policyFeePayments.paymentIntentId, paymentIntentId)).limit(1);
             if (existingPayment.length > 0) {
-              return res.status(400).json({ message: "This payment has already been used" });
-            }
+              // Fee was already recorded (by Stripe webhook or a prior browser call).
+              // Verify it belongs to this enrollment to prevent cross-enrollment reuse.
+              if (existingPayment[0].enrollmentId !== enrollmentId) {
+                return res.status(400).json({ message: "This payment has already been used for a different enrollment" });
+              }
+              // Fee confirmed — fall through and execute the reschedule
+            } else {
+              // Fee not yet recorded — verify with Stripe and record it now
+              const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+              
+              if (paymentIntent.status !== 'succeeded') {
+                return res.status(400).json({ message: "Payment was not successful" });
+              }
+              
+              const expectedCurrency = 'cad';
+              if (paymentIntent.currency.toLowerCase() !== expectedCurrency) {
+                return res.status(400).json({ message: `Payment must be in ${expectedCurrency.toUpperCase()}` });
+              }
+              
+              const expectedAmount = Math.round(rescheduleFee * 100);
+              if (paymentIntent.amount !== expectedAmount) {
+                return res.status(400).json({ 
+                  message: "Payment amount does not match the required fee",
+                  expected: expectedAmount,
+                  received: paymentIntent.amount,
+                });
+              }
 
-            const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-            
-            // Verify payment is successful
-            if (paymentIntent.status !== 'succeeded') {
-              return res.status(400).json({ message: "Payment was not successful" });
-            }
-            
-            // Verify currency matches
-            const expectedCurrency = 'cad';
-            if (paymentIntent.currency.toLowerCase() !== expectedCurrency) {
-              return res.status(400).json({ message: `Payment must be in ${expectedCurrency.toUpperCase()}` });
-            }
-            
-            // Verify exact amount (not just >=)
-            const expectedAmount = Math.round(rescheduleFee * 100); // Convert to cents
-            if (paymentIntent.amount !== expectedAmount) {
-              return res.status(400).json({ 
-                message: "Payment amount does not match the required fee",
-                expected: expectedAmount,
-                received: paymentIntent.amount,
+              if (paymentIntent.metadata.enrollmentId !== String(enrollmentId)) {
+                return res.status(400).json({ message: "Payment does not match this enrollment" });
+              }
+
+              await db.insert(policyFeePayments).values({
+                paymentIntentId,
+                enrollmentId,
+                status: 'reschedule',
+                amount: expectedAmount,
+                currency: expectedCurrency,
               });
             }
-
-            // Verify payment metadata matches this enrollment
-            if (paymentIntent.metadata.enrollmentId !== String(enrollmentId)) {
-              return res.status(400).json({ message: "Payment does not match this enrollment" });
-            }
-
-            // Record payment in global ledger atomically to prevent reuse
-            await db.insert(policyFeePayments).values({
-              paymentIntentId,
-              enrollmentId,
-              status: 'reschedule',
-              amount: expectedAmount,
-              currency: expectedCurrency,
-            });
           } catch (error) {
             console.error("Error verifying payment:", error);
             return res.status(400).json({ message: "Failed to verify payment" });
