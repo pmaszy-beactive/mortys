@@ -6969,7 +6969,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           const paymentIntent = await stripe.paymentIntents.create({
             amount: price,
-            currency: 'usd',
+            currency: 'cad',
             metadata: {
               type: 'extra_lesson',
               classId: classId.toString(),
@@ -6978,7 +6978,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               lessonTopic: classData.topic || 'Extra Lesson',
               lessonDate: classData.date,
             }
-          });
+          }, { idempotencyKey: `extra-lesson-${student.id}-${classId}-${Date.now()}` });
           
           // Create enrollment with pending payment status
           const enrollment = await storage.createClassEnrollment({
@@ -7044,6 +7044,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (paymentIntent.status !== 'succeeded') {
           return res.status(400).json({ message: "Payment not yet successful" });
+        }
+
+        // Verify this payment belongs to the requesting student
+        if (paymentIntent.metadata.studentId !== String(student.id)) {
+          return res.status(403).json({ message: "Payment does not belong to this student" });
         }
         
         // Update enrollment with paid status
@@ -7357,13 +7362,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create payment intent
         const paymentIntent = await stripe.paymentIntents.create({
           amount: Math.round(rescheduleFee * 100), // Convert to cents
-          currency: "usd",
+          currency: "cad",
           metadata: {
             enrollmentId: String(enrollmentId),
             studentId: String(student.id),
             purpose: 'reschedule',
           },
-        });
+        }, { idempotencyKey: `reschedule-fee-${enrollmentId}` });
 
         res.json({ clientSecret: paymentIntent.client_secret });
       } catch (error) {
@@ -7448,8 +7453,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               return res.status(400).json({ message: "Payment was not successful" });
             }
             
-            // Verify currency matches (USD or CAD)
-            const expectedCurrency = 'usd'; // TODO: Make this configurable per school
+            // Verify currency matches
+            const expectedCurrency = 'cad';
             if (paymentIntent.currency.toLowerCase() !== expectedCurrency) {
               return res.status(400).json({ message: `Payment must be in ${expectedCurrency.toUpperCase()}` });
             }
@@ -7535,9 +7540,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "Cannot cancel past classes" });
         }
 
-        // SIMPLE HARDCODED POLICY FOR TESTING
-        const cancelWindowHours = 24;
-        const cancelFee = 25.00;
+        const cancelWindowHours = parseInt(await storage.getSetting('cancelWindowHours') || '24');
+        const cancelFee = parseFloat(await storage.getSetting('cancelFee') || '25.00');
 
         // Check if within restricted window
         const hoursUntilClass = (classDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
@@ -7600,13 +7604,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create payment intent
         const paymentIntent = await stripe.paymentIntents.create({
           amount: Math.round(cancelFee * 100), // Convert to cents
-          currency: "usd",
+          currency: "cad",
           metadata: {
             enrollmentId: String(enrollmentId),
             studentId: String(student.id),
             purpose: 'cancel',
           },
-        });
+        }, { idempotencyKey: `cancel-fee-${enrollmentId}` });
 
         res.json({ clientSecret: paymentIntent.client_secret });
       } catch (error) {
@@ -7685,8 +7689,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               return res.status(400).json({ message: "Payment was not successful" });
             }
             
-            // Verify currency matches (USD or CAD)
-            const expectedCurrency = 'usd'; // TODO: Make this configurable per school
+            // Verify currency matches
+            const expectedCurrency = 'cad';
             if (paymentIntent.currency.toLowerCase() !== expectedCurrency) {
               return res.status(400).json({ message: `Payment must be in ${expectedCurrency.toUpperCase()}` });
             }
@@ -7996,10 +8000,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "Invalid amount (must be between $0 and $100,000)" });
         }
 
+        const appUrl = process.env.APP_URL
+          || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'http://localhost:5000');
+
         // Create payment intent and confirm atomically
         const paymentIntent = await stripe.paymentIntents.create({
           amount: Math.round(finalAmount * 100), // Convert to cents
-          currency: "usd",
+          currency: "cad",
           customer: student.stripeCustomerId || undefined,
           payment_method: method.stripePaymentMethodId,
           confirm: true,
@@ -8008,9 +8015,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
             studentId: String(student.id),
             type,
             packageId: packageId ? String(packageId) : '',
+            finalAmount: String(finalAmount),
+            finalDescription,
+            paymentMethodId: String(paymentMethodId),
+            cardBrand: method.cardBrand || "card",
           },
-          return_url: `${process.env.REPL_URL || 'http://localhost:5000'}/student/billing`,
-        });
+          return_url: `${appUrl}/student/billing`,
+        }, { idempotencyKey: `checkout-${student.id}-${Date.now()}` });
+
+        // 3DS authentication required — client must call handleNextAction
+        if (paymentIntent.status === "requires_action") {
+          return res.status(202).json({
+            status: "requires_action",
+            clientSecret: paymentIntent.client_secret,
+            paymentIntentId: paymentIntent.id,
+          });
+        }
 
         if (paymentIntent.status !== "succeeded") {
           return res.status(400).json({ 
@@ -8039,7 +8059,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.createBillingReceipt({
           transactionId: transaction.id!,
           receiptNumber,
-          pdfPath: null, // Will be generated later
+          pdfPath: null,
         });
 
         res.json({
@@ -8059,6 +8079,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         res.status(500).json({ message: error.message || "Failed to process payment" });
+      }
+    }
+  );
+
+  // Confirm checkout after 3D Secure authentication
+  app.post(
+    "/api/student/billing/checkout/confirm",
+    isStudentAuthenticated,
+    async (req: any, res) => {
+      try {
+        if (!stripe) {
+          return res.status(500).json({ message: "Payment system is not configured" });
+        }
+
+        const student = req.student;
+        const { paymentIntentId } = req.body;
+
+        if (!paymentIntentId) {
+          return res.status(400).json({ message: "paymentIntentId is required" });
+        }
+
+        const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+        // Verify ownership
+        if (paymentIntent.metadata.studentId !== String(student.id)) {
+          return res.status(403).json({ message: "Payment does not belong to this student" });
+        }
+
+        if (paymentIntent.status !== "succeeded") {
+          return res.status(400).json({
+            message: "Payment not yet completed",
+            status: paymentIntent.status,
+          });
+        }
+
+        // Idempotency: check if transaction was already recorded for this PaymentIntent
+        const { studentTransactions: studentTxTable } = await import("@shared/schema");
+        const [existingTx] = await db.select().from(studentTxTable)
+          .where(eq(studentTxTable.referenceNumber, paymentIntentId))
+          .limit(1);
+
+        if (existingTx) {
+          return res.json({
+            status: "paid",
+            receiptUrl: `/api/student/billing/receipt/${existingTx.id}`,
+            transaction: existingTx,
+          });
+        }
+
+        const finalAmount = parseFloat(paymentIntent.metadata.finalAmount || "0");
+        const finalDescription = paymentIntent.metadata.finalDescription || "Payment";
+        const cardBrand = paymentIntent.metadata.cardBrand || "card";
+
+        const transaction = await storage.createStudentTransaction({
+          studentId: student.id,
+          date: new Date().toISOString().split('T')[0],
+          description: finalDescription,
+          amount: String(finalAmount),
+          gst: "0.00",
+          pst: "0.00",
+          total: String(finalAmount),
+          transactionType: "payment",
+          paymentMethod: cardBrand,
+          referenceNumber: paymentIntentId,
+        });
+
+        const receiptNumber = `REC-${Date.now()}-${student.id}`;
+        await storage.createBillingReceipt({
+          transactionId: transaction.id!,
+          receiptNumber,
+          pdfPath: null,
+        });
+
+        res.json({
+          status: "paid",
+          receiptUrl: `/api/student/billing/receipt/${transaction.id}`,
+          transaction,
+        });
+      } catch (error: any) {
+        console.error("Error confirming checkout:", error);
+        res.status(500).json({ message: error.message || "Failed to confirm payment" });
       }
     }
   );

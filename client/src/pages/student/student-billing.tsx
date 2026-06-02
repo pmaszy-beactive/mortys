@@ -169,11 +169,54 @@ function BillingContent() {
     },
   });
 
+  const confirmAfter3dsMutation = useMutation({
+    mutationFn: async (paymentIntentId: string) => {
+      return await apiRequest("POST", "/api/student/billing/checkout/confirm", { paymentIntentId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/student/billing/overview"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/billing/history"] });
+      toast({
+        title: "Payment successful!",
+        description: "Your purchase has been completed.",
+      });
+      setSelectedPackage(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Payment failed",
+        description: error.message || "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const checkoutMutation = useMutation({
     mutationFn: async (data: { type: string; packageId?: number; amount?: number; paymentMethodId: number; description?: string }) => {
       return await apiRequest("POST", "/api/student/billing/checkout", data);
     },
-    onSuccess: () => {
+    onSuccess: async (data: any) => {
+      if (data?.status === "requires_action" && data?.clientSecret) {
+        if (!stripe) {
+          toast({
+            title: "Authentication required",
+            description: "Your bank requires additional verification, but Stripe is not ready. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+        const { error } = await stripe.handleNextAction({ clientSecret: data.clientSecret });
+        if (error) {
+          toast({
+            title: "Authentication failed",
+            description: error.message || "Card authentication was not completed.",
+            variant: "destructive",
+          });
+          return;
+        }
+        confirmAfter3dsMutation.mutate(data.paymentIntentId);
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: ["/api/student/billing/overview"] });
       queryClient.invalidateQueries({ queryKey: ["/api/student/billing/history"] });
       toast({
