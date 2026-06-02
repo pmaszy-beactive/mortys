@@ -459,6 +459,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               currency: pi.currency,
             });
             console.log(`[webhook] Reschedule fee recorded for enrollment ${enrollmentId}`);
+            // If the target class was stored in metadata, execute the reschedule now so the
+            // student's booking is moved even if the browser never calls /reschedule
+            const newClassIdMeta = pi.metadata?.newClassId;
+            if (newClassIdMeta) {
+              const enrollmentRec = await storage.getClassEnrollment(parseInt(enrollmentId));
+              if (enrollmentRec && !enrollmentRec.cancelledAt) {
+                const newCid = parseInt(newClassIdMeta);
+                await storage.updateClassEnrollment(parseInt(enrollmentId), {
+                  classId: newCid,
+                  lastPaymentIntentId: pi.id,
+                });
+                console.log(`[webhook] Reschedule executed: enrollment ${enrollmentId} → class ${newCid}`);
+              }
+            }
           }
         }
 
@@ -7175,7 +7189,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         if (enrollment.paymentStatus === 'paid') {
-          return res.status(400).json({ message: "Payment already confirmed" });
+          // Already confirmed (webhook may have beaten us) — return success idempotently
+          const classData = await storage.getClass(enrollment.classId!);
+          return res.json({
+            success: true,
+            message: 'Payment confirmed! Your extra lesson is now booked.',
+            lessonDetails: {
+              date: classData?.date,
+              time: classData?.time,
+              topic: classData?.topic
+            }
+          });
         }
         
         // Verify payment with Stripe
@@ -7475,6 +7499,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const student = req.student;
         const enrollmentId = parseInt(req.params.enrollmentId);
+        const { newClassId } = req.body; // Student has already selected the new class
 
         // Get the enrollment and class
         const enrollment = await storage.getClassEnrollment(enrollmentId);
@@ -7499,7 +7524,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "No fee required for this reschedule" });
         }
 
-        // Create payment intent
+        // Create payment intent — include newClassId so the webhook can execute the reschedule
+        // autonomously if the browser crashes before calling /reschedule
         const paymentIntent = await stripe.paymentIntents.create({
           amount: Math.round(rescheduleFee * 100), // Convert to cents
           currency: "cad",
@@ -7507,6 +7533,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             enrollmentId: String(enrollmentId),
             studentId: String(student.id),
             purpose: 'reschedule',
+            ...(newClassId ? { newClassId: String(newClassId) } : {}),
           },
         }, { idempotencyKey: `reschedule-fee-${enrollmentId}` });
 
@@ -7777,9 +7804,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ message: "Enrollment not found" });
         }
 
-        // Check if already cancelled
+        // Check if already cancelled — webhook may have beaten browser; return success idempotently
         if (enrollment.cancelledAt) {
-          return res.status(400).json({ message: "This class has already been cancelled" });
+          return res.json({ success: true, message: "Class cancelled successfully" });
         }
 
         // Get the class
@@ -7820,45 +7847,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const { policyFeePayments } = await import("@shared/schema");
             const existingPayment = await db.select().from(policyFeePayments).where(eq(policyFeePayments.paymentIntentId, paymentIntentId)).limit(1);
             if (existingPayment.length > 0) {
-              return res.status(400).json({ message: "This payment has already been used" });
-            }
+              // Fee was already recorded (by webhook or prior browser call).
+              // Verify it belongs to this enrollment to prevent cross-enrollment reuse.
+              if (existingPayment[0].enrollmentId !== enrollmentId) {
+                return res.status(400).json({ message: "This payment has already been used for a different enrollment" });
+              }
+              // Fee confirmed — fall through and execute the cancellation
+            } else {
+              const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+              
+              if (paymentIntent.status !== 'succeeded') {
+                return res.status(400).json({ message: "Payment was not successful" });
+              }
+              
+              const expectedCurrency = 'cad';
+              if (paymentIntent.currency.toLowerCase() !== expectedCurrency) {
+                return res.status(400).json({ message: `Payment must be in ${expectedCurrency.toUpperCase()}` });
+              }
+              
+              const expectedAmount = Math.round(cancelFee * 100);
+              if (paymentIntent.amount !== expectedAmount) {
+                return res.status(400).json({ 
+                  message: "Payment amount does not match the required fee",
+                  expected: expectedAmount,
+                  received: paymentIntent.amount,
+                });
+              }
 
-            const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-            
-            // Verify payment is successful
-            if (paymentIntent.status !== 'succeeded') {
-              return res.status(400).json({ message: "Payment was not successful" });
-            }
-            
-            // Verify currency matches
-            const expectedCurrency = 'cad';
-            if (paymentIntent.currency.toLowerCase() !== expectedCurrency) {
-              return res.status(400).json({ message: `Payment must be in ${expectedCurrency.toUpperCase()}` });
-            }
-            
-            // Verify exact amount (not just >=)
-            const expectedAmount = Math.round(cancelFee * 100); // Convert to cents
-            if (paymentIntent.amount !== expectedAmount) {
-              return res.status(400).json({ 
-                message: "Payment amount does not match the required fee",
-                expected: expectedAmount,
-                received: paymentIntent.amount,
+              if (paymentIntent.metadata.enrollmentId !== String(enrollmentId)) {
+                return res.status(400).json({ message: "Payment does not match this enrollment" });
+              }
+
+              await db.insert(policyFeePayments).values({
+                paymentIntentId,
+                enrollmentId,
+                status: 'cancel',
+                amount: expectedAmount,
+                currency: expectedCurrency,
               });
             }
-
-            // Verify payment metadata matches this enrollment
-            if (paymentIntent.metadata.enrollmentId !== String(enrollmentId)) {
-              return res.status(400).json({ message: "Payment does not match this enrollment" });
-            }
-
-            // Record payment in global ledger atomically to prevent reuse
-            await db.insert(policyFeePayments).values({
-              paymentIntentId,
-              enrollmentId,
-              status: 'cancel',
-              amount: expectedAmount,
-              currency: expectedCurrency,
-            });
           } catch (error) {
             console.error("Error verifying payment:", error);
             return res.status(400).json({ message: "Failed to verify payment" });
