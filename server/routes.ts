@@ -8457,12 +8457,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const pst = parseFloat(transaction.pst?.toString() || "0");
         const subtotal = total - gst - pst;
 
+        const escHtml = (s: string) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        const safeReceiptNumber = escHtml(receiptNumber);
+        const safeDateStr = escHtml(dateStr);
+        const safeFirstName = escHtml(student.firstName || '');
+        const safeLastName = escHtml(student.lastName || '');
+        const safeEmail = escHtml(student.email || '');
+        const safeDescription = escHtml(transaction.description || 'Payment');
+        const safePaymentMethod = transaction.paymentMethod
+          ? escHtml(transaction.paymentMethod.charAt(0).toUpperCase() + transaction.paymentMethod.slice(1))
+          : 'N/A';
+        const safeReference = transaction.referenceNumber ? escHtml(transaction.referenceNumber) : null;
+
         const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Receipt ${receiptNumber}</title>
+  <title>Receipt ${safeReceiptNumber}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111; background: #fff; padding: 40px 20px; }
@@ -8493,32 +8505,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       <p>Payment Receipt</p>
     </div>
     <div class="receipt-number">
-      <span>Receipt #${receiptNumber}</span>
-      <span>${dateStr}</span>
+      <span>Receipt #${safeReceiptNumber}</span>
+      <span>${safeDateStr}</span>
     </div>
     <div class="body">
       <div class="section">
         <div class="section-title">Billed To</div>
         <div class="field">
           <span class="field-label">Student Name</span>
-          <span class="field-value">${student.firstName} ${student.lastName}</span>
+          <span class="field-value">${safeFirstName} ${safeLastName}</span>
         </div>
         <div class="field">
           <span class="field-label">Email</span>
-          <span class="field-value">${student.email}</span>
+          <span class="field-value">${safeEmail}</span>
         </div>
       </div>
       <div class="section">
         <div class="section-title">Payment Details</div>
         <div class="field">
           <span class="field-label">Description</span>
-          <span class="field-value">${transaction.description || 'Payment'}</span>
+          <span class="field-value">${safeDescription}</span>
         </div>
         <div class="field">
           <span class="field-label">Payment Method</span>
-          <span class="field-value">${transaction.paymentMethod ? transaction.paymentMethod.charAt(0).toUpperCase() + transaction.paymentMethod.slice(1) : 'N/A'}</span>
+          <span class="field-value">${safePaymentMethod}</span>
         </div>
-        ${transaction.referenceNumber ? `<div class="field"><span class="field-label">Reference #</span><span class="field-value" style="font-size:12px;word-break:break-all">${transaction.referenceNumber}</span></div>` : ''}
+        ${safeReference ? `<div class="field"><span class="field-label">Reference #</span><span class="field-value" style="font-size:12px;word-break:break-all">${safeReference}</span></div>` : ''}
       </div>
       <div class="section">
         <div class="section-title">Summary</div>
@@ -8594,8 +8606,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ============================================
 
   // List all refund requests (pending and resolved)
-  app.get("/api/admin/refund-requests", authMiddleware, async (req, res) => {
+  app.get("/api/admin/refund-requests", authMiddleware, async (req: any, res) => {
     try {
+      const callerRole = req.user?.role;
+      if (!callerRole || !['owner', 'admin', 'manager'].includes(callerRole)) {
+        return res.status(403).json({ message: "Insufficient permissions to view refund requests." });
+      }
       const rows = await db.select({
         id: studentTransactions.id,
         studentId: studentTransactions.studentId,
@@ -8627,8 +8643,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Approve a refund request (executes Stripe refund if applicable)
-  app.post("/api/admin/refund-requests/:id/approve", authMiddleware, async (req, res) => {
+  app.post("/api/admin/refund-requests/:id/approve", authMiddleware, async (req: any, res) => {
     try {
+      const callerRole = req.user?.role;
+      if (!callerRole || !['owner', 'admin', 'manager'].includes(callerRole)) {
+        return res.status(403).json({ message: "Insufficient permissions to approve refunds." });
+      }
       const transactionId = parseInt(req.params.id);
       const { adminNote, amount } = req.body;
 
@@ -8640,7 +8660,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "This transaction does not have a pending refund request." });
       }
 
-      const refundAmount = amount ? parseFloat(amount) : parseFloat(transaction.total?.toString() || "0");
+      const maxAmount = parseFloat(transaction.total?.toString() || "0");
+      const refundAmount = amount ? parseFloat(amount) : maxAmount;
+      if (isNaN(refundAmount) || refundAmount <= 0) {
+        return res.status(400).json({ message: "Refund amount must be a positive number." });
+      }
+      if (refundAmount > maxAmount) {
+        return res.status(400).json({ message: `Refund amount cannot exceed the original transaction total of $${maxAmount.toFixed(2)}.` });
+      }
 
       let stripeRefundId: string | undefined;
 
@@ -8675,8 +8702,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Deny a refund request
-  app.post("/api/admin/refund-requests/:id/deny", authMiddleware, async (req, res) => {
+  app.post("/api/admin/refund-requests/:id/deny", authMiddleware, async (req: any, res) => {
     try {
+      const callerRole = req.user?.role;
+      if (!callerRole || !['owner', 'admin', 'manager'].includes(callerRole)) {
+        return res.status(403).json({ message: "Insufficient permissions to deny refunds." });
+      }
       const transactionId = parseInt(req.params.id);
       const { adminNote } = req.body;
 
@@ -8701,8 +8732,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin direct refund (no prior student request needed)
-  app.post("/api/admin/transactions/:transactionId/refund", authMiddleware, async (req, res) => {
+  app.post("/api/admin/transactions/:transactionId/refund", authMiddleware, async (req: any, res) => {
     try {
+      const callerRole = req.user?.role;
+      if (!callerRole || !['owner', 'admin', 'manager'].includes(callerRole)) {
+        return res.status(403).json({ message: "Insufficient permissions to issue refunds." });
+      }
       const transactionId = parseInt(req.params.transactionId);
       const { amount, reason } = req.body;
 
@@ -8721,7 +8756,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "This transaction has already been refunded." });
       }
 
-      const refundAmount = amount ? parseFloat(amount) : parseFloat(transaction.total?.toString() || "0");
+      const maxAmount = parseFloat(transaction.total?.toString() || "0");
+      const refundAmount = amount ? parseFloat(amount) : maxAmount;
+      if (isNaN(refundAmount) || refundAmount <= 0) {
+        return res.status(400).json({ message: "Refund amount must be a positive number." });
+      }
+      if (refundAmount > maxAmount) {
+        return res.status(400).json({ message: `Refund amount cannot exceed the original transaction total of $${maxAmount.toFixed(2)}.` });
+      }
       let stripeRefundId: string | undefined;
 
       if (stripe && transaction.referenceNumber && transaction.referenceNumber.startsWith("pi_")) {
