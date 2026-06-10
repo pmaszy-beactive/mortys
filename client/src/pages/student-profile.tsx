@@ -305,8 +305,8 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                 size="sm"
                 className="touch-target border-gray-200 text-gray-700 hover:bg-gray-50"
                 onClick={() => impersonateMutation.mutate()}
-                disabled={impersonateMutation.isPending || student?.accountStatus !== 'active'}
-                title={student?.accountStatus !== 'active' ? "Student account must be active to view portal" : "View student portal as this student"}
+                disabled={impersonateMutation.isPending}
+                title="View student portal as this student"
               >
                 <Eye className="h-4 w-4 mr-2" />
                 {impersonateMutation.isPending ? "Opening..." : "View Student Portal"}
