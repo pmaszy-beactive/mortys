@@ -1367,7 +1367,7 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                                course.courseType === 'scooter' ? 'Scooter' : 'Automobile'} Course
                             </h4>
                             <p className="text-sm text-gray-600">
-                              {course.phase || 'Not started'} • Progress: {course.progress}%
+                              {course.phase || 'Not started'}
                             </p>
                           </div>
                         </div>

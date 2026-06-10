@@ -70,6 +70,20 @@ const studentFormSchema = insertStudentSchema.extend({
   languagePreference: true,
 });
 
+// When editing an existing student every field is optional — admins can update just one field at a time
+const editStudentFormSchema = studentFormSchema.extend({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  homePhone: z.string().optional(),
+  dateOfBirth: z.string().optional(),
+  address: z.string().optional(),
+  emergencyContact: z.string().optional(),
+  emergencyPhone: z.string().optional(),
+  courseType: z.string().optional(),
+});
+
 type StudentFormData = z.infer<typeof studentFormSchema>;
 
 interface StudentFormProps {
@@ -80,6 +94,7 @@ interface StudentFormProps {
 export default function StudentForm({ student, onSuccess }: StudentFormProps) {
   const { toast } = useToast();
   const isEditing = !!student;
+  const req = isEditing ? '' : ' *';
 
   const { data: instructors = [] } = useQuery<Instructor[]>({
     queryKey: ["/api/instructors"],
@@ -90,7 +105,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
   });
 
   const form = useForm<StudentFormData>({
-    resolver: zodResolver(studentFormSchema),
+    resolver: zodResolver(isEditing ? editStudentFormSchema : studentFormSchema),
     defaultValues: {
       firstName: student?.firstName || "",
       lastName: student?.lastName || "",
@@ -236,7 +251,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name *</FormLabel>
+                <FormLabel>First Name{req}</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter first name" {...field} data-testid="input-first-name" />
                 </FormControl>
@@ -249,7 +264,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
             name="lastName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Last Name *</FormLabel>
+                <FormLabel>Last Name{req}</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter last name" {...field} data-testid="input-last-name" />
                 </FormControl>
@@ -265,7 +280,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email *</FormLabel>
+                <FormLabel>Email{req}</FormLabel>
                 <FormControl>
                   <Input type="email" placeholder="Enter email address" {...field} data-testid="input-email" />
                 </FormControl>
@@ -278,7 +293,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mobile Phone *</FormLabel>
+                <FormLabel>Mobile Phone{req}</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter mobile phone number" {...field} data-testid="input-phone" />
                 </FormControl>
@@ -336,7 +351,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
             name="dateOfBirth"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of Birth *</FormLabel>
+                <FormLabel>Date of Birth{req}</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} data-testid="input-date-of-birth" />
                 </FormControl>
@@ -349,7 +364,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
             name="courseType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Course Type *</FormLabel>
+                <FormLabel>Course Type{req}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger data-testid="select-course-type">
@@ -373,7 +388,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address *</FormLabel>
+              <FormLabel>Address{req}</FormLabel>
               <FormControl>
                 <Textarea placeholder="Enter full address" {...field} data-testid="textarea-address" />
               </FormControl>
@@ -449,7 +464,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
             name="emergencyContact"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Emergency Contact *</FormLabel>
+                <FormLabel>Emergency Contact{req}</FormLabel>
                 <FormControl>
                   <Input placeholder="Contact person name" {...field} data-testid="input-emergency-contact" />
                 </FormControl>
@@ -462,7 +477,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
             name="emergencyPhone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Emergency Phone *</FormLabel>
+                <FormLabel>Emergency Phone{req}</FormLabel>
                 <FormControl>
                   <Input placeholder="Emergency contact phone" {...field} data-testid="input-emergency-phone" />
                 </FormControl>
