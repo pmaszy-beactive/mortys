@@ -195,7 +195,11 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
   };
 
   const onInvalidSubmit = (errors: Record<string, any>) => {
-    // Scroll to the first error field so the user can see what needs fixing
+    const fieldLabels: Record<string, string> = {
+      firstName: "First Name",
+      lastName: "Last Name",
+      email: "Email",
+    };
     const firstErrorKey = Object.keys(errors)[0];
     if (firstErrorKey) {
       const el =
@@ -206,9 +210,12 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
         el.focus();
       }
     }
+    const missing = Object.keys(errors)
+      .map(k => fieldLabels[k] || k)
+      .join(", ");
     toast({
-      title: "Please complete the form",
-      description: "Fill in all required fields marked with * before saving.",
+      title: "Required fields missing",
+      description: `Please fill in: ${missing}`,
       variant: "destructive",
     });
   };
@@ -333,6 +340,7 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
               <FileText className="h-5 w-5" />
               Professional Information
             </CardTitle>
+            <p className="text-xs text-gray-500 mt-1">All fields in this section are optional</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -341,7 +349,10 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
                 name="instructorLicenseNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Instructor License Number</FormLabel>
+                    <FormLabel className="flex items-center gap-1">
+                      Instructor License Number
+                      <span className="text-xs text-gray-400 font-normal">(optional)</span>
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="IL-2024-001" data-testid="input-license-number" />
                     </FormControl>
@@ -355,7 +366,10 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
                 name="permitNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Government Permit Number</FormLabel>
+                    <FormLabel className="flex items-center gap-1">
+                      Government Permit Number
+                      <span className="text-xs text-gray-400 font-normal">(optional)</span>
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="GP-123456" data-testid="input-permit-number" />
                     </FormControl>
@@ -371,7 +385,10 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
                 name="hireDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Hire Date</FormLabel>
+                    <FormLabel className="flex items-center gap-1">
+                      Hire Date
+                      <span className="text-xs text-gray-400 font-normal">(optional)</span>
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} type="date" data-testid="input-hire-date" />
                     </FormControl>
@@ -385,7 +402,10 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
                 name="certificationExpiry"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Certification Expiry</FormLabel>
+                    <FormLabel className="flex items-center gap-1">
+                      Certification Expiry
+                      <span className="text-xs text-gray-400 font-normal">(optional)</span>
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} type="date" data-testid="input-certification-expiry" />
                     </FormControl>
