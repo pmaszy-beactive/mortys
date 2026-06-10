@@ -1,6 +1,6 @@
 import { storage } from "./storage";
 import { db } from "./db";
-import { users, schoolPermits, permitNumbers, instructors, students, classes, contractTemplates } from "@shared/schema";
+import { users, schoolPermits, permitNumbers, instructors, students, classes, contractTemplates, vehicles } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
@@ -415,6 +415,48 @@ export async function initializeDatabase() {
       console.error("Error initializing contract templates:", error);
     }
     
+    // Seed real vehicle fleet (idempotent — inserts only plates not already present)
+    try {
+      const realFleet = [
+        { licensePlate: 'FSV9293', make: 'Toyota',    model: 'Prius',         year: 2019, vehicleType: 'auto', vin: 'JTDKDTB39K1628397', status: 'active', registrationExpiry: '2026-06-30', fuelType: 'hybrid',   transmission: 'automatic', notes: 'Assigned: Erik' },
+        { licensePlate: 'FTD7511', make: 'Toyota',    model: 'RAV4',          year: 2015, vehicleType: 'auto', vin: '2T3DFREV5FW263338', status: 'active', registrationExpiry: '2026-08-31', fuelType: 'gasoline', transmission: 'automatic', notes: 'Assigned: Anatol' },
+        { licensePlate: 'FVC2129', make: 'Hyundai',   model: 'Ioniq',         year: 2020, vehicleType: 'auto', vin: 'KMHC75LJ3LU076539', status: 'active', registrationExpiry: '2026-04-30', fuelType: 'hybrid',   transmission: 'automatic', notes: 'Assigned: Tze' },
+        { licensePlate: 'FMN6370', make: 'Toyota',    model: 'Corolla',       year: 2013, vehicleType: 'auto', vin: '2T1BU4EE6DC116632', status: 'active', registrationExpiry: '2026-10-31', fuelType: 'gasoline', transmission: 'automatic', notes: 'Standard', vehicleNumber: 1 },
+        { licensePlate: 'FVB1468', make: 'Ford',      model: 'Mustang',       year: 2021, vehicleType: 'auto', vin: '3FMTK1SS8MMA24900', status: 'active', registrationExpiry: '2026-07-31', fuelType: 'electric', transmission: 'automatic', notes: 'Assigned: Oren' },
+        { licensePlate: 'FVC2183', make: 'Chevrolet', model: 'Bolt',          year: 2020, vehicleType: 'auto', vin: '1G1FY6S07L4134836', status: 'active', registrationExpiry: '2026-06-30', fuelType: 'electric', transmission: 'automatic', notes: 'Assigned: Richard' },
+        { licensePlate: 'FSV9530', make: 'Toyota',    model: 'Corolla',       year: 2018, vehicleType: 'auto', vin: '2T1BURHE3JC970871', status: 'active', registrationExpiry: '2026-06-30', fuelType: 'gasoline', transmission: 'automatic', notes: 'Gary / Spare' },
+        { licensePlate: 'FRJ5516', make: 'Toyota',    model: 'Corolla iM',    year: 2018, vehicleType: 'auto', vin: 'JTNKARJE8JJ572395',  status: 'active', registrationExpiry: '2026-08-31', fuelType: 'gasoline', transmission: 'automatic', notes: 'Assigned: Guy' },
+        { licensePlate: 'FVC2463', make: 'Hyundai',   model: 'Kona',          year: 2023, vehicleType: 'auto', vin: 'KM8K23AG9PU189407',  status: 'active', registrationExpiry: '2026-07-31', fuelType: 'gasoline', transmission: 'automatic', notes: 'Assigned: Sean' },
+        { licensePlate: 'FNY6575', make: 'Toyota',    model: 'Corolla',       year: 2015, vehicleType: 'auto', vin: '2T1BURHE7FC368305',  status: 'active', registrationExpiry: '2026-06-30', fuelType: 'gasoline', transmission: 'automatic', notes: 'Assigned: Eli' },
+        { licensePlate: 'FLV7082', make: 'Toyota',    model: 'Prius',         year: 2015, vehicleType: 'auto', vin: 'JTDKDTB30F1577264',  status: 'active', registrationExpiry: '2026-06-30', fuelType: 'hybrid',   transmission: 'automatic', notes: 'Assigned: Earl' },
+        { licensePlate: 'FMY7714', make: 'Toyota',    model: 'Prius',         year: 2016, vehicleType: 'auto', vin: 'JTDKDTB36G1119441',  status: 'active', registrationExpiry: '2026-08-31', fuelType: 'hybrid',   transmission: 'automatic', notes: 'Assigned: Marcel' },
+        { licensePlate: 'FSY4930', make: 'Lexus',     model: 'CT200h',        year: 2014, vehicleType: 'auto', vin: 'JTHKD5BH3E2186415',  status: 'active', registrationExpiry: '2026-08-31', fuelType: 'hybrid',   transmission: 'automatic', notes: 'Assigned: Andrew' },
+        { licensePlate: 'FRF5269', make: 'Toyota',    model: 'Corolla iM',    year: 2017, vehicleType: 'auto', vin: 'JTNKARJE7HJ528396',  status: 'active', registrationExpiry: '2026-07-31', fuelType: 'gasoline', transmission: 'automatic', notes: 'Assigned: Andre' },
+        { licensePlate: 'FJJ3639', make: 'Toyota',    model: 'Prius',         year: 2018, vehicleType: 'auto', vin: 'JTDKDTB38J1618071',  status: 'active', registrationExpiry: '2026-07-31', fuelType: 'hybrid',   transmission: 'automatic', notes: 'Assigned: Aqib' },
+        { licensePlate: 'FSF1308', make: 'Toyota',    model: 'Corolla',       year: 2015, vehicleType: 'auto', vin: '2T1BURHE4FC309020',  status: 'active', registrationExpiry: '2026-04-30', fuelType: 'gasoline', transmission: 'automatic', notes: 'Assigned: Uli' },
+        { licensePlate: 'FME5174', make: 'Toyota',    model: 'Prius',         year: 2018, vehicleType: 'auto', vin: 'JTDKDTB38J1604445',  status: 'active', registrationExpiry: '2026-07-31', fuelType: 'hybrid',   transmission: 'automatic', notes: 'Assigned: Humi' },
+        { licensePlate: 'FTK5601', make: 'Toyota',    model: 'Corolla Hatch', year: 2022, vehicleType: 'auto', vin: 'JTNK4MBE9N3167133',  status: 'active', registrationExpiry: '2026-06-01', fuelType: 'gasoline', transmission: 'automatic', notes: 'Assigned: Jack' },
+        { licensePlate: 'FTM5544', make: 'Toyota',    model: 'Corolla Hatch', year: 2021, vehicleType: 'auto', vin: 'JTNK4MBE5M3129686',  status: 'active', registrationExpiry: '2026-08-31', fuelType: 'gasoline', transmission: 'automatic', notes: 'Assigned: Peter' },
+        { licensePlate: 'FTS8145', make: 'Toyota',    model: 'Corolla Hatch', year: 2021, vehicleType: 'auto', vin: 'JTNK4MBE5M3131275',  status: 'active', registrationExpiry: '2026-05-01', fuelType: 'gasoline', transmission: 'automatic', notes: 'Assigned: Michael (No Mags)' },
+        { licensePlate: 'FTL1961', make: 'Toyota',    model: 'RAV4',          year: 2014, vehicleType: 'auto', vin: '2T3RFREV5EW180657',  status: 'active', registrationExpiry: '2026-04-30', fuelType: 'gasoline', transmission: 'automatic', notes: 'Phil / Peter (Moto)', vehicleNumber: 2 },
+        { licensePlate: 'FWA9081', make: 'Toyota',    model: 'Corolla Hatch', year: 2023, vehicleType: 'auto', vin: 'JTNK4MBE5P3204357',  status: 'active', registrationExpiry: '2026-10-31', fuelType: 'gasoline', transmission: 'automatic', notes: 'Assigned: Shahid' },
+        { licensePlate: 'FWC3497', make: 'Toyota',    model: 'Corolla Hatch', year: 2021, vehicleType: 'auto', vin: 'JTNK4MBE9M3115841',  status: 'active', registrationExpiry: '2026-12-31', fuelType: 'gasoline', transmission: 'automatic', notes: 'Spare', vehicleNumber: 23 },
+      ];
+
+      const existingPlates = new Set(
+        (await db.select({ lp: vehicles.licensePlate }).from(vehicles)).map(v => v.lp)
+      );
+      const toInsert = realFleet.filter(v => !existingPlates.has(v.licensePlate));
+      if (toInsert.length > 0) {
+        await db.insert(vehicles).values(toInsert);
+        console.log(`Fleet vehicles inserted: ${toInsert.length}`);
+      } else {
+        console.log("Fleet vehicles already exist");
+      }
+    } catch (error) {
+      console.error("Error seeding fleet vehicles:", error);
+    }
+
     console.log("Database initialization completed");
   } catch (error) {
     console.error("Database initialization failed:", error);
