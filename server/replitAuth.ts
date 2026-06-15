@@ -4,20 +4,26 @@ import { Strategy, type VerifyFunction } from "openid-client/passport";
 import passport from "passport";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
-import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { pool as dbPool } from "./db";
 import { storage } from "./storage";
 
-const getOidcConfig = memoize(
-  async () => {
-    return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
-    );
-  },
-  { maxAge: 3600 * 1000 }
-);
+let oidcConfigCache:
+  | { value: Awaited<ReturnType<typeof client.discovery>>; expiresAt: number }
+  | null = null;
+
+const getOidcConfig = async () => {
+  const now = Date.now();
+  if (oidcConfigCache && now < oidcConfigCache.expiresAt) {
+    return oidcConfigCache.value;
+  }
+  const value = await client.discovery(
+    new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
+    process.env.REPL_ID!
+  );
+  oidcConfigCache = { value, expiresAt: now + 3600 * 1000 };
+  return value;
+};
 
 // True only when running inside a Replit workspace (not Docker/production)
 const isReplitEnvironment = !!process.env.REPL_ID;

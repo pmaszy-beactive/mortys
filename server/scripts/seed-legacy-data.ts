@@ -48,11 +48,23 @@ async function* sourceRows(): AsyncGenerator<string[]> {
   if (useXlsx) {
     console.log(`  Source: XLSX (${path.basename(XLSX_FILE)})`);
     if (!fs.existsSync(XLSX_FILE)) throw new Error(`XLSX file not found: ${XLSX_FILE}`);
-    // Dynamic import so esbuild bundles xlsx only when available
-    const xlsx = (await import("xlsx")).default;
+    // xlsx was removed from dependencies (blocked by the package firewall for a
+    // critical CVE). This legacy XLSX fallback is no longer supported — provide a
+    // CSV file instead. Use a dynamic, variable-based import so typecheck/bundling
+    // does not require the package to be installed.
+    let xlsx: any;
+    try {
+      const mod = "xlsx";
+      xlsx = (await import(/* @vite-ignore */ mod)).default;
+    } catch {
+      throw new Error(
+        "XLSX import is unavailable (the 'xlsx' package was removed for security). " +
+        `Please provide the data as a CSV file at ${CSV_FILE} instead.`
+      );
+    }
     const wb   = xlsx.readFile(XLSX_FILE, { cellDates: false, dense: true });
     const ws   = wb.Sheets[wb.SheetNames[0]];
-    const rows = xlsx.utils.sheet_to_json<string[]>(ws, { header: 1, defval: "" });
+    const rows = xlsx.utils.sheet_to_json(ws, { header: 1, defval: "" }) as string[][];
     console.log(`  Rows in file: ${rows.length.toLocaleString()}`);
     let first = true;
     for (const row of rows) {

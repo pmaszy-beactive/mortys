@@ -9,7 +9,7 @@ packages = ["chromium", "postgresql", "glib", "nss", "nspr", "atk", "at-spi2-atk
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
-run = ["npm", "run", "start"]
+run = ["node", "./dist/index.cjs"]
 
 [[ports]]
 localPort = 5000
@@ -38,3 +38,4 @@ waitForPort = 5000
 
 [agent]
 integrations = ["javascript_log_in_with_replit:1.0.0", "javascript_sendgrid:1.0.0", "javascript_database:1.0.0", "javascript_stripe:1.0.0"]
+stack = "FULLSTACK_JS"
