@@ -1,7 +1,25 @@
 import crypto from "crypto";
 import sgMail from "@sendgrid/mail";
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+const isEmailConfigured =
+  !!process.env.SENDGRID_API_KEY &&
+  process.env.SENDGRID_API_KEY.startsWith("SG.");
+
+if (isEmailConfigured) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+} else {
+  console.warn(
+    "SendGrid not configured - invite/notification emails running in mock mode.",
+  );
+}
+
+async function deliverMail(msg: { to: string; subject: string; [key: string]: any }): Promise<void> {
+  if (!isEmailConfigured) {
+    console.log(`[MOCK EMAIL] To: ${msg.to}, Subject: ${msg.subject}`);
+    return;
+  }
+  await deliverMail(msg);
+}
 
 export function generateInviteToken(): string {
   return crypto.randomBytes(32).toString("hex");
@@ -97,7 +115,7 @@ Morty's Driving School Team
   };
 
   try {
-    await sgMail.send(msg);
+    await deliverMail(msg);
     console.log(`Invite email sent to ${email}`);
   } catch (error) {
     console.error("Error sending invite email:", error);
@@ -190,7 +208,7 @@ Morty's Driving School Team
   };
 
   try {
-    await sgMail.send(msg);
+    await deliverMail(msg);
     console.log(`Password reset email sent to ${email}`);
   } catch (error) {
     console.error("Error sending password reset email:", error);
@@ -295,7 +313,7 @@ Morty's Driving School Team
   };
 
   try {
-    await sgMail.send(msg);
+    await deliverMail(msg);
     console.log(`Student invite email sent to ${email}`);
   } catch (error) {
     console.error("Error sending student invite email:", error);
@@ -404,7 +422,7 @@ Morty's Driving School Team
   };
 
   try {
-    await sgMail.send(msg);
+    await deliverMail(msg);
     console.log(`Parent invite email sent to ${email}`);
   } catch (error) {
     console.error("Error sending parent invite email:", error);
@@ -572,7 +590,7 @@ This override has been logged for audit and compliance purposes.
     };
 
     try {
-      await sgMail.send(msg);
+      await deliverMail(msg);
       console.log(`Policy override notification sent to ${email}`);
       successfulRecipients.push(email);
     } catch (error) {
