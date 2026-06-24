@@ -112,7 +112,7 @@ const COURSE_PHASES: Record<string, PhaseDefinition[]> = {
   ],
 };
 
-interface PhaseProgress {
+interface PhaseProgressSummary {
   currentPhase: PhaseDefinition;
   nextPhase: PhaseDefinition | null;
   daysInPhase: number;
@@ -132,7 +132,7 @@ function calculatePhaseProgress(
   completedTheoryClasses: number,
   completedInCarSessions: number,
   enrollments: any[]
-): PhaseProgress {
+): PhaseProgressSummary {
   const courseType = (student.courseType || 'auto').toLowerCase();
   const phases = COURSE_PHASES[courseType] || COURSE_PHASES.auto;
   
@@ -219,7 +219,7 @@ function calculatePhaseProgress(
   // Only show requirements relevant to the active step:
   //   Theory Phase → theory class count
   //   Training phases → in-car session count for this phase segment
-  const requirements: PhaseProgress['requirements'] = [];
+  const requirements: PhaseProgressSummary['requirements'] = [];
   
   if (nextPhase) {
     if (currentPhaseIndex === 0) {

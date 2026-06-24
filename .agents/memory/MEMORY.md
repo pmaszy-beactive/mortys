@@ -1,2 +1,3 @@
 - [drizzle-kit push drift + post-merge](drizzle-push-drift.md) — repo has schema drift; hand-trim generated migrations, push prompts interactively and breaks stdin-closed post-merge.
 - [Legacy import dev testing](legacy-import-dev-testing.md) — import-seed/ auto-seeds only in Docker; in dev point IMPORT_DATA_DIR or symlink scripts/migrate-site/migrate.
+- [Stale-branch type collisions](merge-stale-branch-type-collisions.md) — merged old task branches can re-add a duplicate type name (PhaseProgress) and crash the server; "no scraped data" usually means server down, check /health + tsc first.
