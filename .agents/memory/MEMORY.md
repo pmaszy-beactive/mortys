@@ -2,3 +2,4 @@
 - [Legacy import dev testing](legacy-import-dev-testing.md) — import-seed/ auto-seeds only in Docker; in dev point IMPORT_DATA_DIR or symlink scripts/migrate-site/migrate.
 - [Stale-branch type collisions](merge-stale-branch-type-collisions.md) — merged old task branches can re-add a duplicate type name (PhaseProgress) and crash the server; "no scraped data" usually means server down, check /health + tsc first.
 - [Dev session cookie / trust proxy](dev-session-cookie-trust-proxy.md) — login 200 then instant 401 ("no scraped data") = missing app.set("trust proxy",1) in dev; secure cookie dropped behind Replit proxy.
+- [Docker builder devDeps](docker-builder-devdeps.md) — builder stage must force `npm ci --include=dev`; deploy env sets NODE_ENV=production which otherwise drops vite/esbuild.

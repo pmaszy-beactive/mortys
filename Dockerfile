@@ -3,7 +3,10 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+# Force devDependencies (vite, esbuild) even when the deploy environment sets
+# NODE_ENV=production — otherwise `npm ci` omits them and the build can't find vite.
+ENV NODE_ENV=development
+RUN npm ci --include=dev
 
 COPY . .
 
