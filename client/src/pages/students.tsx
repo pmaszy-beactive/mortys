@@ -325,7 +325,7 @@ export default function Students() {
                   Search Students
                 </CardTitle>
                 <CardDescription className="text-gray-500 text-sm">
-                  {!hasSearched ? "Showing 10 most recent students by default." : "Showing search results."}
+                  {hasSearched ? "Showing search results." : "Use the filters above and click Search to find students."}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-5">
@@ -445,11 +445,12 @@ export default function Students() {
             </Card>
 
             {/* Results Table */}
+            {hasSearched && (
             <Card className="border border-gray-200 shadow-sm bg-white">
               <CardHeader className="border-b border-gray-100 pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base font-semibold text-gray-900">
-                    {hasSearched ? 'Search Results' : 'Recent Students'}
+                    Search Results
                     <span className="ml-2 text-sm font-normal text-gray-500">({students.length} of {totalStudents})</span>
                   </CardTitle>
                   <div className="flex items-center gap-2">
@@ -465,7 +466,7 @@ export default function Students() {
                 {students.length === 0 ? (
                   <div className="text-center py-16">
                     <User className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500 font-medium">{hasSearched ? 'No students found' : 'No recent students'}</p>
+                    <p className="text-gray-500 font-medium">No students found</p>
                     <p className="text-gray-400 text-sm mt-1">Try adjusting your search criteria.</p>
                   </div>
                 ) : (
@@ -554,6 +555,7 @@ export default function Students() {
                 )}
               </CardContent>
             </Card>
+            )}
           </TabsContent>
 
           {/* Transfer Students Tab */}
