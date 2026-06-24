@@ -662,7 +662,12 @@ export default function Instructors() {
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Dialog>
+                          <Dialog
+                            open={editingInstructor?.id === instructor.id}
+                            onOpenChange={(open) => {
+                              if (!open) setEditingInstructor(null);
+                            }}
+                          >
                             <DialogTrigger asChild>
                               <Button 
                                 variant="ghost" 
