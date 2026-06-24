@@ -112,9 +112,24 @@ export default function DataMigration() {
   // ---- Import (scraped JSON -> database) ----
   const [reimportAll, setReimportAll] = useState(false);
 
-  const { data: manifest, refetch: refetchManifest } = useQuery<ImportManifest>({
+  const {
+    data: manifest,
+    refetch: refetchManifest,
+    isFetching: manifestFetching,
+  } = useQuery<ImportManifest>({
     queryKey: ["/api/import/manifest"],
   });
+
+  const handleRefreshManifest = async () => {
+    const { data } = await refetchManifest();
+    toast({
+      title: "Refreshed",
+      description:
+        data && data.total > 0
+          ? `Found ${data.total.toLocaleString()} scraped file${data.total === 1 ? "" : "s"} ready to import.`
+          : "No scraped files found in the data folder.",
+    });
+  };
 
   const { data: importStatus } = useQuery<ImportStatus>({
     queryKey: ["/api/import/status"],
@@ -541,7 +556,8 @@ export default function DataMigration() {
             importRunning={importRunning}
             reimportAll={reimportAll}
             setReimportAll={setReimportAll}
-            onRefresh={() => refetchManifest()}
+            onRefresh={handleRefreshManifest}
+            isRefreshing={manifestFetching}
             onStart={() => startImportMutation.mutate(reimportAll)}
             isStarting={startImportMutation.isPending}
           />
@@ -571,6 +587,7 @@ function ImportTab({
   reimportAll,
   setReimportAll,
   onRefresh,
+  isRefreshing,
   onStart,
   isStarting,
 }: {
@@ -580,6 +597,7 @@ function ImportTab({
   reimportAll: boolean;
   setReimportAll: (v: boolean) => void;
   onRefresh: () => void;
+  isRefreshing: boolean;
   onStart: () => void;
   isStarting: boolean;
 }) {
@@ -622,10 +640,11 @@ function ImportTab({
             variant="outline"
             size="sm"
             onClick={onRefresh}
+            disabled={isRefreshing}
             data-testid="button-refresh-manifest"
           >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
+            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+            {isRefreshing ? "Refreshing…" : "Refresh"}
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
