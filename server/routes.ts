@@ -587,6 +587,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const isProduction = process.env.NODE_ENV === "production";
 
+  // Trust the Replit (and any other) reverse proxy so Express sees the original
+  // HTTPS protocol via X-Forwarded-Proto. Without this, behind Replit's HTTPS
+  // proxy req.secure is false, and express-session silently refuses to set a
+  // `secure: true` cookie — so login succeeds (200) but no session cookie is
+  // stored and every following request is 401. This must run before any session
+  // middleware. (In production setupAuth also sets this; setting it twice is safe.)
+  app.set("trust proxy", 1);
+
   // Choose appropriate auth middleware based on environment
   // For production, create a hybrid middleware that checks both auth methods
   const authMiddleware = isProduction
