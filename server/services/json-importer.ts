@@ -496,11 +496,12 @@ async function buildContext(): Promise<ImportContext> {
     }
   }
 
-  // Preload zoom-screenshot document keys so re-runs do not re-download / re-upload.
+  // Preload imported-image document keys (zoom screenshots + online-test
+  // question images) so re-runs do not re-download / re-upload them.
   const dRows = await db
     .select({ k: studentDocuments.legacyDocumentId })
     .from(studentDocuments)
-    .where(eq(studentDocuments.documentType, "zoom_screenshot"));
+    .where(isNotNull(studentDocuments.legacyDocumentId));
   for (const r of dRows) if (r.k) ctx.docKeys.add(r.k);
 
   return ctx;
@@ -562,11 +563,30 @@ async function enrichStudent(
 // Per-page parsers. Each returns the studentLegacyId it touched (for tracking).
 // ---------------------------------------------------------------------------
 
+/**
+ * Hosts we are willing to fetch legacy images from. Strict exact-hostname
+ * allowlist (not substring) so a crafted import file cannot point the server's
+ * fetch at an arbitrary host (SSRF).
+ */
+const ALLOWED_IMAGE_HOSTS = new Set([
+  "zoomscreenshots.s3.ca-central-1.amazonaws.com",
+  "examensenlignes.s3.ca-central-1.amazonaws.com",
+]);
+
 /** Download a public legacy image. Returns null on any failure (never throws). */
 async function fetchImage(
   rawUrl: string,
 ): Promise<{ buffer: Buffer; contentType: string } | null> {
   const url = rawUrl.startsWith("//") ? `https:${rawUrl}` : rawUrl;
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== "https:" || !ALLOWED_IMAGE_HOSTS.has(parsed.hostname)) {
+    return null;
+  }
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 20000);
@@ -583,13 +603,97 @@ async function fetchImage(
 }
 
 /**
+ * Download one image and store it as a student document. Shared by the zoom
+ * screenshot and online-test-image importers. Idempotent via `key` (the legacy
+ * document id). Never throws: dead URLs are skipped (and left un-keyed so a
+ * later run retries), and any DB/S3 error for a single image is logged and
+ * counted as skipped rather than aborting the whole import.
+ */
+async function importImageAsDocument(
+  ctx: ImportContext,
+  studentId: number,
+  key: string,
+  documentType: string,
+  documentName: string,
+  filename: string,
+  rawUrl: string,
+  summary: ImportSummary,
+): Promise<void> {
+  if (ctx.docKeys.has(key)) {
+    summary.documents.skipped++;
+    return;
+  }
+
+  const image = await fetchImage(rawUrl);
+  if (!image) {
+    // A dead URL: skip this run, but do NOT mark the key as done so a later
+    // run can retry once the source is reachable again.
+    summary.documents.skipped++;
+    return;
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  try {
+    if (isS3Configured()) {
+      // Insert WITHOUT the legacy key first. We only stamp legacyDocumentId
+      // (which marks the image as "done") after the S3 upload succeeds, so a
+      // failed upload leaves no row that future runs would skip forever.
+      const [row] = await db
+        .insert(studentDocuments)
+        .values({
+          studentId,
+          documentType,
+          documentName,
+          documentData: "",
+          uploadDate: today,
+          fileSize: image.buffer.length,
+          mimeType: image.contentType,
+          verificationStatus: "approved",
+        })
+        .returning({ id: studentDocuments.id });
+      const s3Key = buildDocumentKey(studentId, row.id, filename);
+      try {
+        await uploadToS3(s3Key, image.buffer, image.contentType);
+        await db
+          .update(studentDocuments)
+          .set({ documentData: s3Key, legacyDocumentId: key })
+          .where(eq(studentDocuments.id, row.id));
+      } catch (uploadErr) {
+        // Roll back the placeholder row so the image is retried later.
+        await db.delete(studentDocuments).where(eq(studentDocuments.id, row.id));
+        throw uploadErr;
+      }
+    } else {
+      const dataUrl = `data:${image.contentType};base64,${image.buffer.toString("base64")}`;
+      await db.insert(studentDocuments).values({
+        studentId,
+        documentType,
+        documentName,
+        documentData: dataUrl,
+        uploadDate: today,
+        fileSize: image.buffer.length,
+        mimeType: image.contentType,
+        legacyDocumentId: key,
+        verificationStatus: "approved",
+      });
+    }
+
+    ctx.docKeys.add(key);
+    summary.documents.created++;
+  } catch (err) {
+    // One bad image must never abort the whole page/import.
+    console.error(`[import] image document ${key} failed:`, err);
+    summary.documents.skipped++;
+  }
+}
+
+/**
  * The admin student file links every zoom-screenshot attendance image. Each
  * S3 image link (`//zoomscreenshots.s3...jpg`, text "Zoom screenshot") is
  * immediately followed by its `/zoomscreenshot/?...&courseComponentId=N&
  * screenshotNo=M` page link, which tells us the component + screenshot number.
- * We copy each image into our own S3 (base64 fallback when S3 is unconfigured)
- * and store it as a `zoom_screenshot` student document so it shows on the
- * student record. Idempotent via the legacy document key.
+ * Stored as a `zoom_screenshot` student document. Idempotent via the legacy key.
  */
 async function importZoomScreenshots(
   page: ScrapedPage,
@@ -616,75 +720,66 @@ async function importZoomScreenshots(
     }
 
     const key = `${legacyId}_zoomimg_${componentId}_${screenshotNo}`;
-    if (ctx.docKeys.has(key)) {
-      summary.documents.skipped++;
-      continue;
-    }
+    await importImageAsDocument(
+      ctx,
+      studentId,
+      key,
+      "zoom_screenshot",
+      `Zoom Screenshot ${componentId}-${screenshotNo}`,
+      `zoom-${componentId}-${screenshotNo}.jpg`,
+      href,
+      summary,
+    );
+  }
+}
 
-    const image = await fetchImage(href);
-    if (!image) {
-      // A dead URL: skip this run, but do NOT mark the key as done so a later
-      // run can retry once the source is reachable again.
-      summary.documents.skipped++;
-      continue;
-    }
+/**
+ * Online knowledge-test results pages embed the SAAQ quiz question images
+ * (`images[]` src on `examensenlignes.s3...`). We copy each into our own S3
+ * (base64 fallback) and store it as an `online_test_image` student document so
+ * the questions the student was tested on show on their record. Idempotent per
+ * student + image path, so a student's repeated test attempts of the same test
+ * version do not duplicate the shared question images.
+ */
+async function importOnlineTestImages(
+  page: ScrapedPage,
+  ctx: ImportContext,
+  studentId: number,
+  legacyId: string,
+  summary: ImportSummary,
+): Promise<void> {
+  for (const img of page.images || []) {
+    const src = img?.src || "";
+    if (!src.includes("examensenlignes")) continue;
 
-    const filename = `zoom-${componentId}-${screenshotNo}.jpg`;
-    const documentName = `Zoom Screenshot ${componentId}-${screenshotNo}`;
-    const today = new Date().toISOString().slice(0, 10);
-
+    // Derive a stable slug from the image path, e.g.
+    // ".../quebecconduite5/q01.jpg" -> "quebecconduite5_q01".
+    let slug = src;
     try {
-      if (isS3Configured()) {
-        // Insert WITHOUT the legacy key first. We only stamp legacyDocumentId
-        // (which marks the screenshot as "done") after the S3 upload succeeds,
-        // so a failed upload leaves no row that future runs would skip forever.
-        const [row] = await db
-          .insert(studentDocuments)
-          .values({
-            studentId,
-            documentType: "zoom_screenshot",
-            documentName,
-            documentData: "",
-            uploadDate: today,
-            fileSize: image.buffer.length,
-            mimeType: image.contentType,
-            verificationStatus: "approved",
-          })
-          .returning({ id: studentDocuments.id });
-        const s3Key = buildDocumentKey(studentId, row.id, filename);
-        try {
-          await uploadToS3(s3Key, image.buffer, image.contentType);
-          await db
-            .update(studentDocuments)
-            .set({ documentData: s3Key, legacyDocumentId: key })
-            .where(eq(studentDocuments.id, row.id));
-        } catch (uploadErr) {
-          // Roll back the placeholder row so the screenshot is retried later.
-          await db.delete(studentDocuments).where(eq(studentDocuments.id, row.id));
-          throw uploadErr;
-        }
-      } else {
-        const dataUrl = `data:${image.contentType};base64,${image.buffer.toString("base64")}`;
-        await db.insert(studentDocuments).values({
-          studentId,
-          documentType: "zoom_screenshot",
-          documentName,
-          documentData: dataUrl,
-          uploadDate: today,
-          fileSize: image.buffer.length,
-          mimeType: image.contentType,
-          legacyDocumentId: key,
-          verificationStatus: "approved",
-        });
-      }
-
-      ctx.docKeys.add(key);
-      summary.documents.created++;
-    } catch (err) {
-      // One bad screenshot must never abort the whole page/import.
-      console.error(`[import] zoom screenshot ${key} failed:`, err);
-      summary.documents.skipped++;
+      slug = new URL(src).pathname;
+    } catch {
+      /* keep raw src if it is not a full URL */
     }
+    slug = slug
+      .replace(/^.*?([^/]+\/[^/]+)$/, "$1") // last two path segments
+      .replace(/\.[a-z0-9]+$/i, "") // drop extension
+      .replace(/[^a-z0-9]+/gi, "_")
+      .replace(/^_+|_+$/g, "")
+      .toLowerCase();
+
+    const filename = `test-${slug}.jpg`;
+    const label = slug.replace(/_/g, " ");
+    const key = `${legacyId}_testimg_${slug}`;
+    await importImageAsDocument(
+      ctx,
+      studentId,
+      key,
+      "online_test_image",
+      `Online Test Question (${label})`,
+      filename,
+      src,
+      summary,
+    );
   }
 }
 
@@ -1054,6 +1149,8 @@ async function importOnlineTest(
   const name = last.split(/\s+on\s+/i)[0]?.trim();
   const date = toISODate(last);
   const studentId = await getOrCreateStudent(ctx, legacyId, { name, courseType }, summary);
+  // Pull the SAAQ quiz question images shown on this results page.
+  await importOnlineTestImages(page, ctx, studentId, legacyId, summary);
   if (!date) {
     summary.evaluations.skipped++;
     return legacyId;

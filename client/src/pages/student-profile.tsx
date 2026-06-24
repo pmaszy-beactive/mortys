@@ -1497,7 +1497,7 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="documents">
+        <TabsContent value="documents" className="space-y-4">
           <Card className="mobile-card">
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -1529,6 +1529,48 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                           loading="lazy"
                           className="w-full h-32 object-cover bg-muted"
                           data-testid={`img-screenshot-${doc.id}`}
+                        />
+                        <div className="p-2 text-xs truncate" title={doc.documentName}>
+                          {doc.documentName}
+                        </div>
+                      </a>
+                    ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="mobile-card">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <ImageIcon className="mr-2 h-5 w-5" />
+                Online Test Questions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {studentDocuments.filter((d) => d.documentType === "online_test_image").length === 0 ? (
+                <p className="text-sm text-muted-foreground" data-testid="text-no-test-images">
+                  No online test question images imported for this student.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {studentDocuments
+                    .filter((d) => d.documentType === "online_test_image")
+                    .map((doc) => (
+                      <a
+                        key={doc.id}
+                        href={`/api/student-documents/${doc.id}/file`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block border rounded-md overflow-hidden hover-elevate"
+                        data-testid={`link-test-image-${doc.id}`}
+                      >
+                        <img
+                          src={`/api/student-documents/${doc.id}/file`}
+                          alt={doc.documentName}
+                          loading="lazy"
+                          className="w-full h-32 object-cover bg-muted"
+                          data-testid={`img-test-image-${doc.id}`}
                         />
                         <div className="p-2 text-xs truncate" title={doc.documentName}>
                           {doc.documentName}

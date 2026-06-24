@@ -35,3 +35,23 @@ first, upload to S3, then stamp documentData + legacyDocumentId only on success 
 placeholder row on upload failure). Stamping the key before a successful upload would make
 buildContext preload it and skip that screenshot forever on every later run. Dead source URLs
 are skipped WITHOUT marking the key done, so they retry on a later run.
+
+## Online-test question images imported the same way
+Online knowledge-test results pages (`/onlinetest/results/?...`, classified "onlinetest",
+routed to importOnlineTest) embed the SAAQ quiz question images in `page.images[]` with
+src on `examensenlignes.s3.ca-central-1.amazonaws.com`. These are GENERIC (same q01.jpg for
+every student of a given test version), not student-specific like zoom screenshots.
+
+Stored as `online_test_image` student documents via the shared helper `importImageAsDocument`
+(refactored out of the zoom path; both zoom + test images now go through it). Idempotency key =
+`${legacyId}_testimg_${slug}` where slug = last two path segments minus extension
+(e.g. `quebecconduite5_q01`), so a student's repeated test attempts of the same version don't
+duplicate. buildContext now preloads docKeys from ALL studentDocuments with non-null
+legacyDocumentId (zoom + test keys have distinct prefixes, no collision).
+
+**Security:** fetchImage enforces a strict exact-hostname allowlist (ALLOWED_IMAGE_HOSTS) +
+https-only before fetching, so a crafted import file can't drive server-side fetches to
+arbitrary hosts (SSRF). The `.includes(...)` checks in the parsers are only selectors.
+
+UI: student-profile Documents tab has two galleries — "Zoom Screenshots" and "Online Test
+Questions" — each filtering by documentType.
