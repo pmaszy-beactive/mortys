@@ -6,7 +6,7 @@ import {
   locations, vehicles, appSettings, studentNotifications, parents, studentParents, studentCourses,
   lessonPackages, studentPaymentMethods, invoices, studentCredits, billingReceipts, policyFeePayments,
   bookingPolicies, bookingPolicyVersions, policyOverrideLogs, payerProfiles, paymentIntakes, paymentAllocations, paymentAuditLogs,
-  payerProfileStudents, payrollAccessLogs, studentNotes,
+  payerProfileStudents, payrollAccessLogs, studentNotes, importedPages,
   type User, type UpsertUser, type Student, type InsertStudent,
   type Instructor, type InsertInstructor, type Class, type InsertClass,
   type ClassEnrollment, type InsertClassEnrollment, 
@@ -32,7 +32,8 @@ import {
   type PaymentAllocation, type InsertPaymentAllocation, type PaymentAuditLog, type InsertPaymentAuditLog,
   type PayerProfileStudent, type InsertPayerProfileStudent,
   type PaymentTransaction, type PayrollAccessLog, type InsertPayrollAccessLog,
-  type StudentNote, type InsertStudentNote
+  type StudentNote, type InsertStudentNote,
+  type ImportedPage, type InsertImportedPage
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql, gte, lte, isNotNull, isNull, inArray } from "drizzle-orm";
@@ -91,6 +92,10 @@ export interface IStorage {
   getStudentNotes(studentId: number, noteType?: string): Promise<StudentNote[]>;
   createStudentNote(note: InsertStudentNote): Promise<StudentNote>;
   deleteStudentNote(id: number): Promise<void>;
+
+  // Imported Pages (legacy import tracking)
+  getImportedPages(): Promise<ImportedPage[]>;
+  upsertImportedPage(page: InsertImportedPage): Promise<ImportedPage>;
   
   // Parents & Guardians
   getParents(): Promise<Parent[]>;
@@ -960,6 +965,15 @@ export class MemStorage implements IStorage {
 
   async deleteStudentNote(id: number): Promise<void> {
     throw new Error("In-memory storage does not support student notes");
+  }
+
+  // Imported Pages (stub implementations for in-memory storage)
+  async getImportedPages(): Promise<ImportedPage[]> {
+    return [];
+  }
+
+  async upsertImportedPage(page: InsertImportedPage): Promise<ImportedPage> {
+    throw new Error("In-memory storage does not support imported pages");
   }
 
   // Parents & Guardians (stub implementations for in-memory storage)
@@ -3873,6 +3887,30 @@ export class DatabaseStorage implements IStorage {
 
   async deleteStudentNote(id: number): Promise<void> {
     await db.delete(studentNotes).where(eq(studentNotes.id, id));
+  }
+
+  // Imported Pages (legacy import tracking)
+  async getImportedPages(): Promise<ImportedPage[]> {
+    return await db.select().from(importedPages);
+  }
+
+  async upsertImportedPage(page: InsertImportedPage): Promise<ImportedPage> {
+    const [row] = await db
+      .insert(importedPages)
+      .values({ ...page, importedAt: new Date() })
+      .onConflictDoUpdate({
+        target: importedPages.urlHash,
+        set: {
+          contentHash: page.contentHash,
+          pageType: page.pageType,
+          status: page.status,
+          studentLegacyId: page.studentLegacyId,
+          message: page.message,
+          importedAt: new Date(),
+        },
+      })
+      .returning();
+    return row;
   }
 }
 

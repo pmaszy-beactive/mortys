@@ -27,8 +27,8 @@ import {
   evaluations,
   lessonRecords,
   studentNotes,
-  importedPages,
 } from "@shared/schema";
+import { storage } from "../storage";
 import { eq, isNotNull } from "drizzle-orm";
 import * as fs from "fs";
 import * as path from "path";
@@ -289,7 +289,7 @@ export async function getManifest(): Promise<ManifestResult> {
   // so the metric reflects "of the current files, how many are already done".
   let alreadyImported = 0;
   try {
-    const rows = await db.select({ urlHash: importedPages.urlHash }).from(importedPages);
+    const rows = await storage.getImportedPages();
     for (const r of rows) if (r.urlHash && currentHashes.has(r.urlHash)) alreadyImported++;
   } catch {
     alreadyImported = 0;
@@ -1192,10 +1192,8 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
 
     // Pre-load imported_pages content hashes for skip-unchanged.
     const seen = new Map<string, string>();
-    for (const r of await db
-      .select({ h: importedPages.urlHash, c: importedPages.contentHash })
-      .from(importedPages)) {
-      seen.set(r.h, r.c);
+    for (const r of await storage.getImportedPages()) {
+      seen.set(r.urlHash, r.contentHash);
     }
 
     for (const file of files) {
@@ -1332,27 +1330,13 @@ async function recordPage(p: {
   status: string;
   message?: string;
 }) {
-  await db
-    .insert(importedPages)
-    .values({
-      urlHash: p.urlHash,
-      contentHash: p.contentHash,
-      pageType: p.pageType,
-      url: p.url,
-      studentLegacyId: p.studentLegacyId,
-      status: p.status,
-      message: p.message,
-      importedAt: new Date(),
-    })
-    .onConflictDoUpdate({
-      target: importedPages.urlHash,
-      set: {
-        contentHash: p.contentHash,
-        pageType: p.pageType,
-        status: p.status,
-        studentLegacyId: p.studentLegacyId,
-        message: p.message,
-        importedAt: new Date(),
-      },
-    });
+  await storage.upsertImportedPage({
+    urlHash: p.urlHash,
+    contentHash: p.contentHash,
+    pageType: p.pageType,
+    url: p.url,
+    studentLegacyId: p.studentLegacyId,
+    status: p.status,
+    message: p.message,
+  });
 }
