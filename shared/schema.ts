@@ -754,6 +754,31 @@ export const paymentTransactions = pgTable("payment_transactions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Tracks every scraped page that the in-app importer has processed, keyed by the
+// page's url_hash. contentHash lets re-imports skip files whose content is unchanged
+// (incremental re-import). Counts/status give a per-page audit trail.
+export const importedPages = pgTable("imported_pages", {
+  id: serial("id").primaryKey(),
+  urlHash: text("url_hash").notNull().unique(),
+  contentHash: text("content_hash").notNull(),
+  pageType: text("page_type").notNull(),
+  url: text("url"),
+  studentLegacyId: text("student_legacy_id"),
+  status: text("status").notNull().default("imported"), // imported, skipped, error
+  createdCount: integer("created_count").notNull().default(0),
+  updatedCount: integer("updated_count").notNull().default(0),
+  skippedCount: integer("skipped_count").notNull().default(0),
+  message: text("message"),
+  importedAt: timestamp("imported_at").defaultNow().notNull(),
+});
+
+export const insertImportedPageSchema = createInsertSchema(importedPages).omit({
+  id: true,
+  importedAt: true,
+});
+export type ImportedPage = typeof importedPages.$inferSelect;
+export type InsertImportedPage = z.infer<typeof insertImportedPageSchema>;
+
 export const studentDocuments = pgTable("student_documents", {
   id: serial("id").primaryKey(),
   studentId: integer("student_id").references(() => students.id),

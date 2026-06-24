@@ -39,6 +39,12 @@ import { loginStudent, isStudentAuthenticated, generateStudentToken } from "./st
 import { loginParent, isParentAuthenticated } from "./parent-auth";
 import { initializeDatabase } from "./init-db";
 import { LegacyScraper } from "./services/legacy-scraper";
+import {
+  getManifest as getImportManifest,
+  runImport,
+  getImportState,
+  isImportRunning,
+} from "./services/json-importer";
 import * as notificationService from "./services/notifications";
 import {
   generateInviteToken,
@@ -4113,6 +4119,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Failed to stop migration:", error);
       res.status(500).json({ error: "Failed to stop migration" });
     }
+  });
+
+  // ---------------------------------------------------------------------
+  // Legacy data import (walks scraped page-level JSON into the database)
+  // ---------------------------------------------------------------------
+
+  // Counts of available scraped pages by type + how many already imported.
+  app.get("/api/import/manifest", authMiddleware, async (_req, res) => {
+    try {
+      const manifest = await getImportManifest();
+      res.json(manifest);
+    } catch (error: any) {
+      console.error("Failed to read import manifest:", error);
+      res.status(500).json({ error: error?.message || "Failed to read manifest" });
+    }
+  });
+
+  // Kick off the import in the background. Returns immediately.
+  app.post("/api/import/start", authMiddleware, async (req, res) => {
+    try {
+      if (isImportRunning()) {
+        return res.status(409).json({ error: "Import already in progress" });
+      }
+      const reimportAll = req.body?.reimportAll === true;
+      // Fire and forget — progress is polled via /api/import/status.
+      runImport({ reimportAll }).catch((err) => {
+        console.error("Import run failed:", err);
+      });
+      res.json({ message: "Import started", reimportAll });
+    } catch (error: any) {
+      console.error("Failed to start import:", error);
+      res.status(500).json({ error: error?.message || "Failed to start import" });
+    }
+  });
+
+  // Live status: logs, progress, and created/updated/skipped/error summary.
+  app.get("/api/import/status", authMiddleware, (_req, res) => {
+    res.json(getImportState());
   });
 
   app.post("/api/migration/test-connection", async (req, res) => {

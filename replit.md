@@ -35,7 +35,7 @@ Class terminology: Use "Theory Classes" and "Driving Classes" (not "Practical Cl
 - **ORM**: Drizzle ORM for PostgreSQL.
 - **Migration**: Drizzle Kit for schema migrations.
 - **Schema**: Centralized in `shared/schema.ts` for type safety.
-- **Key Data Models**: Users, Students, Instructors, Classes, Contracts, Evaluations, Communications, Lesson Records, Payment Transactions, Student Documents, School Permits, Parents, StudentParents. Includes schema for student self-onboarding (email verification, registration tracking), unified notifications (templates, records, deliveries, preferences), payment reconciliation (payer profiles, intakes, allocations, audit logs), and booking policy overrides (logs).
+- **Key Data Models**: Users, Students, Instructors, Classes, Contracts, Evaluations, Communications, Lesson Records, Payment Transactions, Student Documents, School Permits, Parents, StudentParents. Includes schema for student self-onboarding (email verification, registration tracking), unified notifications (templates, records, deliveries, preferences), payment reconciliation (payer profiles, intakes, allocations, audit logs), booking policy overrides (logs), and legacy import tracking (`imported_pages`: per-page `url_hash` unique key + content hash + page type + created/updated/skipped counts for idempotent incremental re-import).
 
 ### Core Features
 - **Student Management**: Full lifecycle management with self-service profile editing, parent/guardian linking, and a self-onboarding wizard.
@@ -47,6 +47,7 @@ Class terminology: Use "Theory Classes" and "Driving Classes" (not "Practical Cl
 - **Evaluation System**: Performance and progress tracking.
 - **Communication Hub**: Internal messaging and a unified notification system with email (SendGrid) and in-app notifications, respecting user preferences.
 - **Data Migration System**: Automated web scraping for legacy data import.
+- **Legacy JSON Importer**: Admin "Data Migration → Import to Database" tab walks page-level JSON produced by the bundled scraper (`scripts/migrate-site/spider.js`) and idempotently upserts students, contracts, payments, evaluations, lessons, notes, course-transfer/phase progress, online tests, and Zoom attendance. Engine: `server/services/json-importer.ts`; endpoints `GET /api/import/manifest`, `POST /api/import/start`, `GET /api/import/status`. Idempotency via the `imported_pages` tracking table (per-page `url_hash` + content hash to skip unchanged files) plus deterministic legacy keys on child records. Source folder is `IMPORT_DATA_DIR`.
 - **School Permits Management**: Government permit number tracking and assignment.
 - **Zoom Integration**: Automated meeting creation and attendance tracking for theory classes.
 - **Reporting Dashboard**: Analytics and business insights, including a comprehensive transaction audit system.
@@ -60,7 +61,7 @@ Class terminology: Use "Theory Classes" and "Driving Classes" (not "Practical Cl
 ## Deployment
 
 ### Docker / ActiveAI Backbone
-- **`Dockerfile`**: Multi-stage build. Builder stage installs all deps (including devDeps), runs `vite build` for the frontend, then compiles `server/index.prod.ts` → `dist/index.js`, `server/migrate.ts` → `dist/migrate.js`, and `server/scripts/seed-legacy-data.ts` → `dist/seed-legacy.js` with esbuild. Production stage runs `npm ci --omit=dev`, copies `dist/`, `dist/migrations/` (SQL files), and `server/scripts/data/`.
+- **`Dockerfile`**: Multi-stage build. Builder stage installs all deps (including devDeps), runs `vite build` for the frontend, then compiles `server/index.prod.ts` → `dist/index.js`, `server/migrate.ts` → `dist/migrate.js`, and `server/scripts/seed-legacy-data.ts` → `dist/seed-legacy.js` with esbuild. Production stage runs `npm ci --omit=dev`, copies `dist/`, `dist/migrations/` (SQL files), and `server/scripts/data/`. Also bundles the legacy scraper (`scripts/migrate-site/`) with its own `npm install` plus headless Chromium (`chromium`, `nss`, `freetype`, `harfbuzz`, `ttf-freefont`); sets `PUPPETEER_SKIP_DOWNLOAD=true` and `PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser`. Import/scraper data persists on a `/data` Docker volume: `IMPORT_DATA_DIR=/data/migrate`, `MIGRATE_OUTPUT_DIR=/data/migrate`, `MIGRATE_COOKIE_FILE=/data/cookie.txt`.
 - **`docker-entrypoint.sh`**: Container startup script — runs `node dist/migrate.js` first (applies all pending SQL migrations), then `exec node dist/index.js`. This ensures tables exist before the app tries to query them.
 - **`server/migrate.ts`**: Compiled migration runner using `drizzle-orm/node-postgres/migrator`. Reads SQL files from `dist/migrations/` and applies any that haven't run yet (idempotent — safe to run on every boot).
 - **`server/index.prod.ts`**: Production-only server entry — mirrors `server/index.ts` but has NO `vite` imports. Uses inline static file serving (`express.static`). This prevents the `ERR_MODULE_NOT_FOUND: vite` crash that occurs when vite (a devDependency) is missing in the production container.

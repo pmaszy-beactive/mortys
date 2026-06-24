@@ -1,0 +1,13 @@
+{
+  "name": "site-migration-spider",
+  "version": "1.0.0",
+  "description": "Spider tool to crawl ASP.NET sites and extract content to JSON",
+  "main": "spider.js",
+  "scripts": {
+    "spider": "node spider.js",
+    "screenshot": "node screenshot-puppeteer.js"
+  },
+  "dependencies": {
+    "puppeteer": "^22.0.0"
+  }
+}

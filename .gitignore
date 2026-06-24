@@ -5,3 +5,10 @@ server/public
 vite.config.ts.*
 *.tar.gz
 attached_assets/*
+
+# Legacy site scraper — never commit real cookies or scraped output
+scripts/cookie.txt
+scripts/migrate-site/migrate/
+scripts/migrate-site/node_modules/
+scripts/migrate-site/p/
+/data/

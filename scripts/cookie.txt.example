@@ -1,0 +1,7 @@
+# Session cookie for the legacy site scraper (scripts/migrate-site/spider.js).
+# Copy this file to the path referenced by MIGRATE_COOKIE_FILE (or IMPORT_DATA_DIR/cookie.txt)
+# and paste your authenticated session cookie string on a single line, e.g.:
+#
+#   .AspNet.ApplicationCookie=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+#
+# NEVER commit a real cookie to source control.

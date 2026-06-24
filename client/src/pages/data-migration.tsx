@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
@@ -20,7 +22,11 @@ import {
   Database,
   PlayCircle,
   StopCircle,
-  TestTube
+  TestTube,
+  FileJson,
+  RefreshCw,
+  Loader2,
+  FolderOpen
 } from "lucide-react";
 
 interface MigrationProgress {
@@ -39,6 +45,53 @@ interface MigrationStats {
   duration: string | null;
 }
 
+interface ImportManifest {
+  dataDir: string;
+  exists: boolean;
+  total: number;
+  byType: Record<string, number>;
+  alreadyImported: number;
+}
+
+interface EntityCounts {
+  created: number;
+  updated: number;
+  skipped: number;
+}
+
+interface ImportStatus {
+  status: "idle" | "running" | "completed" | "error";
+  startedAt: string | null;
+  finishedAt: string | null;
+  total: number;
+  processed: number;
+  currentFile: string | null;
+  logs: string[];
+  summary: {
+    students: EntityCounts;
+    contracts: EntityCounts;
+    transactions: EntityCounts;
+    evaluations: EntityCounts;
+    lessons: EntityCounts;
+    notes: EntityCounts;
+    pages: { processed: number; skipped: number; errors: number };
+  };
+  error: string | null;
+}
+
+const PAGE_TYPE_LABELS: Record<string, string> = {
+  studentfile: "Student Files",
+  printcontracts: "Contracts (print)",
+  registrations: "Registrations",
+  coursetransfer: "Course Transfer / Phase",
+  onlinetest: "Online Tests",
+  practicalsignatures: "Driving Sign-ins",
+  practicaleval: "Driving Evaluations",
+  zoomscreenshot: "Zoom Screenshots",
+  attestation: "Attestations",
+  other: "Other",
+};
+
 export default function DataMigration() {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [showCredentials, setShowCredentials] = useState(false);
@@ -54,6 +107,51 @@ export default function DataMigration() {
   const { data: stats } = useQuery<MigrationStats>({
     queryKey: ["/api/migration/stats"],
   });
+
+  // ---- Import (scraped JSON -> database) ----
+  const [reimportAll, setReimportAll] = useState(false);
+
+  const { data: manifest, refetch: refetchManifest } = useQuery<ImportManifest>({
+    queryKey: ["/api/import/manifest"],
+  });
+
+  const { data: importStatus } = useQuery<ImportStatus>({
+    queryKey: ["/api/import/status"],
+    refetchInterval: (query) =>
+      query.state.data?.status === "running" ? 1500 : false,
+  });
+
+  const importRunning = importStatus?.status === "running";
+
+  const startImportMutation = useMutation({
+    mutationFn: async (full: boolean) => {
+      const response = await apiRequest("POST", "/api/import/start", {
+        reimportAll: full,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Import Started",
+        description: "Walking scraped files into the database…",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/import/status"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Import Failed",
+        description: error?.message || "Could not start the import",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Refresh the manifest once a run finishes so "already imported" updates.
+  useEffect(() => {
+    if (importStatus?.status === "completed" || importStatus?.status === "error") {
+      refetchManifest();
+    }
+  }, [importStatus?.status, refetchManifest]);
 
   // Test connection mutation
   const testConnectionMutation = useMutation({
@@ -175,6 +273,20 @@ export default function DataMigration() {
           {progress?.inProgress ? "In Progress" : "Ready"}
         </Badge>
       </div>
+
+      <Tabs defaultValue="import" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="import" data-testid="tab-import">
+            <Database className="mr-2 h-4 w-4" />
+            Import to Database
+          </TabsTrigger>
+          <TabsTrigger value="scrape" data-testid="tab-scrape">
+            <Download className="mr-2 h-4 w-4" />
+            Scrape Legacy Site
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="scrape" className="space-y-6 mt-0">
 
       {/* Migration Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -412,6 +524,290 @@ export default function DataMigration() {
               {progress.errors.map((error, index) => (
                 <div key={index} className="text-sm p-2 bg-destructive/10 rounded">
                   {error}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+        </TabsContent>
+
+        <TabsContent value="import" className="space-y-6 mt-0">
+          <ImportTab
+            manifest={manifest}
+            importStatus={importStatus}
+            importRunning={importRunning}
+            reimportAll={reimportAll}
+            setReimportAll={setReimportAll}
+            onRefresh={() => refetchManifest()}
+            onStart={() => startImportMutation.mutate(reimportAll)}
+            isStarting={startImportMutation.isPending}
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function CountBadge({ counts }: { counts?: EntityCounts }) {
+  if (!counts) return null;
+  return (
+    <span className="text-xs text-muted-foreground">
+      <span className="text-green-600 font-medium">+{counts.created}</span>
+      {" / "}
+      <span className="text-blue-600 font-medium">~{counts.updated}</span>
+      {" / "}
+      <span className="text-gray-500">skip {counts.skipped}</span>
+    </span>
+  );
+}
+
+function ImportTab({
+  manifest,
+  importStatus,
+  importRunning,
+  reimportAll,
+  setReimportAll,
+  onRefresh,
+  onStart,
+  isStarting,
+}: {
+  manifest?: ImportManifest;
+  importStatus?: ImportStatus;
+  importRunning: boolean;
+  reimportAll: boolean;
+  setReimportAll: (v: boolean) => void;
+  onRefresh: () => void;
+  onStart: () => void;
+  isStarting: boolean;
+}) {
+  const pct =
+    importStatus && importStatus.total > 0
+      ? Math.round((importStatus.processed / importStatus.total) * 100)
+      : 0;
+  const s = importStatus?.summary;
+  const noData = manifest && (!manifest.exists || manifest.total === 0);
+
+  const summaryRows: { label: string; counts?: EntityCounts }[] = [
+    { label: "Students", counts: s?.students },
+    { label: "Contracts", counts: s?.contracts },
+    { label: "Payments", counts: s?.transactions },
+    { label: "Evaluations", counts: s?.evaluations },
+    { label: "Lessons", counts: s?.lessons },
+    { label: "Notes", counts: s?.notes },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Available files by type */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <FileJson className="h-5 w-5" />
+              Scraped Files Ready to Import
+            </CardTitle>
+            <CardDescription>
+              Pages collected by the scraper, grouped by type
+            </CardDescription>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            data-testid="button-refresh-manifest"
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <FolderOpen className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Folder:</span>
+              <code className="text-xs bg-muted px-2 py-1 rounded" data-testid="text-data-dir">
+                {manifest?.dataDir || "—"}
+              </code>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Total files: </span>
+              <strong data-testid="text-total-files">{manifest?.total ?? 0}</strong>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Already imported: </span>
+              <strong data-testid="text-already-imported">
+                {manifest?.alreadyImported ?? 0}
+              </strong>
+            </div>
+          </div>
+
+          {noData ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                No scraped files were found in the data folder. Run the scraper
+                first (see the “Scrape Legacy Site” tab), then refresh.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {Object.entries(manifest?.byType || {})
+                .sort((a, b) => b[1] - a[1])
+                .map(([type, count]) => (
+                  <div
+                    key={type}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                    data-testid={`card-pagetype-${type}`}
+                  >
+                    <span className="text-sm">
+                      {PAGE_TYPE_LABELS[type] || type}
+                    </span>
+                    <Badge variant="secondary">{count}</Badge>
+                  </div>
+                ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Run controls */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5" />
+            Run Import
+          </CardTitle>
+          <CardDescription>
+            Reads each scraped page and adds or updates records in the database.
+            Safe to run again — unchanged pages are skipped.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="reimportAll"
+              checked={reimportAll}
+              onCheckedChange={(c) => setReimportAll(c === true)}
+              disabled={importRunning}
+              data-testid="checkbox-reimport-all"
+            />
+            <Label htmlFor="reimportAll" className="text-sm font-normal">
+              Re-process every file (ignore the “unchanged” skip)
+            </Label>
+          </div>
+
+          <Button
+            onClick={onStart}
+            disabled={importRunning || isStarting || noData}
+            className="w-full bg-gradient-to-r from-[#ECC462] to-amber-500 hover:from-[#d4ad4f] hover:to-amber-600 text-[#111111] font-medium shadow-lg"
+            data-testid="button-run-import"
+          >
+            {importRunning ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Importing…
+              </>
+            ) : (
+              <>
+                <PlayCircle className="mr-2 h-4 w-4" />
+                Run Import
+              </>
+            )}
+          </Button>
+
+          {importStatus && importStatus.status !== "idle" && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>
+                  {importStatus.status === "running"
+                    ? `Processing ${importStatus.processed} / ${importStatus.total}`
+                    : importStatus.status === "completed"
+                      ? "Completed"
+                      : importStatus.status === "error"
+                        ? "Stopped with an error"
+                        : ""}
+                </span>
+                <span>{pct}%</span>
+              </div>
+              <Progress value={pct} className="w-full" />
+              {importStatus.currentFile && importRunning && (
+                <p className="text-xs text-muted-foreground truncate" data-testid="text-current-file">
+                  {importStatus.currentFile}
+                </p>
+              )}
+            </div>
+          )}
+
+          {importStatus?.error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription data-testid="text-import-error">
+                {importStatus.error}
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Summary */}
+      {s && (importStatus?.status === "completed" || importStatus?.status === "running") && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              Results
+            </CardTitle>
+            <CardDescription>
+              Created (+) / updated (~) / skipped per record type
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {summaryRows.map((row) => (
+                <div
+                  key={row.label}
+                  className="flex flex-col gap-1 rounded-lg border p-3"
+                  data-testid={`summary-${row.label.toLowerCase()}`}
+                >
+                  <span className="text-sm font-medium">{row.label}</span>
+                  <CountBadge counts={row.counts} />
+                </div>
+              ))}
+            </div>
+            <Separator className="my-4" />
+            <div className="flex flex-wrap gap-4 text-sm">
+              <span>
+                Pages processed:{" "}
+                <strong data-testid="text-pages-processed">{s.pages.processed}</strong>
+              </span>
+              <span>
+                Skipped (unchanged):{" "}
+                <strong data-testid="text-pages-skipped">{s.pages.skipped}</strong>
+              </span>
+              <span className={s.pages.errors > 0 ? "text-destructive" : ""}>
+                Errors: <strong data-testid="text-pages-errors">{s.pages.errors}</strong>
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Live log */}
+      {importStatus && importStatus.logs.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Live Log</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div
+              className="bg-[#111111] text-gray-100 rounded-md p-3 text-xs font-mono max-h-72 overflow-y-auto space-y-0.5"
+              data-testid="container-import-log"
+            >
+              {importStatus.logs.map((line, i) => (
+                <div key={i} className="whitespace-pre-wrap break-all">
+                  {line}
                 </div>
               ))}
             </div>

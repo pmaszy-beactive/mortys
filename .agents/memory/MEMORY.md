@@ -1,0 +1,1 @@
+- [drizzle-kit push drift + post-merge](drizzle-push-drift.md) — repo has schema drift; hand-trim generated migrations, push prompts interactively and breaks stdin-closed post-merge.

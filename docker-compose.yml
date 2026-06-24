@@ -3,3 +3,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      # Persist scraper output (page-level JSON), dedup state, and the session
+      # cookie across container restarts. Matches IMPORT_DATA_DIR=/data/migrate.
+      - import_data:/data
+
+volumes:
+  import_data:
