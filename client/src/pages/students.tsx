@@ -341,6 +341,16 @@ export default function Students() {
                     />
                   </div>
                   <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Phone Number</label>
+                    <Input
+                      placeholder="Search by phone..."
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                      className="border-gray-200"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Course Type</label>
                     <Select value={courseFilter} onValueChange={setCourseFilter}>
                       <SelectTrigger className="border-gray-200">
@@ -396,7 +406,6 @@ export default function Students() {
                     <div className="border-t border-gray-100 pt-4 bg-gray-50/50 p-4 rounded-md">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {[
-                          { label: "Phone Number", value: phoneNumber, setter: setPhoneNumber, placeholder: "Search by phone..." },
                           { label: "Attestation Number", value: attestationNumber, setter: setAttestationNumber, placeholder: "Search by attestation..." },
                           { label: "Contract Number", value: contractNumber, setter: setContractNumber, placeholder: "Search by contract..." },
                         ].map(({ label, value, setter, placeholder }) => (
