@@ -45,6 +45,7 @@ import {
   getImportState,
   isImportRunning,
 } from "./services/json-importer";
+import { getNightlyScrapeLog } from "./services/nightly-scrape-log";
 import * as notificationService from "./services/notifications";
 import {
   generateInviteToken,
@@ -4169,6 +4170,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Live status: logs, progress, and created/updated/skipped/error summary.
   app.get("/api/import/status", requireAdmin, (_req, res) => {
     res.json(getImportState());
+  });
+
+  // Read-only view of the nightly registration scrape log (cron-driven) so the
+  // operator can confirm scrapes ran and spot failures without SSH access.
+  app.get("/api/import/nightly-log", requireAdmin, async (_req, res) => {
+    try {
+      const log = await getNightlyScrapeLog();
+      res.json(log);
+    } catch (error: any) {
+      console.error("Failed to read nightly scrape log:", error);
+      res
+        .status(500)
+        .json({ error: error?.message || "Failed to read nightly scrape log" });
+    }
   });
 
   app.post("/api/migration/test-connection", async (req, res) => {

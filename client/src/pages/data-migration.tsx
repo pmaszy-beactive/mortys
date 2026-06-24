@@ -24,9 +24,12 @@ import {
   StopCircle,
   TestTube,
   FileJson,
+  FileText,
   RefreshCw,
   Loader2,
-  FolderOpen
+  FolderOpen,
+  XCircle,
+  HelpCircle
 } from "lucide-react";
 
 interface MigrationProgress {
@@ -78,6 +81,22 @@ interface ImportStatus {
     pages: { processed: number; skipped: number; errors: number };
   };
   error: string | null;
+}
+
+interface NightlyRunInfo {
+  startedAt: string | null;
+  finishedAt: string | null;
+  exitCode: number | null;
+  success: boolean | null;
+}
+
+interface NightlyScrapeLog {
+  exists: boolean;
+  logPath: string;
+  size: number;
+  truncated: boolean;
+  lines: string[];
+  lastRun: NightlyRunInfo | null;
 }
 
 const PAGE_TYPE_LABELS: Record<string, string> = {
@@ -135,6 +154,14 @@ export default function DataMigration() {
     queryKey: ["/api/import/status"],
     refetchInterval: (query) =>
       query.state.data?.status === "running" ? 1500 : false,
+  });
+
+  const {
+    data: nightlyLog,
+    refetch: refetchNightlyLog,
+    isFetching: nightlyLogFetching,
+  } = useQuery<NightlyScrapeLog>({
+    queryKey: ["/api/import/nightly-log"],
   });
 
   const importRunning = importStatus?.status === "running";
@@ -299,6 +326,10 @@ export default function DataMigration() {
           <TabsTrigger value="scrape" data-testid="tab-scrape">
             <Download className="mr-2 h-4 w-4" />
             Scrape Legacy Site
+          </TabsTrigger>
+          <TabsTrigger value="nightly-log" data-testid="tab-nightly-log">
+            <FileText className="mr-2 h-4 w-4" />
+            Nightly Scrape Log
           </TabsTrigger>
         </TabsList>
 
@@ -562,7 +593,142 @@ export default function DataMigration() {
             isStarting={startImportMutation.isPending}
           />
         </TabsContent>
+
+        <TabsContent value="nightly-log" className="space-y-6 mt-0">
+          <NightlyLogTab
+            log={nightlyLog}
+            onRefresh={() => refetchNightlyLog()}
+            isFetching={nightlyLogFetching}
+          />
+        </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function NightlyLogTab({
+  log,
+  onRefresh,
+  isFetching,
+}: {
+  log?: NightlyScrapeLog;
+  onRefresh: () => void;
+  isFetching: boolean;
+}) {
+  const lastRun = log?.lastRun;
+  const running = lastRun && lastRun.finishedAt === null;
+
+  let statusBadge: JSX.Element;
+  if (!lastRun) {
+    statusBadge = (
+      <Badge variant="secondary" className="gap-1" data-testid="badge-nightly-status">
+        <HelpCircle className="h-3.5 w-3.5" />
+        No runs yet
+      </Badge>
+    );
+  } else if (running) {
+    statusBadge = (
+      <Badge className="gap-1 bg-blue-100 text-blue-800" data-testid="badge-nightly-status">
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        In progress
+      </Badge>
+    );
+  } else if (lastRun.success) {
+    statusBadge = (
+      <Badge className="gap-1 bg-green-100 text-green-800" data-testid="badge-nightly-status">
+        <CheckCircle className="h-3.5 w-3.5" />
+        Success
+      </Badge>
+    );
+  } else {
+    statusBadge = (
+      <Badge variant="destructive" className="gap-1" data-testid="badge-nightly-status">
+        <XCircle className="h-3.5 w-3.5" />
+        Failed{lastRun.exitCode !== null ? ` (exit ${lastRun.exitCode})` : ""}
+      </Badge>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Nightly Scrape Log
+            </CardTitle>
+            <CardDescription>
+              Read-only view of the automatic nightly registration scrape
+              (runs at 22:00 each day)
+            </CardDescription>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={isFetching}
+            data-testid="button-refresh-nightly-log"
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Status:</span>
+              {statusBadge}
+            </div>
+            <div>
+              <span className="text-muted-foreground">Last started: </span>
+              <strong data-testid="text-nightly-started">
+                {lastRun?.startedAt || "—"}
+              </strong>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Last finished: </span>
+              <strong data-testid="text-nightly-finished">
+                {lastRun?.finishedAt || (running ? "running…" : "—")}
+              </strong>
+            </div>
+          </div>
+
+          {log && !log.exists ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                No nightly scrape log was found yet. The log appears after the
+                first scheduled run (or is only present in the deployed
+                environment).
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <>
+              <div
+                className="bg-[#111111] text-gray-100 rounded-md p-3 text-xs font-mono max-h-[28rem] overflow-y-auto space-y-0.5"
+                data-testid="container-nightly-log"
+              >
+                {log && log.lines.length > 0 ? (
+                  log.lines.map((line, i) => (
+                    <div key={i} className="whitespace-pre-wrap break-all">
+                      {line || "\u00A0"}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-gray-400">The log is empty.</div>
+                )}
+              </div>
+              {log?.truncated && (
+                <p className="text-xs text-muted-foreground" data-testid="text-nightly-truncated">
+                  Showing the most recent output only. The full log lives on the
+                  server.
+                </p>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
