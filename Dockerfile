@@ -75,6 +75,12 @@ ENV IMPORT_DATA_DIR=/data/migrate \
     MIGRATE_COOKIE_FILE=/data/cookie.txt
 VOLUME ["/data"]
 
+# Seed data for first boot — pre-scraped JSON placed in import-seed/ on the build
+# machine. docker-entrypoint.sh copies these onto the /data volume the first time
+# the container starts (only when the volume has no JSON yet). The folder always
+# exists (tracked .gitkeep/README); the actual data is gitignored.
+COPY --from=builder /app/import-seed ./import-seed
+
 # Include legacy seed data files (needed by dist/seed-legacy.js)
 # To run: docker exec <container> node dist/seed-legacy.js
 # Delete dist/seed-legacy.js and server/scripts/data/ after first use
