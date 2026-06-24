@@ -53,6 +53,13 @@ interface ClassOverview {
   view: string;
 }
 
+interface ScrapeStatus {
+  status: "ok" | "failed";
+  runDate: string | null;
+  reason: string | null;
+  lastFailureAt: string | null;
+}
+
 // ─── Student Quick Search ─────────────────────────────────────────────────────
 
 function StudentSearchWidget() {
@@ -427,6 +434,80 @@ function TheoryAttendanceWidget() {
   );
 }
 
+// ─── Nightly Scrape Status ───────────────────────────────────────────────────
+
+function ScrapeStatusWidget() {
+  const { data, isLoading } = useQuery<ScrapeStatus>({
+    queryKey: ["/api/admin/scrape-status"],
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="border border-gray-200 shadow-sm bg-white">
+        <CardContent className="p-5">
+          <div className="animate-pulse h-16 bg-gray-100 rounded-md" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const failed = data?.status === "failed";
+
+  const formatDate = (value: string | null | undefined) => {
+    if (!value) return null;
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return value;
+    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  };
+
+  const displayDate = formatDate(data?.runDate) || formatDate(data?.lastFailureAt);
+
+  return (
+    <Card
+      className={`border shadow-sm bg-white ${failed ? "border-amber-200" : "border-gray-200"}`}
+      data-testid="card-scrape-status"
+    >
+      <CardHeader className="pb-3 pt-4 px-5">
+        <div className="flex items-center gap-2.5">
+          {failed ? (
+            <div className="p-1.5 bg-amber-50 rounded-md">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+            </div>
+          ) : (
+            <div className="p-1.5 bg-green-50 rounded-md">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+            </div>
+          )}
+          <div>
+            <CardTitle className="text-sm font-semibold text-gray-900">Nightly Scrape Status</CardTitle>
+            <CardDescription className="text-xs text-gray-500 mt-0.5" data-testid="text-scrape-status-summary">
+              {failed
+                ? `Last scrape failed${displayDate ? ` on ${displayDate}` : ""}`
+                : "No recent scrape failures"}
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+
+      {failed && (
+        <CardContent className="px-5 pb-4 pt-0">
+          <div className="border-t border-amber-100 pt-3">
+            <div className="rounded-md bg-amber-50 border border-amber-100 p-3">
+              <p className="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-1">Reason</p>
+              <p className="text-sm text-amber-900 break-words" data-testid="text-scrape-failure-reason">
+                {data?.reason || "Nightly scrape exited with an error"}
+              </p>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Registration data may be stale until this is resolved.
+            </p>
+          </div>
+        </CardContent>
+      )}
+    </Card>
+  );
+}
+
 // ─── Class Scheduling Overview ────────────────────────────────────────────────
 
 function ClassSchedulingOverview() {
@@ -514,6 +595,11 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <MissingAvailabilityWidget />
         <RegistrationSummaryWidget />
+      </div>
+
+      {/* Nightly scrape health */}
+      <div className="mb-6">
+        <ScrapeStatusWidget />
       </div>
 
       {/* d) Theory Class Attendance */}

@@ -397,6 +397,34 @@ export async function notifyScrapeRecovered(recovery: {
   });
 }
 
+// Fetch the most recent nightly scrape-failure notification for the dashboard
+// health widget. Returns null when no failure has ever been recorded.
+export async function getLatestScrapeFailure(): Promise<{
+  runDate: string | null;
+  reason: string | null;
+  createdAt: Date | null;
+} | null> {
+  const [latest] = await db
+    .select({
+      payload: notifications.payload,
+      title: notifications.title,
+      createdAt: notifications.createdAt,
+    })
+    .from(notifications)
+    .where(eq(notifications.notificationType, 'scrape_failure'))
+    .orderBy(desc(notifications.createdAt))
+    .limit(1);
+
+  if (!latest) return null;
+
+  const payload = (latest.payload || {}) as { runDate?: string; reason?: string };
+  return {
+    runDate: payload.runDate ?? null,
+    reason: payload.reason ?? null,
+    createdAt: latest.createdAt ?? null,
+  };
+}
+
 export async function notifyUpcomingClass(classData: {
   id: number;
   title: string;

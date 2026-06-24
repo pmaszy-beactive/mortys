@@ -3078,6 +3078,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Dashboard: latest nightly scrape outcome (reads scrape_failure notifications)
+  app.get("/api/admin/scrape-status", authMiddleware, async (_req, res) => {
+    try {
+      const latest = await notificationService.getLatestScrapeFailure();
+      if (!latest) {
+        return res.json({ status: "ok", runDate: null, reason: null, lastFailureAt: null });
+      }
+      res.json({
+        status: "failed",
+        runDate: latest.runDate,
+        reason: latest.reason,
+        lastFailureAt: latest.createdAt,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch scrape status" });
+    }
+  });
+
   // Dashboard: theory class attendance for a specific date
   app.get("/api/admin/theory-attendance", authMiddleware, async (req, res) => {
     try {
