@@ -784,9 +784,8 @@ function ImportTab({
     { label: "Screenshots", counts: s?.documents },
   ];
 
-  // Run Import is hidden for now to avoid confusing users. Flip to true to
-  // restore the import controls, progress, results, and live log.
-  const SHOW_RUN_IMPORT = false;
+  // Run Import controls (the actual import button, progress, results, live log).
+  const SHOW_RUN_IMPORT = true;
 
   return (
     <div className="space-y-6">
