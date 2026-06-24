@@ -168,10 +168,9 @@ export default function DataMigration() {
 
   const startImportMutation = useMutation({
     mutationFn: async (full: boolean) => {
-      const response = await apiRequest("POST", "/api/import/start", {
+      return await apiRequest("POST", "/api/import/start", {
         reimportAll: full,
       });
-      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -199,8 +198,7 @@ export default function DataMigration() {
   // Test connection mutation
   const testConnectionMutation = useMutation({
     mutationFn: async (creds: { username: string; password: string }) => {
-      const response = await apiRequest("POST", "/api/migration/test-connection", creds);
-      return response.json();
+      return await apiRequest("POST", "/api/migration/test-connection", creds);
     },
     onSuccess: (data) => {
       if (data.success) {
@@ -228,8 +226,7 @@ export default function DataMigration() {
   // Start migration mutation
   const startMigrationMutation = useMutation({
     mutationFn: async (creds: { username: string; password: string }) => {
-      const response = await apiRequest("POST", "/api/migration/start", creds);
-      return response.json();
+      return await apiRequest("POST", "/api/migration/start", creds);
     },
     onSuccess: (data) => {
       toast({
@@ -251,8 +248,7 @@ export default function DataMigration() {
   // Stop migration mutation
   const stopMigrationMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/migration/stop");
-      return response.json();
+      return await apiRequest("POST", "/api/migration/stop");
     },
     onSuccess: (data) => {
       toast({
