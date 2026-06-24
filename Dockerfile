@@ -40,8 +40,14 @@ WORKDIR /app
 
 # bash for the entrypoint; chromium + fonts/libs so the bundled site scraper
 # (scripts/migrate-site/spider.js → Puppeteer) can run headless inside the container.
+# busybox-suid provides a working crond applet for the nightly scrape cron job.
+# coreutils provides GNU `date`, whose relative-date arithmetic
+# (`date -d "<date> - N days"`) the scrape-registrations.sh script relies on;
+# Alpine's BusyBox `date` does not support it.
 RUN apk add --no-cache \
     bash \
+    busybox-suid \
+    coreutils \
     chromium \
     nss \
     freetype \
@@ -66,6 +72,14 @@ COPY --from=builder /app/migrations ./dist/migrations
 # At runtime it crawls the legacy site and writes page-level JSON to the import volume.
 COPY --from=builder /app/scripts/migrate-site ./scripts/migrate-site
 RUN cd scripts/migrate-site && npm install --omit=dev --no-package-lock
+
+# Nightly scrape cron: wrapper script + crontab.
+# The wrapper exports the env the scraper needs (cron runs with a minimal env)
+# and runs scrape-registrations.sh for the last 7 days. crond reads the crontab
+# from /etc/crontabs/root; the entrypoint starts crond in the background.
+COPY --from=builder /app/scripts/nightly-scrape.sh ./scripts/nightly-scrape.sh
+COPY --from=builder /app/scripts/crontab /etc/crontabs/root
+RUN chmod +x ./scripts/nightly-scrape.sh
 
 # Import data volume — scraper output + dedup state + session cookie persist here.
 # IMPORT_DATA_DIR is read by the in-app importer; MIGRATE_OUTPUT_DIR/MIGRATE_COOKIE_FILE

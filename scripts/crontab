@@ -1,0 +1,5 @@
+# Production container crontab (BusyBox crond).
+# Nightly at 22:00 (container local time): re-scrape the last 7 days of
+# registration reports. All stdout/stderr is appended to a persistent,
+# append-only log on the /data volume (no rotation).
+0 22 * * * /app/scripts/nightly-scrape.sh >> /data/logs/nightly-scrape.log 2>&1
