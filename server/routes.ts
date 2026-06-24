@@ -626,6 +626,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     authMiddleware(req, res, next);
   };
 
+  // Admin-only guard: authenticate first, then require admin/owner role.
+  const requireAdmin = (req: any, res: any, next: any) => {
+    authMiddleware(req, res, (err?: any) => {
+      if (err) return next(err);
+      const user = req.user;
+      if (!user || (user.role !== "admin" && user.role !== "owner")) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      next();
+    });
+  };
+
   if (isProduction) {
     // Production: Use Replit Auth with demo fallback
     await setupAuth(app);
@@ -4126,7 +4138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ---------------------------------------------------------------------
 
   // Counts of available scraped pages by type + how many already imported.
-  app.get("/api/import/manifest", authMiddleware, async (_req, res) => {
+  app.get("/api/import/manifest", requireAdmin, async (_req, res) => {
     try {
       const manifest = await getImportManifest();
       res.json(manifest);
@@ -4137,7 +4149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Kick off the import in the background. Returns immediately.
-  app.post("/api/import/start", authMiddleware, async (req, res) => {
+  app.post("/api/import/start", requireAdmin, async (req, res) => {
     try {
       if (isImportRunning()) {
         return res.status(409).json({ error: "Import already in progress" });
@@ -4155,7 +4167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Live status: logs, progress, and created/updated/skipped/error summary.
-  app.get("/api/import/status", authMiddleware, (_req, res) => {
+  app.get("/api/import/status", requireAdmin, (_req, res) => {
     res.json(getImportState());
   });
 

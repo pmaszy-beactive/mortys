@@ -115,9 +115,11 @@ migrate/
     └── <hash>.png
 ```
 
-> Note: the in-app importer does **not** require `_manifest.json`. It recursively
-> walks `IMPORT_DATA_DIR` for `*.json` files (skipping any whose name starts
-> with `_`), so it works even when the scraper writes nested per-URL folders.
+> Note: the in-app importer uses `_manifest.json` as the source of truth for
+> which pages to import and the counts shown by page type. If `_manifest.json`
+> is missing or unreadable, it falls back to recursively walking
+> `IMPORT_DATA_DIR` for `*.json` files (skipping any whose name starts with `_`),
+> so it still works on partial or manually-assembled data dumps.
 
 ## JSON Data Format
 

@@ -223,6 +223,37 @@ function listJsonFiles(dir: string): string[] {
   return out;
 }
 
+/**
+ * Enumerate the page JSON files to import. The scraper writes a `_manifest.json`
+ * index ({ pages: [{ file, url, ... }] }); we use it as the source of truth when
+ * present. If it is missing or unreadable, we fall back to a recursive scan so
+ * the importer still works on partial/manual data dumps.
+ */
+function enumerateImportFiles(dir: string): {
+  files: string[];
+  source: "manifest" | "scan";
+} {
+  if (!fs.existsSync(dir)) return { files: [], source: "scan" };
+  const manifestPath = path.join(dir, "_manifest.json");
+  if (fs.existsSync(manifestPath)) {
+    try {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+      const pages: any[] = Array.isArray(manifest?.pages) ? manifest.pages : [];
+      const files: string[] = [];
+      for (const p of pages) {
+        const rel = typeof p === "string" ? p : p?.file;
+        if (!rel || typeof rel !== "string") continue;
+        const full = path.join(dir, rel);
+        if (full.endsWith(".json") && fs.existsSync(full)) files.push(full);
+      }
+      if (files.length > 0) return { files, source: "manifest" };
+    } catch {
+      // Fall through to recursive scan on a malformed manifest.
+    }
+  }
+  return { files: listJsonFiles(dir), source: "scan" };
+}
+
 export interface ManifestResult {
   dataDir: string;
   exists: boolean;
@@ -233,7 +264,7 @@ export interface ManifestResult {
 
 export async function getManifest(): Promise<ManifestResult> {
   const dataDir = getImportDataDir();
-  const files = listJsonFiles(dataDir);
+  const { files } = enumerateImportFiles(dataDir);
   const byType: Record<string, number> = {};
   for (const f of files) {
     const rel = path.relative(dataDir, f);
@@ -1001,7 +1032,7 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
   log(`Import starting. Data dir: ${dataDir}`);
 
   try {
-    const files = listJsonFiles(dataDir);
+    const { files, source } = enumerateImportFiles(dataDir);
     state.total = files.length;
     if (files.length === 0) {
       log("No scraped JSON files found. Run the scraper first.");
@@ -1009,7 +1040,11 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
       state.finishedAt = new Date().toISOString();
       return;
     }
-    log(`Found ${files.length} JSON files.`);
+    log(
+      source === "manifest"
+        ? `Found ${files.length} JSON files via _manifest.json.`
+        : `Found ${files.length} JSON files (no _manifest.json — scanned data dir).`,
+    );
 
     // Sort by processing priority (identity-rich pages first).
     files.sort((a, b) => {
