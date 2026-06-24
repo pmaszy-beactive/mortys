@@ -1,0 +1,675 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=21%2F07%2F2025",
+  "url_hash": "786da0672f15cb7d",
+  "scraped_at": "2026-02-13T07:27:25.957Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jul 21, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jul 21, 2025 Name Lang Time Phone Course 1 st Class Comments 224154 Joachim, James Robley EN 6:49am 438-451-4726 (m) Motorcycle Montreal 22/08/2025 6:00pm edit 224155 Blouin, Christopher EN 9:24am 438-521-4395 (m) Automobile Montreal 31/07/2025 7:00pm edit 224156 Parent, Luke EN 11:02am 514-931-1222 (m) Automobile Kirkland 31/07/2025 7:00pm edit 224157 Sakr, Saymon-Aleksandr EN 11:31am 438-345-6700 (m) Motorcycle Montreal 25/07/2025 6:00pm edit 224158 Savard, Isabella EN 11:55am 514-588-5547 (m) 450-692-8869 (h) 438-389-1889 (w) Automobile Vaudreuil-Dorion 31/07/2025 7:00pm edit 224159 ky, patricia EN 1:26pm 438-391-6907 (m) Automobile Montreal 31/07/2025 7:00pm edit 224160 Stein, Gabriel EN 1:51pm 438-868-7048 (m) 514-826-7048 (h) Automobile Kirkland 31/07/2025 7:00pm edit 224161 Catuira, Jude Michael EN 2:10pm 514-916-6949 (m) Automobile Montreal 31/07/2025 7:00pm edit 224162 Stephenson, Troy Joseph EN 2:15pm 418-240-0194 (m) Motorcycle Montreal 08/08/2025 6:00pm edit 224163 Azran, Sophia EN 2:31pm 514-771-6308 (m) Automobile Montreal 31/07/2025 7:00pm edit 224164 Weiss, Emmanuel EN 3:22pm 514-239-7836 (m) Automobile Dollard-des-Ormeaux 31/07/2025 7:00pm edit 224165 Parker, Bishop EN 5:31pm 514-816-0722 (m) Automobile Vaudreuil-Dorion 31/07/2025 7:00pm edit 224166 Ahmed, Omer EN 7:12pm 514-601-2433 (m) Motorcycle Vaudreuil-Dorion 25/07/2025 6:00pm edit 224167 Vidad, Henrison Jake EN 8:29pm 438-951-1717 (m) Scooter Kirkland 10/08/2025 5:30pm edit 224168 Goren, Jackie EN 11:25pm 438-925-7181 (m) Automobile Dollard-des-Ormeaux 21/08/2025 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "21/07/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "21/07/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "224154",
+          "Joachim, James Robley",
+          "EN",
+          "6:49am",
+          "438-451-4726   (m)",
+          "Motorcycle Montreal",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "224155",
+          "Blouin, Christopher",
+          "EN",
+          "9:24am",
+          "438-521-4395   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224156",
+          "Parent, Luke",
+          "EN",
+          "11:02am",
+          "514-931-1222   (m)",
+          "Automobile Kirkland",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224157",
+          "Sakr, Saymon-Aleksandr",
+          "EN",
+          "11:31am",
+          "438-345-6700   (m)",
+          "Motorcycle Montreal",
+          "25/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "224158",
+          "Savard, Isabella",
+          "EN",
+          "11:55am",
+          "514-588-5547   (m)     \n \n             450-692-8869   (h)     \n \n             438-389-1889   (w)",
+          "Automobile Vaudreuil-Dorion",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224159",
+          "ky, patricia",
+          "EN",
+          "1:26pm",
+          "438-391-6907   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224160",
+          "Stein, Gabriel",
+          "EN",
+          "1:51pm",
+          "438-868-7048   (m)     \n \n             514-826-7048   (h)",
+          "Automobile Kirkland",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224161",
+          "Catuira, Jude Michael",
+          "EN",
+          "2:10pm",
+          "514-916-6949   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224162",
+          "Stephenson, Troy Joseph",
+          "EN",
+          "2:15pm",
+          "418-240-0194   (m)",
+          "Motorcycle Montreal",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "224163",
+          "Azran, Sophia",
+          "EN",
+          "2:31pm",
+          "514-771-6308   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224164",
+          "Weiss, Emmanuel",
+          "EN",
+          "3:22pm",
+          "514-239-7836   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224165",
+          "Parker, Bishop",
+          "EN",
+          "5:31pm",
+          "514-816-0722   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224166",
+          "Ahmed, Omer",
+          "EN",
+          "7:12pm",
+          "514-601-2433   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "25/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "224167",
+          "Vidad, Henrison Jake",
+          "EN",
+          "8:29pm",
+          "438-951-1717   (m)",
+          "Scooter Kirkland",
+          "10/08/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "224168",
+          "Goren, Jackie",
+          "EN",
+          "11:25pm",
+          "438-925-7181   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "21/08/2025  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "224154",
+          "Name": "Joachim, James Robley",
+          "Lang": "EN",
+          "Time": "6:49am",
+          "Phone": "438-451-4726   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "224155",
+          "Name": "Blouin, Christopher",
+          "Lang": "EN",
+          "Time": "9:24am",
+          "Phone": "438-521-4395   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "224156",
+          "Name": "Parent, Luke",
+          "Lang": "EN",
+          "Time": "11:02am",
+          "Phone": "514-931-1222   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "224157",
+          "Name": "Sakr, Saymon-Aleksandr",
+          "Lang": "EN",
+          "Time": "11:31am",
+          "Phone": "438-345-6700   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "25/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "224158",
+          "Name": "Savard, Isabella",
+          "Lang": "EN",
+          "Time": "11:55am",
+          "Phone": "514-588-5547   (m)     \n \n             450-692-8869   (h)     \n \n             438-389-1889   (w)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "224159",
+          "Name": "ky, patricia",
+          "Lang": "EN",
+          "Time": "1:26pm",
+          "Phone": "438-391-6907   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "224160",
+          "Name": "Stein, Gabriel",
+          "Lang": "EN",
+          "Time": "1:51pm",
+          "Phone": "438-868-7048   (m)     \n \n             514-826-7048   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "224161",
+          "Name": "Catuira, Jude Michael",
+          "Lang": "EN",
+          "Time": "2:10pm",
+          "Phone": "514-916-6949   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "224162",
+          "Name": "Stephenson, Troy Joseph",
+          "Lang": "EN",
+          "Time": "2:15pm",
+          "Phone": "418-240-0194   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "224163",
+          "Name": "Azran, Sophia",
+          "Lang": "EN",
+          "Time": "2:31pm",
+          "Phone": "514-771-6308   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "224164",
+          "Name": "Weiss, Emmanuel",
+          "Lang": "EN",
+          "Time": "3:22pm",
+          "Phone": "514-239-7836   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "224165",
+          "Name": "Parker, Bishop",
+          "Lang": "EN",
+          "Time": "5:31pm",
+          "Phone": "514-816-0722   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 12,
+          "column_0": "224166",
+          "Name": "Ahmed, Omer",
+          "Lang": "EN",
+          "Time": "7:12pm",
+          "Phone": "514-601-2433   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "25/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 13,
+          "column_0": "224167",
+          "Name": "Vidad, Henrison Jake",
+          "Lang": "EN",
+          "Time": "8:29pm",
+          "Phone": "438-951-1717   (m)",
+          "Course": "Scooter Kirkland",
+          "1st Class": "10/08/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 14,
+          "column_0": "224168",
+          "Name": "Goren, Jackie",
+          "Lang": "EN",
+          "Time": "11:25pm",
+          "Phone": "438-925-7181   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224356&courseId=2",
+      "text": "Joachim, James Robley",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224357&courseId=1",
+      "text": "Blouin, Christopher",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224358&courseId=1",
+      "text": "Parent, Luke",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224359&courseId=2",
+      "text": "Sakr, Saymon-Aleksandr",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224360&courseId=1",
+      "text": "Savard, Isabella",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224361&courseId=1",
+      "text": "ky, patricia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224362&courseId=1",
+      "text": "Stein, Gabriel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224363&courseId=1",
+      "text": "Catuira, Jude Michael",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224364&courseId=2",
+      "text": "Stephenson, Troy Joseph",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224365&courseId=1",
+      "text": "Azran, Sophia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224366&courseId=1",
+      "text": "Weiss, Emmanuel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224367&courseId=1",
+      "text": "Parker, Bishop",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224368&courseId=2",
+      "text": "Ahmed, Omer",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224369&courseId=3",
+      "text": "Vidad, Henrison Jake",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224370&courseId=1",
+      "text": "Goren, Jackie",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 30187,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=21%2F07%2F2025"
+}

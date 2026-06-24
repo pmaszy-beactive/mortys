@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=231803",
+  "url_hash": "9ea80aea47e65895",
+  "scraped_at": "2026-02-12T19:21:23.838Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "C410314070909 03203609 A-106 Claveau, Emma-Rose 762 Valois Vaudreuil QC J7V 0p9 0001235766 5147759586 4383490793 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca COPIE D'ÉLÈVE C410314070909 03203609 A-106 Claveau, Emma-Rose 762 Valois Vaudreuil QC J7V 0p9 0001235766 5147759586 4383490793 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203609&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203609&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6273,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=231803"
+}

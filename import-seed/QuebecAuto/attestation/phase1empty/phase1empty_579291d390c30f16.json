@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=223224",
+  "url_hash": "579291d390c30f16",
+  "scraped_at": "2026-02-13T11:32:00.637Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "L610617060901 03277081 L-021 Larabi, Maram 14353 rue Harris Pierrefonds QC H9H 1L6 0001235302 5146674072 5148129600 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca COPIE D'ÉLÈVE L610617060901 03277081 L-021 Larabi, Maram 14353 rue Harris Pierrefonds QC H9H 1L6 0001235302 5146674072 5148129600 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277081&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277081&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6495,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=223224"
+}

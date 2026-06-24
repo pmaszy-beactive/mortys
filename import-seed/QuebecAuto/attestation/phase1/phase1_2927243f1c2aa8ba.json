@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231988",
+  "url_hash": "2927243f1c2aa8ba",
+  "scraped_at": "2026-02-12T14:26:49.421Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "A435304019402 03287025 L-020 Altenburg, Daniel 5501 Adalbert Cote St Luc QC H4W2B1 0001235931 5146193261 X Ilan Preisler 13 nov. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 29 2025 10 06 2025 09 30 2025 10 07 2025 11 03 COPIE D'ÉLÈVE A435304019402 03287025 L-020 Altenburg, Daniel 5501 Adalbert Cote St Luc QC H4W2B1 0001235931 5146193261 X Ilan Preisler 13 nov. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 29 2025 10 06 2025 09 30 2025 10 07 2025 11 03 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287025&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287025&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10157,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231988"
+}

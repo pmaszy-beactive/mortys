@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=233793",
+  "url_hash": "3b601eb356e64fa4",
+  "scraped_at": "2026-02-11T23:34:36.712Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03288792 A-355 bolontzakis, julianna 633 Boul Taschereau La Prairie QC J5R1V5 0001236567 4373340804 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca COPIE D'ÉLÈVE 03288792 A-355 bolontzakis, julianna 633 Boul Taschereau La Prairie QC J5R1V5 0001236567 4373340804 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288792&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288792&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6097,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=233793"
+}

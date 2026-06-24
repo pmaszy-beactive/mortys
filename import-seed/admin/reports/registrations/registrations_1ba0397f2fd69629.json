@@ -1,0 +1,489 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=30%2F08%2F2025",
+  "url_hash": "1ba0397f2fd69629",
+  "scraped_at": "2026-02-12T18:41:08.816Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 30, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 30, 2025 Name Lang Time Phone Course 1 st Class Comments 231617 Mohammad, Tala FR 12:23am 514-431-9621 (m) Automobile Montreal 08/10/2025 7:00pm edit 231618 Mohammad, Oubai EN 1:26am 263-355-8141 (m) 514-577-8237 (h) Automobile Kirkland 08/10/2025 7:00pm edit 231619 Mohammad, Sara FR 2:17am 514-430-4975 (m) Automobile Kirkland 08/10/2025 7:00pm edit 231620 Grant, Lilah EN 9:46am 438-377-6581 (m) 514-928-9042 (h) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231621 Kotar-Balroop, Brianna EN 12:40pm 438-993-3822 (m) 514-261-3075 (h) Automobile Vaudreuil-Dorion 29/09/2025 7:00pm edit 231622 Dorfman, Caleigh EN 1:30pm 438-923-5460 (m) 514-502-7043 (h) Automobile Dollard-des-Ormeaux 29/09/2025 7:00pm edit 231623 Sullivan, Kaylan EN 6:40pm 514-978-7246 (m) Scooter Kirkland 21/09/2025 5:30pm edit 231624 Mo, Samantha EN 9:07pm 581-928-6680 (m) Automobile Montreal 09/09/2025 7:00pm edit 231625 Carl Desmarais, Robert EN 10:00pm 438-455-2802 (m) Scooter Kirkland 31/08/2025 5:30pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "30/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "30/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231617",
+          "Mohammad, Tala",
+          "FR",
+          "12:23am",
+          "514-431-9621   (m)",
+          "Automobile Montreal",
+          "08/10/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231618",
+          "Mohammad, Oubai",
+          "EN",
+          "1:26am",
+          "263-355-8141   (m)     \n \n             514-577-8237   (h)",
+          "Automobile Kirkland",
+          "08/10/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231619",
+          "Mohammad, Sara",
+          "FR",
+          "2:17am",
+          "514-430-4975   (m)",
+          "Automobile Kirkland",
+          "08/10/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231620",
+          "Grant, Lilah",
+          "EN",
+          "9:46am",
+          "438-377-6581   (m)     \n \n             514-928-9042   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231621",
+          "Kotar-Balroop, Brianna",
+          "EN",
+          "12:40pm",
+          "438-993-3822   (m)     \n \n             514-261-3075   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231622",
+          "Dorfman, Caleigh",
+          "EN",
+          "1:30pm",
+          "438-923-5460   (m)     \n \n             514-502-7043   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231623",
+          "Sullivan, Kaylan",
+          "EN",
+          "6:40pm",
+          "514-978-7246   (m)",
+          "Scooter Kirkland",
+          "21/09/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "231624",
+          "Mo, Samantha",
+          "EN",
+          "9:07pm",
+          "581-928-6680   (m)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231625",
+          "Carl Desmarais, Robert",
+          "EN",
+          "10:00pm",
+          "438-455-2802   (m)",
+          "Scooter Kirkland",
+          "31/08/2025  5:30pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231617",
+          "Name": "Mohammad, Tala",
+          "Lang": "FR",
+          "Time": "12:23am",
+          "Phone": "514-431-9621   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "08/10/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231618",
+          "Name": "Mohammad, Oubai",
+          "Lang": "EN",
+          "Time": "1:26am",
+          "Phone": "263-355-8141   (m)     \n \n             514-577-8237   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "08/10/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231619",
+          "Name": "Mohammad, Sara",
+          "Lang": "FR",
+          "Time": "2:17am",
+          "Phone": "514-430-4975   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "08/10/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231620",
+          "Name": "Grant, Lilah",
+          "Lang": "EN",
+          "Time": "9:46am",
+          "Phone": "438-377-6581   (m)     \n \n             514-928-9042   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231621",
+          "Name": "Kotar-Balroop, Brianna",
+          "Lang": "EN",
+          "Time": "12:40pm",
+          "Phone": "438-993-3822   (m)     \n \n             514-261-3075   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231622",
+          "Name": "Dorfman, Caleigh",
+          "Lang": "EN",
+          "Time": "1:30pm",
+          "Phone": "438-923-5460   (m)     \n \n             514-502-7043   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231623",
+          "Name": "Sullivan, Kaylan",
+          "Lang": "EN",
+          "Time": "6:40pm",
+          "Phone": "514-978-7246   (m)",
+          "Course": "Scooter Kirkland",
+          "1st Class": "21/09/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231624",
+          "Name": "Mo, Samantha",
+          "Lang": "EN",
+          "Time": "9:07pm",
+          "Phone": "581-928-6680   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231625",
+          "Name": "Carl Desmarais, Robert",
+          "Lang": "EN",
+          "Time": "10:00pm",
+          "Phone": "438-455-2802   (m)",
+          "Course": "Scooter Kirkland",
+          "1st Class": "31/08/2025  5:30pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231819&courseId=1",
+      "text": "Mohammad, Tala",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231820&courseId=1",
+      "text": "Mohammad, Oubai",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231821&courseId=1",
+      "text": "Mohammad, Sara",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231822&courseId=1",
+      "text": "Grant, Lilah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231823&courseId=1",
+      "text": "Kotar-Balroop, Brianna",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231824&courseId=1",
+      "text": "Dorfman, Caleigh",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231825&courseId=3",
+      "text": "Sullivan, Kaylan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231826&courseId=1",
+      "text": "Mo, Samantha",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231827&courseId=3",
+      "text": "Carl Desmarais, Robert",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 24635,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=30%2F08%2F2025"
+}

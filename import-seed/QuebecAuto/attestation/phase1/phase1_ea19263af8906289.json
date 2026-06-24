@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=222162",
+  "url_hash": "ea19263af8906289",
+  "scraped_at": "2026-02-13T13:01:01.710Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "F632106070806 03286900 L-020 Fertoukh, Adam 4830 avenue Roslyn Montreal QC H3W 2L2 0001235533 4385278051 4385278051 X Ilan Preisler 6 oct. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 13 2025 08 20 2025 08 14 2025 08 21 2025 09 18 COPIE D'ÉLÈVE F632106070806 03286900 L-020 Fertoukh, Adam 4830 avenue Roslyn Montreal QC H3W 2L2 0001235533 4385278051 4385278051 X Ilan Preisler 6 oct. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 13 2025 08 20 2025 08 14 2025 08 21 2025 09 18 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286900&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286900&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10357,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=222162"
+}

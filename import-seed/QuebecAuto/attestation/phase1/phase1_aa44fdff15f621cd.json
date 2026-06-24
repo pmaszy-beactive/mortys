@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228564",
+  "url_hash": "aa44fdff15f621cd",
+  "scraped_at": "2026-02-13T01:55:23.653Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "L260109090908 03288646 A-355 Licari, Alexandre 5644 Westluke Cote-Saint-Luc QC H4W 2N2 0001235585 5142666904 5147043904 X Ilan Preisler 26 oct. 2025 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 10 07 2025 10 14 COPIE D'ÉLÈVE L260109090908 03288646 A-355 Licari, Alexandre 5644 Westluke Cote-Saint-Luc QC H4W 2N2 0001235585 5142666904 5147043904 X Ilan Preisler 26 oct. 2025 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 10 07 2025 10 14 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288646&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288646&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10571,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228564"
+}

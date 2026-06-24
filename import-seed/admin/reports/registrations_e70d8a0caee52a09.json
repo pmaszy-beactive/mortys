@@ -1,0 +1,489 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=09%2F01%2F2026",
+  "url_hash": "e70d8a0caee52a09",
+  "scraped_at": "2026-02-11T22:20:42.728Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jan 9, 2026"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jan 9, 2026 Name Lang Time Phone Course 1 st Class Comments 233452 AL Kasem, Judy EN 10:06am 514-692-8373 (m) 514-557-6168 (h) Automobile Dollard-des-Ormeaux 18/01/2026 3:00pm edit 233453 Ratvai, Vivien EN 12:04pm 514-742-0997 (m) Motorcycle Dollard-des-Ormeaux 27/03/2026 6:00pm edit 233454 Cyrus, Kai EN 1:03pm 438-926-0750 (m) Automobile Montreal 14/01/2026 5:00pm edit 233456 morel, angelyna marie EN 2:57pm 604-363-6049 (m) Automobile Montreal 18/01/2026 3:00pm edit 233457 Campanelli-Scattone, Joseph EN 3:43pm 514-712-2055 (m) Motorcycle Montreal 23/01/2026 6:00pm edit 233458 Sison, Eugene Alfred EN 4:02pm 514-709-5888 (m) Motorcycle Montreal 17/04/2026 6:00pm edit 233459 Barr, Christopher Andrew Peter EN 6:48pm 514-245-7255 (m) Automobile Kirkland 14/01/2026 5:00pm edit 233460 Feldman, Ethan EN 9:38pm 514-823-9696 (m) 514-458-6582 (h) Automobile Kirkland 18/01/2026 3:00pm edit 233461 Pharoah-Henry, Marcus EN 10:46pm 438-526-6235 (m) Automobile Vaudreuil-Dorion 14/01/2026 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "09/01/2026",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "09/01/2026"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "233452",
+          "AL Kasem, Judy",
+          "EN",
+          "10:06am",
+          "514-692-8373   (m)     \n \n             514-557-6168   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "18/01/2026  3:00pm",
+          "edit"
+        ],
+        [
+          "233453",
+          "Ratvai, Vivien",
+          "EN",
+          "12:04pm",
+          "514-742-0997   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "27/03/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233454",
+          "Cyrus, Kai",
+          "EN",
+          "1:03pm",
+          "438-926-0750   (m)",
+          "Automobile Montreal",
+          "14/01/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233456",
+          "morel, angelyna marie",
+          "EN",
+          "2:57pm",
+          "604-363-6049   (m)",
+          "Automobile Montreal",
+          "18/01/2026  3:00pm",
+          "edit"
+        ],
+        [
+          "233457",
+          "Campanelli-Scattone, Joseph",
+          "EN",
+          "3:43pm",
+          "514-712-2055   (m)",
+          "Motorcycle Montreal",
+          "23/01/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233458",
+          "Sison, Eugene Alfred",
+          "EN",
+          "4:02pm",
+          "514-709-5888   (m)",
+          "Motorcycle Montreal",
+          "17/04/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233459",
+          "Barr, Christopher Andrew Peter",
+          "EN",
+          "6:48pm",
+          "514-245-7255   (m)",
+          "Automobile Kirkland",
+          "14/01/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233460",
+          "Feldman, Ethan",
+          "EN",
+          "9:38pm",
+          "514-823-9696   (m)     \n \n             514-458-6582   (h)",
+          "Automobile Kirkland",
+          "18/01/2026  3:00pm",
+          "edit"
+        ],
+        [
+          "233461",
+          "Pharoah-Henry, Marcus",
+          "EN",
+          "10:46pm",
+          "438-526-6235   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "14/01/2026  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "233452",
+          "Name": "AL Kasem, Judy",
+          "Lang": "EN",
+          "Time": "10:06am",
+          "Phone": "514-692-8373   (m)     \n \n             514-557-6168   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "18/01/2026  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "233453",
+          "Name": "Ratvai, Vivien",
+          "Lang": "EN",
+          "Time": "12:04pm",
+          "Phone": "514-742-0997   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "27/03/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "233454",
+          "Name": "Cyrus, Kai",
+          "Lang": "EN",
+          "Time": "1:03pm",
+          "Phone": "438-926-0750   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "233456",
+          "Name": "morel, angelyna marie",
+          "Lang": "EN",
+          "Time": "2:57pm",
+          "Phone": "604-363-6049   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/01/2026  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "233457",
+          "Name": "Campanelli-Scattone, Joseph",
+          "Lang": "EN",
+          "Time": "3:43pm",
+          "Phone": "514-712-2055   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "23/01/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "233458",
+          "Name": "Sison, Eugene Alfred",
+          "Lang": "EN",
+          "Time": "4:02pm",
+          "Phone": "514-709-5888   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "17/04/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "233459",
+          "Name": "Barr, Christopher Andrew Peter",
+          "Lang": "EN",
+          "Time": "6:48pm",
+          "Phone": "514-245-7255   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "233460",
+          "Name": "Feldman, Ethan",
+          "Lang": "EN",
+          "Time": "9:38pm",
+          "Phone": "514-823-9696   (m)     \n \n             514-458-6582   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "18/01/2026  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "233461",
+          "Name": "Pharoah-Henry, Marcus",
+          "Lang": "EN",
+          "Time": "10:46pm",
+          "Phone": "438-526-6235   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233656&courseId=1",
+      "text": "AL Kasem, Judy",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233657&courseId=2",
+      "text": "Ratvai, Vivien",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233658&courseId=1",
+      "text": "Cyrus, Kai",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233660&courseId=1",
+      "text": "morel, angelyna marie",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233661&courseId=2",
+      "text": "Campanelli-Scattone, Joseph",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233662&courseId=2",
+      "text": "Sison, Eugene Alfred",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233663&courseId=1",
+      "text": "Barr, Christopher Andrew Peter",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233664&courseId=1",
+      "text": "Feldman, Ethan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233665&courseId=1",
+      "text": "Pharoah-Henry, Marcus",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 24577,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=09%2F01%2F2026"
+}

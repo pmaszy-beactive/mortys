@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231882",
+  "url_hash": "9539dc5041e82579",
+  "scraped_at": "2026-02-12T16:49:00.592Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03286993 L-020 Sebag, Romi 8 Grenville Avenue Westmount QC H3Y 1V8 0001235740 5144899778 5148218989 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 27 2025 11 20 COPIE D'ÉLÈVE 03286993 L-020 Sebag, Romi 8 Grenville Avenue Westmount QC H3Y 1V8 0001235740 5144899778 5148218989 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 27 2025 11 20 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286993&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286993&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10167,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231882"
+}

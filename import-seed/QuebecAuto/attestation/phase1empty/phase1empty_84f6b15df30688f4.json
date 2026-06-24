@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=233841",
+  "url_hash": "84f6b15df30688f4",
+  "scraped_at": "2026-02-11T23:13:45.927Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03288785 A-355 Aniero, Ebuka Stanly 6609 Chem De La Côte St Luc Côte Saint Luc QC H4V1G9 0001236519 4383659281 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca COPIE D'ÉLÈVE 03288785 A-355 Aniero, Ebuka Stanly 6609 Chem De La Côte St Luc Côte Saint Luc QC H4V1G9 0001236519 4383659281 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288785&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288785&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6119,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=233841"
+}

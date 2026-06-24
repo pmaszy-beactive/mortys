@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=231928",
+  "url_hash": "4a220a052a308298",
+  "scraped_at": "2026-02-12T15:49:15.590Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "S530610110905 03203625 A-106 Schmidt, Olivier 156 rue Saint-Jean-Baptiste Vaudreuil-Dorion QC J7V 2P5 0001235834 5148878215 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca COPIE D'ÉLÈVE S530610110905 03203625 A-106 Schmidt, Olivier 156 rue Saint-Jean-Baptiste Vaudreuil-Dorion QC J7V 2P5 0001235834 5148878215 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203625&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203625&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6113,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=231928"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=231823",
+  "url_hash": "04b00487d07d0c79",
+  "scraped_at": "2026-02-12T18:49:31.215Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "K361112120908 03203630 A-106 Kotar-Balroop, Brianna 2159 rue de Sauternes Vaudreuil-dorion QC J7v 0g2 0001235895 5142613075 4389933822 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca COPIE D'ÉLÈVE K361112120908 03203630 A-106 Kotar-Balroop, Brianna 2159 rue de Sauternes Vaudreuil-dorion QC J7v 0g2 0001235895 5142613075 4389933822 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203630&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203630&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6313,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=231823"
+}

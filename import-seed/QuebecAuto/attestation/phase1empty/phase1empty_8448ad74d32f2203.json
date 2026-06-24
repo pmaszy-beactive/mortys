@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=228559",
+  "url_hash": "8448ad74d32f2203",
+  "scraped_at": "2026-02-13T02:22:29.537Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "C436304110901 03277313 L-774 Cloutier, Elizabeth 165 Alton Drive Beaconsfield QC H9W 2Z1 0001235592 5146270411 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca COPIE D'ÉLÈVE C436304110901 03277313 L-774 Cloutier, Elizabeth 165 Alton Drive Beaconsfield QC H9W 2Z1 0001235592 5146270411 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277313&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277313&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6273,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=228559"
+}

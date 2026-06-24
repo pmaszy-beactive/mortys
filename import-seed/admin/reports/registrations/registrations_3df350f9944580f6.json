@@ -1,0 +1,582 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=15%2F07%2F2025",
+  "url_hash": "3df350f9944580f6",
+  "scraped_at": "2026-02-13T09:17:01.351Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jul 15, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jul 15, 2025 Name Lang Time Phone Course 1 st Class Comments 224089 Allen, Christopher EN 9:27am 514-293-6434 (m) Automobile Montreal 31/07/2025 7:00pm edit 224090 Rivera, Alessia EN 11:00am 438-509-7217 (m) 514-482-8606 (h) Automobile Montreal 13/08/2025 5:00pm edit 224091 D'Anello, Adelina EN 12:44pm 514-500-2122 (m) 514-999-6464 (h) Automobile Montreal 15/07/2025 7:00pm edit 224092 Nozzolillo, Jason EN 1:20pm 514-213-3364 (m) Motorcycle Dollard-des-Ormeaux 25/07/2025 6:00pm edit 224093 MacDonald, Macey EN 1:42pm 438-778-4445 (m) Automobile Vaudreuil-Dorion 31/07/2025 7:00pm edit 224094 Cacchione, Eva EN 2:38pm 514-772-7471 (m) 514-333-9222 (h) 514-992-5794 (w) Automobile Montreal 13/08/2025 5:00pm edit 224095 Ben khalifa, Mohamed Youssef EN 3:50pm 438-321-0915 (m) Automobile Dollard-des-Ormeaux 31/07/2025 7:00pm edit 224096 Verma, Adih EN 4:45pm 514-652-8212 (h) Automobile Dollard-des-Ormeaux 15/07/2025 7:00pm edit 224097 Turner, Maya EN 4:50pm 514-969-5787 (m) 514-620-6177 (h) Automobile Dollard-des-Ormeaux 21/08/2025 5:00pm edit 224098 Rodger, Makhaila EN 6:04pm 438-372-9387 (m) Automobile Vaudreuil-Dorion 31/07/2025 7:00pm edit 224099 Paquette, Christina EN 8:20pm 438-820-4589 (m) Automobile Montreal 15/07/2025 7:00pm edit 224100 Coblentz Soares, Gabriel EN 8:50pm 438-378-4231 (m) Automobile Montreal 31/07/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "15/07/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "15/07/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "224089",
+          "Allen, Christopher",
+          "EN",
+          "9:27am",
+          "514-293-6434   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224090",
+          "Rivera, Alessia",
+          "EN",
+          "11:00am",
+          "438-509-7217   (m)     \n \n             514-482-8606   (h)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "224091",
+          "D'Anello, Adelina",
+          "EN",
+          "12:44pm",
+          "514-500-2122   (m)     \n \n             514-999-6464   (h)",
+          "Automobile Montreal",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224092",
+          "Nozzolillo, Jason",
+          "EN",
+          "1:20pm",
+          "514-213-3364   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "25/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "224093",
+          "MacDonald, Macey",
+          "EN",
+          "1:42pm",
+          "438-778-4445   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224094",
+          "Cacchione, Eva",
+          "EN",
+          "2:38pm",
+          "514-772-7471   (m)     \n \n             514-333-9222   (h)     \n \n             514-992-5794   (w)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "224095",
+          "Ben khalifa, Mohamed Youssef",
+          "EN",
+          "3:50pm",
+          "438-321-0915   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224096",
+          "Verma, Adih",
+          "EN",
+          "4:45pm",
+          "514-652-8212   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224097",
+          "Turner, Maya",
+          "EN",
+          "4:50pm",
+          "514-969-5787   (m)     \n \n             514-620-6177   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "224098",
+          "Rodger, Makhaila",
+          "EN",
+          "6:04pm",
+          "438-372-9387   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224099",
+          "Paquette, Christina",
+          "EN",
+          "8:20pm",
+          "438-820-4589   (m)",
+          "Automobile Montreal",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224100",
+          "Coblentz Soares, Gabriel",
+          "EN",
+          "8:50pm",
+          "438-378-4231   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "224089",
+          "Name": "Allen, Christopher",
+          "Lang": "EN",
+          "Time": "9:27am",
+          "Phone": "514-293-6434   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "224090",
+          "Name": "Rivera, Alessia",
+          "Lang": "EN",
+          "Time": "11:00am",
+          "Phone": "438-509-7217   (m)     \n \n             514-482-8606   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "224091",
+          "Name": "D'Anello, Adelina",
+          "Lang": "EN",
+          "Time": "12:44pm",
+          "Phone": "514-500-2122   (m)     \n \n             514-999-6464   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "224092",
+          "Name": "Nozzolillo, Jason",
+          "Lang": "EN",
+          "Time": "1:20pm",
+          "Phone": "514-213-3364   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "25/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "224093",
+          "Name": "MacDonald, Macey",
+          "Lang": "EN",
+          "Time": "1:42pm",
+          "Phone": "438-778-4445   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "224094",
+          "Name": "Cacchione, Eva",
+          "Lang": "EN",
+          "Time": "2:38pm",
+          "Phone": "514-772-7471   (m)     \n \n             514-333-9222   (h)     \n \n             514-992-5794   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "224095",
+          "Name": "Ben khalifa, Mohamed Youssef",
+          "Lang": "EN",
+          "Time": "3:50pm",
+          "Phone": "438-321-0915   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "224096",
+          "Name": "Verma, Adih",
+          "Lang": "EN",
+          "Time": "4:45pm",
+          "Phone": "514-652-8212   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "224097",
+          "Name": "Turner, Maya",
+          "Lang": "EN",
+          "Time": "4:50pm",
+          "Phone": "514-969-5787   (m)     \n \n             514-620-6177   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "224098",
+          "Name": "Rodger, Makhaila",
+          "Lang": "EN",
+          "Time": "6:04pm",
+          "Phone": "438-372-9387   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "224099",
+          "Name": "Paquette, Christina",
+          "Lang": "EN",
+          "Time": "8:20pm",
+          "Phone": "438-820-4589   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "224100",
+          "Name": "Coblentz Soares, Gabriel",
+          "Lang": "EN",
+          "Time": "8:50pm",
+          "Phone": "438-378-4231   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224291&courseId=1",
+      "text": "Allen, Christopher",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224292&courseId=1",
+      "text": "Rivera, Alessia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224293&courseId=1",
+      "text": "D'Anello, Adelina",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224294&courseId=2",
+      "text": "Nozzolillo, Jason",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224295&courseId=1",
+      "text": "MacDonald, Macey",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224296&courseId=1",
+      "text": "Cacchione, Eva",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224297&courseId=1",
+      "text": "Ben khalifa, Mohamed Youssef",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224298&courseId=1",
+      "text": "Verma, Adih",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224299&courseId=1",
+      "text": "Turner, Maya",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224300&courseId=1",
+      "text": "Rodger, Makhaila",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224301&courseId=1",
+      "text": "Paquette, Christina",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224302&courseId=1",
+      "text": "Coblentz Soares, Gabriel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 27519,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=15%2F07%2F2025"
+}

@@ -1,0 +1,365 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=16%2F08%2F2025",
+  "url_hash": "13885bc78b2e7b1d",
+  "scraped_at": "2026-02-12T22:50:44.107Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 16, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 16, 2025 Name Lang Time Phone Course 1 st Class Comments 231465 ko, Eunkyeol EN 1:34pm 514-795-2108 (m) Automobile Dollard-des-Ormeaux 21/08/2025 5:00pm edit 231466 Valderrama, Eva Sofia EN 3:22pm 514-668-4255 (m) 514-668-4255 (h) 514-668-4255 (w) Automobile Vaudreuil-Dorion 21/08/2025 5:00pm edit 231467 Mandri Lugo , Lorena EN 3:45pm 514-778-4136 (m) Automobile Montreal 21/08/2025 5:00pm edit 231468 Brassard, Miriam Roxey EN 6:09pm 438-342-2191 (m) 514-562-9303 (h) Automobile Montreal 09/09/2025 7:00pm edit 231469 Favier Bouchard, Elodie EN 9:56pm 514-688-5695 (m) Motorcycle Montreal 05/09/2025 6:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "16/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "16/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231465",
+          "ko, Eunkyeol",
+          "EN",
+          "1:34pm",
+          "514-795-2108   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231466",
+          "Valderrama, Eva Sofia",
+          "EN",
+          "3:22pm",
+          "514-668-4255   (m)     \n \n             514-668-4255   (h)     \n \n             514-668-4255   (w)",
+          "Automobile Vaudreuil-Dorion",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231467",
+          "Mandri Lugo , Lorena",
+          "EN",
+          "3:45pm",
+          "514-778-4136   (m)",
+          "Automobile Montreal",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231468",
+          "Brassard, Miriam Roxey",
+          "EN",
+          "6:09pm",
+          "438-342-2191   (m)     \n \n             514-562-9303   (h)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231469",
+          "Favier Bouchard, Elodie",
+          "EN",
+          "9:56pm",
+          "514-688-5695   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231465",
+          "Name": "ko, Eunkyeol",
+          "Lang": "EN",
+          "Time": "1:34pm",
+          "Phone": "514-795-2108   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231466",
+          "Name": "Valderrama, Eva Sofia",
+          "Lang": "EN",
+          "Time": "3:22pm",
+          "Phone": "514-668-4255   (m)     \n \n             514-668-4255   (h)     \n \n             514-668-4255   (w)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231467",
+          "Name": "Mandri Lugo , Lorena",
+          "Lang": "EN",
+          "Time": "3:45pm",
+          "Phone": "514-778-4136   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231468",
+          "Name": "Brassard, Miriam Roxey",
+          "Lang": "EN",
+          "Time": "6:09pm",
+          "Phone": "438-342-2191   (m)     \n \n             514-562-9303   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231469",
+          "Name": "Favier Bouchard, Elodie",
+          "Lang": "EN",
+          "Time": "9:56pm",
+          "Phone": "514-688-5695   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231667&courseId=1",
+      "text": "ko, Eunkyeol",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231668&courseId=1",
+      "text": "Valderrama, Eva Sofia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231669&courseId=1",
+      "text": "Mandri Lugo , Lorena",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231670&courseId=1",
+      "text": "Brassard, Miriam Roxey",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231671&courseId=2",
+      "text": "Favier Bouchard, Elodie",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 20886,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=16%2F08%2F2025"
+}

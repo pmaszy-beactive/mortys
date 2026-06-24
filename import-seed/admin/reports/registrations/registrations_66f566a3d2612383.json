@@ -1,0 +1,706 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=05%2F08%2F2025",
+  "url_hash": "66f566a3d2612383",
+  "scraped_at": "2026-02-13T02:25:27.382Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 5, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 5, 2025 Name Lang Time Phone Course 1 st Class Comments 228335 Francescucci, Ophelia EN 9:34am 438-525-6743 (m) Automobile Montreal 13/08/2025 5:00pm edit 228336 Quinnett, Anthony EN 9:47am 514-975-5980 (m) 514-978-5980 (h) 514-966-2035 (w) Automobile Kirkland 13/08/2025 5:00pm edit 228337 Peart, Kaya Sofia EN 9:52am 514-968-4627 (m) 514-968-4627 (h) 514-968-4627 (w) Automobile Montreal 13/08/2025 5:00pm edit 228338 Taylor, Brett EN 11:50am 514-691-6323 (m) Motorcycle Vaudreuil-Dorion 19/09/2025 6:00pm edit 228339 Jaquith, Cameron EN 12:05pm 438-525-0582 (m) 438-405-0510 (h) Automobile Vaudreuil-Dorion 13/08/2025 5:00pm edit 228340 Percs, Vanessa EN 12:24pm 514-803-3449 (m) Automobile Kirkland 21/08/2025 5:00pm edit 228341 Creswell, Emerson EN 2:02pm 514-348-1571 (m) 450-957-8774 (h) Motorcycle Vaudreuil-Dorion 08/08/2025 6:00pm edit 228342 Smith, Leah EN 2:24pm 514-833-7761 (m) 438-979-7105 (h) Automobile Vaudreuil-Dorion 13/08/2025 5:00pm edit 228343 KHALIL, IBRAHIM EN 2:32pm 438-866-0663 (m) Motorcycle Montreal 08/08/2025 6:00pm edit 228344 Yacat, Brianna EN 4:59pm 579-490-4321 (m) 514-816-9833 (h) Automobile Vaudreuil-Dorion 24/08/2025 3:00pm edit 228345 Hernandez Mendoza, Evangeline EN 5:02pm 263-381-1409 (m) 514-965-9329 (h) Automobile Vaudreuil-Dorion 24/08/2025 3:00pm edit 228346 Fox, James EN 6:19pm 438-995-7406 (m) 514-264-0576 (h) Automobile Dollard-des-Ormeaux 13/08/2025 5:00pm edit 228347 Halim, Mickel EN 6:32pm 873-999-1124 (m) Motorcycle Dollard-des-Ormeaux 08/08/2025 6:00pm edit 228348 O’Connell, Cashel EN 7:48pm 514-448-9658 (m) 514-627-6591 (h) Automobile Côte Saint-Luc 21/08/2025 5:00pm edit 228349 Menon, Anjali EN 8:58pm 514-952-7747 (m) 514-515-7747 (h) Automobile Dollard-des-Ormeaux 13/08/2025 5:00pm edit 228350 Li, Letong EN 9:40pm 514-839-2854 (m) Automobile Montreal 13/08/2025 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "05/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "05/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "228335",
+          "Francescucci, Ophelia",
+          "EN",
+          "9:34am",
+          "438-525-6743   (m)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228336",
+          "Quinnett, Anthony",
+          "EN",
+          "9:47am",
+          "514-975-5980   (m)     \n \n             514-978-5980   (h)     \n \n             514-966-2035   (w)",
+          "Automobile Kirkland",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228337",
+          "Peart, Kaya Sofia",
+          "EN",
+          "9:52am",
+          "514-968-4627   (m)     \n \n             514-968-4627   (h)     \n \n             514-968-4627   (w)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228338",
+          "Taylor, Brett",
+          "EN",
+          "11:50am",
+          "514-691-6323   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "19/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "228339",
+          "Jaquith, Cameron",
+          "EN",
+          "12:05pm",
+          "438-525-0582   (m)     \n \n             438-405-0510   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228340",
+          "Percs, Vanessa",
+          "EN",
+          "12:24pm",
+          "514-803-3449   (m)",
+          "Automobile Kirkland",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228341",
+          "Creswell, Emerson",
+          "EN",
+          "2:02pm",
+          "514-348-1571   (m)     \n \n             450-957-8774   (h)",
+          "Motorcycle Vaudreuil-Dorion",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "228342",
+          "Smith, Leah",
+          "EN",
+          "2:24pm",
+          "514-833-7761   (m)     \n \n             438-979-7105   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228343",
+          "KHALIL, IBRAHIM",
+          "EN",
+          "2:32pm",
+          "438-866-0663   (m)",
+          "Motorcycle Montreal",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "228344",
+          "Yacat, Brianna",
+          "EN",
+          "4:59pm",
+          "579-490-4321   (m)     \n \n             514-816-9833   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "228345",
+          "Hernandez Mendoza, Evangeline",
+          "EN",
+          "5:02pm",
+          "263-381-1409   (m)     \n \n             514-965-9329   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "228346",
+          "Fox, James",
+          "EN",
+          "6:19pm",
+          "438-995-7406   (m)     \n \n             514-264-0576   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228347",
+          "Halim, Mickel",
+          "EN",
+          "6:32pm",
+          "873-999-1124   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "228348",
+          "O’Connell, Cashel",
+          "EN",
+          "7:48pm",
+          "514-448-9658   (m)     \n \n             514-627-6591   (h)",
+          "Automobile Côte Saint-Luc",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228349",
+          "Menon, Anjali",
+          "EN",
+          "8:58pm",
+          "514-952-7747   (m)     \n \n             514-515-7747   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228350",
+          "Li, Letong",
+          "EN",
+          "9:40pm",
+          "514-839-2854   (m)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "228335",
+          "Name": "Francescucci, Ophelia",
+          "Lang": "EN",
+          "Time": "9:34am",
+          "Phone": "438-525-6743   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "228336",
+          "Name": "Quinnett, Anthony",
+          "Lang": "EN",
+          "Time": "9:47am",
+          "Phone": "514-975-5980   (m)     \n \n             514-978-5980   (h)     \n \n             514-966-2035   (w)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "228337",
+          "Name": "Peart, Kaya Sofia",
+          "Lang": "EN",
+          "Time": "9:52am",
+          "Phone": "514-968-4627   (m)     \n \n             514-968-4627   (h)     \n \n             514-968-4627   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "228338",
+          "Name": "Taylor, Brett",
+          "Lang": "EN",
+          "Time": "11:50am",
+          "Phone": "514-691-6323   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "19/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "228339",
+          "Name": "Jaquith, Cameron",
+          "Lang": "EN",
+          "Time": "12:05pm",
+          "Phone": "438-525-0582   (m)     \n \n             438-405-0510   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "228340",
+          "Name": "Percs, Vanessa",
+          "Lang": "EN",
+          "Time": "12:24pm",
+          "Phone": "514-803-3449   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "228341",
+          "Name": "Creswell, Emerson",
+          "Lang": "EN",
+          "Time": "2:02pm",
+          "Phone": "514-348-1571   (m)     \n \n             450-957-8774   (h)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "228342",
+          "Name": "Smith, Leah",
+          "Lang": "EN",
+          "Time": "2:24pm",
+          "Phone": "514-833-7761   (m)     \n \n             438-979-7105   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "228343",
+          "Name": "KHALIL, IBRAHIM",
+          "Lang": "EN",
+          "Time": "2:32pm",
+          "Phone": "438-866-0663   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "228344",
+          "Name": "Yacat, Brianna",
+          "Lang": "EN",
+          "Time": "4:59pm",
+          "Phone": "579-490-4321   (m)     \n \n             514-816-9833   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "228345",
+          "Name": "Hernandez Mendoza, Evangeline",
+          "Lang": "EN",
+          "Time": "5:02pm",
+          "Phone": "263-381-1409   (m)     \n \n             514-965-9329   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "228346",
+          "Name": "Fox, James",
+          "Lang": "EN",
+          "Time": "6:19pm",
+          "Phone": "438-995-7406   (m)     \n \n             514-264-0576   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 12,
+          "column_0": "228347",
+          "Name": "Halim, Mickel",
+          "Lang": "EN",
+          "Time": "6:32pm",
+          "Phone": "873-999-1124   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 13,
+          "column_0": "228348",
+          "Name": "O’Connell, Cashel",
+          "Lang": "EN",
+          "Time": "7:48pm",
+          "Phone": "514-448-9658   (m)     \n \n             514-627-6591   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 14,
+          "column_0": "228349",
+          "Name": "Menon, Anjali",
+          "Lang": "EN",
+          "Time": "8:58pm",
+          "Phone": "514-952-7747   (m)     \n \n             514-515-7747   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 15,
+          "column_0": "228350",
+          "Name": "Li, Letong",
+          "Lang": "EN",
+          "Time": "9:40pm",
+          "Phone": "514-839-2854   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228537&courseId=1",
+      "text": "Francescucci, Ophelia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228538&courseId=1",
+      "text": "Quinnett, Anthony",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228539&courseId=1",
+      "text": "Peart, Kaya Sofia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228540&courseId=2",
+      "text": "Taylor, Brett",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228541&courseId=1",
+      "text": "Jaquith, Cameron",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228542&courseId=1",
+      "text": "Percs, Vanessa",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228543&courseId=2",
+      "text": "Creswell, Emerson",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228544&courseId=1",
+      "text": "Smith, Leah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228545&courseId=2",
+      "text": "KHALIL, IBRAHIM",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228546&courseId=1",
+      "text": "Yacat, Brianna",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228547&courseId=1",
+      "text": "Hernandez Mendoza, Evangeline",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228548&courseId=1",
+      "text": "Fox, James",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228549&courseId=2",
+      "text": "Halim, Mickel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228550&courseId=1",
+      "text": "O’Connell, Cashel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228551&courseId=1",
+      "text": "Menon, Anjali",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228552&courseId=1",
+      "text": "Li, Letong",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 31558,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=05%2F08%2F2025"
+}

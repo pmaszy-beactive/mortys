@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231712",
+  "url_hash": "2e14405f97c96f82",
+  "scraped_at": "2026-02-12T22:06:06.266Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03288655 A-355 Manel, Maya 9 Harland Place hampstead QC H3X 3G3 0001235782 5145313700 X Ilan Preisler 10 nov. 2025 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca 2025 09 09 2025 09 16 2025 10 20 2025 11 02 2025 11 05 COPIE D'ÉLÈVE 03288655 A-355 Manel, Maya 9 Harland Place hampstead QC H3X 3G3 0001235782 5145313700 X Ilan Preisler 10 nov. 2025 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca 2025 09 09 2025 09 16 2025 10 20 2025 11 02 2025 11 05 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288655&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288655&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10167,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231712"
+}

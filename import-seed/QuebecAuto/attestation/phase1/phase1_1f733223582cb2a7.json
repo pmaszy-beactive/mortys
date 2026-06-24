@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231849",
+  "url_hash": "1f733223582cb2a7",
+  "scraped_at": "2026-02-12T18:03:35.927Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "M600109100903 03203611 A-106 Myre, Benjamin 16, Rue Leduc Saint-clet QC J0P 1S0 0001235768 2633812076 X Ilan Preisler 15 oct. 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 07 2025 10 14 COPIE D'ÉLÈVE M600109100903 03203611 A-106 Myre, Benjamin 16, Rue Leduc Saint-clet QC J0P 1S0 0001235768 2633812076 X Ilan Preisler 15 oct. 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 07 2025 10 14 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203611&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203611&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10167,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231849"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=233825",
+  "url_hash": "7a16247baf19e1f3",
+  "scraped_at": "2026-02-11T23:23:47.318Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03288787 A-355 Raquiño, Cherry Ann 284 Du Parc Avenue #284 Granby QC J2G 2N1 0001236541 5145851744 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca COPIE D'ÉLÈVE 03288787 A-355 Raquiño, Cherry Ann 284 Du Parc Avenue #284 Granby QC J2G 2N1 0001236541 5145851744 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288787&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288787&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6097,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=233825"
+}

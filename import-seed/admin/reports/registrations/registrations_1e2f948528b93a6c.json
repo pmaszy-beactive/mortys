@@ -1,0 +1,458 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=29%2F01%2F2026",
+  "url_hash": "1e2f948528b93a6c",
+  "scraped_at": "2026-02-11T23:22:19.343Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jan 29, 2026"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jan 29, 2026 Name Lang Time Phone Course 1 st Class Comments 233619 Malalay, Karla EN 11:50am 514-516-8000 (m) Automobile Montreal 05/02/2026 5:00pm edit 233620 Abdoo , Yael EN 1:31pm 514-502-2912 (m) 514-242-4194 (h) Automobile Dollard-des-Ormeaux 05/02/2026 5:00pm edit 233621 Raquiño, Cherry Ann EN 3:09pm 514-585-1744 (m) Automobile Côte Saint-Luc 05/02/2026 5:00pm edit 233622 Ahmadiankurabbaslu, Mohammadreza EN 3:47pm 514-409-5644 (m) 514-409-5644 (h) 514-409-5644 (w) Motorcycle Montreal 20/02/2026 6:00pm edit 233623 Kaufmann, Valentina EN 5:01pm 514-577-2210 (m) 514-568-5575 (h) Automobile Montreal 05/02/2026 5:00pm edit 233624 Gholizadehkhorasani, Shayan EN 9:09pm 438-938-4904 (m) Motorcycle Dollard-des-Ormeaux 20/02/2026 6:00pm edit 233625 Nnamdi, Michael EN 10:03pm 438-346-8716 (m) Automobile Vaudreuil-Dorion 16/02/2026 5:00pm edit 233626 Forystek, Mia EN 10:44pm 514-965-3613 (m) Scooter Dollard-des-Ormeaux 12/04/2026 5:30pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "29/01/2026",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "29/01/2026"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "233619",
+          "Malalay, Karla",
+          "EN",
+          "11:50am",
+          "514-516-8000   (m)",
+          "Automobile Montreal",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233620",
+          "Abdoo , Yael",
+          "EN",
+          "1:31pm",
+          "514-502-2912   (m)     \n \n             514-242-4194   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233621",
+          "Raquiño, Cherry Ann",
+          "EN",
+          "3:09pm",
+          "514-585-1744   (m)",
+          "Automobile Côte Saint-Luc",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233622",
+          "Ahmadiankurabbaslu, Mohammadreza",
+          "EN",
+          "3:47pm",
+          "514-409-5644   (m)     \n \n             514-409-5644   (h)     \n \n             514-409-5644   (w)",
+          "Motorcycle Montreal",
+          "20/02/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233623",
+          "Kaufmann, Valentina",
+          "EN",
+          "5:01pm",
+          "514-577-2210   (m)     \n \n             514-568-5575   (h)",
+          "Automobile Montreal",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233624",
+          "Gholizadehkhorasani, Shayan",
+          "EN",
+          "9:09pm",
+          "438-938-4904   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "20/02/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233625",
+          "Nnamdi, Michael",
+          "EN",
+          "10:03pm",
+          "438-346-8716   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "16/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233626",
+          "Forystek, Mia",
+          "EN",
+          "10:44pm",
+          "514-965-3613   (m)",
+          "Scooter Dollard-des-Ormeaux",
+          "12/04/2026  5:30pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "233619",
+          "Name": "Malalay, Karla",
+          "Lang": "EN",
+          "Time": "11:50am",
+          "Phone": "514-516-8000   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "233620",
+          "Name": "Abdoo , Yael",
+          "Lang": "EN",
+          "Time": "1:31pm",
+          "Phone": "514-502-2912   (m)     \n \n             514-242-4194   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "233621",
+          "Name": "Raquiño, Cherry Ann",
+          "Lang": "EN",
+          "Time": "3:09pm",
+          "Phone": "514-585-1744   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "233622",
+          "Name": "Ahmadiankurabbaslu, Mohammadreza",
+          "Lang": "EN",
+          "Time": "3:47pm",
+          "Phone": "514-409-5644   (m)     \n \n             514-409-5644   (h)     \n \n             514-409-5644   (w)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "20/02/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "233623",
+          "Name": "Kaufmann, Valentina",
+          "Lang": "EN",
+          "Time": "5:01pm",
+          "Phone": "514-577-2210   (m)     \n \n             514-568-5575   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "233624",
+          "Name": "Gholizadehkhorasani, Shayan",
+          "Lang": "EN",
+          "Time": "9:09pm",
+          "Phone": "438-938-4904   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "20/02/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "233625",
+          "Name": "Nnamdi, Michael",
+          "Lang": "EN",
+          "Time": "10:03pm",
+          "Phone": "438-346-8716   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "16/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "233626",
+          "Name": "Forystek, Mia",
+          "Lang": "EN",
+          "Time": "10:44pm",
+          "Phone": "514-965-3613   (m)",
+          "Course": "Scooter Dollard-des-Ormeaux",
+          "1st Class": "12/04/2026  5:30pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233823&courseId=1",
+      "text": "Malalay, Karla",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233824&courseId=1",
+      "text": "Abdoo , Yael",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233825&courseId=1",
+      "text": "Raquiño, Cherry Ann",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233826&courseId=2",
+      "text": "Ahmadiankurabbaslu, Mohammadreza",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233827&courseId=1",
+      "text": "Kaufmann, Valentina",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233828&courseId=2",
+      "text": "Gholizadehkhorasani, Shayan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233829&courseId=1",
+      "text": "Nnamdi, Michael",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233830&courseId=3",
+      "text": "Forystek, Mia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 23750,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=29%2F01%2F2026"
+}

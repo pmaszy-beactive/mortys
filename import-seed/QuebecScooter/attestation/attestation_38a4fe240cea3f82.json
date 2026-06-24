@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=231974",
+  "url_hash": "38a4fe240cea3f82",
+  "scraped_at": "2026-02-12T14:38:49.550Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03284196 A-107 Dandurand-Turner, Liam 28 Rue de Saveuse Coteau-du-Lac QC J0P 1B0 0001235923 5147041986 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 21 2025 09 28 X Ilan Preisler 3 oct. 2025 COPIE D'ÉLÈVE 03284196 A-107 Dandurand-Turner, Liam 28 Rue de Saveuse Coteau-du-Lac QC J0P 1B0 0001235923 5147041986 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 21 2025 09 28 X Ilan Preisler 3 oct. 2025 COPIE D'ÉCOLE 03284196 A-107 Dandurand-Turner, Liam 28 Rue de Saveuse Coteau-du-Lac QC J0P 1B0 0001235923 5147041986 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 21 2025 09 28 X Ilan Preisler 3 oct. 2025 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03284196&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03284196&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03284196&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 11355,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=231974"
+}

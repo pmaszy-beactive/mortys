@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4empty/?studentUserId=232001",
+  "url_hash": "2ed30a5a3601613b",
+  "scraped_at": "2026-02-12T13:43:30.117Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03288681 A-355 Bauer, Yuhan 2368Beaconsfield avenue Montreal QC H4A2G8 0001235974 5145850599 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca COPIE D'ÉLÈVE 03288681 A-355 Bauer, Yuhan 2368Beaconsfield avenue Montreal QC H4A2G8 0001235974 5145850599 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca COPIE D'ÉCOLE 03288681 A-355 Bauer, Yuhan 2368Beaconsfield avenue Montreal QC H4A2G8 0001235974 5145850599 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288681&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288681&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288681&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 8148,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4empty/?studentUserId=232001"
+}

@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4empty/?studentUserId=228528",
+  "url_hash": "5c355a38a48ed9c8",
+  "scraped_at": "2026-02-13T03:02:17.582Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "K155314040805 03286908 L-020 Kaufman, Eden Grace 1735 Rue Mullins montreal QC H3K1N5 0001235541 4383499509 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉLÈVE K155314040805 03286908 L-020 Kaufman, Eden Grace 1735 Rue Mullins montreal QC H3K1N5 0001235541 4383499509 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉCOLE K155314040805 03286908 L-020 Kaufman, Eden Grace 1735 Rue Mullins montreal QC H3K1N5 0001235541 4383499509 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286908&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286908&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286908&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 8106,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4empty/?studentUserId=228528"
+}

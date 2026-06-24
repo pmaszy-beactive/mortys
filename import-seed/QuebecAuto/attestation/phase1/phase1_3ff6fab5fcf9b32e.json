@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=230589",
+  "url_hash": "3ff6fab5fcf9b32e",
+  "scraped_at": "2026-02-13T01:09:32.983Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "C420608070300 03286898 L-020 Celso, Nicole Rose 5120 Boul Edouard Montpetit Montreal QC H3W1R2 0001235531 4388722353 X Ilan Preisler 24 sept. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 13 2025 08 20 2025 08 27 2025 09 03 2025 09 21 COPIE D'ÉLÈVE C420608070300 03286898 L-020 Celso, Nicole Rose 5120 Boul Edouard Montpetit Montreal QC H3W1R2 0001235531 4388722353 X Ilan Preisler 24 sept. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 13 2025 08 20 2025 08 27 2025 09 03 2025 09 21 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286898&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286898&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10183,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=230589"
+}

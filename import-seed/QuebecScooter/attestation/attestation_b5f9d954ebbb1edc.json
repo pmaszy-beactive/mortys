@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=224387",
+  "url_hash": "b5f9d954ebbb1edc",
+  "scraped_at": "2026-02-13T06:49:53.402Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03287143 L-390 Afanasiev, Marina 7345 boul. St-Laurent Montreal QC H2R1W6 0001236757 5148354291 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- X Ilan Preisler 13 févr. 2026 COPIE D'ÉLÈVE 03287143 L-390 Afanasiev, Marina 7345 boul. St-Laurent Montreal QC H2R1W6 0001236757 5148354291 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- X Ilan Preisler 13 févr. 2026 COPIE D'ÉCOLE 03287143 L-390 Afanasiev, Marina 7345 boul. St-Laurent Montreal QC H2R1W6 0001236757 5148354291 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- X Ilan Preisler 13 févr. 2026 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287143&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287143&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287143&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 9999,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=224387"
+}

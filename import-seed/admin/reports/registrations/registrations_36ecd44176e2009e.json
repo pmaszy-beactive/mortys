@@ -1,0 +1,551 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=05%2F07%2F2025",
+  "url_hash": "36ecd44176e2009e",
+  "scraped_at": "2026-02-13T12:22:06.202Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jul 5, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jul 5, 2025 Name Lang Time Phone Course 1 st Class Comments 222970 gutierrez, aika EN 10:52am 514-809-3634 (m) Motorcycle Montreal 11/07/2025 6:00pm edit 222971 Singh, Shreya EN 11:08am 438-875-7560 (m) 438-878-6168 (h) Automobile Vaudreuil-Dorion 15/07/2025 7:00pm edit 222972 Prendergast, Fintan EN 12:08pm 438-357-6397 (m) Automobile Kirkland 15/07/2025 7:00pm edit 222973 Stathopoulos , Melanthi EN 1:47pm 514-983-0180 (m) 514-337-1011 (h) Automobile Dollard-des-Ormeaux 06/07/2025 3:00pm edit 222974 Stathopoulos, Panayoula EN 1:52pm 514-550-9448 (m) 514-337-1011 (h) Automobile Dollard-des-Ormeaux 06/07/2025 3:00pm edit 222975 Mohammed, Adham EN 4:22pm 438-989-1333 (m) Motorcycle Montreal 11/07/2025 6:00pm edit 222976 Thanassoulis, Alexi EN 4:28pm 438-356-3105 (m) 514-706-5128 (w) Automobile Montreal 06/07/2025 3:00pm edit 222977 Shiue, Remy EN 4:39pm 438-493-4898 (m) Automobile Montreal 06/07/2025 3:00pm edit 222978 Ledesma Rivera, Fernando EN 10:16pm 514-466-6478 (m) Automobile Kirkland 06/07/2025 3:00pm edit 222980 Ledesma Rivera, Marta EN 10:19pm 514-466-6478 (m) Automobile Kirkland 06/07/2025 3:00pm edit 222981 Kwas, Heidi EN 10:26pm 438-535-1160 (m) Scooter Vaudreuil-Dorion 20/07/2025 5:30pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "05/07/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "05/07/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "222970",
+          "gutierrez, aika",
+          "EN",
+          "10:52am",
+          "514-809-3634   (m)",
+          "Motorcycle Montreal",
+          "11/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "222971",
+          "Singh, Shreya",
+          "EN",
+          "11:08am",
+          "438-875-7560   (m)     \n \n             438-878-6168   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "222972",
+          "Prendergast, Fintan",
+          "EN",
+          "12:08pm",
+          "438-357-6397   (m)",
+          "Automobile Kirkland",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "222973",
+          "Stathopoulos , Melanthi",
+          "EN",
+          "1:47pm",
+          "514-983-0180   (m)     \n \n             514-337-1011   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "06/07/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "222974",
+          "Stathopoulos, Panayoula",
+          "EN",
+          "1:52pm",
+          "514-550-9448   (m)     \n \n             514-337-1011   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "06/07/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "222975",
+          "Mohammed, Adham",
+          "EN",
+          "4:22pm",
+          "438-989-1333   (m)",
+          "Motorcycle Montreal",
+          "11/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "222976",
+          "Thanassoulis, Alexi",
+          "EN",
+          "4:28pm",
+          "438-356-3105   (m)     \n \n              \n             514-706-5128   (w)",
+          "Automobile Montreal",
+          "06/07/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "222977",
+          "Shiue, Remy",
+          "EN",
+          "4:39pm",
+          "438-493-4898   (m)",
+          "Automobile Montreal",
+          "06/07/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "222978",
+          "Ledesma Rivera, Fernando",
+          "EN",
+          "10:16pm",
+          "514-466-6478   (m)",
+          "Automobile Kirkland",
+          "06/07/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "222980",
+          "Ledesma Rivera, Marta",
+          "EN",
+          "10:19pm",
+          "514-466-6478   (m)",
+          "Automobile Kirkland",
+          "06/07/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "222981",
+          "Kwas, Heidi",
+          "EN",
+          "10:26pm",
+          "438-535-1160   (m)",
+          "Scooter Vaudreuil-Dorion",
+          "20/07/2025  5:30pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "222970",
+          "Name": "gutierrez, aika",
+          "Lang": "EN",
+          "Time": "10:52am",
+          "Phone": "514-809-3634   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "11/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "222971",
+          "Name": "Singh, Shreya",
+          "Lang": "EN",
+          "Time": "11:08am",
+          "Phone": "438-875-7560   (m)     \n \n             438-878-6168   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "222972",
+          "Name": "Prendergast, Fintan",
+          "Lang": "EN",
+          "Time": "12:08pm",
+          "Phone": "438-357-6397   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "222973",
+          "Name": "Stathopoulos , Melanthi",
+          "Lang": "EN",
+          "Time": "1:47pm",
+          "Phone": "514-983-0180   (m)     \n \n             514-337-1011   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "06/07/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "222974",
+          "Name": "Stathopoulos, Panayoula",
+          "Lang": "EN",
+          "Time": "1:52pm",
+          "Phone": "514-550-9448   (m)     \n \n             514-337-1011   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "06/07/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "222975",
+          "Name": "Mohammed, Adham",
+          "Lang": "EN",
+          "Time": "4:22pm",
+          "Phone": "438-989-1333   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "11/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "222976",
+          "Name": "Thanassoulis, Alexi",
+          "Lang": "EN",
+          "Time": "4:28pm",
+          "Phone": "438-356-3105   (m)     \n \n              \n             514-706-5128   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "06/07/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "222977",
+          "Name": "Shiue, Remy",
+          "Lang": "EN",
+          "Time": "4:39pm",
+          "Phone": "438-493-4898   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "06/07/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "222978",
+          "Name": "Ledesma Rivera, Fernando",
+          "Lang": "EN",
+          "Time": "10:16pm",
+          "Phone": "514-466-6478   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "06/07/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "222980",
+          "Name": "Ledesma Rivera, Marta",
+          "Lang": "EN",
+          "Time": "10:19pm",
+          "Phone": "514-466-6478   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "06/07/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "222981",
+          "Name": "Kwas, Heidi",
+          "Lang": "EN",
+          "Time": "10:26pm",
+          "Phone": "438-535-1160   (m)",
+          "Course": "Scooter Vaudreuil-Dorion",
+          "1st Class": "20/07/2025  5:30pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223172&courseId=2",
+      "text": "gutierrez, aika",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223173&courseId=1",
+      "text": "Singh, Shreya",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223174&courseId=1",
+      "text": "Prendergast, Fintan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223175&courseId=1",
+      "text": "Stathopoulos , Melanthi",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223176&courseId=1",
+      "text": "Stathopoulos, Panayoula",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223177&courseId=2",
+      "text": "Mohammed, Adham",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223178&courseId=1",
+      "text": "Thanassoulis, Alexi",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223179&courseId=1",
+      "text": "Shiue, Remy",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223180&courseId=1",
+      "text": "Ledesma Rivera, Fernando",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223182&courseId=1",
+      "text": "Ledesma Rivera, Marta",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223183&courseId=3",
+      "text": "Kwas, Heidi",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 26523,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=05%2F07%2F2025"
+}

@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecMoto/attestation/?studentUserId=232056",
+  "url_hash": "264daec764baee42",
+  "scraped_at": "2026-02-12T12:31:23.924Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03150944 L-391 Nicell, Seamus 43 kirkland blvd Kirkland QC H9J1N5 0001236602 4383225623 X X École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 10 24 -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE D'ÉLÈVE 03150944 L-391 Nicell, Seamus 43 kirkland blvd Kirkland QC H9J1N5 0001236602 4383225623 X X École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 10 24 -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE D'ÉCOLE 03150944 L-391 Nicell, Seamus 43 kirkland blvd Kirkland QC H9J1N5 0001236602 4383225623 X X École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 10 24 -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03150944&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03150944&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03150944&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 14315,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecMoto/attestation/?studentUserId=232056"
+}

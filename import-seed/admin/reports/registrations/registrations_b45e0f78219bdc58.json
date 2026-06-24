@@ -1,0 +1,427 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=26%2F01%2F2026",
+  "url_hash": "b45e0f78219bdc58",
+  "scraped_at": "2026-02-11T23:30:48.376Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jan 26, 2026"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jan 26, 2026 Name Lang Time Phone Course 1 st Class Comments 233599 Axford, Glenn EN 12:41pm 514-268-3012 (m) Motorcycle Vaudreuil-Dorion 20/02/2026 6:00pm edit 233600 Smith, Michael EN 12:57pm 514-709-3720 (m) Motorcycle Vaudreuil-Dorion 27/03/2026 6:00pm edit 233601 Robitaille, Noah EN 1:05pm 514-586-8336 (m) Automobile Côte Saint-Luc 05/02/2026 5:00pm edit 233602 Crombie, Katie EN 2:26pm 438-372-7262 (m) 438-372-7262 (h) Automobile Vaudreuil-Dorion 25/02/2026 7:00pm edit 233604 Gemino, Jessika EN 3:56pm 438-922-4387 (m) 514-485-5760 (h) Automobile Montreal 16/02/2026 5:00pm edit 233605 Khabie Kebouti, Charlize EN 10:14pm 438-989-1705 (m) Automobile Côte Saint-Luc 27/01/2026 7:00pm edit 233606 Erlick, Nicole EN 11:00pm 438-833-8040 (m) Automobile Montreal 05/02/2026 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "26/01/2026",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "26/01/2026"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "233599",
+          "Axford, Glenn",
+          "EN",
+          "12:41pm",
+          "514-268-3012   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "20/02/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233600",
+          "Smith, Michael",
+          "EN",
+          "12:57pm",
+          "514-709-3720   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "27/03/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233601",
+          "Robitaille, Noah",
+          "EN",
+          "1:05pm",
+          "514-586-8336   (m)",
+          "Automobile Côte Saint-Luc",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233602",
+          "Crombie, Katie",
+          "EN",
+          "2:26pm",
+          "438-372-7262   (m)     \n \n             438-372-7262   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "25/02/2026  7:00pm",
+          "edit"
+        ],
+        [
+          "233604",
+          "Gemino, Jessika",
+          "EN",
+          "3:56pm",
+          "438-922-4387   (m)     \n \n             514-485-5760   (h)",
+          "Automobile Montreal",
+          "16/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233605",
+          "Khabie Kebouti, Charlize",
+          "EN",
+          "10:14pm",
+          "438-989-1705   (m)",
+          "Automobile Côte Saint-Luc",
+          "27/01/2026  7:00pm",
+          "edit"
+        ],
+        [
+          "233606",
+          "Erlick, Nicole",
+          "EN",
+          "11:00pm",
+          "438-833-8040   (m)",
+          "Automobile Montreal",
+          "05/02/2026  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "233599",
+          "Name": "Axford, Glenn",
+          "Lang": "EN",
+          "Time": "12:41pm",
+          "Phone": "514-268-3012   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "20/02/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "233600",
+          "Name": "Smith, Michael",
+          "Lang": "EN",
+          "Time": "12:57pm",
+          "Phone": "514-709-3720   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "27/03/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "233601",
+          "Name": "Robitaille, Noah",
+          "Lang": "EN",
+          "Time": "1:05pm",
+          "Phone": "514-586-8336   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "233602",
+          "Name": "Crombie, Katie",
+          "Lang": "EN",
+          "Time": "2:26pm",
+          "Phone": "438-372-7262   (m)     \n \n             438-372-7262   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "25/02/2026  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "233604",
+          "Name": "Gemino, Jessika",
+          "Lang": "EN",
+          "Time": "3:56pm",
+          "Phone": "438-922-4387   (m)     \n \n             514-485-5760   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "16/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "233605",
+          "Name": "Khabie Kebouti, Charlize",
+          "Lang": "EN",
+          "Time": "10:14pm",
+          "Phone": "438-989-1705   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "27/01/2026  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "233606",
+          "Name": "Erlick, Nicole",
+          "Lang": "EN",
+          "Time": "11:00pm",
+          "Phone": "438-833-8040   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233803&courseId=2",
+      "text": "Axford, Glenn",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233804&courseId=2",
+      "text": "Smith, Michael",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233805&courseId=1",
+      "text": "Robitaille, Noah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233806&courseId=1",
+      "text": "Crombie, Katie",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233808&courseId=1",
+      "text": "Gemino, Jessika",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233809&courseId=1",
+      "text": "Khabie Kebouti, Charlize",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233810&courseId=1",
+      "text": "Erlick, Nicole",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 22698,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=26%2F01%2F2026"
+}

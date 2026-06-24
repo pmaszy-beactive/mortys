@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=231875",
+  "url_hash": "07df6682b7b0b21b",
+  "scraped_at": "2026-02-12T17:18:16.261Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03296811 L-021 Paige, MIRCOM 4797 Dollard-Des-Ormeaux QC H9G2M2 0001236648 4385275500 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca COPIE D'ÉLÈVE 03296811 L-021 Paige, MIRCOM 4797 Dollard-Des-Ormeaux QC H9G2M2 0001236648 4385275500 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03296811&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03296811&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6099,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=231875"
+}

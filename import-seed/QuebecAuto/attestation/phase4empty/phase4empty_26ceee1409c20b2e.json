@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4empty/?studentUserId=231683",
+  "url_hash": "26ceee1409c20b2e",
+  "scraped_at": "2026-02-12T22:45:31.335Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03286948 L-020 faerman, alexis 4836 rue vittorio fioruchi montreal QC h4r 0l5 0001235630 4385226491 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉLÈVE 03286948 L-020 faerman, alexis 4836 rue vittorio fioruchi montreal QC h4r 0l5 0001235630 4385226491 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉCOLE 03286948 L-020 faerman, alexis 4836 rue vittorio fioruchi montreal QC h4r 0l5 0001235630 4385226491 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286948&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286948&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286948&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 7857,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4empty/?studentUserId=231683"
+}

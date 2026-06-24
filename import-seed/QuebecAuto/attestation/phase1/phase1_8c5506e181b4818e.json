@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=232009",
+  "url_hash": "8c5506e181b4818e",
+  "scraped_at": "2026-02-12T13:30:45.755Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03277224 L-021 Atkinson, Lilli 120 belmont ave pointe-claire QC h9r2p6 0001236044 5149773944 5147916599 X Ilan Preisler 2 déc. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 10 23 2025 10 30 2025 11 06 2025 11 13 2025 11 20 COPIE D'ÉLÈVE 03277224 L-021 Atkinson, Lilli 120 belmont ave pointe-claire QC h9r2p6 0001236044 5149773944 5147916599 X Ilan Preisler 2 déc. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 10 23 2025 10 30 2025 11 06 2025 11 13 2025 11 20 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277224&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277224&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10409,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=232009"
+}

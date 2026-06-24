@@ -1,0 +1,458 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=29%2F08%2F2025",
+  "url_hash": "3d43e826277c06ae",
+  "scraped_at": "2026-02-12T18:56:44.974Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 29, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 29, 2025 Name Lang Time Phone Course 1 st Class Comments 231609 Vasilev, Todor EN 8:40am 514-569-1432 (m) Automobile Montreal 09/09/2025 7:00pm edit 231610 Mirijello-Bergnach , Zachary EN 9:23am 514-668-2522 (m) 514-457-2641 (h) Automobile Kirkland 18/09/2025 7:00pm edit 231611 Mirijello-Bergnach, Addison EN 9:27am 514-266-1768 (m) 514-457-2641 (h) Automobile Kirkland 18/09/2025 7:00pm edit 231612 Konaré, Amadou EN 10:58am 438-543-9164 (m) 514-745-8847 (h) Automobile Montreal 09/09/2025 7:00pm edit 231613 Gervasi, Gabriella EN 1:14pm 514-386-1023 (m) 514-386-1023 (h) 514-386-1023 (w) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231614 Czyzowicz, Marek EN 4:50pm 438-410-6870 (m) 514-862-7625 (h) Automobile Kirkland 18/09/2025 7:00pm edit 231615 Sudhakar, Harshit EN 6:39pm 514-585-8659 (m) Motorcycle Montreal 05/09/2025 6:00pm edit 231616 Toledano, Jax EN 8:47pm 438-528-5695 (m) Scooter Dollard-des-Ormeaux 31/08/2025 5:30pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "29/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "29/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231609",
+          "Vasilev, Todor",
+          "EN",
+          "8:40am",
+          "514-569-1432   (m)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231610",
+          "Mirijello-Bergnach , Zachary",
+          "EN",
+          "9:23am",
+          "514-668-2522   (m)     \n \n             514-457-2641   (h)",
+          "Automobile Kirkland",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231611",
+          "Mirijello-Bergnach, Addison",
+          "EN",
+          "9:27am",
+          "514-266-1768   (m)     \n \n             514-457-2641   (h)",
+          "Automobile Kirkland",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231612",
+          "Konaré, Amadou",
+          "EN",
+          "10:58am",
+          "438-543-9164   (m)     \n \n             514-745-8847   (h)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231613",
+          "Gervasi, Gabriella",
+          "EN",
+          "1:14pm",
+          "514-386-1023   (m)     \n \n             514-386-1023   (h)     \n \n             514-386-1023   (w)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231614",
+          "Czyzowicz, Marek",
+          "EN",
+          "4:50pm",
+          "438-410-6870   (m)     \n \n             514-862-7625   (h)",
+          "Automobile Kirkland",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231615",
+          "Sudhakar, Harshit",
+          "EN",
+          "6:39pm",
+          "514-585-8659   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231616",
+          "Toledano, Jax",
+          "EN",
+          "8:47pm",
+          "438-528-5695   (m)",
+          "Scooter Dollard-des-Ormeaux",
+          "31/08/2025  5:30pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231609",
+          "Name": "Vasilev, Todor",
+          "Lang": "EN",
+          "Time": "8:40am",
+          "Phone": "514-569-1432   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231610",
+          "Name": "Mirijello-Bergnach , Zachary",
+          "Lang": "EN",
+          "Time": "9:23am",
+          "Phone": "514-668-2522   (m)     \n \n             514-457-2641   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231611",
+          "Name": "Mirijello-Bergnach, Addison",
+          "Lang": "EN",
+          "Time": "9:27am",
+          "Phone": "514-266-1768   (m)     \n \n             514-457-2641   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231612",
+          "Name": "Konaré, Amadou",
+          "Lang": "EN",
+          "Time": "10:58am",
+          "Phone": "438-543-9164   (m)     \n \n             514-745-8847   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231613",
+          "Name": "Gervasi, Gabriella",
+          "Lang": "EN",
+          "Time": "1:14pm",
+          "Phone": "514-386-1023   (m)     \n \n             514-386-1023   (h)     \n \n             514-386-1023   (w)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231614",
+          "Name": "Czyzowicz, Marek",
+          "Lang": "EN",
+          "Time": "4:50pm",
+          "Phone": "438-410-6870   (m)     \n \n             514-862-7625   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231615",
+          "Name": "Sudhakar, Harshit",
+          "Lang": "EN",
+          "Time": "6:39pm",
+          "Phone": "514-585-8659   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231616",
+          "Name": "Toledano, Jax",
+          "Lang": "EN",
+          "Time": "8:47pm",
+          "Phone": "438-528-5695   (m)",
+          "Course": "Scooter Dollard-des-Ormeaux",
+          "1st Class": "31/08/2025  5:30pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231811&courseId=1",
+      "text": "Vasilev, Todor",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231812&courseId=1",
+      "text": "Mirijello-Bergnach , Zachary",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231813&courseId=1",
+      "text": "Mirijello-Bergnach, Addison",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231814&courseId=1",
+      "text": "Konaré, Amadou",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231815&courseId=1",
+      "text": "Gervasi, Gabriella",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231816&courseId=1",
+      "text": "Czyzowicz, Marek",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231817&courseId=2",
+      "text": "Sudhakar, Harshit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231818&courseId=3",
+      "text": "Toledano, Jax",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 23811,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=29%2F08%2F2025"
+}

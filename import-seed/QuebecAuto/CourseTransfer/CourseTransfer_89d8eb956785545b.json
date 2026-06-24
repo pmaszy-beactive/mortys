@@ -1,0 +1,595 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/CourseTransfer/?studentUserId=231730",
+  "url_hash": "89d8eb956785545b",
+  "scraped_at": "2026-02-12T21:05:23.321Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Transfer Course"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Transfer Course School Name skip if internal transfer Date Of Issue of Learner's Permit Current Phase phase 1 phase 2 phase 3 phase 4 Start Date of Phase 1 Theory 1 Theory 2 Theory 3 Theory 4 Theory 5 Passed Test 5 Start Date of Phase 2 Theory 6 Theory 7 In Car 1 In Car 2 In Car 3 In Car 4 Start Date of Phase 3 Theory 8 Theory 9 Theory 10 In Car 5 In Car 6 In Car 7 In Car 8 In Car 9 In Car 10 Start Date of Phase 4 Theory 11 Theory 12 In Car 11 In Car 12 In Car 13 In Car 14 In Car 15 Save",
+  "forms": [
+    {
+      "action": "#",
+      "method": "get",
+      "id": "theForm",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "",
+          "value": "231730",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "schoolName",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "learnersPermitDate",
+          "type": "text",
+          "id": "learnersPermitDate",
+          "value": "12/11/2025",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "select",
+          "name": "currentPhase",
+          "type": "text",
+          "id": "currentPhase",
+          "value": "1",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "1",
+              "text": "phase 1",
+              "selected": true
+            },
+            {
+              "value": "2",
+              "text": "phase 2",
+              "selected": false
+            },
+            {
+              "value": "3",
+              "text": "phase 3",
+              "selected": false
+            },
+            {
+              "value": "4",
+              "text": "phase 4",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "input",
+          "name": "phaseStartDate",
+          "type": "text",
+          "id": "phaseStartDate1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.1",
+          "type": "checkbox",
+          "id": "components.1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.2",
+          "type": "checkbox",
+          "id": "components.2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.3",
+          "type": "checkbox",
+          "id": "components.3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.4",
+          "type": "checkbox",
+          "id": "components.4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.5",
+          "type": "checkbox",
+          "id": "components.5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.passedTest5",
+          "type": "checkbox",
+          "id": "components.passedTest5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "phaseStartDate",
+          "type": "text",
+          "id": "phaseStartDate2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.6",
+          "type": "checkbox",
+          "id": "components.6",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.7",
+          "type": "checkbox",
+          "id": "components.7",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.13",
+          "type": "checkbox",
+          "id": "components.13",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.14",
+          "type": "checkbox",
+          "id": "components.14",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.15",
+          "type": "checkbox",
+          "id": "components.15",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.16",
+          "type": "checkbox",
+          "id": "components.16",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "phaseStartDate",
+          "type": "text",
+          "id": "phaseStartDate3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.8",
+          "type": "checkbox",
+          "id": "components.8",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.9",
+          "type": "checkbox",
+          "id": "components.9",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.10",
+          "type": "checkbox",
+          "id": "components.10",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.17",
+          "type": "checkbox",
+          "id": "components.17",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.18",
+          "type": "checkbox",
+          "id": "components.18",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.19",
+          "type": "checkbox",
+          "id": "components.19",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.20",
+          "type": "checkbox",
+          "id": "components.20",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.21",
+          "type": "checkbox",
+          "id": "components.21",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.22",
+          "type": "checkbox",
+          "id": "components.22",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "phaseStartDate",
+          "type": "text",
+          "id": "phaseStartDate4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.11",
+          "type": "checkbox",
+          "id": "components.11",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.12",
+          "type": "checkbox",
+          "id": "components.12",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.23",
+          "type": "checkbox",
+          "id": "components.23",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.24",
+          "type": "checkbox",
+          "id": "components.24",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.25",
+          "type": "checkbox",
+          "id": "components.25",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.26",
+          "type": "checkbox",
+          "id": "components.26",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "components.27",
+          "type": "checkbox",
+          "id": "components.27",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "231730",
+        "learnersPermitDate": "12/11/2025",
+        "currentPhase": "1"
+      }
+    }
+  ],
+  "tables": [],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 20824,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/CourseTransfer/?studentUserId=231730"
+}

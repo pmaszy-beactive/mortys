@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4empty/?studentUserId=231971",
+  "url_hash": "25018512d2a90ddf",
+  "scraped_at": "2026-02-12T15:02:21.324Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "A632113080901 03277349 L-774 Ardizzone Speers, Azura 17000 Chemin St Marie Kirkland QC H9J 4B9 0001235841 5145680086 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca COPIE D'ÉLÈVE A632113080901 03277349 L-774 Ardizzone Speers, Azura 17000 Chemin St Marie Kirkland QC H9J 4B9 0001235841 5145680086 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca COPIE D'ÉCOLE A632113080901 03277349 L-774 Ardizzone Speers, Azura 17000 Chemin St Marie Kirkland QC H9J 4B9 0001235841 5145680086 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277349&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277349&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277349&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 8445,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4empty/?studentUserId=231971"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231627",
+  "url_hash": "9c5d0d0d483e7e71",
+  "scraped_at": "2026-02-12T23:51:47.671Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03277143 L-021 Albilia, Noa 1196 Tecumseh Montreal QC H9B2Z1 0001235675 5142963730 5144423170 X Ilan Preisler 4 déc. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 09 11 2025 11 03 COPIE D'ÉLÈVE 03277143 L-021 Albilia, Noa 1196 Tecumseh Montreal QC H9B2Z1 0001235675 5142963730 5144423170 X Ilan Preisler 4 déc. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 09 11 2025 11 03 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277143&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277143&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10393,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231627"
+}

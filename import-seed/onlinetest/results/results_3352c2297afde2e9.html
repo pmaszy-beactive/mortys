@@ -1,0 +1,905 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Mortys Driving School</title>
+    <meta name="google" content="notranslate">
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+
+   
+    <script>
+        
+              window.onunload = function () { }; // disable bfcache
+        var avivaronload = (function () {
+          
+                  var loaded = false,
+                      onload = (persisted) => {
+                          if (persisted ) window.location.reload();},
+                      loadController = function (ev) {
+                          var persisted = (ev.persisted !== undefined) && ev.persisted;
+                          if (persisted || !loaded) {  //just in case bfcache was not successfully disabled
+                              onload(persisted);
+                              loaded = true;
+                          }
+                      }
+                  window.addEventListener('pageshow', loadController)
+                  window.addEventListener('load', loadController)
+                  return {
+                      add: function (f) {
+                          var oldlonload = onload;
+                          onload = function (persisted) { oldlonload(persisted); f(persisted); }
+                      }
+                  }
+              })();
+
+                
+                   (function () {
+
+                    window.readCookie = function(n){ return (n = new RegExp('(?:^|;\\s*)' + ('' + n).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)').exec(document.cookie)) && n[1]; }
+                    var   cookie = readCookie('signmodeurl');
+                    if (cookie && cookie != (window.location.pathname + window.location.search)) {
+                            window.location.href = cookie
+                   }
+                })
+                ();
+
+             
+
+
+    </script>
+
+
+
+
+
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" type="text/css"><link href="/css/base/base_desktop5.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.css" rel="stylesheet" type="text/css"><style>.mm-menu {--mm-offset-top: 50px;--mm-offset-bottom: 15px;--mm-offset-left: 1px}</style>
+    
+    
+    <style>
+        .correct {
+            color: green
+        }
+
+        hr {
+            border-top: 1px dashed blue; height:1px; padding:0; margin:0; margin-top:5px;margin-bottom:5px;
+        }
+    </style>
+
+
+</head>
+<body class="">
+    
+            <div class="container mm-wrapper" style="position:fixed;   height:100%;   top:0; z-index:100;  margin-left:auto;  margin-right:auto; left:0; right:0;  pointer-events:none">
+                
+
+
+
+
+<nav id="menu" class="mm-menu mm-menu_selected-parent mm-menu_theme-white mm-menu_border-full">
+
+    <button id="menuCloseButton" class="closebutton"> </button>
+    
+    <div class="mm-panels"><div id="mm-0" class="mm-panel mm-panel_opened"><div class="mm-navbar mm-navbar_sticky"><a class="mm-navbar__title"><span>Menu</span></a></div><ul class="mm-listview">
+<li class="mm-listitem"><a href="/admin/" class="mm-listitem__text">Student Files</a></li>
+<li class="mm-listitem"><a href="/admin/classes/" class="mm-listitem__text">Classes</a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-1">Instructor<span class="mm-sronly">Open submenu</span></a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-4">Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/schedule/" class="mm-listitem__text">Set Class Schedule</a></li>
+<li class="mm-listitem"><a href="/admin/schoolpermit/" class="mm-listitem__text">School Permits</a></li>
+
+    </ul></div><div id="mm-1" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Instructor</span></a></div><ul class="mm-listview">
+                        <li class="mm-listitem">
+                            
+                            
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-2">Instructor Schedule<span class="mm-sronly">Open submenu</span></a></li>
+
+
+
+                        <li class="mm-listitem">
+                            
+                            
+
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-3">Instructor Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/instructorsignatures/" class="mm-listitem__text">My Signatures</a></li>
+
+                    </ul></div><div id="mm-2" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Schedule</span></a></div><ul class="mm-listview">
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/" class="mm-listitem__text">Booked Appointments</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/workhours/" class="mm-listitem__text">Specify Hours</a></li>
+
+
+
+                            </ul></div><div id="mm-3" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Reports</span></a></div><ul class="mm-listview">
+
+
+                                <li class="mm-listitem"><a href="/admin/reports/worksummary/" class="mm-listitem__text">Work Summary</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/reports/instructorstodolists/" class="mm-listitem__text">To Do Lists</a></li>
+
+
+                            </ul></div><div id="mm-4" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Reports</span></a></div><ul class="mm-listview">
+
+                       
+                        <li class="mm-listitem"><a href="/admin/reports/aqtr/" class="mm-listitem__text">AQTR</a></li>
+
+                        <li class="mm-listitem"><a href="/admin/reports/registrations/" class="mm-listitem__text">Registrations</a></li>
+
+                 
+
+ 
+                    </ul></div></div></nav>
+
+
+ 
+ 
+            </div>
+     
+
+<div id="header" class="container header">
+    <a style="margin-left:10px" href="/"><img style=" height:45px ;" src="/img/logo.png"></a>
+
+
+
+        <div style="   text-align:right  ; flex-grow:1  ">
+            <ul class="nav ace-nav navbar-buttons   " role="navigation">
+                <li class="light-blue pull-right">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <span class="user-info">
+                            Ilan Preisler
+                            <b class="caret"></b>
+                        </span>
+
+                    </a>
+
+
+
+           
+                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                        <li>
+                            <a href="/logout/">
+                                <i class="ace-icon fa fa-power-off"></i>
+                                logout
+                            </a>
+
+                        </li>
+                    </ul>
+                
+            </li></ul>
+        </div>
+
+
+
+
+
+     
+</div>
+
+ 
+ 
+
+
+ 
+        <div style="min-height:calc(100% - 50px);    position:relative ;  ; display:flex; flex-direction:column;     ">
+            <div style="   flex-grow:1; display:flex; flex-direction:column; margin-bottom:5px; " class="container maincontainer">
+                <div class="maintable" style="     flex-grow:1">
+                    <div class="cell1"> </div>
+                    <div class="cell2" id="contentContainer">
+                        
+
+<h1>
+    Online Test Results  
+
+</h1>
+<h2> Isabella Savard  on   Sep 18, 2025 at 6:00pm</h2>
+
+
+
+        <div class="section" id="q0">
+            <h1>1.  Where is the risk to consider first? </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q01.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_97" id="answer_370" value="97,370"><label style="display:inline" for="answer_370">&nbsp;Zone 3</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_97" id="answer_371" value="97,371"><label style="display:inline" for="answer_371">&nbsp;Zone 2</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_97" id="answer_372" value="97,372"><label style="display:inline" for="answer_372">&nbsp;Zone 1</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_97" id="answer_373" value="97,373"><label style="display:inline" for="answer_373">&nbsp;Zone 4</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q1">
+            <h1>2.  Identify the risk factors for the driver. </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q02.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_98" id="answer_374" value="98,374"><label style="display:inline" for="answer_374">&nbsp;2, 3, 4, 6
+</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_98" id="answer_375" value="98,375"><label style="display:inline" for="answer_375">&nbsp;4, 5, 6</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_98" id="answer_376" value="98,376"><label style="display:inline" for="answer_376">&nbsp;1, 2, 3</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_98" id="answer_377" value="98,377"><label style="display:inline" for="answer_377">&nbsp;2, 3, 4, 5</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q2">
+            <h1>3.  Where is the risk to consider first? </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q03.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_99" id="answer_378" value="99,378"><label style="display:inline" for="answer_378">&nbsp;Zone 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_99" id="answer_379" value="99,379"><label style="display:inline" for="answer_379">&nbsp;Zone 1</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_99" id="answer_380" value="99,380"><label style="display:inline" for="answer_380">&nbsp;Zone 3
+</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_99" id="answer_381" value="99,381"><label style="display:inline" for="answer_381">&nbsp;Zone 2</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q3">
+            <h1>4.  Find all the errors. </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q04.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_100" id="answer_382" value="100,382"><label style="display:inline" for="answer_382">&nbsp;2, 3</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_100" id="answer_383" value="100,383"><label style="display:inline" for="answer_383">&nbsp;1, 3, 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_100" id="answer_384" value="100,384"><label style="display:inline" for="answer_384">&nbsp;1, 2, 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_100" id="answer_385" value="100,385"><label style="display:inline" for="answer_385">&nbsp;2, 3, 4</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q4">
+            <h1>5.  Find all the errors. </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q05.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_101" id="answer_386" value="101,386"><label style="display:inline" for="answer_386">&nbsp;1, 3</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_101" id="answer_387" value="101,387"><label style="display:inline" for="answer_387">&nbsp;2, 3</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_101" id="answer_388" value="101,388"><label style="display:inline" for="answer_388">&nbsp;1, 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_101" id="answer_389" value="101,389"><label style="display:inline" for="answer_389">&nbsp;2, 4</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q5">
+            <h1>6.  At what distance must you switch from the high beams
+to the low beams when approaching another vehicle at night? </h1>
+
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_102" id="answer_390" value="102,390"><label style="display:inline" for="answer_390">&nbsp;Within 150 metres.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_102" id="answer_391" value="102,391"><label style="display:inline" for="answer_391">&nbsp;Within 100metres.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_102" id="answer_392" value="102,392"><label style="display:inline" for="answer_392">&nbsp;Within 50 metres.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_102" id="answer_393" value="102,393"><label style="display:inline" for="answer_393">&nbsp;Within 250 metres.</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q6">
+            <h1>7.  If you can do so safely, you can cross a solid line... </h1>
+
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_103" id="answer_394" value="103,394"><label style="display:inline" for="answer_394">&nbsp;to exit the lane you are travelling in because
+it is obstructed by road work.
+</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_103" id="answer_395" value="103,395"><label style="display:inline" for="answer_395">&nbsp;if you are driving slower than the speed limit.
+</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_103" id="answer_396" value="103,396"><label style="display:inline" for="answer_396">&nbsp;to pass a moped or motorized scooter.
+</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q7">
+            <h1>8.  In this situation, what must you do? </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q08.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_104" id="answer_397" value="104,397"><label style="display:inline" for="answer_397">&nbsp;Continue straight
+ahead only.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_104" id="answer_398" value="104,398"><label style="display:inline" for="answer_398">&nbsp;Continue straight
+ahead, turn left,
+or turn right.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_104" id="answer_399" value="104,399"><label style="display:inline" for="answer_399">&nbsp;Continue straight
+ahead or turn right.</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q8">
+            <h1>9.  Where is the risk to consider first? </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q09.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_105" id="answer_400" value="105,400"><label style="display:inline" for="answer_400">&nbsp;Zone 1
+</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_105" id="answer_401" value="105,401"><label style="display:inline" for="answer_401">&nbsp;Zone 2</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_105" id="answer_402" value="105,402"><label style="display:inline" for="answer_402">&nbsp;Zone 3
+</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_105" id="answer_403" value="105,403"><label style="display:inline" for="answer_403">&nbsp;Zone 4</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q9">
+            <h1>10.  This sign indicates... </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q10.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_106" id="answer_404" value="106,404"><label style="display:inline" for="answer_404">&nbsp;the end of a traffic lane.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_106" id="answer_405" value="106,405"><label style="display:inline" for="answer_405">&nbsp;where a lane or road ends.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_106" id="answer_406" value="106,406"><label style="display:inline" for="answer_406">&nbsp;that the roadway narrows
+but the lanes do not end.</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q10">
+            <h1>11.  Find all the errors. </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q11.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_107" id="answer_407" value="107,407"><label style="display:inline" for="answer_407">&nbsp;1, 2, 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_107" id="answer_408" value="107,408"><label style="display:inline" for="answer_408">&nbsp;3, 4, 6</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_107" id="answer_409" value="107,409"><label style="display:inline" for="answer_409">&nbsp;1, 3, 5</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_107" id="answer_410" value="107,410"><label style="display:inline" for="answer_410">&nbsp;2, 4, 6</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q11">
+            <h1>12.  Where is the risk to consider first? </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q12.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_108" id="answer_411" value="108,411"><label style="display:inline" for="answer_411">&nbsp;Zone 2</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_108" id="answer_412" value="108,412"><label style="display:inline" for="answer_412">&nbsp;Zone 1</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_108" id="answer_413" value="108,413"><label style="display:inline" for="answer_413">&nbsp;Zone 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_108" id="answer_414" value="108,414"><label style="display:inline" for="answer_414">&nbsp;Zone 3</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q12">
+            <h1>13.  Find all the errors. </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q13.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_109" id="answer_415" value="109,415"><label style="display:inline" for="answer_415">&nbsp;1, 2, 6</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_109" id="answer_416" value="109,416"><label style="display:inline" for="answer_416">&nbsp;2, 4, 5</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_109" id="answer_417" value="109,417"><label style="display:inline" for="answer_417">&nbsp;3, 5, 6</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_109" id="answer_418" value="109,418"><label style="display:inline" for="answer_418">&nbsp;5, 6</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q13">
+            <h1>14.  This sign indicates... </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q14.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_110" id="answer_419" value="110,419"><label style="display:inline" for="answer_419">&nbsp;the possible presence of a school bus
+ahead that has stopped.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_110" id="answer_420" value="110,420"><label style="display:inline" for="answer_420">&nbsp;a school bus stop.
+</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_110" id="answer_421" value="110,421"><label style="display:inline" for="answer_421">&nbsp;a school less than 1 km ahead.</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q14">
+            <h1>15.  In the situation shown here, what can vehicle 1 do?<div style="padding-top:10px"><ol><li>Activate the left turn-signal light
+and turn left.</li><li>Activate the left turn-signal light
+and come to a stop 
+at the stop line.
+</li><li>Proceed straight ahead.</li><li>Activate the right turn-signal 
+light and turn right.</li></ol></div> </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q15.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_111" id="answer_422" value="111,422"><label style="display:inline" for="answer_422">&nbsp;2, 3, 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_111" id="answer_423" value="111,423"><label style="display:inline" for="answer_423">&nbsp;1, 3, 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_111" id="answer_424" value="111,424"><label style="display:inline" for="answer_424">&nbsp;1</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_111" id="answer_425" value="111,425"><label style="display:inline" for="answer_425">&nbsp;2</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q15">
+            <h1>16.  Where is the risk to consider first? </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q16.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_112" id="answer_426" value="112,426"><label style="display:inline" for="answer_426">&nbsp;Zone 1</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_112" id="answer_427" value="112,427"><label style="display:inline" for="answer_427">&nbsp;Zone 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_112" id="answer_428" value="112,428"><label style="display:inline" for="answer_428">&nbsp;Zone 2</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_112" id="answer_429" value="112,429"><label style="display:inline" for="answer_429">&nbsp;Zone 3</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q16">
+            <h1>17.  Find all the errors. </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q17.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_113" id="answer_430" value="113,430"><label style="display:inline" for="answer_430">&nbsp;1, 3</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_113" id="answer_431" value="113,431"><label style="display:inline" for="answer_431">&nbsp;3, 5</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_113" id="answer_432" value="113,432"><label style="display:inline" for="answer_432">&nbsp;2, 5</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_113" id="answer_433" value="113,433"><label style="display:inline" for="answer_433">&nbsp;2, 4</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q17">
+            <h1>18.  Find all the errors </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q18.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_114" id="answer_434" value="114,434"><label style="display:inline" for="answer_434">&nbsp;2, 4, 5</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_114" id="answer_435" value="114,435"><label style="display:inline" for="answer_435">&nbsp;2, 3, 4, 5</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_114" id="answer_436" value="114,436"><label style="display:inline" for="answer_436">&nbsp;3, 5
+</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_114" id="answer_437" value="114,437"><label style="display:inline" for="answer_437">&nbsp;1, 3, 4</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q18">
+            <h1>19.  Where is the risk to consider? </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q19.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_115" id="answer_438" value="115,438"><label style="display:inline" for="answer_438">&nbsp;Zone 2</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_115" id="answer_439" value="115,439"><label style="display:inline" for="answer_439">&nbsp;Zone 1</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_115" id="answer_440" value="115,440"><label style="display:inline" for="answer_440">&nbsp;Zone 3</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_115" id="answer_441" value="115,441"><label style="display:inline" for="answer_441">&nbsp;Zone 4</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q19">
+            <h1>20.  Find all the errors.  </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q20.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_116" id="answer_442" value="116,442"><label style="display:inline" for="answer_442">&nbsp;1, 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_116" id="answer_443" value="116,443"><label style="display:inline" for="answer_443">&nbsp;2, 3
+</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_116" id="answer_444" value="116,444"><label style="display:inline" for="answer_444">&nbsp;1, 2, 3</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_116" id="answer_445" value="116,445"><label style="display:inline" for="answer_445">&nbsp;1, 3</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q20">
+            <h1>21.  Find all the errors </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q21.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_117" id="answer_446" value="117,446"><label style="display:inline" for="answer_446">&nbsp;2, 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_117" id="answer_447" value="117,447"><label style="display:inline" for="answer_447">&nbsp;3, 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_117" id="answer_448" value="117,448"><label style="display:inline" for="answer_448">&nbsp;1, 3, 4
+</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_117" id="answer_449" value="117,449"><label style="display:inline" for="answer_449">&nbsp;1, 2, 3</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q21">
+            <h1>22.  This sign indicates...  </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q22.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_118" id="answer_450" value="118,450"><label style="display:inline" for="answer_450">&nbsp;the end of two-way traffic
+and the beginning of one-way traffic.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_118" id="answer_451" value="118,451"><label style="display:inline" for="answer_451">&nbsp;that a lane narrows ahead.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_118" id="answer_452" value="118,452"><label style="display:inline" for="answer_452">&nbsp;that drivers travelling in the right
+lane must move into the left lane.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_118" id="answer_453" value="118,453"><label style="display:inline" for="answer_453">&nbsp;the beginning of a divided roadway</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q22">
+            <h1>23.  Find all the errors </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q23.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_119" id="answer_454" value="119,454"><label style="display:inline" for="answer_454">&nbsp;2, 3, 4</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_119" id="answer_455" value="119,455"><label style="display:inline" for="answer_455">&nbsp;3, 4, 5</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_119" id="answer_456" value="119,456"><label style="display:inline" for="answer_456">&nbsp;4, 5, 6</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_119" id="answer_457" value="119,457"><label style="display:inline" for="answer_457">&nbsp;1, 3, 5</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+        <div class="section" id="q23">
+            <h1>24.  In a road work zone, this sign indicates... </h1>
+
+                <img src="https://examensenlignes.s3.ca-central-1.amazonaws.com/quebecconduite5/q24.jpg" style="max-height:300px; margin-bottom:10px ;max-width:100%">
+                            <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_120" id="answer_458" value="120,458"><label style="display:inline" for="answer_458">&nbsp;the recommended speed for road
+work vehicles.
+</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" checked="checked" name="radio_120" id="answer_459" value="120,459"><label style="display:inline" for="answer_459">&nbsp;the mandatory speed limit for all
+types of vehicles.</label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <input type="radio" onclick="return false" name="radio_120" id="answer_460" value="120,460"><label style="display:inline" for="answer_460">&nbsp;the recommended speed limit for all
+types of vehicles.</label>
+                    </p>
+                </div>
+
+
+        </div>
+        <hr>
+<div style="text-align:center ; padding-bottom:5px">END </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script>var globals={isLoggedIn:true,isStudent:false,isStaff:true,isInstructor:true,isOffice:true,loadTimeMS:(new Date().getTime()),IsDateWidgetSupported:false,isMobile:false,showMenu:true,schoolId:1,UserId:"87",userName:"Ilan Preisler",currentLanguageId:1,defaultLanguageId:1,currentLanguageCode:"en",defaultLanguageCode:"en"}</script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script><script>$(document).ajaxError(function(r,t,s,o){s.suppressAjaxError||(401==t.status||403==t.status?location.href='/':'abort'!=o&&setTimeout(alert,10,'error '+t.status+' '+o+' '+t.responseJSON))});</script><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.js" type="text/javascript"></script>
+    
+    
+
+    <script>
+        if(globals.showMenu&&(new Mmenu(document.querySelector("#menu"),{setSelected:{current:!0,parent:!0},navbar:{title:"Menu"},offCanvas:!1,extensions:globals.isMobile?[]:["theme-white","border-full"]}),globals.isMobile)){let e=new Drawer;document.getElementById("hamburger").addEventListener("click",e.open),document.getElementById("menuCloseButton").addEventListener("click",e.close)}; document.getElementById('loaderoverlay').remove(); document.body.classList.remove('loaderbody')
+    </script>
+
+    
+
+
+
+
+</body></html>

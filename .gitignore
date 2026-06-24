@@ -12,8 +12,3 @@ scripts/migrate-site/migrate/
 scripts/migrate-site/node_modules/
 scripts/migrate-site/p/
 
-# Import seed data (real student PII) — keep the folder + docs, ignore the data.
-import-seed/*
-!import-seed/.gitkeep
-!import-seed/README.md
-/data/

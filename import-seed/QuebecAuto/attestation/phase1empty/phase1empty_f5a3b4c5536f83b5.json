@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=233766",
+  "url_hash": "f5a3b4c5536f83b5",
+  "scraped_at": "2026-02-11T23:46:51.852Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03304482 L-020 Thayer, Samantha 5235 Chemin de la Cote-Saint-Luc Montreal QC H3W 2H8 0001236588 4507753160 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉLÈVE 03304482 L-020 Thayer, Samantha 5235 Chemin de la Cote-Saint-Luc Montreal QC H3W 2H8 0001236588 4507753160 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304482&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304482&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 5903,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=233766"
+}

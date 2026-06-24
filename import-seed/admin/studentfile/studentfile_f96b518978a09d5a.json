@@ -1,0 +1,1469 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/studentfile/?studentuserid=231796&courseId=1",
+  "url_hash": "f96b518978a09d5a",
+  "scraped_at": "2026-02-12T19:32:14.829Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Sofia Maria Stefanescu"
+    },
+    {
+      "level": 2,
+      "text": "Office Use Only - Notes"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Actions print contract print attestation phase 1 print attestation phase 1 (empty) print attestation phase 4 print attestation phase 4 (empty) course transfer delete course Sofia Maria Stefanescu Course Info Course Automobile Location Vaudreuil-Dorion Start Date Sep 9, 2025 Contract No 1235773 edit Attestation No 03203616 Attestation Date Oct 15, 2025 Class 5 Learner's License S3158-140909-05 Issue Date of Class 5 Oct 20, 2025 On-road Instructor Ken McCullough Passed SAAQ Knowledge Test? no edit Personal Info Stefanescu, Sofia Maria 267 rue shamrock , Pincourt, QC J7W3W7 Sep 14, 2009 English stefanescu.sofia@yahoo.com 514-776-5732 (cell) 438-495-0788 (home) edit Office Use Only - Notes folder received - suzy 15 oct Save Cancel edit To Do (Instructor) sign in for practical lesson #5 Up Next attendPractical_5 0 Module History Theory 1 Sep 9, 2025 7:00pm-9:00pm delete time student instructor 7:00pm-8:00pm Zoom screenshot reveal signature L12165 8:00pm-9:00pm Zoom screenshot reveal signature L12165 Theory 2 Sep 25, 2025 7:00pm-9:00pm delete time student instructor 7:00pm-8:00pm Zoom screenshot reveal signature L10136 8:00pm-9:00pm Zoom screenshot reveal signature L10136 Theory 3 Sep 30, 2025 7:00pm-9:00pm delete time student instructor 7:00pm-8:00pm Zoom screenshot reveal signature L10136 8:00pm-9:00pm Zoom screenshot reveal signature L10136 Theory 4 Oct 7, 2025 7:00pm-9:00pm delete time student instructor 7:00pm-8:00pm Zoom screenshot reveal signature L12618 8:00pm-9:00pm Zoom screenshot reveal signature L12618 Theory 5 Oct 14, 2025 7:00pm-9:00pm delete time student instructor 7:00pm-8:00pm Zoom screenshot reveal signature L12165 8:00pm-9:00pm Zoom screenshot reveal signature L12165 Test Results: date: Oct 14, 2025 grade: 87.5% details integrity form Add Test Result Theory 6 Oct 21, 2025 7:00pm-9:00pm delete time student instructor 7:00pm-8:00pm Zoom screenshot reveal signature L10136 8:00pm-9:00pm Zoom screenshot reveal signature L10136 Theory 7 Oct 28, 2025 7:00pm-9:00pm delete time student instructor 7:00pm-8:00pm Zoom screenshot reveal signature L10136 8:00pm-9:00pm Zoom screenshot reveal signature L10136 in-Car 1 Nov 14, 2025 3:30pm-4:30pm delete time student instructor 3:30pm-4:30pm reveal signature reveal signature L10334 edit in-Car 2 Nov 20, 2025 5:00pm-6:00pm delete time student instructor 5:00pm-6:00pm reveal signature reveal signature L10334 edit in-Car 3 Nov 28, 2025 5:00pm-6:00pm delete time student instructor 5:00pm-6:00pm reveal signature reveal signature L10334 edit in-Car 4 Dec 5, 2025 5:00pm-6:00pm delete time student instructor 5:00pm-6:00pm reveal signature reveal signature L10334 edit Theory 8 Jan 21, 2026 7:00pm-9:00pm delete time student instructor 7:00pm-8:00pm Zoom screenshot L12165 8:00pm-9:00pm Zoom screenshot L12165 Theory 9 Jan 29, 2026 7:00pm-9:00pm delete time student instructor 7:00pm-8:00pm Zoom screenshot L12618 8:00pm-9:00pm Zoom screenshot L12618 Theory 10 Feb 11, 2026 7:00pm-9:00pm delete time student instructor 7:00pm-8:00pm Zoom screenshot L12618 8:00pm-9:00pm Zoom screenshot L12618 credit card debit card cash payment cheque email transfer course discount other include taxes Amount GST PST Total Comments submit cancel correction missed scheduled class materials other include taxes Amount GST PST Total Comments submit cancel quit Statement of Account decription date amount gst pst total course 27/08/2025 $1,107.00 $55.35 $110.42 $1,272.77 credit card 29/08/2025 ($347.90) ($17.40) ($34.70) ($400.00) credit card 02/02/2026 ($347.90) ($17.40) ($34.70) ($400.00) Balance: $472.77 edit credit debit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "",
+          "value": "231796",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "CourseId",
+          "type": "hidden",
+          "id": "",
+          "value": "1",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "select",
+          "name": "typeId",
+          "type": "text",
+          "id": "",
+          "value": "3",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "3",
+              "text": "credit card",
+              "selected": true
+            },
+            {
+              "value": "6",
+              "text": "debit card",
+              "selected": false
+            },
+            {
+              "value": "5",
+              "text": "cash payment",
+              "selected": false
+            },
+            {
+              "value": "4",
+              "text": "cheque",
+              "selected": false
+            },
+            {
+              "value": "8",
+              "text": "email transfer",
+              "selected": false
+            },
+            {
+              "value": "1",
+              "text": "course discount",
+              "selected": false
+            },
+            {
+              "value": "7",
+              "text": "other",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "checkbox",
+          "id": "creditIncludeTaxes",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "hidden",
+          "id": "",
+          "value": "false",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "amount",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax1",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax2",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "total",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "comments",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "231796",
+        "CourseId": "1",
+        "typeId": "3",
+        "includeTaxes": "false"
+      }
+    },
+    {
+      "action": "",
+      "method": "get",
+      "id": "",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "",
+          "value": "231796",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "CourseId",
+          "type": "hidden",
+          "id": "",
+          "value": "1",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "select",
+          "name": "typeId",
+          "type": "text",
+          "id": "",
+          "value": "2",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "2",
+              "text": "correction",
+              "selected": true
+            },
+            {
+              "value": "3",
+              "text": "missed scheduled class",
+              "selected": false
+            },
+            {
+              "value": "4",
+              "text": "materials",
+              "selected": false
+            },
+            {
+              "value": "5",
+              "text": "other",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "checkbox",
+          "id": "debitIncludeTaxes",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "hidden",
+          "id": "",
+          "value": "false",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "amount",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax1",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax2",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "total",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "comments",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "231796",
+        "CourseId": "1",
+        "typeId": "2",
+        "includeTaxes": "false"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "7:00pm-8:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L12165"
+        ],
+        [
+          "8:00pm-9:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L12165"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "7:00pm-8:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L12165"
+        },
+        {
+          "_row_index": 1,
+          "time": "8:00pm-9:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L12165"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "7:00pm-8:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L10136"
+        ],
+        [
+          "8:00pm-9:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L10136"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "7:00pm-8:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L10136"
+        },
+        {
+          "_row_index": 1,
+          "time": "8:00pm-9:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L10136"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "7:00pm-8:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L10136"
+        ],
+        [
+          "8:00pm-9:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L10136"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "7:00pm-8:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L10136"
+        },
+        {
+          "_row_index": 1,
+          "time": "8:00pm-9:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L10136"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "7:00pm-8:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L12618"
+        ],
+        [
+          "8:00pm-9:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L12618"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "7:00pm-8:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L12618"
+        },
+        {
+          "_row_index": 1,
+          "time": "8:00pm-9:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L12618"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "7:00pm-8:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L12165"
+        ],
+        [
+          "8:00pm-9:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L12165"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "7:00pm-8:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L12165"
+        },
+        {
+          "_row_index": 1,
+          "time": "8:00pm-9:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L12165"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "theory5gradestable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "date:  Oct 14, 2025",
+        "grade: 87.5%",
+        "details",
+        "integrity form"
+      ],
+      "rows": [
+        [
+          "date:  Oct 14, 2025",
+          "grade: 87.5%",
+          "details",
+          "integrity form"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "date:  Oct 14, 2025": "date:  Oct 14, 2025",
+          "grade: 87.5%": "grade: 87.5%",
+          "details": "details",
+          "integrity form": "integrity form"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "7:00pm-8:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L10136"
+        ],
+        [
+          "8:00pm-9:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L10136"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "7:00pm-8:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L10136"
+        },
+        {
+          "_row_index": 1,
+          "time": "8:00pm-9:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L10136"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "7:00pm-8:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L10136"
+        ],
+        [
+          "8:00pm-9:00pm",
+          "Zoom screenshot",
+          "reveal signature",
+          "L10136"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "7:00pm-8:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L10136"
+        },
+        {
+          "_row_index": 1,
+          "time": "8:00pm-9:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "reveal signature",
+          "column_3": "L10136"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "3:30pm-4:30pm",
+          "reveal signature",
+          "reveal signature",
+          "L10334"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "3:30pm-4:30pm",
+          "student": "reveal signature",
+          "instructor": "reveal signature",
+          "column_3": "L10334"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "5:00pm-6:00pm",
+          "reveal signature",
+          "reveal signature",
+          "L10334"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "5:00pm-6:00pm",
+          "student": "reveal signature",
+          "instructor": "reveal signature",
+          "column_3": "L10334"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "5:00pm-6:00pm",
+          "reveal signature",
+          "reveal signature",
+          "L10334"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "5:00pm-6:00pm",
+          "student": "reveal signature",
+          "instructor": "reveal signature",
+          "column_3": "L10334"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "5:00pm-6:00pm",
+          "reveal signature",
+          "reveal signature",
+          "L10334"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "5:00pm-6:00pm",
+          "student": "reveal signature",
+          "instructor": "reveal signature",
+          "column_3": "L10334"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "7:00pm-8:00pm",
+          "Zoom screenshot",
+          "",
+          "L12165"
+        ],
+        [
+          "8:00pm-9:00pm",
+          "Zoom screenshot",
+          "",
+          "L12165"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "7:00pm-8:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "",
+          "column_3": "L12165"
+        },
+        {
+          "_row_index": 1,
+          "time": "8:00pm-9:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "",
+          "column_3": "L12165"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "7:00pm-8:00pm",
+          "Zoom screenshot",
+          "",
+          "L12618"
+        ],
+        [
+          "8:00pm-9:00pm",
+          "Zoom screenshot",
+          "",
+          "L12618"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "7:00pm-8:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "",
+          "column_3": "L12618"
+        },
+        {
+          "_row_index": 1,
+          "time": "8:00pm-9:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "",
+          "column_3": "L12618"
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "7:00pm-8:00pm",
+          "Zoom screenshot",
+          "",
+          "L12618"
+        ],
+        [
+          "8:00pm-9:00pm",
+          "Zoom screenshot",
+          "",
+          "L12618"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "7:00pm-8:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "",
+          "column_3": "L12618"
+        },
+        {
+          "_row_index": 1,
+          "time": "8:00pm-9:00pm",
+          "student": "Zoom screenshot",
+          "instructor": "",
+          "column_3": "L12618"
+        }
+      ]
+    },
+    {
+      "id": "statementOfAccountData",
+      "class": "alternatecolors",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "decription",
+        "date",
+        "amount",
+        "gst",
+        "pst",
+        "total",
+        ""
+      ],
+      "rows": [
+        [
+          "course",
+          "27/08/2025",
+          "$1,107.00",
+          "$55.35",
+          "$110.42",
+          "$1,272.77"
+        ],
+        [
+          "credit card",
+          "29/08/2025",
+          "($347.90)",
+          "($17.40)",
+          "($34.70)",
+          "($400.00)"
+        ],
+        [
+          "credit card",
+          "02/02/2026",
+          "($347.90)",
+          "($17.40)",
+          "($34.70)",
+          "($400.00)"
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "Balance:",
+          "$472.77"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 1,
+          "decription": "course",
+          "date": "27/08/2025",
+          "amount": "$1,107.00",
+          "gst": "$55.35",
+          "pst": "$110.42",
+          "total": "$1,272.77",
+          "column_6": ""
+        },
+        {
+          "_row_index": 2,
+          "decription": "credit card",
+          "date": "29/08/2025",
+          "amount": "($347.90)",
+          "gst": "($17.40)",
+          "pst": "($34.70)",
+          "total": "($400.00)",
+          "column_6": ""
+        },
+        {
+          "_row_index": 3,
+          "decription": "credit card",
+          "date": "02/02/2026",
+          "amount": "($347.90)",
+          "gst": "($17.40)",
+          "pst": "($34.70)",
+          "total": "($400.00)",
+          "column_6": ""
+        },
+        {
+          "_row_index": 4,
+          "decription": "",
+          "date": "",
+          "amount": "",
+          "gst": "",
+          "pst": "Balance:",
+          "total": "$472.77",
+          "column_6": ""
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "/studentfile/printcontracts/?studentUserId=231796&courseId=1",
+      "text": "print contract",
+      "title": ""
+    },
+    {
+      "href": "/QuebecAuto/attestation/phase1/?studentUserId=231796",
+      "text": "print attestation phase 1",
+      "title": ""
+    },
+    {
+      "href": "/QuebecAuto/attestation/phase1empty/?studentUserId=231796",
+      "text": "print attestation phase 1 (empty)",
+      "title": ""
+    },
+    {
+      "href": "/QuebecAuto/attestation/phase4/?studentUserId=231796",
+      "text": "print attestation phase 4",
+      "title": ""
+    },
+    {
+      "href": "/QuebecAuto/attestation/phase4empty/?studentUserId=231796",
+      "text": "print attestation phase 4 (empty)",
+      "title": ""
+    },
+    {
+      "href": "/QuebecAuto/CourseTransfer/?studentUserId=231796",
+      "text": "course transfer",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "delete course",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "/quebecauto/practicalsignatures/?studentuserid=231796&courseComponentId=17",
+      "text": "sign in for practical lesson #5",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00001-0.jpg?672",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=1&screenshotNo=0",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00001-1.jpg?902",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=1&screenshotNo=1",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00002-0.jpg?655",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=2&screenshotNo=0",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00002-1.jpg?794",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=2&screenshotNo=1",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00003-0.jpg?309",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=3&screenshotNo=0",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00003-1.jpg?403",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=3&screenshotNo=1",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00004-0.jpg?285",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=4&screenshotNo=0",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00004-1.jpg?645",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=4&screenshotNo=1",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00005-0.jpg?4",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=5&screenshotNo=0",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00005-1.jpg?815",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=5&screenshotNo=1",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "/onlinetest/results/?studentuserid=231796&courseid=1&scheduledonlinetestid=1238",
+      "text": "details",
+      "title": ""
+    },
+    {
+      "href": "/integrityform231796-13869.gif",
+      "text": "integrity form",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00006-0.jpg?488",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=6&screenshotNo=0",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00006-1.jpg?549",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=6&screenshotNo=1",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00007-0.jpg?723",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=7&screenshotNo=0",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00007-1.jpg?321",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=7&screenshotNo=1",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "/quebecauto/practicalsignatures/?studentuserid=231796&courseComponentId=13",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "/quebecauto/practicalsignatures/?studentuserid=231796&courseComponentId=14",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "/quebecauto/practicalsignatures/?studentuserid=231796&courseComponentId=15",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "/quebecauto/practicalsignatures/?studentuserid=231796&courseComponentId=16",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00008-0.jpg?662",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=8&screenshotNo=0",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00008-1.jpg?347",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=8&screenshotNo=1",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00009-0.jpg?741",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=9&screenshotNo=0",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00009-1.jpg?244",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=9&screenshotNo=1",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00010-0.jpg?506",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=10&screenshotNo=0",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231594-00010-1.jpg?328",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=231796&courseId=1&courseComponentId=10&screenshotNo=1",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/css/img/nosignature.2.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/css/img/nosignature.2.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/css/img/nosignature.2.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/css/img/nosignature.2.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/css/img/nosignature.2.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/css/img/nosignature.2.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {
+    "Course": "Automobile",
+    "Location": "Vaudreuil-Dorion",
+    "Start Date": "Sep 9, 2025",
+    "Contract No": "1235773",
+    "Attestation No": "03203616",
+    "Attestation Date": "Oct 15, 2025",
+    "Class 5 Learner's License": "S3158-140909-05",
+    "Issue Date of Class 5": "Oct 20, 2025",
+    "On-road Instructor": "Ken McCullough",
+    "Passed SAAQ Knowledge Test?": "no"
+  },
+  "raw_html_length": 60572,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/studentfile/?studentuserid=231796&courseId=1"
+}

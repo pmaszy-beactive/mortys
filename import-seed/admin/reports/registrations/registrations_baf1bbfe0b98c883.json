@@ -1,0 +1,520 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=24%2F08%2F2025",
+  "url_hash": "baf1bbfe0b98c883",
+  "scraped_at": "2026-02-12T20:30:50.458Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 24, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 24, 2025 Name Lang Time Phone Course 1 st Class Comments 231548 Dixon, Wesley EN 10:38am 438-455-6789 (m) 514-626-9329 (h) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231549 Chrysocheris, Joanna FR 11:10am 514-623-4261 (m) Automobile Vaudreuil-Dorion 09/09/2025 7:00pm edit 231550 Ricard, Mahina EN 11:53am 438-378-7549 (m) 514-647-1075 (h) 438-777-3081 (w) Automobile Montreal 24/08/2025 3:00pm edit 231551 Zou, Jennie EN 2:07pm 514-791-8861 (m) 514-802-0876 (h) Automobile Kirkland 09/09/2025 7:00pm edit 231552 Tomkinson, Nora Mary Alden EN 3:07pm 438-464-0323 (m) Automobile Vaudreuil-Dorion 09/09/2025 7:00pm edit 231553 Selinsky, Elizabeth EN 5:34pm 579-490-5737 (m) Automobile Vaudreuil-Dorion 09/09/2025 7:00pm edit 231554 Selinsky, Liam EN 8:53pm 579-490-5736 (m) Automobile Vaudreuil-Dorion 18/09/2025 7:00pm edit 231555 Guay-Keith, Léopold EN 9:47pm 438-939-9646 (m) 514-966-9802 (h) Scooter Montreal 31/08/2025 5:30pm edit 231556 Cooperman, Micah EN 10:00pm 514-913-1969 (m) Scooter Montreal 31/08/2025 5:30pm edit 231557 Schulman, David EN 10:52pm 514-210-8580 (m) Automobile Kirkland 18/09/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "24/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "24/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231548",
+          "Dixon, Wesley",
+          "EN",
+          "10:38am",
+          "438-455-6789   (m)     \n \n             514-626-9329   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231549",
+          "Chrysocheris, Joanna",
+          "FR",
+          "11:10am",
+          "514-623-4261   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231550",
+          "Ricard, Mahina",
+          "EN",
+          "11:53am",
+          "438-378-7549   (m)     \n \n             514-647-1075   (h)     \n \n             438-777-3081   (w)",
+          "Automobile Montreal",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231551",
+          "Zou, Jennie",
+          "EN",
+          "2:07pm",
+          "514-791-8861   (m)     \n \n             514-802-0876   (h)",
+          "Automobile Kirkland",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231552",
+          "Tomkinson, Nora Mary Alden",
+          "EN",
+          "3:07pm",
+          "438-464-0323   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231553",
+          "Selinsky, Elizabeth",
+          "EN",
+          "5:34pm",
+          "579-490-5737   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231554",
+          "Selinsky, Liam",
+          "EN",
+          "8:53pm",
+          "579-490-5736   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231555",
+          "Guay-Keith, Léopold",
+          "EN",
+          "9:47pm",
+          "438-939-9646   (m)     \n \n             514-966-9802   (h)",
+          "Scooter Montreal",
+          "31/08/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "231556",
+          "Cooperman, Micah",
+          "EN",
+          "10:00pm",
+          "514-913-1969   (m)",
+          "Scooter Montreal",
+          "31/08/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "231557",
+          "Schulman, David",
+          "EN",
+          "10:52pm",
+          "514-210-8580   (m)",
+          "Automobile Kirkland",
+          "18/09/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231548",
+          "Name": "Dixon, Wesley",
+          "Lang": "EN",
+          "Time": "10:38am",
+          "Phone": "438-455-6789   (m)     \n \n             514-626-9329   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231549",
+          "Name": "Chrysocheris, Joanna",
+          "Lang": "FR",
+          "Time": "11:10am",
+          "Phone": "514-623-4261   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231550",
+          "Name": "Ricard, Mahina",
+          "Lang": "EN",
+          "Time": "11:53am",
+          "Phone": "438-378-7549   (m)     \n \n             514-647-1075   (h)     \n \n             438-777-3081   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231551",
+          "Name": "Zou, Jennie",
+          "Lang": "EN",
+          "Time": "2:07pm",
+          "Phone": "514-791-8861   (m)     \n \n             514-802-0876   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231552",
+          "Name": "Tomkinson, Nora Mary Alden",
+          "Lang": "EN",
+          "Time": "3:07pm",
+          "Phone": "438-464-0323   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231553",
+          "Name": "Selinsky, Elizabeth",
+          "Lang": "EN",
+          "Time": "5:34pm",
+          "Phone": "579-490-5737   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231554",
+          "Name": "Selinsky, Liam",
+          "Lang": "EN",
+          "Time": "8:53pm",
+          "Phone": "579-490-5736   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231555",
+          "Name": "Guay-Keith, Léopold",
+          "Lang": "EN",
+          "Time": "9:47pm",
+          "Phone": "438-939-9646   (m)     \n \n             514-966-9802   (h)",
+          "Course": "Scooter Montreal",
+          "1st Class": "31/08/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231556",
+          "Name": "Cooperman, Micah",
+          "Lang": "EN",
+          "Time": "10:00pm",
+          "Phone": "514-913-1969   (m)",
+          "Course": "Scooter Montreal",
+          "1st Class": "31/08/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231557",
+          "Name": "Schulman, David",
+          "Lang": "EN",
+          "Time": "10:52pm",
+          "Phone": "514-210-8580   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231750&courseId=1",
+      "text": "Dixon, Wesley",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231751&courseId=1",
+      "text": "Chrysocheris, Joanna",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231752&courseId=1",
+      "text": "Ricard, Mahina",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231753&courseId=1",
+      "text": "Zou, Jennie",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231754&courseId=1",
+      "text": "Tomkinson, Nora Mary Alden",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231755&courseId=1",
+      "text": "Selinsky, Elizabeth",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231756&courseId=1",
+      "text": "Selinsky, Liam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231757&courseId=3",
+      "text": "Guay-Keith, Léopold",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231758&courseId=3",
+      "text": "Cooperman, Micah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231759&courseId=1",
+      "text": "Schulman, David",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 25632,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=24%2F08%2F2025"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=224313",
+  "url_hash": "16a6e311e207e509",
+  "scraped_at": "2026-02-13T09:14:53.434Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03277032 L-020 Shinder, Emilia 668 Belmont avenue Westmount QC H3Y 2W2 0001235463 5149093692 4388363661 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉLÈVE 03277032 L-020 Shinder, Emilia 668 Belmont avenue Westmount QC H3Y 2W2 0001235463 5149093692 4388363661 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277032&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277032&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6075,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=224313"
+}

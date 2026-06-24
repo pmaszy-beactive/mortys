@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=228555",
+  "url_hash": "43b28a2c4294f993",
+  "scraped_at": "2026-02-13T02:13:28.397Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03152580 A-107 Lipscombe , Rayan 16 Rue Pothier NDIP QC J7W3G6 0001235651 5148260209 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 31 2025 09 07 X Ilan Preisler 10 sept. 2025 COPIE D'ÉLÈVE 03152580 A-107 Lipscombe , Rayan 16 Rue Pothier NDIP QC J7W3G6 0001235651 5148260209 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 31 2025 09 07 X Ilan Preisler 10 sept. 2025 COPIE D'ÉCOLE 03152580 A-107 Lipscombe , Rayan 16 Rue Pothier NDIP QC J7W3G6 0001235651 5148260209 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 31 2025 09 07 X Ilan Preisler 10 sept. 2025 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152580&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152580&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152580&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 11307,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=228555"
+}

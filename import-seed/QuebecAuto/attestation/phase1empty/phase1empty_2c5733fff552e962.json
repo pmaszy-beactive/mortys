@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=231951",
+  "url_hash": "2c5733fff552e962",
+  "scraped_at": "2026-02-12T15:17:08.678Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03277354 L-774 Illouz, Adam 215 Sidney-Cunningham Beaconsfield QC H9W 6E4 0001235849 5149772326 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca COPIE D'ÉLÈVE 03277354 L-774 Illouz, Adam 215 Sidney-Cunningham Beaconsfield QC H9W 6E4 0001235849 5149772326 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277354&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277354&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6085,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=231951"
+}

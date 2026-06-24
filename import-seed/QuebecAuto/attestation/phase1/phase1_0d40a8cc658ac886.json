@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231970",
+  "url_hash": "0d40a8cc658ac886",
+  "scraped_at": "2026-02-12T15:01:22.323Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03304495 L-020 Waxman, Joy 544 inverness Mont-Royal QC H3R1C3 0001236626 4385094831 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- COPIE D'ÉLÈVE 03304495 L-020 Waxman, Joy 544 inverness Mont-Royal QC H3R1C3 0001236626 4385094831 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304495&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304495&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 7747,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231970"
+}

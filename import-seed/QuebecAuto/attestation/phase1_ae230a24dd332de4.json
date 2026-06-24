@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=11240",
+  "url_hash": "ae230a24dd332de4",
+  "scraped_at": "2026-02-11T22:00:36.309Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "D132123119801 00423689 L-021 D'Abate Singer, Alexander 119 Eastview Pointe Claire QC H9R1H3 0000355498 4389854635 5144337478 X Ilan Preisler 13 sept. 2018 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2015 10 14 2015 10 19 2015 11 22 2015 11 03 2015 12 01 COPIE D'ÉLÈVE D132123119801 00423689 L-021 D'Abate Singer, Alexander 119 Eastview Pointe Claire QC H9R1H3 0000355498 4389854635 5144337478 X Ilan Preisler 13 sept. 2018 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2015 10 14 2015 10 19 2015 11 22 2015 11 03 2015 12 01 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=00423689&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=00423689&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10613,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=11240"
+}

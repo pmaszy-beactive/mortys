@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=231705",
+  "url_hash": "10794495e0445392",
+  "scraped_at": "2026-02-12T21:52:28.720Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03287126 L-390 Vella, Girolamo 1505 rue Louis Durocher Laval QC H7M4G7 0001236693 4384597975 4384597975 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE D'ÉLÈVE 03287126 L-390 Vella, Girolamo 1505 rue Louis Durocher Laval QC H7M4G7 0001236693 4384597975 4384597975 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE D'ÉCOLE 03287126 L-390 Vella, Girolamo 1505 rue Louis Durocher Laval QC H7M4G7 0001236693 4384597975 4384597975 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287126&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287126&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287126&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10287,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=231705"
+}

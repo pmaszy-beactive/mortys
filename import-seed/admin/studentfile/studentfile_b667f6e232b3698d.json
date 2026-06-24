@@ -1,0 +1,678 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/studentfile/?studentuserid=224390&courseId=1",
+  "url_hash": "b667f6e232b3698d",
+  "scraped_at": "2026-02-13T06:40:43.252Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Phyllis-Thao-Chieu Le"
+    },
+    {
+      "level": 2,
+      "text": "Office Use Only - Notes"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Actions print contract print attestation phase 1 print attestation phase 1 (empty) print attestation phase 4 print attestation phase 4 (empty) course transfer delete course Phyllis-Thao-Chieu Le Course Info Course Automobile Location Montreal Start Date Jul 15, 2025 Contract No 1235315 edit Attestation No 03276987 Attestation Date Aug 4, 2025 Class 5 Learner's License L142014089507 Issue Date of Class 5 Apr 25, 2016 On-road Instructor Anatoli Touranski Passed SAAQ Knowledge Test? no edit Personal Info Le, Phyllis-Thao-Chieu 492 Ave Greenoch , TMR, QC H3p2h2 Aug 14, 1995 English phyllistcle@gmail.com 514-991-6998 (cell) edit Office Use Only - Notes Transferred from Transit. Paid for 2 hours private lessons with Anatol: Sep. 21, 2025 at 11am; and Sep. 27, 20205 at 11am. Paid for XL with Anatol for Oct. 2, 2025 at 4:00. Paid for XL with Jack for Oct. 9, 2025 at 4:00. Paid for 2-XL's with Anatol: Oct. 13, 2025 at 5:00; Oct. 15, 2025 at 4:00. Paid for XL with Anatol: Oct. 28, 2025 at 3:00. STUDENT CALLED OCT 19TH TO CANCEL PRIVATE LESSON ON THE 30TH OF OCTOBER WITH JACK. SHE WILL CALL TO RESCHEDUAL , SINCE THER IS NO REFUND -NANCY STUDENT RE-BOOKED THE CANCELLED LESSON WITH RICHARD FOR NOV. 11, 2025 AT 3:45. STUDENT CANCELLED THE NOV. 11TH PAID LESSON; WILL CALL BACK NEXT YEAR TO RESCHEDULE IT. -Natalie, Nov. 10, 2025- Save Cancel edit To Do (Instructor) Up Next Module History in-Car 15 Aug 2, 2025 5:00pm-6:00pm time student instructor 5:00pm-6:00pm reveal signature reveal signature L-XXX evaluation edit credit card debit card cash payment cheque email transfer course discount other include taxes Amount GST PST Total Comments submit cancel correction missed scheduled class materials other include taxes Amount GST PST Total Comments submit cancel quit Statement of Account decription date amount gst pst total course 23/07/2025 $1,107.00 $55.35 $110.42 $1,272.77 Autre 24/07/2025 ($1,056.08) ($52.80) ($105.34) ($1,214.22) debit card 24/07/2025 ($50.92) ($2.55) ($5.08) ($58.55) Balance: $0.00 edit credit debit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "",
+          "value": "224390",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "CourseId",
+          "type": "hidden",
+          "id": "",
+          "value": "1",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "select",
+          "name": "typeId",
+          "type": "text",
+          "id": "",
+          "value": "3",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "3",
+              "text": "credit card",
+              "selected": true
+            },
+            {
+              "value": "6",
+              "text": "debit card",
+              "selected": false
+            },
+            {
+              "value": "5",
+              "text": "cash payment",
+              "selected": false
+            },
+            {
+              "value": "4",
+              "text": "cheque",
+              "selected": false
+            },
+            {
+              "value": "8",
+              "text": "email transfer",
+              "selected": false
+            },
+            {
+              "value": "1",
+              "text": "course discount",
+              "selected": false
+            },
+            {
+              "value": "7",
+              "text": "other",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "checkbox",
+          "id": "creditIncludeTaxes",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "hidden",
+          "id": "",
+          "value": "false",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "amount",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax1",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax2",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "total",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "comments",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "224390",
+        "CourseId": "1",
+        "typeId": "3",
+        "includeTaxes": "false"
+      }
+    },
+    {
+      "action": "",
+      "method": "get",
+      "id": "",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "",
+          "value": "224390",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "CourseId",
+          "type": "hidden",
+          "id": "",
+          "value": "1",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "select",
+          "name": "typeId",
+          "type": "text",
+          "id": "",
+          "value": "2",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "2",
+              "text": "correction",
+              "selected": true
+            },
+            {
+              "value": "3",
+              "text": "missed scheduled class",
+              "selected": false
+            },
+            {
+              "value": "4",
+              "text": "materials",
+              "selected": false
+            },
+            {
+              "value": "5",
+              "text": "other",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "checkbox",
+          "id": "debitIncludeTaxes",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "hidden",
+          "id": "",
+          "value": "false",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "amount",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax1",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax2",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "total",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "comments",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "224390",
+        "CourseId": "1",
+        "typeId": "2",
+        "includeTaxes": "false"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "5:00pm-6:00pm",
+          "reveal signature",
+          "reveal signature",
+          "L-XXX"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "5:00pm-6:00pm",
+          "student": "reveal signature",
+          "instructor": "reveal signature",
+          "column_3": "L-XXX"
+        }
+      ]
+    },
+    {
+      "id": "statementOfAccountData",
+      "class": "alternatecolors",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "decription",
+        "date",
+        "amount",
+        "gst",
+        "pst",
+        "total",
+        ""
+      ],
+      "rows": [
+        [
+          "course",
+          "23/07/2025",
+          "$1,107.00",
+          "$55.35",
+          "$110.42",
+          "$1,272.77"
+        ],
+        [
+          "Autre",
+          "24/07/2025",
+          "($1,056.08)",
+          "($52.80)",
+          "($105.34)",
+          "($1,214.22)"
+        ],
+        [
+          "debit card",
+          "24/07/2025",
+          "($50.92)",
+          "($2.55)",
+          "($5.08)",
+          "($58.55)"
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "Balance:",
+          "$0.00"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 1,
+          "decription": "course",
+          "date": "23/07/2025",
+          "amount": "$1,107.00",
+          "gst": "$55.35",
+          "pst": "$110.42",
+          "total": "$1,272.77",
+          "column_6": ""
+        },
+        {
+          "_row_index": 2,
+          "decription": "Autre",
+          "date": "24/07/2025",
+          "amount": "($1,056.08)",
+          "gst": "($52.80)",
+          "pst": "($105.34)",
+          "total": "($1,214.22)",
+          "column_6": ""
+        },
+        {
+          "_row_index": 3,
+          "decription": "debit card",
+          "date": "24/07/2025",
+          "amount": "($50.92)",
+          "gst": "($2.55)",
+          "pst": "($5.08)",
+          "total": "($58.55)",
+          "column_6": ""
+        },
+        {
+          "_row_index": 4,
+          "decription": "",
+          "date": "",
+          "amount": "",
+          "gst": "",
+          "pst": "Balance:",
+          "total": "$0.00",
+          "column_6": ""
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "/studentfile/printcontracts/?studentUserId=224390&courseId=1",
+      "text": "print contract",
+      "title": ""
+    },
+    {
+      "href": "/QuebecAuto/attestation/phase1/?studentUserId=224390",
+      "text": "print attestation phase 1",
+      "title": ""
+    },
+    {
+      "href": "/QuebecAuto/attestation/phase1empty/?studentUserId=224390",
+      "text": "print attestation phase 1 (empty)",
+      "title": ""
+    },
+    {
+      "href": "/QuebecAuto/attestation/phase4/?studentUserId=224390",
+      "text": "print attestation phase 4",
+      "title": ""
+    },
+    {
+      "href": "/QuebecAuto/attestation/phase4empty/?studentUserId=224390",
+      "text": "print attestation phase 4 (empty)",
+      "title": ""
+    },
+    {
+      "href": "/QuebecAuto/CourseTransfer/?studentUserId=224390",
+      "text": "course transfer",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "delete course",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "/quebecauto/practicalEval/?studentUserId=224390&courseComponentId=27 ",
+      "text": "evaluation",
+      "title": ""
+    },
+    {
+      "href": "/quebecauto/practicalsignatures/?studentuserid=224390&courseComponentId=27",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {
+    "Course": "Automobile",
+    "Location": "Montreal",
+    "Start Date": "Jul 15, 2025",
+    "Contract No": "1235315",
+    "Attestation No": "03276987",
+    "Attestation Date": "Aug 4, 2025",
+    "Class 5 Learner's License": "L142014089507",
+    "Issue Date of Class 5": "Apr 25, 2016",
+    "On-road Instructor": "Anatoli Touranski",
+    "Passed SAAQ Knowledge Test?": "no"
+  },
+  "raw_html_length": 29410,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/studentfile/?studentuserid=224390&courseId=1"
+}

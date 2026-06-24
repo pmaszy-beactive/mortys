@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecMoto/attestation/?studentUserId=231696",
+  "url_hash": "74bbf31356a71935",
+  "scraped_at": "2026-02-12T22:25:54.658Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03152064 L-390 Lamothe, Justin 6300 rue de bordeaux Montreal QC H2G2R8 0001235882 4382296429 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE D'ÉLÈVE 03152064 L-390 Lamothe, Justin 6300 rue de bordeaux Montreal QC H2G2R8 0001235882 4382296429 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE D'ÉCOLE 03152064 L-390 Lamothe, Justin 6300 rue de bordeaux Montreal QC H2G2R8 0001235882 4382296429 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152064&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152064&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152064&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 13325,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecMoto/attestation/?studentUserId=231696"
+}

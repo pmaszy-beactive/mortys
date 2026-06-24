@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=225408",
+  "url_hash": "d6b67b5ac1487869",
+  "scraped_at": "2026-02-13T06:31:55.916Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "L152515100907 03277021 L-020 Lippens, Liam 42 Finchley Hampstead QC H3X 2Z7 0001235452 5148678636 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉLÈVE L152515100907 03277021 L-020 Lippens, Liam 42 Finchley Hampstead QC H3X 2Z7 0001235452 5148678636 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277021&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277021&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6043,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=225408"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233674",
+  "url_hash": "cbffc9fdf3e72508",
+  "scraped_at": "2026-02-11T22:20:08.565Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03304452 L-020 Ottawa-Nequado, Katherine 101 Rue Murray Montreal QC H3C 0T4 0001236507 5144422906 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- COPIE D'ÉLÈVE 03304452 L-020 Ottawa-Nequado, Katherine 101 Rue Murray Montreal QC H3C 0T4 0001236507 5144422906 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304452&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304452&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 7775,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233674"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=227442",
+  "url_hash": "d217c2ca0a28cd1a",
+  "scraped_at": "2026-02-13T05:29:50.096Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "Z162621070905 03277307 L-774 Zbarcea, Mark 735 Pierre Marc Masson MONTREAL QC H9E0A2 0001235413 4382263109 X Ilan Preisler 11 sept. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 07 31 2025 08 07 2025 09 04 2025 09 03 2025 09 10 COPIE D'ÉLÈVE Z162621070905 03277307 L-774 Zbarcea, Mark 735 Pierre Marc Masson MONTREAL QC H9E0A2 0001235413 4382263109 X Ilan Preisler 11 sept. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 07 31 2025 08 07 2025 09 04 2025 09 03 2025 09 10 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277307&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277307&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10365,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=227442"
+}

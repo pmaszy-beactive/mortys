@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4empty/?studentUserId=230589",
+  "url_hash": "2c8d418b44ea4209",
+  "scraped_at": "2026-02-13T01:09:49.871Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "C420608070300 03286898 L-020 Celso, Nicole Rose 5120 Boul Edouard Montpetit Montreal QC H3W1R2 0001235531 4388722353 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉLÈVE C420608070300 03286898 L-020 Celso, Nicole Rose 5120 Boul Edouard Montpetit Montreal QC H3W1R2 0001235531 4388722353 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE D'ÉCOLE C420608070300 03286898 L-020 Celso, Nicole Rose 5120 Boul Edouard Montpetit Montreal QC H3W1R2 0001235531 4388722353 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286898&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286898&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286898&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 8139,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4empty/?studentUserId=230589"
+}

@@ -1,0 +1,458 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=14%2F09%2F2025",
+  "url_hash": "15a3c38fe5e950cc",
+  "scraped_at": "2026-02-12T15:32:04.306Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Sep 14, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Sep 14, 2025 Name Lang Time Phone Course 1 st Class Comments 231736 Paige-Touchette, Keeva EN 10:32am 438-522-9930 (m) 438-527-5532 (h) Automobile Dollard-des-Ormeaux 08/10/2025 7:00pm edit 231737 Branston, Hayden EN 12:09pm 514-214-3009 (m) Automobile Vaudreuil-Dorion 29/09/2025 7:00pm edit 231738 Onojaefe , Ufuoma EN 5:11pm 514-594-5236 (m) Automobile Kirkland 18/09/2025 7:00pm edit 231739 Villeneuve, Vincenzo EN 6:07pm 514-773-4312 (m) 450-627-4312 (h) Scooter Dollard-des-Ormeaux 21/09/2025 5:30pm edit 231740 Ghidei, Essei EN 6:08pm 438-699-0168 (m) Scooter Montreal 21/09/2025 5:30pm edit 231741 Jurkowski, Anthony-Rocco EN 7:07pm 514-916-4001 (m) 514-508-1770 (w) Automobile Montreal 08/10/2025 7:00pm edit 231742 Romano-Di Tella, Mia EN 8:06pm 438-884-8081 (m) 514-884-6613 (h) Automobile Côte Saint-Luc 18/09/2025 7:00pm edit 231743 Oba-Fabunmi, Omorinsola Nihinlolawa EN 8:39pm 514-621-2225 (m) Automobile Montreal 08/10/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "14/09/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "14/09/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231736",
+          "Paige-Touchette, Keeva",
+          "EN",
+          "10:32am",
+          "438-522-9930   (m)     \n \n             438-527-5532   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "08/10/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231737",
+          "Branston, Hayden",
+          "EN",
+          "12:09pm",
+          "514-214-3009   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231738",
+          "Onojaefe , Ufuoma",
+          "EN",
+          "5:11pm",
+          "514-594-5236   (m)",
+          "Automobile Kirkland",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231739",
+          "Villeneuve, Vincenzo",
+          "EN",
+          "6:07pm",
+          "514-773-4312   (m)     \n \n             450-627-4312   (h)",
+          "Scooter Dollard-des-Ormeaux",
+          "21/09/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "231740",
+          "Ghidei, Essei",
+          "EN",
+          "6:08pm",
+          "438-699-0168   (m)",
+          "Scooter Montreal",
+          "21/09/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "231741",
+          "Jurkowski, Anthony-Rocco",
+          "EN",
+          "7:07pm",
+          "514-916-4001   (m)     \n \n              \n             514-508-1770   (w)",
+          "Automobile Montreal",
+          "08/10/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231742",
+          "Romano-Di Tella, Mia",
+          "EN",
+          "8:06pm",
+          "438-884-8081   (m)     \n \n             514-884-6613   (h)",
+          "Automobile Côte Saint-Luc",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231743",
+          "Oba-Fabunmi, Omorinsola Nihinlolawa",
+          "EN",
+          "8:39pm",
+          "514-621-2225   (m)",
+          "Automobile Montreal",
+          "08/10/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231736",
+          "Name": "Paige-Touchette, Keeva",
+          "Lang": "EN",
+          "Time": "10:32am",
+          "Phone": "438-522-9930   (m)     \n \n             438-527-5532   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "08/10/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231737",
+          "Name": "Branston, Hayden",
+          "Lang": "EN",
+          "Time": "12:09pm",
+          "Phone": "514-214-3009   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231738",
+          "Name": "Onojaefe , Ufuoma",
+          "Lang": "EN",
+          "Time": "5:11pm",
+          "Phone": "514-594-5236   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231739",
+          "Name": "Villeneuve, Vincenzo",
+          "Lang": "EN",
+          "Time": "6:07pm",
+          "Phone": "514-773-4312   (m)     \n \n             450-627-4312   (h)",
+          "Course": "Scooter Dollard-des-Ormeaux",
+          "1st Class": "21/09/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231740",
+          "Name": "Ghidei, Essei",
+          "Lang": "EN",
+          "Time": "6:08pm",
+          "Phone": "438-699-0168   (m)",
+          "Course": "Scooter Montreal",
+          "1st Class": "21/09/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231741",
+          "Name": "Jurkowski, Anthony-Rocco",
+          "Lang": "EN",
+          "Time": "7:07pm",
+          "Phone": "514-916-4001   (m)     \n \n              \n             514-508-1770   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "08/10/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231742",
+          "Name": "Romano-Di Tella, Mia",
+          "Lang": "EN",
+          "Time": "8:06pm",
+          "Phone": "438-884-8081   (m)     \n \n             514-884-6613   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231743",
+          "Name": "Oba-Fabunmi, Omorinsola Nihinlolawa",
+          "Lang": "EN",
+          "Time": "8:39pm",
+          "Phone": "514-621-2225   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "08/10/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231938&courseId=1",
+      "text": "Paige-Touchette, Keeva",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231939&courseId=1",
+      "text": "Branston, Hayden",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231940&courseId=1",
+      "text": "Onojaefe , Ufuoma",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231941&courseId=3",
+      "text": "Villeneuve, Vincenzo",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231942&courseId=3",
+      "text": "Ghidei, Essei",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231943&courseId=1",
+      "text": "Jurkowski, Anthony-Rocco",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231944&courseId=1",
+      "text": "Romano-Di Tella, Mia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231945&courseId=1",
+      "text": "Oba-Fabunmi, Omorinsola Nihinlolawa",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 23751,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=14%2F09%2F2025"
+}

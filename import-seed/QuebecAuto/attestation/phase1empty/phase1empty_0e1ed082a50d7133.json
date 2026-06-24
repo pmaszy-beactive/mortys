@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=228526",
+  "url_hash": "0e1ed082a50d7133",
+  "scraped_at": "2026-02-13T02:57:54.646Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "J520231030804 03277324 L-774 James, Carter 155 heather Pointe-Claire QC H9R 3A6 0001235603 4389211984 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca COPIE D'ÉLÈVE J520231030804 03277324 L-774 James, Carter 155 heather Pointe-Claire QC H9R 3A6 0001235603 4389211984 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277324&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277324&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6257,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=228526"
+}

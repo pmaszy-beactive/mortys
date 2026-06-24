@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Mortys Driving School</title>
+    <meta name="google" content="notranslate">
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+
+   
+    <script>
+        
+              window.onunload = function () { }; // disable bfcache
+        var avivaronload = (function () {
+          
+                  var loaded = false,
+                      onload = (persisted) => {
+                          if (persisted ) window.location.reload();},
+                      loadController = function (ev) {
+                          var persisted = (ev.persisted !== undefined) && ev.persisted;
+                          if (persisted || !loaded) {  //just in case bfcache was not successfully disabled
+                              onload(persisted);
+                              loaded = true;
+                          }
+                      }
+                  window.addEventListener('pageshow', loadController)
+                  window.addEventListener('load', loadController)
+                  return {
+                      add: function (f) {
+                          var oldlonload = onload;
+                          onload = function (persisted) { oldlonload(persisted); f(persisted); }
+                      }
+                  }
+              })();
+
+                
+                   (function () {
+
+                    window.readCookie = function(n){ return (n = new RegExp('(?:^|;\\s*)' + ('' + n).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)').exec(document.cookie)) && n[1]; }
+                    var   cookie = readCookie('signmodeurl');
+                    if (cookie && cookie != (window.location.pathname + window.location.search)) {
+                            window.location.href = cookie
+                   }
+                })
+                ();
+
+             
+
+
+    </script>
+
+
+
+
+
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" type="text/css"><link href="/css/base/base_desktop5.min.css" rel="stylesheet" type="text/css"><link href="/css/select2/select2-and-select2-bootstrap.min.css" rel="stylesheet" type="text/css"><link href="/css/flaticon2/flaticon.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.css" rel="stylesheet" type="text/css"><style>.mm-menu {--mm-offset-top: 50px;--mm-offset-bottom: 15px;--mm-offset-left: 1px}</style><link href="/css/avivarmodal/avivarmodal.min.css" rel="stylesheet" type="text/css"><link href="/css/fullcalendar_new/main.min.css" rel="stylesheet" type="text/css"><link href="/css/instructorschedule/instructorschedule2.css" rel="stylesheet" type="text/css">
+    
+    
+<style type="text/css">#modal-instructorSelection .select2-results__options{max-height:calc(80vh - 75px)!important}#modal-instructorSelection .modal__container{min-width:300px}#modal-instructorSelection .select2-selection__arrow{display:none}#modal-instructorSelection .select2-selection__placeholder{color:#00f}#instructorContainer a{ display:inline-block;   margin-left:5px;  }#instructorContainer a:first-of-type{margin-left:0!important}</style></head>
+<body class="" style="overflow: hidden;"><div aria-hidden="false" class="modal micromodal-slide is-open" id="modal-instructorSelection"><div class="modal__overlay" tabindex="-1" data-micromodal-close=""><div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-instructorSelection-title"> <header class="modal__header"><h2 class="modal__title" id="modal-instructorSelection-title"></h2><button id="modal-instructorSelection-close" class="modal__close" aria-label="Close modal" data-micromodal-close=""></button> </header> <main class="modal__content" id="modal-instructorSelection-content"><div style="height:80vh; padding-top:5px "><select id="instructorSelect" style="opacity:0" tabindex="-1" class="select2-hidden-accessible" aria-hidden="true"><option value=""></option><option value="82002">Anatoli Touranski</option><option value="113372">Andre Robinson</option><option value="74">Andrew Matthews</option><option value="228464">Aqib Qureshi</option><option value="78">Bruce Hafner</option><option value="228466">Chris Cayer</option><option value="170684">Earl Sachin</option><option value="90">Eli Dayan</option><option value="10989">Erik Olynyk</option><option value="85">Firas Matouk</option><option value="75351">Frank Cooper</option><option value="219857">Gary Trace</option><option value="83">Geoff Kloos</option><option value="10332">Gerard Harfouche</option><option value="77">Guy Zamir</option><option value="77642">Hikmat Rahimee</option><option value="157990">Humy Ayubi</option><option value="87">Ilan Preisler</option><option value="81">Jack Meshoulam</option><option value="228562">Jeff Shan</option><option value="61189">Jose De Los Rios</option><option value="37920">Karen Reynolds </option><option value="137929">Ken McCullough</option><option value="219856">Marcel Roland</option><option value="75">Mario Mastronardi</option><option value="233614">Michael Bensemana</option><option value="73195">Miguel Abuel</option><option value="119261">Mirhan Geovshanian</option><option value="48026">Mohsen Saoud</option><option value="89">Morty Preisler</option><option value="86">Oren Preisler</option><option value="231886">Peter Armand</option><option value="81920">Prince Geevarghese </option><option value="61290">Richard Kobersy</option><option value="12162">Scott Caminsky</option><option value="79">Sean C</option><option value="101637">Shahid H</option><option value="10137">Tze L</option><option value="76">Uli Zamir</option></select><span class="select2 select2-container select2-container--default select2-container--below select2-container--open" dir="ltr" style="width: 100%;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="true" tabindex="0" aria-labelledby="select2-instructorSelect-container" aria-owns="select2-instructorSelect-results"><span class="select2-selection__rendered" id="select2-instructorSelect-container"><span class="select2-selection__placeholder">Select Instructor</span></span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span><div></div></div></main></div> </div>  <span class="select2-container select2-container--default select2-container--open" style="position: absolute; top: 98px; left: 270px;"><span class="select2-dropdown select2-dropdown--below" dir="ltr" style="width: 260px;"><span class="select2-search select2-search--dropdown"><input class="select2-search__field" type="search" tabindex="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="textbox"></span><span class="select2-results"><ul class="select2-results__options" role="tree" id="select2-instructorSelect-results" aria-expanded="true" aria-hidden="false"><li class="select2-results__option select2-results__option--highlighted" role="treeitem" aria-selected="false">Anatoli Touranski</li><li class="select2-results__option" role="treeitem" aria-selected="false">Andre Robinson</li><li class="select2-results__option" role="treeitem" aria-selected="false">Andrew Matthews</li><li class="select2-results__option" role="treeitem" aria-selected="false">Aqib Qureshi</li><li class="select2-results__option" role="treeitem" aria-selected="false">Bruce Hafner</li><li class="select2-results__option" role="treeitem" aria-selected="false">Chris Cayer</li><li class="select2-results__option" role="treeitem" aria-selected="false">Earl Sachin</li><li class="select2-results__option" role="treeitem" aria-selected="false">Eli Dayan</li><li class="select2-results__option" role="treeitem" aria-selected="false">Erik Olynyk</li><li class="select2-results__option" role="treeitem" aria-selected="false">Firas Matouk</li><li class="select2-results__option" role="treeitem" aria-selected="false">Frank Cooper</li><li class="select2-results__option" role="treeitem" aria-selected="false">Gary Trace</li><li class="select2-results__option" role="treeitem" aria-selected="false">Geoff Kloos</li><li class="select2-results__option" role="treeitem" aria-selected="false">Gerard Harfouche</li><li class="select2-results__option" role="treeitem" aria-selected="false">Guy Zamir</li><li class="select2-results__option" role="treeitem" aria-selected="false">Hikmat Rahimee</li><li class="select2-results__option" role="treeitem" aria-selected="false">Humy Ayubi</li><li class="select2-results__option" role="treeitem" aria-selected="false">Ilan Preisler</li><li class="select2-results__option" role="treeitem" aria-selected="false">Jack Meshoulam</li><li class="select2-results__option" role="treeitem" aria-selected="false">Jeff Shan</li><li class="select2-results__option" role="treeitem" aria-selected="false">Jose De Los Rios</li><li class="select2-results__option" role="treeitem" aria-selected="false">Karen Reynolds </li><li class="select2-results__option" role="treeitem" aria-selected="false">Ken McCullough</li><li class="select2-results__option" role="treeitem" aria-selected="false">Marcel Roland</li><li class="select2-results__option" role="treeitem" aria-selected="false">Mario Mastronardi</li><li class="select2-results__option" role="treeitem" aria-selected="false">Michael Bensemana</li><li class="select2-results__option" role="treeitem" aria-selected="false">Miguel Abuel</li><li class="select2-results__option" role="treeitem" aria-selected="false">Mirhan Geovshanian</li><li class="select2-results__option" role="treeitem" aria-selected="false">Mohsen Saoud</li><li class="select2-results__option" role="treeitem" aria-selected="false">Morty Preisler</li><li class="select2-results__option" role="treeitem" aria-selected="false">Oren Preisler</li><li class="select2-results__option" role="treeitem" aria-selected="false">Peter Armand</li><li class="select2-results__option" role="treeitem" aria-selected="false">Prince Geevarghese </li><li class="select2-results__option" role="treeitem" aria-selected="false">Richard Kobersy</li><li class="select2-results__option" role="treeitem" aria-selected="false">Scott Caminsky</li><li class="select2-results__option" role="treeitem" aria-selected="false">Sean C</li><li class="select2-results__option" role="treeitem" aria-selected="false">Shahid H</li><li class="select2-results__option" role="treeitem" aria-selected="false">Tze L</li><li class="select2-results__option" role="treeitem" aria-selected="false">Uli Zamir</li></ul></span></span></span></div>
+    
+            <div class="container mm-wrapper" style="position:fixed;   height:100%;   top:0; z-index:100;  margin-left:auto;  margin-right:auto; left:0; right:0;  pointer-events:none">
+                
+
+
+
+
+<nav id="menu" class="mm-menu mm-menu_selected-parent mm-menu_theme-white mm-menu_border-full">
+
+    <button id="menuCloseButton" class="closebutton"> </button>
+    
+    <div class="mm-panels"><div id="mm-0" class="mm-panel mm-hidden mm-panel_opened-parent" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-navbar__title"><span>Menu</span></a></div><ul class="mm-listview">
+<li class="mm-listitem"><a href="/admin/" class="mm-listitem__text">Student Files</a></li>
+<li class="mm-listitem"><a href="/admin/classes/" class="mm-listitem__text">Classes</a></li>
+                <li class="mm-listitem mm-listitem_selected-parent">
+
+                    
+                    
+
+
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-1">Instructor<span class="mm-sronly">Open submenu</span></a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-4">Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/schedule/" class="mm-listitem__text">Set Class Schedule</a></li>
+<li class="mm-listitem"><a href="/admin/schoolpermit/" class="mm-listitem__text">School Permits</a></li>
+
+    </ul></div><div id="mm-1" class="mm-panel mm-hidden mm-panel_opened-parent" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Instructor</span></a></div><ul class="mm-listview">
+                        <li class="mm-listitem mm-listitem_selected-parent">
+                            
+                            
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-2">Instructor Schedule<span class="mm-sronly">Open submenu</span></a></li>
+
+
+
+                        <li class="mm-listitem">
+                            
+                            
+
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-3">Instructor Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/instructorsignatures/" class="mm-listitem__text">My Signatures</a></li>
+
+                    </ul></div><div id="mm-2" class="mm-panel mm-panel_opened"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Schedule</span></a></div><ul class="mm-listview">
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/" class="mm-listitem__text">Booked Appointments</a></li>
+
+                                <li class="mm-listitem mm-listitem_selected"><a href="/admin/instructorschedule/workhours/" class="mm-listitem__text">Specify Hours</a></li>
+
+
+
+                            </ul></div><div id="mm-3" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Reports</span></a></div><ul class="mm-listview">
+
+
+                                <li class="mm-listitem"><a href="/admin/reports/worksummary/" class="mm-listitem__text">Work Summary</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/reports/instructorstodolists/" class="mm-listitem__text">To Do Lists</a></li>
+
+
+                            </ul></div><div id="mm-4" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Reports</span></a></div><ul class="mm-listview">
+
+                       
+                        <li class="mm-listitem"><a href="/admin/reports/aqtr/" class="mm-listitem__text">AQTR</a></li>
+
+                        <li class="mm-listitem"><a href="/admin/reports/registrations/" class="mm-listitem__text">Registrations</a></li>
+
+                 
+
+ 
+                    </ul></div></div></nav>
+
+
+ 
+ 
+            </div>
+     
+
+<div id="header" class="container header">
+    <a style="margin-left:10px" href="/"><img style=" height:45px ;" src="/img/logo.png"></a>
+
+
+
+        <div style="   text-align:right  ; flex-grow:1  ">
+            <ul class="nav ace-nav navbar-buttons   " role="navigation">
+                <li class="light-blue pull-right">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <span class="user-info">
+                            Ilan Preisler
+                            <b class="caret"></b>
+                        </span>
+
+                    </a>
+
+
+
+           
+                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                        <li>
+                            <a href="/logout/">
+                                <i class="ace-icon fa fa-power-off"></i>
+                                logout
+                            </a>
+
+                        </li>
+                    </ul>
+                
+            </li></ul>
+        </div>
+
+
+
+
+
+     
+</div>
+
+ 
+ 
+
+
+ 
+        <div style="min-height:calc(100% - 50px);    position:relative ;  ; display:flex; flex-direction:column;     ">
+            <div style="   flex-grow:1; display:flex; flex-direction:column; margin-bottom:5px; " class="container maincontainer">
+                <div class="maintable" style="     flex-grow:1">
+                    <div class="cell1"> </div>
+                    <div class="cell2" id="contentContainer">
+                        
+
+
+ <style>
+     .smallspace {display:inline-block;   height:5px;  width:2px ;
+     
+     
+     }
+     .mylink {
+        
+         padding: 0 !important;
+         margin: 0 !important;
+         padding-left: 0 !important;
+         margin-left: 0 !important;
+         display:inline-block!important;
+     }
+ </style>
+ 
+<h1 style="display:inline-block; ">Specify  Hours - <span style="display:inline-block;  font-size:1.5rem" id="instructorContainer"><div style="display:inline-block;margin-right:8px;  min-width:130px;"><button class="mylink" name="changeInstructor"><span name="instructorName">Select Instructor</span><span class="caret"></span></button></div> <button class="mylink" style="visibility:hidden" name="prev">&lt;  prev </button>&nbsp;&nbsp;&nbsp;<button class="mylink" style="visibility:hidden" name="next">next &gt;</button></span></h1>
+ 
+
+<div id="resultsContainer" class="zeroOpacity" style="position:relative">
+    <div id="calendarToolbar" class="calendarToolbar">
+
+
+
+        <div style=" display: flex;align-items: center; ">
+
+            <label for="active" style=" margin:0; padding:0; padding-right:4px; font-weight:normal ">public</label>
+            <div class="onoffswitch">
+                <input type="checkbox" name="active" class="onoffswitch-checkbox" id="active" tabindex="0" checked="">
+                <label class="onoffswitch-label" for="active"></label>
+            </div>
+  
+
+            <div style="flex-grow:1; text-align:right;   ">
+
+
+                <a id="templateLink" class="mylink" href="../worktemplate">template<span style="  margin-left:0; transform:rotate(-90deg)" class="caret"></span></a><div class="dropdown" style="display:inline-block!important">
+                    <button id="viewDropDown" class="mylink dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span>week</span><span style="margin-left:0;" class="caret"></span></button>
+                    <ul class="dropdown-menu " style="min-width:0px!important">
+                        <li><button name="dayView">day</button></li>
+                        <li><button name="weekView"> week </button></li>
+                    </ul>
+                </div><button class="mylink" name="prev"><div class="smallspace"></div>&lt;<div class="smallspace"></div>prev</button><button class="mylink" name="next">next<div class="smallspace"></div>&gt;</button>
+
+            </div>
+        </div>
+
+        <div id="toolBarDate" style="text-align:center">Feb 8, 2026 - Feb 14, 2026</div>
+
+    </div>
+
+
+    <div id="calendar-container" style="position: relative; height: 468.203px;">
+        <div id="calendar" class="fc fc-media-screen fc-direction-ltr fc-theme-standard" style="height: 100%;"><div class="fc-view-harness fc-view-harness-active"><div class="fc-timegrid fc-timeGridWeek-view fc-view"><table class="fc-scrollgrid  fc-scrollgrid-liquid"><colgroup><col style="width: 45px;"><col></colgroup><thead><tr class="fc-scrollgrid-section fc-scrollgrid-section-header "><td><div class="fc-scroller-harness"><div class="fc-scroller" style="overflow: hidden;"><table class=" fc-scrollgrid-sync-table" style="width: 44px;"><colgroup><col style="width: 44px;"></colgroup><tbody><tr><th class="fc-timegrid-axis"><div class="fc-timegrid-axis-frame" style="height: 24px;"></div></th></tr></tbody></table></div></div></td><td><div class="fc-scroller-harness"><div class="fc-scroller" style="overflow: scroll;"><table class="fc-col-header fc-scrollgrid-sync-table" style="min-width: 700px; width: 524px;"><colgroup><col style="min-width: 100px;"><col style="min-width: 100px;"><col style="min-width: 100px;"><col style="min-width: 100px;"><col style="min-width: 100px;"><col style="min-width: 100px;"><col style="min-width: 100px;"></colgroup><tbody><tr><th class="fc-col-header-cell fc-day fc-day-sun fc-day-past" data-date="2026-02-08"><div class="fc-scrollgrid-sync-inner"><a class="fc-col-header-cell-cushion " data-navlink="{&quot;date&quot;:&quot;2026-02-08&quot;,&quot;type&quot;:&quot;day&quot;}" tabindex="0"><span>Sun</span></a></div></th><th class="fc-col-header-cell fc-day fc-day-mon fc-day-past" data-date="2026-02-09"><div class="fc-scrollgrid-sync-inner"><a class="fc-col-header-cell-cushion " data-navlink="{&quot;date&quot;:&quot;2026-02-09&quot;,&quot;type&quot;:&quot;day&quot;}" tabindex="0"><span>Mon</span></a></div></th><th class="fc-col-header-cell fc-day fc-day-tue fc-day-past" data-date="2026-02-10"><div class="fc-scrollgrid-sync-inner"><a class="fc-col-header-cell-cushion " data-navlink="{&quot;date&quot;:&quot;2026-02-10&quot;,&quot;type&quot;:&quot;day&quot;}" tabindex="0"><span>Tue</span></a></div></th><th class="fc-col-header-cell fc-day fc-day-wed fc-day-today " data-date="2026-02-11"><div class="fc-scrollgrid-sync-inner"><a class="fc-col-header-cell-cushion " data-navlink="{&quot;date&quot;:&quot;2026-02-11&quot;,&quot;type&quot;:&quot;day&quot;}" tabindex="0"><span>Wed</span></a></div></th><th class="fc-col-header-cell fc-day fc-day-thu fc-day-future" data-date="2026-02-12"><div class="fc-scrollgrid-sync-inner"><a class="fc-col-header-cell-cushion " data-navlink="{&quot;date&quot;:&quot;2026-02-12&quot;,&quot;type&quot;:&quot;day&quot;}" tabindex="0"><span>Thu</span></a></div></th><th class="fc-col-header-cell fc-day fc-day-fri fc-day-future" data-date="2026-02-13"><div class="fc-scrollgrid-sync-inner"><a class="fc-col-header-cell-cushion " data-navlink="{&quot;date&quot;:&quot;2026-02-13&quot;,&quot;type&quot;:&quot;day&quot;}" tabindex="0"><span>Fri</span></a></div></th><th class="fc-col-header-cell fc-day fc-day-sat fc-day-future" data-date="2026-02-14"><div class="fc-scrollgrid-sync-inner"><a class="fc-col-header-cell-cushion " data-navlink="{&quot;date&quot;:&quot;2026-02-14&quot;,&quot;type&quot;:&quot;day&quot;}" tabindex="0"><span>Sat</span></a></div></th></tr></tbody></table></div></div></td></tr></thead><tbody><tr class="fc-scrollgrid-section fc-scrollgrid-section-body  fc-scrollgrid-section-liquid"><td><div class="fc-scroller-harness fc-scroller-harness-liquid"><div class="fc-scroller fc-scroller-liquid-absolute" style="overflow: scroll;"><div class="fc-timegrid-axis-chunk"><table style="height: 441px;"><colgroup><col style="width: 44px;"></colgroup><tbody><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="07:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">7am</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="07:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="08:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">8am</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="08:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="09:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">9am</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="09:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="10:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">10am</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="10:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="11:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">11am</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="11:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="12:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">12pm</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="12:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="13:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">1pm</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="13:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="14:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">2pm</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="14:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="15:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">3pm</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="15:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="16:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">4pm</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="16:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="17:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">5pm</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="17:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="18:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">6pm</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="18:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="19:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">7pm</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="19:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="20:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">8pm</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="20:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-scrollgrid-shrink" data-time="21:00:00"><div class="fc-timegrid-slot-label-frame fc-scrollgrid-shrink-frame"><div class="fc-timegrid-slot-label-cushion fc-scrollgrid-shrink-cushion">9pm</div></div></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-label fc-timegrid-slot-minor" data-time="21:30:00"></td></tr></tbody></table><div class="fc-timegrid-now-indicator-container"></div></div></div></div></td><td><div class="fc-scroller-harness fc-scroller-harness-liquid"><div class="fc-scroller fc-scroller-liquid-absolute" style="overflow: scroll;"><div class="fc-timegrid-body" style="min-width: 700px; width: 524px;"><div class="fc-timegrid-slots"><table class="" style="min-width: 700px; width: 524px; height: 441px;"><tbody><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="07:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="07:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="08:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="08:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="09:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="09:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="10:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="10:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="11:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="11:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="12:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="12:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="13:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="13:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="14:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="14:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="15:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="15:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="16:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="16:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="17:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="17:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="18:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="18:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="19:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="19:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="20:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="20:30:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane " data-time="21:00:00"></td></tr><tr><td class="fc-timegrid-slot fc-timegrid-slot-lane fc-timegrid-slot-minor" data-time="21:30:00"></td></tr></tbody></table></div><div class="fc-timegrid-cols"><table style="min-width: 700px; width: 524px;"><colgroup><col style="min-width: 100px;"><col style="min-width: 100px;"><col style="min-width: 100px;"><col style="min-width: 100px;"><col style="min-width: 100px;"><col style="min-width: 100px;"><col style="min-width: 100px;"></colgroup><tbody><tr><td class="fc-timegrid-col fc-day fc-day-sun fc-day-past" data-date="2026-02-08"><div class="fc-timegrid-col-frame"><div class="fc-timegrid-col-bg"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-now-indicator-container"></div></div></td><td class="fc-timegrid-col fc-day fc-day-mon fc-day-past" data-date="2026-02-09"><div class="fc-timegrid-col-frame"><div class="fc-timegrid-col-bg"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-now-indicator-container"></div></div></td><td class="fc-timegrid-col fc-day fc-day-tue fc-day-past" data-date="2026-02-10"><div class="fc-timegrid-col-frame"><div class="fc-timegrid-col-bg"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-now-indicator-container"></div></div></td><td class="fc-timegrid-col fc-day fc-day-wed fc-day-today " data-date="2026-02-11"><div class="fc-timegrid-col-frame"><div class="fc-timegrid-col-bg"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-now-indicator-container"></div></div></td><td class="fc-timegrid-col fc-day fc-day-thu fc-day-future" data-date="2026-02-12"><div class="fc-timegrid-col-frame"><div class="fc-timegrid-col-bg"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-now-indicator-container"></div></div></td><td class="fc-timegrid-col fc-day fc-day-fri fc-day-future" data-date="2026-02-13"><div class="fc-timegrid-col-frame"><div class="fc-timegrid-col-bg"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-now-indicator-container"></div></div></td><td class="fc-timegrid-col fc-day fc-day-sat fc-day-future" data-date="2026-02-14"><div class="fc-timegrid-col-frame"><div class="fc-timegrid-col-bg"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-col-events"></div><div class="fc-timegrid-now-indicator-container"></div></div></td></tr></tbody></table></div></div></div></div></td></tr></tbody></table></div><div class="fc-license-message" style="position: absolute; z-index: 99999; bottom: 1px; left: 1px; background: rgb(238, 238, 238); border-color: rgb(221, 221, 221); border-style: solid; border-width: 1px 1px 0px 0px; padding: 2px 4px; font-size: 12px; border-top-right-radius: 3px;">Your license key is invalid. <a href="http://fullcalendar.io/docs/schedulerLicenseKey#invalid">More Info</a></div></div></div>
+    </div>
+</div>
+
+ 
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script>var globals={instructorManagerConfig:{"selectable":true,"containerElemId":"instructorContainer","currentId":null,"currentName":null,"activeOnly":true,"allAllowed":false,"instructors":[{"id":82002,"name":"Anatoli Touranski"},{"id":113372,"name":"Andre Robinson"},{"id":74,"name":"Andrew Matthews"},{"id":228464,"name":"Aqib Qureshi"},{"id":78,"name":"Bruce Hafner"},{"id":228466,"name":"Chris Cayer"},{"id":170684,"name":"Earl Sachin"},{"id":90,"name":"Eli Dayan"},{"id":10989,"name":"Erik Olynyk"},{"id":85,"name":"Firas Matouk"},{"id":75351,"name":"Frank Cooper"},{"id":219857,"name":"Gary Trace"},{"id":83,"name":"Geoff Kloos"},{"id":10332,"name":"Gerard Harfouche"},{"id":77,"name":"Guy Zamir"},{"id":77642,"name":"Hikmat Rahimee"},{"id":157990,"name":"Humy Ayubi"},{"id":87,"name":"Ilan Preisler"},{"id":81,"name":"Jack Meshoulam"},{"id":228562,"name":"Jeff Shan"},{"id":61189,"name":"Jose De Los Rios"},{"id":37920,"name":"Karen Reynolds "},{"id":137929,"name":"Ken McCullough"},{"id":219856,"name":"Marcel Roland"},{"id":75,"name":"Mario Mastronardi"},{"id":233614,"name":"Michael Bensemana"},{"id":73195,"name":"Miguel Abuel"},{"id":119261,"name":"Mirhan Geovshanian"},{"id":48026,"name":"Mohsen Saoud"},{"id":89,"name":"Morty Preisler"},{"id":86,"name":"Oren Preisler"},{"id":231886,"name":"Peter Armand"},{"id":81920,"name":"Prince Geevarghese "},{"id":61290,"name":"Richard Kobersy"},{"id":12162,"name":"Scott Caminsky"},{"id":79,"name":"Sean C"},{"id":101637,"name":"Shahid H"},{"id":10137,"name":"Tze L"},{"id":76,"name":"Uli Zamir"}]},scheduleConfig:{"weekOf":"2026-02-08","day":null},locations:[{"id":11,"label":"Côte Saint-Luc","color":"yellow"},{"id":2,"label":"Dollard-des-Ormeaux","color":"green"},{"id":4,"label":"Kirkland","color":"orange"},{"id":1,"label":"Montreal","color":"blue"},{"id":6,"label":"Vaudreuil-Dorion","color":"purple"}],isLoggedIn:true,isStudent:false,isStaff:true,isInstructor:true,isOffice:true,loadTimeMS:(new Date().getTime()),IsDateWidgetSupported:false,isMobile:false,showMenu:true,schoolId:1,UserId:"87",userName:"Ilan Preisler",currentLanguageId:1,defaultLanguageId:1,currentLanguageCode:"en",defaultLanguageCode:"en"}</script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script><script>$(document).ajaxError(function(r,t,s,o){s.suppressAjaxError||(401==t.status||403==t.status?location.href='/':'abort'!=o&&setTimeout(alert,10,'error '+t.status+' '+o+' '+t.responseJSON))});</script><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js" type="text/javascript"></script><script src="/js/utils.min.10.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" type="text/javascript"></script><script>toastr.options={closeButton:true,showDuration:100,hideDuration:300,timeOut:3000,positionClass:'toast-top-center'};</script><script src="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.js" type="text/javascript"></script><script src="/js/avivarmodal.min.js" type="text/javascript"></script><script src="/js/avivarform.min.js" type="text/javascript"></script><script src="/js/fullcalendar_new/main.min.js" type="text/javascript"></script><script src="/js/instructormanager.min.js" type="text/javascript"></script><script src=" /js/instructorschedule/availability4.min.js" type="text/javascript"></script>
+    
+    
+
+    <script>
+        if(globals.showMenu&&(new Mmenu(document.querySelector("#menu"),{setSelected:{current:!0,parent:!0},navbar:{title:"Menu"},offCanvas:!1,extensions:globals.isMobile?[]:["theme-white","border-full"]}),globals.isMobile)){let e=new Drawer;document.getElementById("hamburger").addEventListener("click",e.open),document.getElementById("menuCloseButton").addEventListener("click",e.close)}; document.getElementById('loaderoverlay').remove(); document.body.classList.remove('loaderbody')
+    </script>
+
+    
+
+
+
+
+</body></html>

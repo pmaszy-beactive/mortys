@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231702",
+  "url_hash": "16bf685ce9e6763f",
+  "scraped_at": "2026-02-12T21:48:02.325Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03286942 L-020 Bukhman, Jacob 3047 chem de breslay Westmount QC H3Y 2G8 0001235624 5142607756 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 21 2025 08 28 2025 08 27 2025 09 11 -------------------------------- COPIE D'ÉLÈVE 03286942 L-020 Bukhman, Jacob 3047 chem de breslay Westmount QC H3Y 2G8 0001235624 5142607756 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 21 2025 08 28 2025 08 27 2025 09 11 -------------------------------- COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286942&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286942&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 9535,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231702"
+}

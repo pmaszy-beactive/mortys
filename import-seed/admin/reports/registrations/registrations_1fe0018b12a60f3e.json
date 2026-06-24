@@ -1,0 +1,582 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=28%2F08%2F2025",
+  "url_hash": "1fe0018b12a60f3e",
+  "scraped_at": "2026-02-12T19:13:29.637Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 28, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 28, 2025 Name Lang Time Phone Course 1 st Class Comments 231596 Jams, Tyler EN 10:23am 438-939-5123 (m) Motorcycle Vaudreuil-Dorion 24/10/2025 6:00pm edit 231597 Pollack, Zev Golan EN 11:34am 438-992-1076 (m) 438-992-1076 (h) 438-992-1076 (w) Automobile Montreal 09/09/2025 7:00pm edit 231598 Bessaou, Wasim EN 11:59am 514-726-9609 (m) Motorcycle Montreal 05/09/2025 6:00pm edit 231599 Lewis, Olivia EN 4:44pm 514-862-5798 (m) 514-862-5798 (h) Automobile Montreal 09/09/2025 7:00pm edit 231600 Paun, Sonia Theodora EN 4:56pm 514-679-2913 (m) 514-497-5454 (h) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231601 Claveau, Emma-Rose EN 4:57pm 438-349-0793 (m) 514-775-9586 (h) Automobile Vaudreuil-Dorion 09/09/2025 7:00pm edit 231602 Hurlburt, Ella EN 8:03pm 438-378-9663 (m) Automobile Montreal 09/09/2025 7:00pm edit 231603 Cervantes, Larissa EN 8:07pm 514-609-7588 (m) Automobile Montreal 09/09/2025 7:00pm edit 231604 Lupeiko, Section EN 9:39pm 613-304-0664 (m) Automobile Montreal 18/09/2025 7:00pm edit 231605 Arazi, Eve EN 9:47pm 438-506-3843 (m) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231606 Tran, Elizabeth EN 11:32pm 514-808-4916 (m) Automobile Montreal 09/09/2025 7:00pm edit 231607 Hattabou, Aymen EN 11:32pm 514-409-6566 (m) Motorcycle Dollard-des-Ormeaux 24/10/2025 6:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "28/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "28/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231596",
+          "Jams, Tyler",
+          "EN",
+          "10:23am",
+          "438-939-5123   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "24/10/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231597",
+          "Pollack, Zev Golan",
+          "EN",
+          "11:34am",
+          "438-992-1076   (m)     \n \n             438-992-1076   (h)     \n \n             438-992-1076   (w)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231598",
+          "Bessaou, Wasim",
+          "EN",
+          "11:59am",
+          "514-726-9609   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231599",
+          "Lewis, Olivia",
+          "EN",
+          "4:44pm",
+          "514-862-5798   (m)     \n \n             514-862-5798   (h)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231600",
+          "Paun, Sonia Theodora",
+          "EN",
+          "4:56pm",
+          "514-679-2913   (m)     \n \n             514-497-5454   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231601",
+          "Claveau, Emma-Rose",
+          "EN",
+          "4:57pm",
+          "438-349-0793   (m)     \n \n             514-775-9586   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231602",
+          "Hurlburt, Ella",
+          "EN",
+          "8:03pm",
+          "438-378-9663   (m)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231603",
+          "Cervantes, Larissa",
+          "EN",
+          "8:07pm",
+          "514-609-7588   (m)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231604",
+          "Lupeiko, Section",
+          "EN",
+          "9:39pm",
+          "613-304-0664   (m)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231605",
+          "Arazi, Eve",
+          "EN",
+          "9:47pm",
+          "438-506-3843   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231606",
+          "Tran, Elizabeth",
+          "EN",
+          "11:32pm",
+          "514-808-4916   (m)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231607",
+          "Hattabou, Aymen",
+          "EN",
+          "11:32pm",
+          "514-409-6566   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "24/10/2025  6:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231596",
+          "Name": "Jams, Tyler",
+          "Lang": "EN",
+          "Time": "10:23am",
+          "Phone": "438-939-5123   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "24/10/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231597",
+          "Name": "Pollack, Zev Golan",
+          "Lang": "EN",
+          "Time": "11:34am",
+          "Phone": "438-992-1076   (m)     \n \n             438-992-1076   (h)     \n \n             438-992-1076   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231598",
+          "Name": "Bessaou, Wasim",
+          "Lang": "EN",
+          "Time": "11:59am",
+          "Phone": "514-726-9609   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231599",
+          "Name": "Lewis, Olivia",
+          "Lang": "EN",
+          "Time": "4:44pm",
+          "Phone": "514-862-5798   (m)     \n \n             514-862-5798   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231600",
+          "Name": "Paun, Sonia Theodora",
+          "Lang": "EN",
+          "Time": "4:56pm",
+          "Phone": "514-679-2913   (m)     \n \n             514-497-5454   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231601",
+          "Name": "Claveau, Emma-Rose",
+          "Lang": "EN",
+          "Time": "4:57pm",
+          "Phone": "438-349-0793   (m)     \n \n             514-775-9586   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231602",
+          "Name": "Hurlburt, Ella",
+          "Lang": "EN",
+          "Time": "8:03pm",
+          "Phone": "438-378-9663   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231603",
+          "Name": "Cervantes, Larissa",
+          "Lang": "EN",
+          "Time": "8:07pm",
+          "Phone": "514-609-7588   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231604",
+          "Name": "Lupeiko, Section",
+          "Lang": "EN",
+          "Time": "9:39pm",
+          "Phone": "613-304-0664   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231605",
+          "Name": "Arazi, Eve",
+          "Lang": "EN",
+          "Time": "9:47pm",
+          "Phone": "438-506-3843   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "231606",
+          "Name": "Tran, Elizabeth",
+          "Lang": "EN",
+          "Time": "11:32pm",
+          "Phone": "514-808-4916   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "231607",
+          "Name": "Hattabou, Aymen",
+          "Lang": "EN",
+          "Time": "11:32pm",
+          "Phone": "514-409-6566   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "24/10/2025  6:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231798&courseId=2",
+      "text": "Jams, Tyler",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231799&courseId=1",
+      "text": "Pollack, Zev Golan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231800&courseId=2",
+      "text": "Bessaou, Wasim",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231801&courseId=1",
+      "text": "Lewis, Olivia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231802&courseId=1",
+      "text": "Paun, Sonia Theodora",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231803&courseId=1",
+      "text": "Claveau, Emma-Rose",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231804&courseId=1",
+      "text": "Hurlburt, Ella",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231805&courseId=1",
+      "text": "Cervantes, Larissa",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231806&courseId=1",
+      "text": "Lupeiko, Section",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231807&courseId=1",
+      "text": "Arazi, Eve",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231808&courseId=1",
+      "text": "Tran, Elizabeth",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231809&courseId=2",
+      "text": "Hattabou, Aymen",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 27485,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=28%2F08%2F2025"
+}

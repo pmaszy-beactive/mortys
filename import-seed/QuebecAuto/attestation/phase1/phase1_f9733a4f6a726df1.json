@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231900",
+  "url_hash": "f9733a4f6a726df1",
+  "scraped_at": "2026-02-12T16:31:02.163Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03287011 L-020 Kier, Chloe 4222 Marcil Avenue Montreal QC h4a 2z6 0001235869 5793661837 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 18 2025 09 25 2025 10 22 2025 10 29 -------------------------------- COPIE D'ÉLÈVE 03287011 L-020 Kier, Chloe 4222 Marcil Avenue Montreal QC h4a 2z6 0001235869 5793661837 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 18 2025 09 25 2025 10 22 2025 10 29 -------------------------------- COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287011&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287011&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 9523,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231900"
+}

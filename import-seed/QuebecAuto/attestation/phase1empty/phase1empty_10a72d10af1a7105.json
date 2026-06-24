@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=232053",
+  "url_hash": "10a72d10af1a7105",
+  "scraped_at": "2026-02-12T12:26:32.691Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "M634524060804 03277205 L-021 Mora del Castillo, Andrea Luciana 70 Rue Breckenridge Dollard-Des-Ormeaux QC H9G 1G4 0001235914 5149805875 4383471137 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca COPIE D'ÉLÈVE M634524060804 03277205 L-021 Mora del Castillo, Andrea Luciana 70 Rue Breckenridge Dollard-Des-Ormeaux QC H9G 1G4 0001235914 5149805875 4383471137 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277205&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277205&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 6557,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1empty/?studentUserId=232053"
+}

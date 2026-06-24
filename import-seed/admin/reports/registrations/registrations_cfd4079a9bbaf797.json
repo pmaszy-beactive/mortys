@@ -1,0 +1,861 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=28%2F07%2F2025",
+  "url_hash": "cfd4079a9bbaf797",
+  "scraped_at": "2026-02-13T04:56:48.309Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jul 28, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jul 28, 2025 Name Lang Time Phone Course 1 st Class Comments 227245 Erlichman-Gross, Sylvia Rachel EN 9:38am 514-604-8755 (m) Automobile Montreal 31/07/2025 7:00pm edit 227246 Grant, Tristan EN 12:52pm 514-690-8007 (m) Motorcycle Montreal 08/08/2025 6:00pm edit 227247 Spedaliere, Victoria EN 2:02pm 514-560-1041 (m) Motorcycle Dollard-des-Ormeaux 08/08/2025 6:00pm edit 227248 Cariglia, Naomi EN 2:31pm 438-346-5932 (m) 514-581-8529 (h) Automobile Kirkland 31/07/2025 7:00pm edit 227249 Sultana, Shafaq EN 3:58pm 438-341-8145 (m) Scooter Dollard-des-Ormeaux 10/08/2025 5:30pm edit 227250 Mangat, Manjot Singh EN 4:06pm 438-459-0505 (m) Motorcycle Montreal 08/08/2025 6:00pm edit 227251 Gutin, Alex EN 4:08pm 514-442-1197 (m) Motorcycle Dollard-des-Ormeaux 08/08/2025 6:00pm edit 227252 Plummer, Nia EN 4:17pm 514-574-8717 (m) Automobile Kirkland 31/07/2025 7:00pm edit 227253 Vergara Ponce, Diego EN 4:34pm 438-223-8286 (m) Automobile Montreal 31/07/2025 7:00pm edit 227254 Vlahos, Jessica EN 5:05pm 514-266-3769 (m) Automobile Montreal 31/07/2025 7:00pm edit 227255 Marleau-Vinas, Mia EN 5:13pm 514-264-8052 (m) 514-502-0137 (h) Automobile Kirkland 18/09/2025 7:00pm edit 227256 Elouadrhiri, Adamo Antonino EN 5:16pm 514-424-5331 (m) Scooter Montreal 10/08/2025 5:30pm edit 227257 Unver, Cem EN 6:10pm 514-649-0937 (m) Motorcycle Vaudreuil-Dorion 08/08/2025 6:00pm edit 227258 McAdoo, Nicole Anne EN 6:26pm 514-907-0831 (m) 514-933-0831 (h) Automobile Montreal 13/08/2025 5:00pm edit 227259 Busgang, Benjamin EN 6:30pm 438-885-8092 (m) Motorcycle Dollard-des-Ormeaux 08/08/2025 6:00pm edit 227260 Sokalski, Ruby EN 9:48pm 438-935-8009 (m) Automobile Montreal 31/07/2025 7:00pm edit 227261 Chifa, Théodora EN 9:51pm 438-728-5780 (m) 514-969-9346 (h) Automobile Montreal 31/07/2025 7:00pm edit 227262 Trifonov, Emilia EN 9:52pm 438-507-5712 (m) Automobile Dollard-des-Ormeaux 31/07/2025 7:00pm edit 227263 Lo Russo, Alexander EN 10:21pm 514-701-4080 (m) Motorcycle Vaudreuil-Dorion 22/08/2025 6:00pm edit 227264 Mellul, Yoel EN 10:41pm 514-886-6812 (m) Automobile Dollard-des-Ormeaux 31/07/2025 7:00pm edit 227265 Omar, Omar MM EN 11:47pm 514-951-4149 (m) Automobile Montreal 31/07/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "28/07/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "28/07/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "227245",
+          "Erlichman-Gross, Sylvia Rachel",
+          "EN",
+          "9:38am",
+          "514-604-8755   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "227246",
+          "Grant, Tristan",
+          "EN",
+          "12:52pm",
+          "514-690-8007   (m)",
+          "Motorcycle Montreal",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "227247",
+          "Spedaliere, Victoria",
+          "EN",
+          "2:02pm",
+          "514-560-1041   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "227248",
+          "Cariglia, Naomi",
+          "EN",
+          "2:31pm",
+          "438-346-5932   (m)     \n \n             514-581-8529   (h)",
+          "Automobile Kirkland",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "227249",
+          "Sultana, Shafaq",
+          "EN",
+          "3:58pm",
+          "438-341-8145   (m)",
+          "Scooter Dollard-des-Ormeaux",
+          "10/08/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "227250",
+          "Mangat, Manjot Singh",
+          "EN",
+          "4:06pm",
+          "438-459-0505   (m)",
+          "Motorcycle Montreal",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "227251",
+          "Gutin, Alex",
+          "EN",
+          "4:08pm",
+          "514-442-1197   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "227252",
+          "Plummer, Nia",
+          "EN",
+          "4:17pm",
+          "514-574-8717   (m)",
+          "Automobile Kirkland",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "227253",
+          "Vergara Ponce, Diego",
+          "EN",
+          "4:34pm",
+          "438-223-8286   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "227254",
+          "Vlahos, Jessica",
+          "EN",
+          "5:05pm",
+          "514-266-3769   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "227255",
+          "Marleau-Vinas, Mia",
+          "EN",
+          "5:13pm",
+          "514-264-8052   (m)     \n \n             514-502-0137   (h)",
+          "Automobile Kirkland",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "227256",
+          "Elouadrhiri, Adamo Antonino",
+          "EN",
+          "5:16pm",
+          "514-424-5331   (m)",
+          "Scooter Montreal",
+          "10/08/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "227257",
+          "Unver, Cem",
+          "EN",
+          "6:10pm",
+          "514-649-0937   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "227258",
+          "McAdoo, Nicole Anne",
+          "EN",
+          "6:26pm",
+          "514-907-0831   (m)     \n \n             514-933-0831   (h)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "227259",
+          "Busgang, Benjamin",
+          "EN",
+          "6:30pm",
+          "438-885-8092   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "227260",
+          "Sokalski, Ruby",
+          "EN",
+          "9:48pm",
+          "438-935-8009   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "227261",
+          "Chifa, Théodora",
+          "EN",
+          "9:51pm",
+          "438-728-5780   (m)     \n \n             514-969-9346   (h)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "227262",
+          "Trifonov, Emilia",
+          "EN",
+          "9:52pm",
+          "438-507-5712   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "227263",
+          "Lo Russo, Alexander",
+          "EN",
+          "10:21pm",
+          "514-701-4080   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "227264",
+          "Mellul, Yoel",
+          "EN",
+          "10:41pm",
+          "514-886-6812   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "227265",
+          "Omar, Omar MM",
+          "EN",
+          "11:47pm",
+          "514-951-4149   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "227245",
+          "Name": "Erlichman-Gross, Sylvia Rachel",
+          "Lang": "EN",
+          "Time": "9:38am",
+          "Phone": "514-604-8755   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "227246",
+          "Name": "Grant, Tristan",
+          "Lang": "EN",
+          "Time": "12:52pm",
+          "Phone": "514-690-8007   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "227247",
+          "Name": "Spedaliere, Victoria",
+          "Lang": "EN",
+          "Time": "2:02pm",
+          "Phone": "514-560-1041   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "227248",
+          "Name": "Cariglia, Naomi",
+          "Lang": "EN",
+          "Time": "2:31pm",
+          "Phone": "438-346-5932   (m)     \n \n             514-581-8529   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "227249",
+          "Name": "Sultana, Shafaq",
+          "Lang": "EN",
+          "Time": "3:58pm",
+          "Phone": "438-341-8145   (m)",
+          "Course": "Scooter Dollard-des-Ormeaux",
+          "1st Class": "10/08/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "227250",
+          "Name": "Mangat, Manjot Singh",
+          "Lang": "EN",
+          "Time": "4:06pm",
+          "Phone": "438-459-0505   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "227251",
+          "Name": "Gutin, Alex",
+          "Lang": "EN",
+          "Time": "4:08pm",
+          "Phone": "514-442-1197   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "227252",
+          "Name": "Plummer, Nia",
+          "Lang": "EN",
+          "Time": "4:17pm",
+          "Phone": "514-574-8717   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "227253",
+          "Name": "Vergara Ponce, Diego",
+          "Lang": "EN",
+          "Time": "4:34pm",
+          "Phone": "438-223-8286   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "227254",
+          "Name": "Vlahos, Jessica",
+          "Lang": "EN",
+          "Time": "5:05pm",
+          "Phone": "514-266-3769   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "227255",
+          "Name": "Marleau-Vinas, Mia",
+          "Lang": "EN",
+          "Time": "5:13pm",
+          "Phone": "514-264-8052   (m)     \n \n             514-502-0137   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "227256",
+          "Name": "Elouadrhiri, Adamo Antonino",
+          "Lang": "EN",
+          "Time": "5:16pm",
+          "Phone": "514-424-5331   (m)",
+          "Course": "Scooter Montreal",
+          "1st Class": "10/08/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 12,
+          "column_0": "227257",
+          "Name": "Unver, Cem",
+          "Lang": "EN",
+          "Time": "6:10pm",
+          "Phone": "514-649-0937   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 13,
+          "column_0": "227258",
+          "Name": "McAdoo, Nicole Anne",
+          "Lang": "EN",
+          "Time": "6:26pm",
+          "Phone": "514-907-0831   (m)     \n \n             514-933-0831   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 14,
+          "column_0": "227259",
+          "Name": "Busgang, Benjamin",
+          "Lang": "EN",
+          "Time": "6:30pm",
+          "Phone": "438-885-8092   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 15,
+          "column_0": "227260",
+          "Name": "Sokalski, Ruby",
+          "Lang": "EN",
+          "Time": "9:48pm",
+          "Phone": "438-935-8009   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 16,
+          "column_0": "227261",
+          "Name": "Chifa, Théodora",
+          "Lang": "EN",
+          "Time": "9:51pm",
+          "Phone": "438-728-5780   (m)     \n \n             514-969-9346   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 17,
+          "column_0": "227262",
+          "Name": "Trifonov, Emilia",
+          "Lang": "EN",
+          "Time": "9:52pm",
+          "Phone": "438-507-5712   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 18,
+          "column_0": "227263",
+          "Name": "Lo Russo, Alexander",
+          "Lang": "EN",
+          "Time": "10:21pm",
+          "Phone": "514-701-4080   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 19,
+          "column_0": "227264",
+          "Name": "Mellul, Yoel",
+          "Lang": "EN",
+          "Time": "10:41pm",
+          "Phone": "514-886-6812   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 20,
+          "column_0": "227265",
+          "Name": "Omar, Omar MM",
+          "Lang": "EN",
+          "Time": "11:47pm",
+          "Phone": "514-951-4149   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227447&courseId=1",
+      "text": "Erlichman-Gross, Sylvia Rachel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227448&courseId=2",
+      "text": "Grant, Tristan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227449&courseId=2",
+      "text": "Spedaliere, Victoria",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227450&courseId=1",
+      "text": "Cariglia, Naomi",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227451&courseId=3",
+      "text": "Sultana, Shafaq",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227452&courseId=2",
+      "text": "Mangat, Manjot Singh",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227453&courseId=2",
+      "text": "Gutin, Alex",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227454&courseId=1",
+      "text": "Plummer, Nia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227455&courseId=1",
+      "text": "Vergara Ponce, Diego",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227456&courseId=1",
+      "text": "Vlahos, Jessica",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227457&courseId=1",
+      "text": "Marleau-Vinas, Mia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227458&courseId=3",
+      "text": "Elouadrhiri, Adamo Antonino",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227459&courseId=2",
+      "text": "Unver, Cem",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227460&courseId=1",
+      "text": "McAdoo, Nicole Anne",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227461&courseId=2",
+      "text": "Busgang, Benjamin",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227462&courseId=1",
+      "text": "Sokalski, Ruby",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227463&courseId=1",
+      "text": "Chifa, Théodora",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227464&courseId=1",
+      "text": "Trifonov, Emilia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227465&courseId=2",
+      "text": "Lo Russo, Alexander",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227466&courseId=1",
+      "text": "Mellul, Yoel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=227467&courseId=1",
+      "text": "Omar, Omar MM",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 35847,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=28%2F07%2F2025"
+}

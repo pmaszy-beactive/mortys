@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228531",
+  "url_hash": "210f3f797a2aebd7",
+  "scraped_at": "2026-02-13T03:08:21.922Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03286910 L-020 Majeed, Zynor 4500 Avenue Bourret Montreal QC H3S1x2 0001235543 5149927634 X Ilan Preisler 15 sept. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 13 2025 08 20 2025 09 07 2025 09 03 2025 09 10 COPIE D'ÉLÈVE 03286910 L-020 Majeed, Zynor 4500 Avenue Bourret Montreal QC H3S1x2 0001235543 5149927634 X Ilan Preisler 15 sept. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 13 2025 08 20 2025 09 07 2025 09 03 2025 09 10 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286910&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286910&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 9969,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228531"
+}

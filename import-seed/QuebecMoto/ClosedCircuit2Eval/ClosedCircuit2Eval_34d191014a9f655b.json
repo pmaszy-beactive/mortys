@@ -1,0 +1,786 @@
+{
+  "url": "https://mortys.drivetraqr.ca/quebecmoto/ClosedCircuit2Eval/?studentUserId=231728",
+  "url_hash": "34d191014a9f655b",
+  "scraped_at": "2026-02-12T21:03:53.408Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Closed Track 2 Evaluation"
+    },
+    {
+      "level": 2,
+      "text": "Hassan, Mostafa"
+    },
+    {
+      "level": 5,
+      "text": "Stopping (Both Brakes)"
+    },
+    {
+      "level": 5,
+      "text": "Soft Launch, Heard Launch"
+    },
+    {
+      "level": 5,
+      "text": "Friction Point & Zone"
+    },
+    {
+      "level": 5,
+      "text": "Vision & Balance"
+    },
+    {
+      "level": 5,
+      "text": "Throttle Control"
+    },
+    {
+      "level": 5,
+      "text": "Counterbalance"
+    },
+    {
+      "level": 5,
+      "text": "Countersteering"
+    },
+    {
+      "level": 5,
+      "text": "Shifting Gears"
+    },
+    {
+      "level": 5,
+      "text": "Follows Regulations & Instructions"
+    },
+    {
+      "level": 5,
+      "text": "Comments optional"
+    },
+    {
+      "level": 6,
+      "text": "Student Signature"
+    },
+    {
+      "level": 6,
+      "text": "Instructor Signature"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Closed Track 2 Evaluation Hassan, Mostafa Stopping (Both Brakes) G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement needs much improvement Soft Launch, Heard Launch G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement needs very much improvement Friction Point & Zone G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement needs much improvement Vision & Balance G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement needs very much improvement Throttle Control G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement needs much improvement Counterbalance G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement needs much improvement Countersteering G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement needs very much improvement Shifting Gears G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement needs very much improvement Follows Regulations & Instructions G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement needs improvement Comments optional Student Signature Instructor Signature Save",
+  "forms": [
+    {
+      "action": "#",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "studentUserId",
+          "value": "231728",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "stopping",
+          "type": "radio",
+          "id": "stopping5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "stopping",
+          "type": "radio",
+          "id": "stopping4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "stopping",
+          "type": "radio",
+          "id": "stopping3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "stopping",
+          "type": "radio",
+          "id": "stopping2",
+          "value": "2",
+          "placeholder": "",
+          "checked": true,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "stopping",
+          "type": "radio",
+          "id": "stopping1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "softLaunchHardLaunch",
+          "type": "radio",
+          "id": "softLaunchHardLaunch5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "softLaunchHardLaunch",
+          "type": "radio",
+          "id": "softLaunchHardLaunch4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "softLaunchHardLaunch",
+          "type": "radio",
+          "id": "softLaunchHardLaunch3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "softLaunchHardLaunch",
+          "type": "radio",
+          "id": "softLaunchHardLaunch2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "softLaunchHardLaunch",
+          "type": "radio",
+          "id": "softLaunchHardLaunch1",
+          "value": "1",
+          "placeholder": "",
+          "checked": true,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "frictionPointAndZone",
+          "type": "radio",
+          "id": "frictionPointAndZone5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "frictionPointAndZone",
+          "type": "radio",
+          "id": "frictionPointAndZone4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "frictionPointAndZone",
+          "type": "radio",
+          "id": "frictionPointAndZone3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "frictionPointAndZone",
+          "type": "radio",
+          "id": "frictionPointAndZone2",
+          "value": "2",
+          "placeholder": "",
+          "checked": true,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "frictionPointAndZone",
+          "type": "radio",
+          "id": "frictionPointAndZone1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visionAndBalance",
+          "type": "radio",
+          "id": "visionAndBalance5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visionAndBalance",
+          "type": "radio",
+          "id": "visionAndBalance4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visionAndBalance",
+          "type": "radio",
+          "id": "visionAndBalance3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visionAndBalance",
+          "type": "radio",
+          "id": "visionAndBalance2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visionAndBalance",
+          "type": "radio",
+          "id": "visionAndBalance1",
+          "value": "1",
+          "placeholder": "",
+          "checked": true,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "throttleControl",
+          "type": "radio",
+          "id": "throttleControl5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "throttleControl",
+          "type": "radio",
+          "id": "throttleControl4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "throttleControl",
+          "type": "radio",
+          "id": "throttleControl3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "throttleControl",
+          "type": "radio",
+          "id": "throttleControl2",
+          "value": "2",
+          "placeholder": "",
+          "checked": true,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "throttleControl",
+          "type": "radio",
+          "id": "throttleControl1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "counterBalance",
+          "type": "radio",
+          "id": "counterBalance5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "counterBalance",
+          "type": "radio",
+          "id": "counterBalance4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "counterBalance",
+          "type": "radio",
+          "id": "counterBalance3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "counterBalance",
+          "type": "radio",
+          "id": "counterBalance2",
+          "value": "2",
+          "placeholder": "",
+          "checked": true,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "counterBalance",
+          "type": "radio",
+          "id": "counterBalance1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "counterSteering",
+          "type": "radio",
+          "id": "counterSteering5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "counterSteering",
+          "type": "radio",
+          "id": "counterSteering4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "counterSteering",
+          "type": "radio",
+          "id": "counterSteering3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "counterSteering",
+          "type": "radio",
+          "id": "counterSteering2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "counterSteering",
+          "type": "radio",
+          "id": "counterSteering1",
+          "value": "1",
+          "placeholder": "",
+          "checked": true,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "shiftingGears",
+          "type": "radio",
+          "id": "shiftingGears5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "shiftingGears",
+          "type": "radio",
+          "id": "shiftingGears4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "shiftingGears",
+          "type": "radio",
+          "id": "shiftingGears3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "shiftingGears",
+          "type": "radio",
+          "id": "shiftingGears2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "shiftingGears",
+          "type": "radio",
+          "id": "shiftingGears1",
+          "value": "1",
+          "placeholder": "",
+          "checked": true,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "followsRegs",
+          "type": "radio",
+          "id": "followsRegs5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "followsRegs",
+          "type": "radio",
+          "id": "followsRegs4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "followsRegs",
+          "type": "radio",
+          "id": "followsRegs3",
+          "value": "3",
+          "placeholder": "",
+          "checked": true,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "followsRegs",
+          "type": "radio",
+          "id": "followsRegs2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "followsRegs",
+          "type": "radio",
+          "id": "followsRegs1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "comments",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "studentSignatureId",
+          "type": "hidden",
+          "id": "studentSignatureId",
+          "value": "_yUr1BbF1UKb2IXofvsGIQ",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "InstructorSignatureId",
+          "type": "hidden",
+          "id": "InstructorSignatureId",
+          "value": "rqc-FkFA80iebcJxeXtrcQ",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "231728",
+        "stopping": "2",
+        "softLaunchHardLaunch": "1",
+        "frictionPointAndZone": "2",
+        "visionAndBalance": "1",
+        "throttleControl": "2",
+        "counterBalance": "2",
+        "counterSteering": "1",
+        "shiftingGears": "1",
+        "followsRegs": "3",
+        "studentSignatureId": "_yUr1BbF1UKb2IXofvsGIQ",
+        "InstructorSignatureId": "rqc-FkFA80iebcJxeXtrcQ"
+      }
+    }
+  ],
+  "tables": [],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/signatureImage.ashx?id=_yUr1BbF1UKb2IXofvsGIQ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/signatureImage.ashx?id=rqc-FkFA80iebcJxeXtrcQ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 29131,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/quebecmoto/ClosedCircuit2Eval/?studentUserId=231728"
+}

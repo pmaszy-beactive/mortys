@@ -1,0 +1,613 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=19%2F08%2F2025",
+  "url_hash": "2a022932b92a2208",
+  "scraped_at": "2026-02-12T21:43:41.735Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 19, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 19, 2025 Name Lang Time Phone Course 1 st Class Comments 231498 Velasquez, Samantha EN 12:53pm 263-880-3642 (m) Automobile Dollard-des-Ormeaux 21/08/2025 5:00pm edit 231499 Fortier, Edward EN 4:17pm 438-398-2472 (m) Automobile Kirkland 24/08/2025 3:00pm edit 231500 Bukhman, Jacob EN 4:42pm 514-260-7756 (m) Automobile Montreal 21/08/2025 5:00pm edit 231501 Matthews, Lea EN 4:57pm 514-244-6773 (m) 514-242-4357 (h) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit 231502 Bacuidio, Rheiana EN 5:04pm 514-458-5223 (m) Automobile Montreal 21/08/2025 5:00pm edit 231503 Vella, Girolamo EN 5:34pm 438-459-7975 (m) 438-459-7975 (h) 438-459-7975 (w) Scooter Montreal 31/08/2025 5:30pm edit 231504 Iggout, Sirine FR 5:39pm 438-773-1128 (m) Automobile Vaudreuil-Dorion 09/09/2025 7:00pm edit 231505 Bherer, Charles Robert EN 6:56pm 438-531-0693 (m) 514-654-1729 (h) Automobile Vaudreuil-Dorion 09/09/2025 7:00pm edit 231506 Bherer, Emilie Rose EN 7:04pm 438-498-3936 (m) 514-654-1729 (h) Automobile Vaudreuil-Dorion 09/09/2025 7:00pm edit 231507 Otto, shawn EN 7:08pm 438-454-6650 (m) Automobile Vaudreuil-Dorion 09/09/2025 7:00pm edit 231508 Marroquin, Alexandra EN 7:15pm 514-518-2676 (m) Motorcycle Dollard-des-Ormeaux 19/09/2025 6:00pm edit 231509 Camelo Gobbo, Barbara EN 7:44pm 438-528-1025 (m) Automobile Montreal 24/08/2025 3:00pm edit 231510 Manel, Maya EN 8:34pm 514-531-3700 (m) Automobile Côte Saint-Luc 21/08/2025 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "19/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "19/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231498",
+          "Velasquez, Samantha",
+          "EN",
+          "12:53pm",
+          "263-880-3642   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231499",
+          "Fortier, Edward",
+          "EN",
+          "4:17pm",
+          "438-398-2472   (m)",
+          "Automobile Kirkland",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231500",
+          "Bukhman, Jacob",
+          "EN",
+          "4:42pm",
+          "514-260-7756   (m)",
+          "Automobile Montreal",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231501",
+          "Matthews, Lea",
+          "EN",
+          "4:57pm",
+          "514-244-6773   (m)     \n \n             514-242-4357   (h)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231502",
+          "Bacuidio, Rheiana",
+          "EN",
+          "5:04pm",
+          "514-458-5223   (m)",
+          "Automobile Montreal",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231503",
+          "Vella, Girolamo",
+          "EN",
+          "5:34pm",
+          "438-459-7975   (m)     \n \n             438-459-7975   (h)     \n \n             438-459-7975   (w)",
+          "Scooter Montreal",
+          "31/08/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "231504",
+          "Iggout, Sirine",
+          "FR",
+          "5:39pm",
+          "438-773-1128   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231505",
+          "Bherer, Charles Robert",
+          "EN",
+          "6:56pm",
+          "438-531-0693   (m)     \n \n             514-654-1729   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231506",
+          "Bherer, Emilie Rose",
+          "EN",
+          "7:04pm",
+          "438-498-3936   (m)     \n \n             514-654-1729   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231507",
+          "Otto, shawn",
+          "EN",
+          "7:08pm",
+          "438-454-6650   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231508",
+          "Marroquin, Alexandra",
+          "EN",
+          "7:15pm",
+          "514-518-2676   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "19/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231509",
+          "Camelo Gobbo, Barbara",
+          "EN",
+          "7:44pm",
+          "438-528-1025   (m)",
+          "Automobile Montreal",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231510",
+          "Manel, Maya",
+          "EN",
+          "8:34pm",
+          "514-531-3700   (m)",
+          "Automobile Côte Saint-Luc",
+          "21/08/2025  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231498",
+          "Name": "Velasquez, Samantha",
+          "Lang": "EN",
+          "Time": "12:53pm",
+          "Phone": "263-880-3642   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231499",
+          "Name": "Fortier, Edward",
+          "Lang": "EN",
+          "Time": "4:17pm",
+          "Phone": "438-398-2472   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231500",
+          "Name": "Bukhman, Jacob",
+          "Lang": "EN",
+          "Time": "4:42pm",
+          "Phone": "514-260-7756   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231501",
+          "Name": "Matthews, Lea",
+          "Lang": "EN",
+          "Time": "4:57pm",
+          "Phone": "514-244-6773   (m)     \n \n             514-242-4357   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231502",
+          "Name": "Bacuidio, Rheiana",
+          "Lang": "EN",
+          "Time": "5:04pm",
+          "Phone": "514-458-5223   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231503",
+          "Name": "Vella, Girolamo",
+          "Lang": "EN",
+          "Time": "5:34pm",
+          "Phone": "438-459-7975   (m)     \n \n             438-459-7975   (h)     \n \n             438-459-7975   (w)",
+          "Course": "Scooter Montreal",
+          "1st Class": "31/08/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231504",
+          "Name": "Iggout, Sirine",
+          "Lang": "FR",
+          "Time": "5:39pm",
+          "Phone": "438-773-1128   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231505",
+          "Name": "Bherer, Charles Robert",
+          "Lang": "EN",
+          "Time": "6:56pm",
+          "Phone": "438-531-0693   (m)     \n \n             514-654-1729   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231506",
+          "Name": "Bherer, Emilie Rose",
+          "Lang": "EN",
+          "Time": "7:04pm",
+          "Phone": "438-498-3936   (m)     \n \n             514-654-1729   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231507",
+          "Name": "Otto, shawn",
+          "Lang": "EN",
+          "Time": "7:08pm",
+          "Phone": "438-454-6650   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "231508",
+          "Name": "Marroquin, Alexandra",
+          "Lang": "EN",
+          "Time": "7:15pm",
+          "Phone": "514-518-2676   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "19/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "231509",
+          "Name": "Camelo Gobbo, Barbara",
+          "Lang": "EN",
+          "Time": "7:44pm",
+          "Phone": "438-528-1025   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 12,
+          "column_0": "231510",
+          "Name": "Manel, Maya",
+          "Lang": "EN",
+          "Time": "8:34pm",
+          "Phone": "514-531-3700   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231700&courseId=1",
+      "text": "Velasquez, Samantha",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231701&courseId=1",
+      "text": "Fortier, Edward",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231702&courseId=1",
+      "text": "Bukhman, Jacob",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231703&courseId=1",
+      "text": "Matthews, Lea",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231704&courseId=1",
+      "text": "Bacuidio, Rheiana",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231705&courseId=3",
+      "text": "Vella, Girolamo",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231706&courseId=1",
+      "text": "Iggout, Sirine",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231707&courseId=1",
+      "text": "Bherer, Charles Robert",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231708&courseId=1",
+      "text": "Bherer, Emilie Rose",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231709&courseId=1",
+      "text": "Otto, shawn",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231710&courseId=2",
+      "text": "Marroquin, Alexandra",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231711&courseId=1",
+      "text": "Camelo Gobbo, Barbara",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231712&courseId=1",
+      "text": "Manel, Maya",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 28438,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=19%2F08%2F2025"
+}

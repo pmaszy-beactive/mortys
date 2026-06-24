@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231891",
+  "url_hash": "2dbb22f548618a39",
+  "scraped_at": "2026-02-12T17:02:28.308Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "a245428100904 03286964 L-020 Assouline, Ilan 4911 Av De Melrose Montreal QC H3X 3P4 0001235711 5148364526 5142355880 X Ilan Preisler 9 déc. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 29 2025 12 02 COPIE D'ÉLÈVE a245428100904 03286964 L-020 Assouline, Ilan 4911 Av De Melrose Montreal QC H3X 3P4 0001235711 5148364526 5142355880 X Ilan Preisler 9 déc. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 29 2025 12 02 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286964&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286964&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10355,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231891"
+}

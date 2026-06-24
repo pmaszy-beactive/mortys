@@ -1,0 +1,675 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=22%2F08%2F2025",
+  "url_hash": "a45c4875f18035ba",
+  "scraped_at": "2026-02-12T20:58:05.828Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 22, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 22, 2025 Name Lang Time Phone Course 1 st Class Comments 231525 Fiona Liew Yin Yin, XX EN 3:05am 514-917-0263 (m) Automobile Montreal 24/08/2025 3:00pm edit 231526 Hassan, Mostafa EN 10:58am 438-378-7270 (m) Motorcycle Dollard-des-Ormeaux 05/09/2025 6:00pm edit 231527 KHIMOUSS , REDOUANE EN 11:20am 438-467-4558 (m) Motorcycle Montreal 05/09/2025 6:00pm edit 231528 Della Santina, Rocco Leone EN 12:14pm 514-919-0798 (m) Automobile Montreal 29/09/2025 7:00pm edit 231530 Stock, Sophie EN 12:25pm 438-524-8776 (m) 514-349-7912 (w) Automobile Vaudreuil-Dorion 09/09/2025 7:00pm edit 231531 Isaenko, Ivan EN 12:57pm 438-225-2818 (m) Motorcycle Vaudreuil-Dorion 05/09/2025 6:00pm edit 231532 Moghimi, Peyman EN 1:50pm 438-990-8239 (m) Motorcycle Montreal 22/08/2025 6:00pm edit 231533 Vedanarayanan Ravikumar, Mohit Avinash EN 3:09pm 263-881-3015 (m) Automobile Montreal 24/08/2025 3:00pm edit 231534 Sidhu, Hargun Singh EN 3:44pm 514-623-3603 (m) Motorcycle Vaudreuil-Dorion 05/09/2025 6:00pm edit 231535 Merrington, John EN 4:13pm 514-891-0136 (m) Motorcycle Dollard-des-Ormeaux 22/08/2025 6:00pm edit 231536 Kabbach, Ayoub EN 5:49pm 514-601-6642 (m) 514-601-6642 (h) 514-601-6642 (w) Motorcycle Montreal 19/09/2025 6:00pm edit 231537 Benamron, Liam EN 8:19pm 438-523-7269 (m) 514-998-4264 (h) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit 231538 Carandang, Evan EN 8:54pm 514-546-0336 (m) Automobile Vaudreuil-Dorion 24/08/2025 3:00pm edit 231539 Diabate, Yasmina EN 9:08pm 438-821-7799 (m) Motorcycle Vaudreuil-Dorion 28/11/2025 6:00pm edit 231540 Tescu, Elizabeth EN 9:19pm 514-621-9619 (m) Automobile Dollard-des-Ormeaux 24/08/2025 3:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "22/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "22/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231525",
+          "Fiona Liew Yin Yin, XX",
+          "EN",
+          "3:05am",
+          "514-917-0263   (m)",
+          "Automobile Montreal",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231526",
+          "Hassan, Mostafa",
+          "EN",
+          "10:58am",
+          "438-378-7270   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231527",
+          "KHIMOUSS , REDOUANE",
+          "EN",
+          "11:20am",
+          "438-467-4558   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231528",
+          "Della Santina, Rocco Leone",
+          "EN",
+          "12:14pm",
+          "514-919-0798   (m)",
+          "Automobile Montreal",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231530",
+          "Stock, Sophie",
+          "EN",
+          "12:25pm",
+          "438-524-8776   (m)     \n \n              \n             514-349-7912   (w)",
+          "Automobile Vaudreuil-Dorion",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231531",
+          "Isaenko, Ivan",
+          "EN",
+          "12:57pm",
+          "438-225-2818   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231532",
+          "Moghimi, Peyman",
+          "EN",
+          "1:50pm",
+          "438-990-8239   (m)",
+          "Motorcycle Montreal",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231533",
+          "Vedanarayanan Ravikumar, Mohit Avinash",
+          "EN",
+          "3:09pm",
+          "263-881-3015   (m)",
+          "Automobile Montreal",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231534",
+          "Sidhu, Hargun Singh",
+          "EN",
+          "3:44pm",
+          "514-623-3603   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231535",
+          "Merrington, John",
+          "EN",
+          "4:13pm",
+          "514-891-0136   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231536",
+          "Kabbach, Ayoub",
+          "EN",
+          "5:49pm",
+          "514-601-6642   (m)     \n \n             514-601-6642   (h)     \n \n             514-601-6642   (w)",
+          "Motorcycle Montreal",
+          "19/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231537",
+          "Benamron, Liam",
+          "EN",
+          "8:19pm",
+          "438-523-7269   (m)     \n \n             514-998-4264   (h)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231538",
+          "Carandang, Evan",
+          "EN",
+          "8:54pm",
+          "514-546-0336   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231539",
+          "Diabate, Yasmina",
+          "EN",
+          "9:08pm",
+          "438-821-7799   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "28/11/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231540",
+          "Tescu, Elizabeth",
+          "EN",
+          "9:19pm",
+          "514-621-9619   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "24/08/2025  3:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231525",
+          "Name": "Fiona Liew Yin Yin, XX",
+          "Lang": "EN",
+          "Time": "3:05am",
+          "Phone": "514-917-0263   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231526",
+          "Name": "Hassan, Mostafa",
+          "Lang": "EN",
+          "Time": "10:58am",
+          "Phone": "438-378-7270   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231527",
+          "Name": "KHIMOUSS , REDOUANE",
+          "Lang": "EN",
+          "Time": "11:20am",
+          "Phone": "438-467-4558   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231528",
+          "Name": "Della Santina, Rocco Leone",
+          "Lang": "EN",
+          "Time": "12:14pm",
+          "Phone": "514-919-0798   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231530",
+          "Name": "Stock, Sophie",
+          "Lang": "EN",
+          "Time": "12:25pm",
+          "Phone": "438-524-8776   (m)     \n \n              \n             514-349-7912   (w)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231531",
+          "Name": "Isaenko, Ivan",
+          "Lang": "EN",
+          "Time": "12:57pm",
+          "Phone": "438-225-2818   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231532",
+          "Name": "Moghimi, Peyman",
+          "Lang": "EN",
+          "Time": "1:50pm",
+          "Phone": "438-990-8239   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231533",
+          "Name": "Vedanarayanan Ravikumar, Mohit Avinash",
+          "Lang": "EN",
+          "Time": "3:09pm",
+          "Phone": "263-881-3015   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231534",
+          "Name": "Sidhu, Hargun Singh",
+          "Lang": "EN",
+          "Time": "3:44pm",
+          "Phone": "514-623-3603   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231535",
+          "Name": "Merrington, John",
+          "Lang": "EN",
+          "Time": "4:13pm",
+          "Phone": "514-891-0136   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "231536",
+          "Name": "Kabbach, Ayoub",
+          "Lang": "EN",
+          "Time": "5:49pm",
+          "Phone": "514-601-6642   (m)     \n \n             514-601-6642   (h)     \n \n             514-601-6642   (w)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "19/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "231537",
+          "Name": "Benamron, Liam",
+          "Lang": "EN",
+          "Time": "8:19pm",
+          "Phone": "438-523-7269   (m)     \n \n             514-998-4264   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 12,
+          "column_0": "231538",
+          "Name": "Carandang, Evan",
+          "Lang": "EN",
+          "Time": "8:54pm",
+          "Phone": "514-546-0336   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 13,
+          "column_0": "231539",
+          "Name": "Diabate, Yasmina",
+          "Lang": "EN",
+          "Time": "9:08pm",
+          "Phone": "438-821-7799   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "28/11/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 14,
+          "column_0": "231540",
+          "Name": "Tescu, Elizabeth",
+          "Lang": "EN",
+          "Time": "9:19pm",
+          "Phone": "514-621-9619   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231727&courseId=1",
+      "text": "Fiona Liew Yin Yin, XX",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231728&courseId=2",
+      "text": "Hassan, Mostafa",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231729&courseId=2",
+      "text": "KHIMOUSS , REDOUANE",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231730&courseId=1",
+      "text": "Della Santina, Rocco Leone",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231732&courseId=1",
+      "text": "Stock, Sophie",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231733&courseId=2",
+      "text": "Isaenko, Ivan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231734&courseId=2",
+      "text": "Moghimi, Peyman",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231735&courseId=1",
+      "text": "Vedanarayanan Ravikumar, Mohit Avinash",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231736&courseId=2",
+      "text": "Sidhu, Hargun Singh",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231737&courseId=2",
+      "text": "Merrington, John",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231738&courseId=2",
+      "text": "Kabbach, Ayoub",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231739&courseId=1",
+      "text": "Benamron, Liam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231740&courseId=1",
+      "text": "Carandang, Evan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231741&courseId=2",
+      "text": "Diabate, Yasmina",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231742&courseId=1",
+      "text": "Tescu, Elizabeth",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 30294,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=22%2F08%2F2025"
+}

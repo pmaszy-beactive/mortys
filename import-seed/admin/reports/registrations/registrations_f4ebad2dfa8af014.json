@@ -1,0 +1,365 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=07%2F09%2F2025",
+  "url_hash": "f4ebad2dfa8af014",
+  "scraped_at": "2026-02-12T16:30:20.669Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Sep 7, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Sep 7, 2025 Name Lang Time Phone Course 1 st Class Comments 231698 Kier, Chloe EN 9:01am 579-366-1837 (m) Automobile Montreal 18/09/2025 7:00pm edit 231699 Simhon, Benjamim EN 11:15am 514-927-1800 (m) 514-592-7632 (h) Automobile Côte Saint-Luc 04/11/2025 7:00pm edit 231700 Turcotte, Katherine EN 11:37am 438-920-7271 (m) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit 231701 Muriithi, Carole EN 4:40pm 514-585-9880 (m) Automobile Montreal 18/09/2025 7:00pm edit 231702 Poblano pastor, David gamalien EN 9:46pm 514-550-5136 (m) Motorcycle Dollard-des-Ormeaux 19/09/2025 6:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "07/09/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "07/09/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231698",
+          "Kier, Chloe",
+          "EN",
+          "9:01am",
+          "579-366-1837   (m)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231699",
+          "Simhon, Benjamim",
+          "EN",
+          "11:15am",
+          "514-927-1800   (m)     \n \n             514-592-7632   (h)",
+          "Automobile Côte Saint-Luc",
+          "04/11/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231700",
+          "Turcotte, Katherine",
+          "EN",
+          "11:37am",
+          "438-920-7271   (m)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231701",
+          "Muriithi, Carole",
+          "EN",
+          "4:40pm",
+          "514-585-9880   (m)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231702",
+          "Poblano pastor, David gamalien",
+          "EN",
+          "9:46pm",
+          "514-550-5136   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "19/09/2025  6:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231698",
+          "Name": "Kier, Chloe",
+          "Lang": "EN",
+          "Time": "9:01am",
+          "Phone": "579-366-1837   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231699",
+          "Name": "Simhon, Benjamim",
+          "Lang": "EN",
+          "Time": "11:15am",
+          "Phone": "514-927-1800   (m)     \n \n             514-592-7632   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "04/11/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231700",
+          "Name": "Turcotte, Katherine",
+          "Lang": "EN",
+          "Time": "11:37am",
+          "Phone": "438-920-7271   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231701",
+          "Name": "Muriithi, Carole",
+          "Lang": "EN",
+          "Time": "4:40pm",
+          "Phone": "514-585-9880   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231702",
+          "Name": "Poblano pastor, David gamalien",
+          "Lang": "EN",
+          "Time": "9:46pm",
+          "Phone": "514-550-5136   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "19/09/2025  6:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231900&courseId=1",
+      "text": "Kier, Chloe",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231901&courseId=1",
+      "text": "Simhon, Benjamim",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231902&courseId=1",
+      "text": "Turcotte, Katherine",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231903&courseId=1",
+      "text": "Muriithi, Carole",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231904&courseId=2",
+      "text": "Poblano pastor, David gamalien",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 20793,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=07%2F09%2F2025"
+}

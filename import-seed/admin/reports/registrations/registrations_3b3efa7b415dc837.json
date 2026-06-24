@@ -1,0 +1,396 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=21%2F08%2F2025",
+  "url_hash": "3b3efa7b415dc837",
+  "scraped_at": "2026-02-12T21:22:09.560Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 21, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 21, 2025 Name Lang Time Phone Course 1 st Class Comments 231519 Saab, Antoine EN 8:16am 514-806-1718 (m) Motorcycle Dollard-des-Ormeaux 22/08/2025 6:00pm edit 231520 Mendoza, Lyl Rose EN 4:10pm 514-834-3077 (m) 514-488-2964 (w) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit 231521 De Andrade, Marcelo’s EN 5:32pm 514-244-3033 (m) Scooter Dollard-des-Ormeaux 31/08/2025 5:30pm edit 231522 Nyisztor , Anna EN 5:55pm 438-379-3287 (m) 514-919-8798 (h) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231523 Mannix, Rylee EN 7:01pm 514-235-6449 (m) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit 231524 Irwin, Karyn EN 7:53pm 438-506-4129 (m) 514-931-2020 (w) Automobile Montreal 24/08/2025 3:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "21/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "21/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231519",
+          "Saab, Antoine",
+          "EN",
+          "8:16am",
+          "514-806-1718   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231520",
+          "Mendoza, Lyl Rose",
+          "EN",
+          "4:10pm",
+          "514-834-3077   (m)     \n \n              \n             514-488-2964   (w)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231521",
+          "De Andrade, Marcelo’s",
+          "EN",
+          "5:32pm",
+          "514-244-3033   (m)",
+          "Scooter Dollard-des-Ormeaux",
+          "31/08/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "231522",
+          "Nyisztor , Anna",
+          "EN",
+          "5:55pm",
+          "438-379-3287   (m)     \n \n             514-919-8798   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231523",
+          "Mannix, Rylee",
+          "EN",
+          "7:01pm",
+          "514-235-6449   (m)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231524",
+          "Irwin, Karyn",
+          "EN",
+          "7:53pm",
+          "438-506-4129   (m)     \n \n              \n             514-931-2020   (w)",
+          "Automobile Montreal",
+          "24/08/2025  3:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231519",
+          "Name": "Saab, Antoine",
+          "Lang": "EN",
+          "Time": "8:16am",
+          "Phone": "514-806-1718   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231520",
+          "Name": "Mendoza, Lyl Rose",
+          "Lang": "EN",
+          "Time": "4:10pm",
+          "Phone": "514-834-3077   (m)     \n \n              \n             514-488-2964   (w)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231521",
+          "Name": "De Andrade, Marcelo’s",
+          "Lang": "EN",
+          "Time": "5:32pm",
+          "Phone": "514-244-3033   (m)",
+          "Course": "Scooter Dollard-des-Ormeaux",
+          "1st Class": "31/08/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231522",
+          "Name": "Nyisztor , Anna",
+          "Lang": "EN",
+          "Time": "5:55pm",
+          "Phone": "438-379-3287   (m)     \n \n             514-919-8798   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231523",
+          "Name": "Mannix, Rylee",
+          "Lang": "EN",
+          "Time": "7:01pm",
+          "Phone": "514-235-6449   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231524",
+          "Name": "Irwin, Karyn",
+          "Lang": "EN",
+          "Time": "7:53pm",
+          "Phone": "438-506-4129   (m)     \n \n              \n             514-931-2020   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231721&courseId=2",
+      "text": "Saab, Antoine",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231722&courseId=1",
+      "text": "Mendoza, Lyl Rose",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231723&courseId=3",
+      "text": "De Andrade, Marcelo’s",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231724&courseId=1",
+      "text": "Nyisztor , Anna",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231725&courseId=1",
+      "text": "Mannix, Rylee",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231726&courseId=1",
+      "text": "Irwin, Karyn",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 21817,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=21%2F08%2F2025"
+}

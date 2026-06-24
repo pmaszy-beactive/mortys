@@ -1,0 +1,267 @@
+{
+  "url": "https://mortys.drivetraqr.ca/quebecauto/practicalEval/?studentUserId=228496&courseComponentId=17",
+  "url_hash": "cd2f2f4af8c36097",
+  "scraped_at": "2026-02-13T04:05:57.592Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Self-Evaluation of In-Car Session"
+    },
+    {
+      "level": 2,
+      "text": "Practical Session #5\n    Workman-Bitton, Devorah"
+    },
+    {
+      "level": 6,
+      "text": "Student Signature"
+    },
+    {
+      "level": 6,
+      "text": "Instructor Signature"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Self-Evaluation of In-Car Session Practical Session #5 Workman-Bitton, Devorah 1. In the Learner's view, what are the strengths and what are the weaknesses to be worked on at this stage of he practical training? Str: Better with the brakes. Great with full stops. Much improved on the turning. Weaknesses: Stall parking. Work on lane changing (Keep straight) 2. In the Instructor's view, what are the strengths and what are the weaknesses to be worked on at this stage of he practical training? Str: Caught the creepers. Good awareness: good seeing pedestrians. Weaknesses: do more left turns at lights. Try not to get caught over the line. Student Student Signature Workman-Bitton, Devorah Oct 20, 2025 Instructor Instructor Signature Erik Olynyk L-11070 Save",
+  "forms": [
+    {
+      "action": "#",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "studentUserId",
+          "value": "228496",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "courseComponentId",
+          "type": "hidden",
+          "id": "courseComponentId",
+          "value": "17",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "studentComments",
+          "type": "text",
+          "id": "studentComments",
+          "value": "     Str:  Better with the brakes.  Great with full stops.  Much improved on the turning.  \nWeaknesses:  Stall parking.  Work on lane changing (Keep straight) ",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "instructorComments",
+          "type": "text",
+          "id": "instructorComments",
+          "value": "     Str:  Caught the creepers.  Good awareness:  good seeing pedestrians.\nWeaknesses:  do more left turns at lights.  Try not to get caught over the line. ",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "studentSignatureId",
+          "type": "hidden",
+          "id": "studentSignatureId",
+          "value": "cLJQdO9-rUGlqwKg0gFAlQ",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "InstructorSignatureId",
+          "type": "hidden",
+          "id": "InstructorSignatureId",
+          "value": "N8pkRJCN-0O9yWcOc6zJWw",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "228496",
+        "courseComponentId": "17",
+        "studentComments": "     Str:  Better with the brakes.  Great with full stops.  Much improved on the turning.  \nWeaknesses:  Stall parking.  Work on lane changing (Keep straight) ",
+        "instructorComments": "     Str:  Caught the creepers.  Good awareness:  good seeing pedestrians.\nWeaknesses:  do more left turns at lights.  Try not to get caught over the line. ",
+        "studentSignatureId": "cLJQdO9-rUGlqwKg0gFAlQ",
+        "InstructorSignatureId": "N8pkRJCN-0O9yWcOc6zJWw"
+      }
+    }
+  ],
+  "tables": [],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/signatureImage.ashx?id=cLJQdO9-rUGlqwKg0gFAlQ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/signatureImage.ashx?id=N8pkRJCN-0O9yWcOc6zJWw",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 17685,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/quebecauto/practicalEval/?studentUserId=228496&courseComponentId=17"
+}

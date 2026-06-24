@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228483",
+  "url_hash": "bab590605879e5f0",
+  "scraped_at": "2026-02-13T04:16:02.677Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03277321 L-774 Carruthers-Guerriero, Tristan 8, Spruce Cres Beaconsfield QC H9W 1X5 0001235600 5145732420 5147957230 X Ilan Preisler 9 oct. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 08 13 2025 08 20 2025 08 27 2025 09 03 2025 09 18 COPIE D'ÉLÈVE 03277321 L-774 Carruthers-Guerriero, Tristan 8, Spruce Cres Beaconsfield QC H9W 1X5 0001235600 5145732420 5147957230 X Ilan Preisler 9 oct. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 08 13 2025 08 20 2025 08 27 2025 09 03 2025 09 18 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277321&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277321&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10401,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228483"
+}

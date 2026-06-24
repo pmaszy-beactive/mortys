@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=230600",
+  "url_hash": "c26500f854484ce5",
+  "scraped_at": "2026-02-13T00:49:37.561Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "G531508099305 03277146 L-021 Gontovnick, Jasi 17 place de la Triade Pointe-Claire QC H9R0G5 0001235678 5148836271 X Ilan Preisler 1 oct. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 09 11 2025 09 21 COPIE D'ÉLÈVE G531508099305 03277146 L-021 Gontovnick, Jasi 17 place de la Triade Pointe-Claire QC H9R0G5 0001235678 5148836271 X Ilan Preisler 1 oct. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 09 11 2025 09 21 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277146&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277146&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10409,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=230600"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231658",
+  "url_hash": "ecb66ba3962fbbeb",
+  "scraped_at": "2026-02-12T23:04:47.244Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03277145 L-021 Datte, Yedidiah 7 rue cannes Dollard des ormeaux QC H9G 1T5 0001235677 5144735723 4387257626 X Ilan Preisler 22 janv. 2026 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 21 2025 09 25 2025 09 30 2025 10 07 2025 12 02 COPIE D'ÉLÈVE 03277145 L-021 Datte, Yedidiah 7 rue cannes Dollard des ormeaux QC H9G 1T5 0001235677 5144735723 4387257626 X Ilan Preisler 22 janv. 2026 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 21 2025 09 25 2025 09 30 2025 10 07 2025 12 02 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277145&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277145&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10425,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231658"
+}

@@ -1,0 +1,551 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=24%2F09%2F2025",
+  "url_hash": "f32e7af7b176213d",
+  "scraped_at": "2026-02-12T12:54:26.859Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Sep 24, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Sep 24, 2025 Name Lang Time Phone Course 1 st Class Comments 231821 Huynh, Cao Vinh EN 1:45am 514-802-5116 (m) Automobile Montreal 12/10/2025 3:00pm edit 231822 Stiell, Amaya EN 12:40pm 438-889-4839 (m) 438-862-2384 (h) Automobile Montreal 29/09/2025 7:00pm edit 231823 Daoust, Denis EN 3:38pm 514-402-8177 (m) Motorcycle Montreal 24/10/2025 6:00pm edit 231824 Abou Nader, Bernard EN 3:50pm 514-652-8687 (m) 438-969-9194 (h) 514-486-6666 (w) Automobile Montreal 12/10/2025 3:00pm edit 231825 Huang, Melissa EN 4:22pm 514-967-0422 (m) 514-264-0422 (h) Automobile Dollard-des-Ormeaux 12/10/2025 3:00pm edit 231826 Rosen, Brooke Raquelle EN 4:49pm 514-928-2509 (m) 514-945-2040 (h) 514-685-4155 (w) Automobile Dollard-des-Ormeaux 12/10/2025 3:00pm edit 231827 Musa, Faruq EN 5:32pm 438-825-5627 (m) Automobile Côte Saint-Luc 29/09/2025 7:00pm edit 231828 Cloutier, Amanda EN 5:53pm 514-913-1683 (m) 514-913-6856 (h) Automobile Côte Saint-Luc 29/09/2025 7:00pm edit 231829 Cohen, William Solomon EN 7:32pm 514-348-3686 (m) Automobile Montreal 29/09/2025 7:00pm edit 231830 Harrison, Alexis EN 9:18pm 514-820-9220 (m) Automobile Dollard-des-Ormeaux 12/10/2025 3:00pm edit 231831 Pennee, Riley EN 10:21pm 514-970-2355 (m) Automobile Kirkland 29/09/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "24/09/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "24/09/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231821",
+          "Huynh, Cao Vinh",
+          "EN",
+          "1:45am",
+          "514-802-5116   (m)",
+          "Automobile Montreal",
+          "12/10/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231822",
+          "Stiell, Amaya",
+          "EN",
+          "12:40pm",
+          "438-889-4839   (m)     \n \n             438-862-2384   (h)",
+          "Automobile Montreal",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231823",
+          "Daoust, Denis",
+          "EN",
+          "3:38pm",
+          "514-402-8177   (m)",
+          "Motorcycle Montreal",
+          "24/10/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231824",
+          "Abou Nader, Bernard",
+          "EN",
+          "3:50pm",
+          "514-652-8687   (m)     \n \n             438-969-9194   (h)     \n \n             514-486-6666   (w)",
+          "Automobile Montreal",
+          "12/10/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231825",
+          "Huang, Melissa",
+          "EN",
+          "4:22pm",
+          "514-967-0422   (m)     \n \n             514-264-0422   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "12/10/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231826",
+          "Rosen, Brooke Raquelle",
+          "EN",
+          "4:49pm",
+          "514-928-2509   (m)     \n \n             514-945-2040   (h)     \n \n             514-685-4155   (w)",
+          "Automobile Dollard-des-Ormeaux",
+          "12/10/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231827",
+          "Musa, Faruq",
+          "EN",
+          "5:32pm",
+          "438-825-5627   (m)",
+          "Automobile Côte Saint-Luc",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231828",
+          "Cloutier, Amanda",
+          "EN",
+          "5:53pm",
+          "514-913-1683   (m)     \n \n             514-913-6856   (h)",
+          "Automobile Côte Saint-Luc",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231829",
+          "Cohen, William Solomon",
+          "EN",
+          "7:32pm",
+          "514-348-3686   (m)",
+          "Automobile Montreal",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231830",
+          "Harrison, Alexis",
+          "EN",
+          "9:18pm",
+          "514-820-9220   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "12/10/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231831",
+          "Pennee, Riley",
+          "EN",
+          "10:21pm",
+          "514-970-2355   (m)",
+          "Automobile Kirkland",
+          "29/09/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231821",
+          "Name": "Huynh, Cao Vinh",
+          "Lang": "EN",
+          "Time": "1:45am",
+          "Phone": "514-802-5116   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "12/10/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231822",
+          "Name": "Stiell, Amaya",
+          "Lang": "EN",
+          "Time": "12:40pm",
+          "Phone": "438-889-4839   (m)     \n \n             438-862-2384   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231823",
+          "Name": "Daoust, Denis",
+          "Lang": "EN",
+          "Time": "3:38pm",
+          "Phone": "514-402-8177   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "24/10/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231824",
+          "Name": "Abou Nader, Bernard",
+          "Lang": "EN",
+          "Time": "3:50pm",
+          "Phone": "514-652-8687   (m)     \n \n             438-969-9194   (h)     \n \n             514-486-6666   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "12/10/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231825",
+          "Name": "Huang, Melissa",
+          "Lang": "EN",
+          "Time": "4:22pm",
+          "Phone": "514-967-0422   (m)     \n \n             514-264-0422   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "12/10/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231826",
+          "Name": "Rosen, Brooke Raquelle",
+          "Lang": "EN",
+          "Time": "4:49pm",
+          "Phone": "514-928-2509   (m)     \n \n             514-945-2040   (h)     \n \n             514-685-4155   (w)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "12/10/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231827",
+          "Name": "Musa, Faruq",
+          "Lang": "EN",
+          "Time": "5:32pm",
+          "Phone": "438-825-5627   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231828",
+          "Name": "Cloutier, Amanda",
+          "Lang": "EN",
+          "Time": "5:53pm",
+          "Phone": "514-913-1683   (m)     \n \n             514-913-6856   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231829",
+          "Name": "Cohen, William Solomon",
+          "Lang": "EN",
+          "Time": "7:32pm",
+          "Phone": "514-348-3686   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231830",
+          "Name": "Harrison, Alexis",
+          "Lang": "EN",
+          "Time": "9:18pm",
+          "Phone": "514-820-9220   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "12/10/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "231831",
+          "Name": "Pennee, Riley",
+          "Lang": "EN",
+          "Time": "10:21pm",
+          "Phone": "514-970-2355   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232023&courseId=1",
+      "text": "Huynh, Cao Vinh",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232024&courseId=1",
+      "text": "Stiell, Amaya",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232025&courseId=2",
+      "text": "Daoust, Denis",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232026&courseId=1",
+      "text": "Abou Nader, Bernard",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232027&courseId=1",
+      "text": "Huang, Melissa",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232028&courseId=1",
+      "text": "Rosen, Brooke Raquelle",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232029&courseId=1",
+      "text": "Musa, Faruq",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232030&courseId=1",
+      "text": "Cloutier, Amanda",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232031&courseId=1",
+      "text": "Cohen, William Solomon",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232032&courseId=1",
+      "text": "Harrison, Alexis",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232033&courseId=1",
+      "text": "Pennee, Riley",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 26649,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=24%2F09%2F2025"
+}

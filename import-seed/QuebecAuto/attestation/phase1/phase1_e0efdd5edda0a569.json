@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223173",
+  "url_hash": "e0efdd5edda0a569",
+  "scraped_at": "2026-02-13T12:23:52.366Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03203565 A-106 Singh, Shreya 137 Avenue Dicaire Vaudreuil Dorion QC J7V8R8 0001235188 4388786168 4388757560 X Ilan Preisler 13 févr. 2026 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 07 15 2025 07 22 2025 08 14 2025 08 21 2025 11 20 COPIE D'ÉLÈVE 03203565 A-106 Singh, Shreya 137 Avenue Dicaire Vaudreuil Dorion QC J7V8R8 0001235188 4388786168 4388757560 X Ilan Preisler 13 févr. 2026 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 07 15 2025 07 22 2025 08 14 2025 08 21 2025 11 20 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203565&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203565&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10201,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223173"
+}

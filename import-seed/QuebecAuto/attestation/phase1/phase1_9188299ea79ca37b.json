@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228521",
+  "url_hash": "9188299ea79ca37b",
+  "scraped_at": "2026-02-13T03:31:11.071Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03203582 A-106 Babadzanov, Melissa 1121 Avenue Marier Vaudreuil Dorion QC J7V0M7 0001235512 4389260433 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 13 2025 09 25 2025 08 27 2025 09 03 -------------------------------- COPIE D'ÉLÈVE 03203582 A-106 Babadzanov, Melissa 1121 Avenue Marier Vaudreuil Dorion QC J7V0M7 0001235512 4389260433 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 13 2025 09 25 2025 08 27 2025 09 03 -------------------------------- COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203582&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203582&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 9571,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228521"
+}

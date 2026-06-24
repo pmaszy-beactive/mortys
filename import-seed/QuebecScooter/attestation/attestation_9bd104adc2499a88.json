@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=224353",
+  "url_hash": "9bd104adc2499a88",
+  "scraped_at": "2026-02-13T08:00:09.468Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03152570 A-107 Byrne, Aidan 1426 rue de la pinerai Saint Lazare QC J7T1Z2 0001235486 5149131426 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 10 2025 08 19 X Ilan Preisler 21 août 2025 COPIE D'ÉLÈVE 03152570 A-107 Byrne, Aidan 1426 rue de la pinerai Saint Lazare QC J7T1Z2 0001235486 5149131426 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 10 2025 08 19 X Ilan Preisler 21 août 2025 COPIE D'ÉCOLE 03152570 A-107 Byrne, Aidan 1426 rue de la pinerai Saint Lazare QC J7T1Z2 0001235486 5149131426 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 10 2025 08 19 X Ilan Preisler 21 août 2025 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152570&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152570&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152570&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 11337,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=224353"
+}

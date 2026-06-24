@@ -1,0 +1,735 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/studentfile/?studentuserid=228567&courseId=3",
+  "url_hash": "8c0594f91aea0e7d",
+  "scraped_at": "2026-02-13T01:49:56.592Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Justin Di Venere"
+    },
+    {
+      "level": 2,
+      "text": "Office Use Only - Notes"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Actions print contract print attestation course transfer delete course Justin Di Venere Course Info Course Scooter Location Vaudreuil-Dorion Start Date Aug 10, 2025 Contract No 1235487 edit Attestation No 03152571 Attestation Date Aug 19, 2025 edit Personal Info Di Venere, Justin 985 Rue des Nénuphars, Apt 102, Vaudreuil-Dorion, QC J7V 0R8 Mar 13, 2011 English justindivenere13@gmail.com 438-930-7599 (cell) edit Office Use Only - Notes Save Cancel edit To Do (Instructor) Up Next Module History Theory Aug 10, 2025 5:30pm-8:30pm delete time student instructor 5:30pm-6:30pm Zoom screenshot 6:30pm-7:30pm 7:30pm-8:30pm Zoom screenshot Practical Aug 14, 2025 5:00pm-8:00pm delete time student instructor 5:00pm-6:00pm reveal signature reveal signature L12765 6:00pm-7:00pm reveal signature reveal signature L12765 7:00pm-8:00pm reveal signature reveal signature L12765 evaluation credit card debit card cash payment cheque email transfer course discount other include taxes Amount GST PST Total Comments submit cancel correction missed scheduled class materials other include taxes Amount GST PST Total Comments submit cancel quit Statement of Account decription date amount gst pst total course 07/08/2025 $375.00 $18.75 $37.41 $431.16 credit card 07/08/2025 ($375.00) ($18.75) ($37.41) ($431.16) Balance: $0.00 edit credit debit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "",
+          "value": "228567",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "CourseId",
+          "type": "hidden",
+          "id": "",
+          "value": "3",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "select",
+          "name": "typeId",
+          "type": "text",
+          "id": "",
+          "value": "3",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "3",
+              "text": "credit card",
+              "selected": true
+            },
+            {
+              "value": "6",
+              "text": "debit card",
+              "selected": false
+            },
+            {
+              "value": "5",
+              "text": "cash payment",
+              "selected": false
+            },
+            {
+              "value": "4",
+              "text": "cheque",
+              "selected": false
+            },
+            {
+              "value": "8",
+              "text": "email transfer",
+              "selected": false
+            },
+            {
+              "value": "1",
+              "text": "course discount",
+              "selected": false
+            },
+            {
+              "value": "7",
+              "text": "other",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "checkbox",
+          "id": "creditIncludeTaxes",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "hidden",
+          "id": "",
+          "value": "false",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "amount",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax1",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax2",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "total",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "comments",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "228567",
+        "CourseId": "3",
+        "typeId": "3",
+        "includeTaxes": "false"
+      }
+    },
+    {
+      "action": "",
+      "method": "get",
+      "id": "",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "",
+          "value": "228567",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "CourseId",
+          "type": "hidden",
+          "id": "",
+          "value": "3",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "select",
+          "name": "typeId",
+          "type": "text",
+          "id": "",
+          "value": "2",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "2",
+              "text": "correction",
+              "selected": true
+            },
+            {
+              "value": "3",
+              "text": "missed scheduled class",
+              "selected": false
+            },
+            {
+              "value": "4",
+              "text": "materials",
+              "selected": false
+            },
+            {
+              "value": "5",
+              "text": "other",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "checkbox",
+          "id": "debitIncludeTaxes",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "includeTaxes",
+          "type": "hidden",
+          "id": "",
+          "value": "false",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "amount",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax1",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "tax2",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "total",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": true,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "comments",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "228567",
+        "CourseId": "3",
+        "typeId": "2",
+        "includeTaxes": "false"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "5:30pm-6:30pm",
+          "Zoom screenshot",
+          "",
+          ""
+        ],
+        [
+          "6:30pm-7:30pm",
+          "",
+          "",
+          ""
+        ],
+        [
+          "7:30pm-8:30pm",
+          "Zoom screenshot",
+          "",
+          ""
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "5:30pm-6:30pm",
+          "student": "Zoom screenshot",
+          "instructor": "",
+          "column_3": ""
+        },
+        {
+          "_row_index": 1,
+          "time": "6:30pm-7:30pm",
+          "student": "",
+          "instructor": "",
+          "column_3": ""
+        },
+        {
+          "_row_index": 2,
+          "time": "7:30pm-8:30pm",
+          "student": "Zoom screenshot",
+          "instructor": "",
+          "column_3": ""
+        }
+      ]
+    },
+    {
+      "id": "",
+      "class": "signaturetable",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "time",
+        "student",
+        "instructor",
+        ""
+      ],
+      "rows": [
+        [
+          "5:00pm-6:00pm",
+          "reveal signature",
+          "reveal signature",
+          "L12765"
+        ],
+        [
+          "6:00pm-7:00pm",
+          "reveal signature",
+          "reveal signature",
+          "L12765"
+        ],
+        [
+          "7:00pm-8:00pm",
+          "reveal signature",
+          "reveal signature",
+          "L12765"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "time": "5:00pm-6:00pm",
+          "student": "reveal signature",
+          "instructor": "reveal signature",
+          "column_3": "L12765"
+        },
+        {
+          "_row_index": 1,
+          "time": "6:00pm-7:00pm",
+          "student": "reveal signature",
+          "instructor": "reveal signature",
+          "column_3": "L12765"
+        },
+        {
+          "_row_index": 2,
+          "time": "7:00pm-8:00pm",
+          "student": "reveal signature",
+          "instructor": "reveal signature",
+          "column_3": "L12765"
+        }
+      ]
+    },
+    {
+      "id": "statementOfAccountData",
+      "class": "alternatecolors",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "decription",
+        "date",
+        "amount",
+        "gst",
+        "pst",
+        "total",
+        ""
+      ],
+      "rows": [
+        [
+          "course",
+          "07/08/2025",
+          "$375.00",
+          "$18.75",
+          "$37.41",
+          "$431.16"
+        ],
+        [
+          "credit card",
+          "07/08/2025",
+          "($375.00)",
+          "($18.75)",
+          "($37.41)",
+          "($431.16)"
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "Balance:",
+          "$0.00"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 1,
+          "decription": "course",
+          "date": "07/08/2025",
+          "amount": "$375.00",
+          "gst": "$18.75",
+          "pst": "$37.41",
+          "total": "$431.16",
+          "column_6": ""
+        },
+        {
+          "_row_index": 2,
+          "decription": "credit card",
+          "date": "07/08/2025",
+          "amount": "($375.00)",
+          "gst": "($18.75)",
+          "pst": "($37.41)",
+          "total": "($431.16)",
+          "column_6": ""
+        },
+        {
+          "_row_index": 3,
+          "decription": "",
+          "date": "",
+          "amount": "",
+          "gst": "",
+          "pst": "Balance:",
+          "total": "$0.00",
+          "column_6": ""
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "/studentfile/printcontracts/?studentUserId=228567&courseId=3",
+      "text": "print contract",
+      "title": ""
+    },
+    {
+      "href": "/QuebecScooter/attestation/?studentUserId=228567",
+      "text": "print attestation",
+      "title": ""
+    },
+    {
+      "href": "/QuebecScooter/CourseTransfer/?studentUserId=228567",
+      "text": "course transfer",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "delete course",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0228365-00038-0.jpg?904",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=228567&courseId=3&courseComponentId=38&screenshotNo=0",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0228365-00038-1.jpg?25",
+      "text": "Zoom screenshot",
+      "title": ""
+    },
+    {
+      "href": "/zoomscreenshot/?studentuserid=228567&courseId=3&courseComponentId=38&screenshotNo=1",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "/quebecscooter/PracticalEval/?studentUserId=228567",
+      "text": "evaluation",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {
+    "Course": "Scooter",
+    "Location": "Vaudreuil-Dorion",
+    "Start Date": "Aug 10, 2025",
+    "Contract No": "1235487"
+  },
+  "raw_html_length": 31601,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/studentfile/?studentuserid=228567&courseId=3"
+}

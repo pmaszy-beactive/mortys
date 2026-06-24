@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224310",
+  "url_hash": "2724e3aa0855b18f",
+  "scraped_at": "2026-02-13T09:08:03.960Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "C636207090902 03277291 L-774 Carter, Callum 264 Markham rd Beaconsfield QC H9W 5X2 0001235391 5145454135 X Ilan Preisler 15 sept. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 07 31 2025 08 20 2025 08 27 2025 09 03 2025 09 10 COPIE D'ÉLÈVE C636207090902 03277291 L-774 Carter, Callum 264 Markham rd Beaconsfield QC H9W 5X2 0001235391 5145454135 X Ilan Preisler 15 sept. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 07 31 2025 08 20 2025 08 27 2025 09 03 2025 09 10 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277291&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277291&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10361,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224310"
+}

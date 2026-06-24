@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=232011",
+  "url_hash": "0ead91cf8f802205",
+  "scraped_at": "2026-02-12T13:35:48.158Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03288709 A-355 Pîrvulescu, Andreea Livia 5759 Wentworth Cote Saint Luc QC H4W2S3 0001236077 5149951031 4389269893 X Ilan Preisler 29 déc. 2025 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca 2025 11 04 2025 11 11 2025 11 18 2025 11 25 2025 12 14 COPIE D'ÉLÈVE 03288709 A-355 Pîrvulescu, Andreea Livia 5759 Wentworth Cote Saint Luc QC H4W2S3 0001236077 5149951031 4389269893 X Ilan Preisler 29 déc. 2025 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca 2025 11 04 2025 11 11 2025 11 18 2025 11 25 2025 12 14 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288709&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288709&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10403,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=232011"
+}

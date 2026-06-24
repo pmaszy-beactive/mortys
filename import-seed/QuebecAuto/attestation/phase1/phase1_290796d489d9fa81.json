@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231885",
+  "url_hash": "290796d489d9fa81",
+  "scraped_at": "2026-02-12T16:54:14.747Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "T300606048905 03286995 L-020 Tetteh, Mercy Korkor 5632 Av Clanranald Montréal QC H3X 2S8 0001235742 5147051490 X Ilan Preisler 27 oct. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 09 14 2025 10 23 COPIE D'ÉLÈVE T300606048905 03286995 L-020 Tetteh, Mercy Korkor 5632 Av Clanranald Montréal QC H3X 2S8 0001235742 5147051490 X Ilan Preisler 27 oct. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 09 14 2025 10 23 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286995&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286995&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10167,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231885"
+}

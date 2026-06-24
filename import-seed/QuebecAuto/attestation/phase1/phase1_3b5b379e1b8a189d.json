@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223245",
+  "url_hash": "3b5b379e1b8a189d",
+  "scraped_at": "2026-02-13T10:42:08.184Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "H544130010902 03203560 A-106 Hanley-Walczak, Aaliyah 290 av Des Colibris Les Cedres QC J7T 0A5 0001235178 5794905676 X Ilan Preisler 25 août 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 07 15 2025 07 22 2025 07 20 2025 07 27 2025 08 12 COPIE D'ÉLÈVE H544130010902 03203560 A-106 Hanley-Walczak, Aaliyah 290 av Des Colibris Les Cedres QC J7T 0A5 0001235178 5794905676 X Ilan Preisler 25 août 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 07 15 2025 07 22 2025 07 20 2025 07 27 2025 08 12 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203560&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203560&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10197,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223245"
+}

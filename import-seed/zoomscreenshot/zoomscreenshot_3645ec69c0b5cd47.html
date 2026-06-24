@@ -1,0 +1,399 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Mortys Driving School</title>
+    <meta name="google" content="notranslate">
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+
+   
+    <script>
+        
+              window.onunload = function () { }; // disable bfcache
+        var avivaronload = (function () {
+          
+                  var loaded = false,
+                      onload = (persisted) => {
+                          if (persisted ) window.location.reload();},
+                      loadController = function (ev) {
+                          var persisted = (ev.persisted !== undefined) && ev.persisted;
+                          if (persisted || !loaded) {  //just in case bfcache was not successfully disabled
+                              onload(persisted);
+                              loaded = true;
+                          }
+                      }
+                  window.addEventListener('pageshow', loadController)
+                  window.addEventListener('load', loadController)
+                  return {
+                      add: function (f) {
+                          var oldlonload = onload;
+                          onload = function (persisted) { oldlonload(persisted); f(persisted); }
+                      }
+                  }
+              })();
+
+                
+                   (function () {
+
+                    window.readCookie = function(n){ return (n = new RegExp('(?:^|;\\s*)' + ('' + n).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)').exec(document.cookie)) && n[1]; }
+                    var   cookie = readCookie('signmodeurl');
+                    if (cookie && cookie != (window.location.pathname + window.location.search)) {
+                            window.location.href = cookie
+                   }
+                })
+                ();
+
+             
+
+
+    </script>
+
+
+
+
+
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" type="text/css"><link href="/css/base/base_desktop5.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.css" rel="stylesheet" type="text/css"><style>.mm-menu {--mm-offset-top: 50px;--mm-offset-bottom: 15px;--mm-offset-left: 1px}</style>
+    
+    
+    <link href="//cdn.jsdelivr.net/npm/fine-uploader@5.16.2/fine-uploader/fine-uploader-gallery.css" rel="stylesheet">
+    <script type="text/template" id="qq-template-gallery">
+        <div class="qq-uploader-selector qq-uploader qq-gallery" qq-drop-area-text="Drop files here">
+            <div class="qq-total-progress-bar-container-selector qq-total-progress-bar-container">
+                <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-total-progress-bar-selector qq-progress-bar qq-total-progress-bar"></div>
+            </div>
+            <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+                <span class="qq-upload-drop-area-text-selector"></span>
+            </div>
+            <div class="qq-upload-button-selector qq-upload-button">
+                <div>Upload a file</div>
+            </div>
+            <span class="qq-drop-processing-selector qq-drop-processing">
+                <span>Processing dropped files...</span>
+                <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+            </span>
+            <ul class="qq-upload-list-selector qq-upload-list" role="region" aria-live="polite" aria-relevant="additions removals">
+                <li>
+                    <span role="status" class="qq-upload-status-text-selector qq-upload-status-text"></span>
+                    <div class="qq-progress-bar-container-selector qq-progress-bar-container">
+                        <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-progress-bar-selector qq-progress-bar"></div>
+                    </div>
+                    <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                    <div class="qq-thumbnail-wrapper">
+                        <img class="qq-thumbnail-selector" qq-max-size="120" qq-server-scale>
+                    </div>
+                    <button type="button" class="qq-upload-cancel-selector qq-upload-cancel">X</button>
+                    <button type="button" class="qq-upload-retry-selector qq-upload-retry">
+                        <span class="qq-btn qq-retry-icon" aria-label="Retry"></span>
+                        Retry
+                    </button>
+
+                    <div class="qq-file-info">
+                        <div class="qq-file-name">
+                            <span class="qq-upload-file-selector qq-upload-file"></span>
+                            <span class="qq-edit-filename-icon-selector qq-edit-filename-icon" aria-label="Edit filename"></span>
+                        </div>
+                        <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                        <span class="qq-upload-size-selector qq-upload-size"></span>
+                        <button type="button" class="qq-btn qq-upload-delete-selector qq-upload-delete">
+                            <span class="qq-btn qq-delete-icon" aria-label="Delete"></span>
+                        </button>
+                        <button type="button" class="qq-btn qq-upload-pause-selector qq-upload-pause">
+                            <span class="qq-btn qq-pause-icon" aria-label="Pause"></span>
+                        </button>
+                        <button type="button" class="qq-btn qq-upload-continue-selector qq-upload-continue">
+                            <span class="qq-btn qq-continue-icon" aria-label="Continue"></span>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+
+            <dialog class="qq-alert-dialog-selector">
+                <div class="qq-dialog-message-selector"></div>
+                <div class="qq-dialog-buttons">
+                    <button type="button" class="qq-cancel-button-selector">Close</button>
+                </div>
+            </dialog>
+
+            <dialog class="qq-confirm-dialog-selector">
+                <div class="qq-dialog-message-selector"></div>
+                <div class="qq-dialog-buttons">
+                    <button type="button" class="qq-cancel-button-selector">No</button>
+                    <button type="button" class="qq-ok-button-selector">Yes</button>
+                </div>
+            </dialog>
+
+            <dialog class="qq-prompt-dialog-selector">
+                <div class="qq-dialog-message-selector"></div>
+                <input type="text">
+                <div class="qq-dialog-buttons">
+                    <button type="button" class="qq-cancel-button-selector">Cancel</button>
+                    <button type="button" class="qq-ok-button-selector">Ok</button>
+                </div>
+            </dialog>
+        </div>
+    </script>
+
+
+</head>
+<body class="">
+    
+            <div class="container mm-wrapper" style="position:fixed;   height:100%;   top:0; z-index:100;  margin-left:auto;  margin-right:auto; left:0; right:0;  pointer-events:none">
+                
+
+
+
+
+<nav id="menu" class="mm-menu mm-menu_selected-parent mm-menu_theme-white mm-menu_border-full">
+
+    <button id="menuCloseButton" class="closebutton"> </button>
+    
+    <div class="mm-panels"><div id="mm-0" class="mm-panel mm-panel_opened"><div class="mm-navbar mm-navbar_sticky"><a class="mm-navbar__title"><span>Menu</span></a></div><ul class="mm-listview">
+<li class="mm-listitem"><a href="/admin/" class="mm-listitem__text">Student Files</a></li>
+<li class="mm-listitem"><a href="/admin/classes/" class="mm-listitem__text">Classes</a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-1">Instructor<span class="mm-sronly">Open submenu</span></a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-4">Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/schedule/" class="mm-listitem__text">Set Class Schedule</a></li>
+<li class="mm-listitem"><a href="/admin/schoolpermit/" class="mm-listitem__text">School Permits</a></li>
+
+    </ul></div><div id="mm-1" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Instructor</span></a></div><ul class="mm-listview">
+                        <li class="mm-listitem">
+                            
+                            
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-2">Instructor Schedule<span class="mm-sronly">Open submenu</span></a></li>
+
+
+
+                        <li class="mm-listitem">
+                            
+                            
+
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-3">Instructor Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/instructorsignatures/" class="mm-listitem__text">My Signatures</a></li>
+
+                    </ul></div><div id="mm-2" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Schedule</span></a></div><ul class="mm-listview">
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/" class="mm-listitem__text">Booked Appointments</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/workhours/" class="mm-listitem__text">Specify Hours</a></li>
+
+
+
+                            </ul></div><div id="mm-3" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Reports</span></a></div><ul class="mm-listview">
+
+
+                                <li class="mm-listitem"><a href="/admin/reports/worksummary/" class="mm-listitem__text">Work Summary</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/reports/instructorstodolists/" class="mm-listitem__text">To Do Lists</a></li>
+
+
+                            </ul></div><div id="mm-4" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Reports</span></a></div><ul class="mm-listview">
+
+                       
+                        <li class="mm-listitem"><a href="/admin/reports/aqtr/" class="mm-listitem__text">AQTR</a></li>
+
+                        <li class="mm-listitem"><a href="/admin/reports/registrations/" class="mm-listitem__text">Registrations</a></li>
+
+                 
+
+ 
+                    </ul></div></div></nav>
+
+
+ 
+ 
+            </div>
+     
+
+<div id="header" class="container header">
+    <a style="margin-left:10px" href="/"><img style=" height:45px ;" src="/img/logo.png"></a>
+
+
+
+        <div style="   text-align:right  ; flex-grow:1  ">
+            <ul class="nav ace-nav navbar-buttons   " role="navigation">
+                <li class="light-blue pull-right">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <span class="user-info">
+                            Ilan Preisler
+                            <b class="caret"></b>
+                        </span>
+
+                    </a>
+
+
+
+           
+                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                        <li>
+                            <a href="/logout/">
+                                <i class="ace-icon fa fa-power-off"></i>
+                                logout
+                            </a>
+
+                        </li>
+                    </ul>
+                
+            </li></ul>
+        </div>
+
+
+
+
+
+     
+</div>
+
+ 
+ 
+
+
+ 
+        <div style="min-height:calc(100% - 50px);    position:relative ;  ; display:flex; flex-direction:column;     ">
+            <div style="   flex-grow:1; display:flex; flex-direction:column; margin-bottom:5px; " class="container maincontainer">
+                <div class="maintable" style="     flex-grow:1">
+                    <div class="cell1"> </div>
+                    <div class="cell2" id="contentContainer">
+                        
+
+
+
+<h1>Levi Katz  -  Upload Zoom Screenshot  - Theory 1    <span style="font-size:smaller">Sep 9, 2025 7:00pm - 9:00pm </span> </h1>
+
+
+
+
+
+ 
+
+<div>
+
+    <h2> <i> End</i>  Screenshot </h2>
+
+    <div id="fine-uploader-gallery"><div><div class="qq-uploader-selector qq-uploader qq-gallery" qq-drop-area-text="Drop files here">
+            <div class="qq-total-progress-bar-container-selector qq-total-progress-bar-container qq-hide">
+                <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-total-progress-bar-selector qq-progress-bar qq-total-progress-bar"></div>
+            </div>
+            <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone="" style="display: none;">
+                
+            </div>
+            <div class="qq-upload-button-selector qq-upload-button" style="position: relative; overflow: hidden; direction: ltr;">
+                <div>Upload a file</div>
+            <input qq-button-id="e6e15a74-b292-485c-9c7f-b978d4639ae2" title="file input" accept="image/*" type="file" name="qqfile" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0; height: 100%;"></div>
+            <span class="qq-drop-processing-selector qq-drop-processing qq-hide">
+                <span>Processing dropped files...</span>
+                <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+            </span>
+            <ul class="qq-upload-list-selector qq-upload-list" role="region" aria-live="polite" aria-relevant="additions removals"></ul>
+
+            <dialog class="qq-alert-dialog-selector">
+                <div class="qq-dialog-message-selector"></div>
+                <div class="qq-dialog-buttons">
+                    <button type="button" class="qq-cancel-button-selector">Close</button>
+                </div>
+            </dialog>
+
+            <dialog class="qq-confirm-dialog-selector">
+                <div class="qq-dialog-message-selector"></div>
+                <div class="qq-dialog-buttons">
+                    <button type="button" class="qq-cancel-button-selector">No</button>
+                    <button type="button" class="qq-ok-button-selector">Yes</button>
+                </div>
+            </dialog>
+
+            <dialog class="qq-prompt-dialog-selector">
+                <div class="qq-dialog-message-selector"></div>
+                <input type="text">
+                <div class="qq-dialog-buttons">
+                    <button type="button" class="qq-cancel-button-selector">Cancel</button>
+                    <button type="button" class="qq-ok-button-selector">Ok</button>
+                </div>
+            </dialog>
+        </div></div></div>
+</div>
+
+ 
+
+
+
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script>var globals={studentUserId:"231674",studentName:"Levi Katz",screenshotNo:1,screenshot:{"image":"//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231472-00001-1.jpg?917","thumbnail":null,"imageBackup":null,"thumbnailBackup":null},courseId:1,courseComponentId:1,isLoggedIn:true,isStudent:false,isStaff:true,isInstructor:true,isOffice:true,loadTimeMS:(new Date().getTime()),IsDateWidgetSupported:false,isMobile:false,showMenu:true,schoolId:1,UserId:"87",userName:"Ilan Preisler",currentLanguageId:1,defaultLanguageId:1,currentLanguageCode:"en",defaultLanguageCode:"en"}</script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script><script>$(document).ajaxError(function(r,t,s,o){s.suppressAjaxError||(401==t.status||403==t.status?location.href='/':'abort'!=o&&setTimeout(alert,10,'error '+t.status+' '+o+' '+t.responseJSON))});</script><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js" type="text/javascript"></script><script src="/js/utils.min.10.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.js" type="text/javascript"></script>
+    
+    
+ 
+    <script src="//cdn.jsdelivr.net/npm/fine-uploader@5.16.2/fine-uploader/fine-uploader.min.js"></script>
+ 
+    <script type="text/javascript">
+
+        var galleryUploader = new qq.FineUploader({
+            multiple: false,
+            callbacks: {
+                onError: function (id, name, errorReason, xhrOrXdr) {
+                    alert(qq.format("Error on file number {} - {}.  Reason: {}", id, name, errorReason));
+                },
+                onComplete: function (a, b, c) {
+                    window.history.back();
+                }
+            },
+            element: document.getElementById("fine-uploader-gallery"),
+            template: 'qq-template-gallery',
+            request: {
+                endpoint: '/ZoomScreenshot/uploadimage/?studentUserId=' + globals.studentUserId + "&courseId=" + globals.courseId + "&courseComponentId=" + globals.courseComponentId + "&screenshotNo=" + globals.screenshotNo
+            },
+            thumbnails: {
+                placeholders: {
+                    waitingPath: '/source/placeholders/waiting-generic.png',
+                    notAvailablePath: '/source/placeholders/not_available-generic.png'
+                }
+            },
+            scaling: {
+                defaultQuality: '100',
+                defaultType: 'image/jpeg',
+                sendOriginal: false,
+                sizes: [{
+                    maxSize: 700
+                }]
+            },
+            validation: {
+                acceptFiles: "image/*",
+                allowedExtensions: ['jpeg', 'jpg', 'gif', 'png']
+            }
+        });
+
+         
+
+    </script>
+
+
+
+    <script>
+        if(globals.showMenu&&(new Mmenu(document.querySelector("#menu"),{setSelected:{current:!0,parent:!0},navbar:{title:"Menu"},offCanvas:!1,extensions:globals.isMobile?[]:["theme-white","border-full"]}),globals.isMobile)){let e=new Drawer;document.getElementById("hamburger").addEventListener("click",e.open),document.getElementById("menuCloseButton").addEventListener("click",e.close)}; document.getElementById('loaderoverlay').remove(); document.body.classList.remove('loaderbody')
+    </script>
+
+    
+
+
+
+
+</body></html>

@@ -1,0 +1,644 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=18%2F08%2F2025",
+  "url_hash": "8b028efcac7c04c3",
+  "scraped_at": "2026-02-12T22:08:33.305Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 18, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 18, 2025 Name Lang Time Phone Course 1 st Class Comments 231483 NTUBI, HERVE MATONDO EN 11:42am 438-860-6265 (m) Automobile Montreal 09/09/2025 7:00pm edit 231484 Wishart, James EN 12:10pm 514-232-9395 (m) 514-802-4611 (h) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231485 Cooperman, Levi EN 1:50pm 514-754-1969 (m) 514-754-1969 (h) Scooter Montreal 31/08/2025 5:30pm edit 231486 Mazakian, Sarah EN 1:52pm 514-649-7394 (m) 514-649-7394 (h) Automobile Kirkland 21/08/2025 5:00pm edit 231487 Martin, Lucas Gabriel EN 3:32pm 514-602-0225 (m) 514-708-5822 (h) Automobile Côte Saint-Luc 21/08/2025 5:00pm edit 231489 Abboud, Andrew EN 4:58pm 514-561-1495 (m) 438-356-7379 (h) Motorcycle Vaudreuil-Dorion 22/08/2025 6:00pm edit 231490 Tamo, Isaiah EN 5:32pm 514-550-7256 (m) Motorcycle Montreal 05/09/2025 6:00pm edit 231491 Boriak, Oleksandra EN 5:34pm 438-528-4077 (m) Automobile Montreal 29/09/2025 7:00pm edit 231492 Ruah, Ariel EN 6:22pm 438-867-5567 (m) 514-947-7677 (h) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231493 Emond, Jacqueline EN 7:40pm 514-604-2154 (m) Automobile Montreal 21/08/2025 5:00pm edit 231494 Lamothe, Justin EN 7:48pm 438-229-6429 (m) Motorcycle Montreal 19/09/2025 6:00pm edit 231495 Kytnar, Rafael EN 8:35pm 438-686-3355 (m) 514-730-9577 (h) Automobile Montreal 24/08/2025 3:00pm edit 231496 Elmj, Zacky EN 9:13pm 438-376-0563 (m) Automobile Montreal 21/08/2025 5:00pm edit 231497 Patel, Ishan EN 11:06pm 514-883-1686 (m) Scooter Vaudreuil-Dorion 21/09/2025 5:30pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "18/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "18/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231483",
+          "NTUBI, HERVE MATONDO",
+          "EN",
+          "11:42am",
+          "438-860-6265   (m)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231484",
+          "Wishart, James",
+          "EN",
+          "12:10pm",
+          "514-232-9395   (m)     \n \n             514-802-4611   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231485",
+          "Cooperman, Levi",
+          "EN",
+          "1:50pm",
+          "514-754-1969   (m)     \n \n             514-754-1969   (h)",
+          "Scooter Montreal",
+          "31/08/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "231486",
+          "Mazakian, Sarah",
+          "EN",
+          "1:52pm",
+          "514-649-7394   (m)     \n \n             514-649-7394   (h)",
+          "Automobile Kirkland",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231487",
+          "Martin, Lucas Gabriel",
+          "EN",
+          "3:32pm",
+          "514-602-0225   (m)     \n \n             514-708-5822   (h)",
+          "Automobile Côte Saint-Luc",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231489",
+          "Abboud, Andrew",
+          "EN",
+          "4:58pm",
+          "514-561-1495   (m)     \n \n             438-356-7379   (h)",
+          "Motorcycle Vaudreuil-Dorion",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231490",
+          "Tamo, Isaiah",
+          "EN",
+          "5:32pm",
+          "514-550-7256   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231491",
+          "Boriak, Oleksandra",
+          "EN",
+          "5:34pm",
+          "438-528-4077   (m)",
+          "Automobile Montreal",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231492",
+          "Ruah, Ariel",
+          "EN",
+          "6:22pm",
+          "438-867-5567   (m)     \n \n             514-947-7677   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231493",
+          "Emond, Jacqueline",
+          "EN",
+          "7:40pm",
+          "514-604-2154   (m)",
+          "Automobile Montreal",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231494",
+          "Lamothe, Justin",
+          "EN",
+          "7:48pm",
+          "438-229-6429   (m)",
+          "Motorcycle Montreal",
+          "19/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231495",
+          "Kytnar, Rafael",
+          "EN",
+          "8:35pm",
+          "438-686-3355   (m)     \n \n             514-730-9577   (h)",
+          "Automobile Montreal",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231496",
+          "Elmj, Zacky",
+          "EN",
+          "9:13pm",
+          "438-376-0563   (m)",
+          "Automobile Montreal",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231497",
+          "Patel, Ishan",
+          "EN",
+          "11:06pm",
+          "514-883-1686   (m)",
+          "Scooter Vaudreuil-Dorion",
+          "21/09/2025  5:30pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231483",
+          "Name": "NTUBI, HERVE MATONDO",
+          "Lang": "EN",
+          "Time": "11:42am",
+          "Phone": "438-860-6265   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231484",
+          "Name": "Wishart, James",
+          "Lang": "EN",
+          "Time": "12:10pm",
+          "Phone": "514-232-9395   (m)     \n \n             514-802-4611   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231485",
+          "Name": "Cooperman, Levi",
+          "Lang": "EN",
+          "Time": "1:50pm",
+          "Phone": "514-754-1969   (m)     \n \n             514-754-1969   (h)",
+          "Course": "Scooter Montreal",
+          "1st Class": "31/08/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231486",
+          "Name": "Mazakian, Sarah",
+          "Lang": "EN",
+          "Time": "1:52pm",
+          "Phone": "514-649-7394   (m)     \n \n             514-649-7394   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231487",
+          "Name": "Martin, Lucas Gabriel",
+          "Lang": "EN",
+          "Time": "3:32pm",
+          "Phone": "514-602-0225   (m)     \n \n             514-708-5822   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231489",
+          "Name": "Abboud, Andrew",
+          "Lang": "EN",
+          "Time": "4:58pm",
+          "Phone": "514-561-1495   (m)     \n \n             438-356-7379   (h)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231490",
+          "Name": "Tamo, Isaiah",
+          "Lang": "EN",
+          "Time": "5:32pm",
+          "Phone": "514-550-7256   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231491",
+          "Name": "Boriak, Oleksandra",
+          "Lang": "EN",
+          "Time": "5:34pm",
+          "Phone": "438-528-4077   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231492",
+          "Name": "Ruah, Ariel",
+          "Lang": "EN",
+          "Time": "6:22pm",
+          "Phone": "438-867-5567   (m)     \n \n             514-947-7677   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231493",
+          "Name": "Emond, Jacqueline",
+          "Lang": "EN",
+          "Time": "7:40pm",
+          "Phone": "514-604-2154   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "231494",
+          "Name": "Lamothe, Justin",
+          "Lang": "EN",
+          "Time": "7:48pm",
+          "Phone": "438-229-6429   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "19/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "231495",
+          "Name": "Kytnar, Rafael",
+          "Lang": "EN",
+          "Time": "8:35pm",
+          "Phone": "438-686-3355   (m)     \n \n             514-730-9577   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 12,
+          "column_0": "231496",
+          "Name": "Elmj, Zacky",
+          "Lang": "EN",
+          "Time": "9:13pm",
+          "Phone": "438-376-0563   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 13,
+          "column_0": "231497",
+          "Name": "Patel, Ishan",
+          "Lang": "EN",
+          "Time": "11:06pm",
+          "Phone": "514-883-1686   (m)",
+          "Course": "Scooter Vaudreuil-Dorion",
+          "1st Class": "21/09/2025  5:30pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231685&courseId=1",
+      "text": "NTUBI, HERVE MATONDO",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231686&courseId=1",
+      "text": "Wishart, James",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231687&courseId=3",
+      "text": "Cooperman, Levi",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231688&courseId=1",
+      "text": "Mazakian, Sarah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231689&courseId=1",
+      "text": "Martin, Lucas Gabriel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231691&courseId=2",
+      "text": "Abboud, Andrew",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231692&courseId=2",
+      "text": "Tamo, Isaiah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231693&courseId=1",
+      "text": "Boriak, Oleksandra",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231694&courseId=1",
+      "text": "Ruah, Ariel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231695&courseId=1",
+      "text": "Emond, Jacqueline",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231696&courseId=2",
+      "text": "Lamothe, Justin",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231697&courseId=1",
+      "text": "Kytnar, Rafael",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231698&courseId=1",
+      "text": "Elmj, Zacky",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231699&courseId=3",
+      "text": "Patel, Ishan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 29419,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=18%2F08%2F2025"
+}

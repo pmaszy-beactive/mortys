@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228505",
+  "url_hash": "802d9275ed94db0d",
+  "scraped_at": "2026-02-13T03:46:58.808Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "M243629060907 03286954 L-020 Michel-Decker, Mathilda 507 avenue argyle Montreal QC H3Y 3B6 0001235637 4388731451 X Ilan Preisler 23 oct. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 10 07 2025 10 14 COPIE D'ÉLÈVE M243629060907 03286954 L-020 Michel-Decker, Mathilda 507 avenue argyle Montreal QC H3Y 3B6 0001235637 4388731451 X Ilan Preisler 23 oct. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 10 07 2025 10 14 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286954&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286954&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10173,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228505"
+}

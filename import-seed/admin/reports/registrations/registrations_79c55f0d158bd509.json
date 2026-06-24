@@ -1,0 +1,644 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=15%2F09%2F2025",
+  "url_hash": "79c55f0d158bd509",
+  "scraped_at": "2026-02-12T15:05:46.679Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Sep 15, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Sep 15, 2025 Name Lang Time Phone Course 1 st Class Comments 231744 Lee, Brian EN 12:05am 514-963-0263 (m) 438-828-3939 (h) Motorcycle Dollard-des-Ormeaux 19/09/2025 6:00pm edit 231745 Quedoshim , Coby EN 8:56am 514-235-3502 (m) Automobile Dollard-des-Ormeaux 29/09/2025 7:00pm edit 231746 Wang, Yue EN 9:40am 438-406-5019 (m) Automobile Dollard-des-Ormeaux 18/09/2025 7:00pm edit 231747 Chittock, Ryder EN 10:25am 514-892-3309 (m) Automobile Montreal 18/09/2025 7:00pm edit 231748 Slive, Edouard EN 11:49am 514-883-7596 (m) Automobile Montreal 18/09/2025 7:00pm edit 231749 Illouz, Adam EN 12:00pm 514-977-2326 (m) Automobile Kirkland 18/09/2025 7:00pm edit 231750 Fouani, Ibrahim Fouani EN 1:00pm 514-213-5369 (m) Motorcycle Montreal 19/09/2025 6:00pm edit 231751 Mellul, Yuval EN 1:09pm 438-889-0119 (m) 438-889-0119 (h) 438-889-0119 (w) Automobile Dollard-des-Ormeaux 18/09/2025 7:00pm edit 231752 Leblanc, Alex EN 2:10pm 514-667-5643 (m) Scooter Kirkland 21/09/2025 5:30pm edit 231753 Perrett, Greg EN 3:27pm 514-709-7532 (m) Motorcycle Dollard-des-Ormeaux 19/09/2025 6:00pm edit 231754 de Bretagne, Priscille EN 4:45pm 438-879-5633 (m) 438-879-5637 (h) Automobile Montreal 18/09/2025 7:00pm edit 231755 chapman, kylie EN 5:16pm 438-924-0407 (m) Automobile Montreal 18/09/2025 7:00pm edit 231756 Stea, Olivia EN 6:32pm 514-210-7925 (m) 514-757-2891 (h) 514-570-4373 (w) Automobile Dollard-des-Ormeaux 29/09/2025 7:00pm edit 231757 Fishman, Ava EN 6:32pm 514-924-7828 (m) 512-924-7830 (h) 514-924-7823 (w) Automobile Dollard-des-Ormeaux 29/09/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "15/09/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "15/09/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231744",
+          "Lee, Brian",
+          "EN",
+          "12:05am",
+          "514-963-0263   (m)     \n \n             438-828-3939   (h)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "19/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231745",
+          "Quedoshim , Coby",
+          "EN",
+          "8:56am",
+          "514-235-3502   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231746",
+          "Wang, Yue",
+          "EN",
+          "9:40am",
+          "438-406-5019   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231747",
+          "Chittock, Ryder",
+          "EN",
+          "10:25am",
+          "514-892-3309   (m)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231748",
+          "Slive, Edouard",
+          "EN",
+          "11:49am",
+          "514-883-7596   (m)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231749",
+          "Illouz, Adam",
+          "EN",
+          "12:00pm",
+          "514-977-2326   (m)",
+          "Automobile Kirkland",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231750",
+          "Fouani, Ibrahim Fouani",
+          "EN",
+          "1:00pm",
+          "514-213-5369   (m)",
+          "Motorcycle Montreal",
+          "19/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231751",
+          "Mellul, Yuval",
+          "EN",
+          "1:09pm",
+          "438-889-0119   (m)     \n \n             438-889-0119   (h)     \n \n             438-889-0119   (w)",
+          "Automobile Dollard-des-Ormeaux",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231752",
+          "Leblanc, Alex",
+          "EN",
+          "2:10pm",
+          "514-667-5643   (m)",
+          "Scooter Kirkland",
+          "21/09/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "231753",
+          "Perrett, Greg",
+          "EN",
+          "3:27pm",
+          "514-709-7532   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "19/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231754",
+          "de Bretagne, Priscille",
+          "EN",
+          "4:45pm",
+          "438-879-5633   (m)     \n \n             438-879-5637   (h)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231755",
+          "chapman, kylie",
+          "EN",
+          "5:16pm",
+          "438-924-0407   (m)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231756",
+          "Stea, Olivia",
+          "EN",
+          "6:32pm",
+          "514-210-7925   (m)     \n \n             514-757-2891   (h)     \n \n             514-570-4373   (w)",
+          "Automobile Dollard-des-Ormeaux",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231757",
+          "Fishman, Ava",
+          "EN",
+          "6:32pm",
+          "514-924-7828   (m)     \n \n             512-924-7830   (h)     \n \n             514-924-7823   (w)",
+          "Automobile Dollard-des-Ormeaux",
+          "29/09/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231744",
+          "Name": "Lee, Brian",
+          "Lang": "EN",
+          "Time": "12:05am",
+          "Phone": "514-963-0263   (m)     \n \n             438-828-3939   (h)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "19/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231745",
+          "Name": "Quedoshim , Coby",
+          "Lang": "EN",
+          "Time": "8:56am",
+          "Phone": "514-235-3502   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231746",
+          "Name": "Wang, Yue",
+          "Lang": "EN",
+          "Time": "9:40am",
+          "Phone": "438-406-5019   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231747",
+          "Name": "Chittock, Ryder",
+          "Lang": "EN",
+          "Time": "10:25am",
+          "Phone": "514-892-3309   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231748",
+          "Name": "Slive, Edouard",
+          "Lang": "EN",
+          "Time": "11:49am",
+          "Phone": "514-883-7596   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231749",
+          "Name": "Illouz, Adam",
+          "Lang": "EN",
+          "Time": "12:00pm",
+          "Phone": "514-977-2326   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231750",
+          "Name": "Fouani, Ibrahim Fouani",
+          "Lang": "EN",
+          "Time": "1:00pm",
+          "Phone": "514-213-5369   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "19/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231751",
+          "Name": "Mellul, Yuval",
+          "Lang": "EN",
+          "Time": "1:09pm",
+          "Phone": "438-889-0119   (m)     \n \n             438-889-0119   (h)     \n \n             438-889-0119   (w)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231752",
+          "Name": "Leblanc, Alex",
+          "Lang": "EN",
+          "Time": "2:10pm",
+          "Phone": "514-667-5643   (m)",
+          "Course": "Scooter Kirkland",
+          "1st Class": "21/09/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231753",
+          "Name": "Perrett, Greg",
+          "Lang": "EN",
+          "Time": "3:27pm",
+          "Phone": "514-709-7532   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "19/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "231754",
+          "Name": "de Bretagne, Priscille",
+          "Lang": "EN",
+          "Time": "4:45pm",
+          "Phone": "438-879-5633   (m)     \n \n             438-879-5637   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "231755",
+          "Name": "chapman, kylie",
+          "Lang": "EN",
+          "Time": "5:16pm",
+          "Phone": "438-924-0407   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 12,
+          "column_0": "231756",
+          "Name": "Stea, Olivia",
+          "Lang": "EN",
+          "Time": "6:32pm",
+          "Phone": "514-210-7925   (m)     \n \n             514-757-2891   (h)     \n \n             514-570-4373   (w)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 13,
+          "column_0": "231757",
+          "Name": "Fishman, Ava",
+          "Lang": "EN",
+          "Time": "6:32pm",
+          "Phone": "514-924-7828   (m)     \n \n             512-924-7830   (h)     \n \n             514-924-7823   (w)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231946&courseId=2",
+      "text": "Lee, Brian",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231947&courseId=1",
+      "text": "Quedoshim , Coby",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231948&courseId=1",
+      "text": "Wang, Yue",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231949&courseId=1",
+      "text": "Chittock, Ryder",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231950&courseId=1",
+      "text": "Slive, Edouard",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231951&courseId=1",
+      "text": "Illouz, Adam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231952&courseId=2",
+      "text": "Fouani, Ibrahim Fouani",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231953&courseId=1",
+      "text": "Mellul, Yuval",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231954&courseId=3",
+      "text": "Leblanc, Alex",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231955&courseId=2",
+      "text": "Perrett, Greg",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231956&courseId=1",
+      "text": "de Bretagne, Priscille",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231957&courseId=1",
+      "text": "chapman, kylie",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231958&courseId=1",
+      "text": "Stea, Olivia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231959&courseId=1",
+      "text": "Fishman, Ava",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 29487,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=15%2F09%2F2025"
+}

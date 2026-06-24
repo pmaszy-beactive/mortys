@@ -1,0 +1,267 @@
+{
+  "url": "https://mortys.drivetraqr.ca/quebecauto/practicalEval/?studentUserId=228526&courseComponentId=17",
+  "url_hash": "128374b0371851a0",
+  "scraped_at": "2026-02-13T03:00:46.632Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Self-Evaluation of In-Car Session"
+    },
+    {
+      "level": 2,
+      "text": "Practical Session #5\n    James, Carter"
+    },
+    {
+      "level": 6,
+      "text": "Student Signature"
+    },
+    {
+      "level": 6,
+      "text": "Instructor Signature"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Self-Evaluation of In-Car Session Practical Session #5 James, Carter 1. In the Learner's view, what are the strengths and what are the weaknesses to be worked on at this stage of he practical training? Need to be more cautious about right turns Good at stop signs, blind spot check 2. In the Instructor's view, what are the strengths and what are the weaknesses to be worked on at this stage of he practical training? Agree with student, you can control the vehicle pretty good, you know to check blind spot, right turns little bit fast, road signs good Student Student Signature James, Carter Dec 11, 2025 Instructor Instructor Signature Jeff Shan Save",
+  "forms": [
+    {
+      "action": "#",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "studentUserId",
+          "value": "228526",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "courseComponentId",
+          "type": "hidden",
+          "id": "courseComponentId",
+          "value": "17",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "studentComments",
+          "type": "text",
+          "id": "studentComments",
+          "value": "     Need to be more cautious about right turns \nGood at stop signs, blind spot check  ",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "instructorComments",
+          "type": "text",
+          "id": "instructorComments",
+          "value": "     Agree with student, you can control the vehicle pretty good, you know to check blind spot, right turns little bit fast, road signs good  ",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "studentSignatureId",
+          "type": "hidden",
+          "id": "studentSignatureId",
+          "value": "zdX6Gk4LdUm1mFH-yF1qew",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "InstructorSignatureId",
+          "type": "hidden",
+          "id": "InstructorSignatureId",
+          "value": "HWgFPp-EpEKDte-T5mV8Cw",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "228526",
+        "courseComponentId": "17",
+        "studentComments": "     Need to be more cautious about right turns \nGood at stop signs, blind spot check  ",
+        "instructorComments": "     Agree with student, you can control the vehicle pretty good, you know to check blind spot, right turns little bit fast, road signs good  ",
+        "studentSignatureId": "zdX6Gk4LdUm1mFH-yF1qew",
+        "InstructorSignatureId": "HWgFPp-EpEKDte-T5mV8Cw"
+      }
+    }
+  ],
+  "tables": [],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/signatureImage.ashx?id=zdX6Gk4LdUm1mFH-yF1qew",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/signatureImage.ashx?id=HWgFPp-EpEKDte-T5mV8Cw",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 17570,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/quebecauto/practicalEval/?studentUserId=228526&courseComponentId=17"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231706",
+  "url_hash": "0a742fc3cf333020",
+  "scraped_at": "2026-02-12T21:52:52.187Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "I230807110710 03203635 A-106 Iggout, Sirine 64 Av. Marc Aurèle Fortin Vaudreuil-Dorion QC J7V 8H3 0001235963 4387731128 X Ilan Preisler 24 nov. 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 10 08 2025 10 30 2025 10 09 2025 10 16 2025 11 20 COPIE D'ÉLÈVE I230807110710 03203635 A-106 Iggout, Sirine 64 Av. Marc Aurèle Fortin Vaudreuil-Dorion QC J7V 8H3 0001235963 4387731128 X Ilan Preisler 24 nov. 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 10 08 2025 10 30 2025 10 09 2025 10 16 2025 11 20 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203635&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203635&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10203,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231706"
+}

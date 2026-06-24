@@ -1,0 +1,653 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Mortys Driving School</title>
+    <meta name="google" content="notranslate">
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+
+   
+    <script>
+        
+              window.onunload = function () { }; // disable bfcache
+        var avivaronload = (function () {
+          
+                  var loaded = false,
+                      onload = (persisted) => {
+                          if (persisted ) window.location.reload();},
+                      loadController = function (ev) {
+                          var persisted = (ev.persisted !== undefined) && ev.persisted;
+                          if (persisted || !loaded) {  //just in case bfcache was not successfully disabled
+                              onload(persisted);
+                              loaded = true;
+                          }
+                      }
+                  window.addEventListener('pageshow', loadController)
+                  window.addEventListener('load', loadController)
+                  return {
+                      add: function (f) {
+                          var oldlonload = onload;
+                          onload = function (persisted) { oldlonload(persisted); f(persisted); }
+                      }
+                  }
+              })();
+
+                
+                   (function () {
+
+                    window.readCookie = function(n){ return (n = new RegExp('(?:^|;\\s*)' + ('' + n).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)').exec(document.cookie)) && n[1]; }
+                    var   cookie = readCookie('signmodeurl');
+                    if (cookie && cookie != (window.location.pathname + window.location.search)) {
+                            window.location.href = cookie
+                   }
+                })
+                ();
+
+             
+
+
+    </script>
+
+
+
+
+
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" type="text/css"><link href="/css/base/base_desktop5.min.css" rel="stylesheet" type="text/css"><link href="//cdn.jsdelivr.net/jquery.footable/2.0.3/css/footable.core.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.css" rel="stylesheet" type="text/css"><style>.mm-menu {--mm-offset-top: 50px;--mm-offset-bottom: 15px;--mm-offset-left: 1px}</style>
+    
+    
+</head>
+<body class="">
+    
+            <div class="container mm-wrapper" style="position:fixed;   height:100%;   top:0; z-index:100;  margin-left:auto;  margin-right:auto; left:0; right:0;  pointer-events:none">
+                
+
+
+
+
+<nav id="menu" class="mm-menu mm-menu_selected-parent mm-menu_theme-white mm-menu_border-full">
+
+    <button id="menuCloseButton" class="closebutton"> </button>
+    
+    <div class="mm-panels"><div id="mm-0" class="mm-panel mm-hidden mm-panel_opened-parent" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-navbar__title"><span>Menu</span></a></div><ul class="mm-listview">
+<li class="mm-listitem"><a href="/admin/" class="mm-listitem__text">Student Files</a></li>
+<li class="mm-listitem"><a href="/admin/classes/" class="mm-listitem__text">Classes</a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-1">Instructor<span class="mm-sronly">Open submenu</span></a></li>
+                <li class="mm-listitem mm-listitem_selected-parent">
+
+                    
+                    
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-4">Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/schedule/" class="mm-listitem__text">Set Class Schedule</a></li>
+<li class="mm-listitem"><a href="/admin/schoolpermit/" class="mm-listitem__text">School Permits</a></li>
+
+    </ul></div><div id="mm-1" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Instructor</span></a></div><ul class="mm-listview">
+                        <li class="mm-listitem">
+                            
+                            
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-2">Instructor Schedule<span class="mm-sronly">Open submenu</span></a></li>
+
+
+
+                        <li class="mm-listitem">
+                            
+                            
+
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-3">Instructor Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/instructorsignatures/" class="mm-listitem__text">My Signatures</a></li>
+
+                    </ul></div><div id="mm-2" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Schedule</span></a></div><ul class="mm-listview">
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/" class="mm-listitem__text">Booked Appointments</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/workhours/" class="mm-listitem__text">Specify Hours</a></li>
+
+
+
+                            </ul></div><div id="mm-3" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Reports</span></a></div><ul class="mm-listview">
+
+
+                                <li class="mm-listitem"><a href="/admin/reports/worksummary/" class="mm-listitem__text">Work Summary</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/reports/instructorstodolists/" class="mm-listitem__text">To Do Lists</a></li>
+
+
+                            </ul></div><div id="mm-4" class="mm-panel mm-panel_opened"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Reports</span></a></div><ul class="mm-listview">
+
+                       
+                        <li class="mm-listitem"><a href="/admin/reports/aqtr/" class="mm-listitem__text">AQTR</a></li>
+
+                        <li class="mm-listitem mm-listitem_selected"><a href="/admin/reports/registrations/" class="mm-listitem__text">Registrations</a></li>
+
+                 
+
+ 
+                    </ul></div></div></nav>
+
+
+ 
+ 
+            </div>
+     
+
+<div id="header" class="container header">
+    <a style="margin-left:10px" href="/"><img style=" height:45px ;" src="/img/logo.png"></a>
+
+
+
+        <div style="   text-align:right  ; flex-grow:1  ">
+            <ul class="nav ace-nav navbar-buttons   " role="navigation">
+                <li class="light-blue pull-right">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <span class="user-info">
+                            Ilan Preisler
+                            <b class="caret"></b>
+                        </span>
+
+                    </a>
+
+
+
+           
+                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                        <li>
+                            <a href="/logout/">
+                                <i class="ace-icon fa fa-power-off"></i>
+                                logout
+                            </a>
+
+                        </li>
+                    </ul>
+                
+            </li></ul>
+        </div>
+
+
+
+
+
+     
+</div>
+
+ 
+ 
+
+
+ 
+        <div style="min-height:calc(100% - 50px);    position:relative ;  ; display:flex; flex-direction:column;     ">
+            <div style="   flex-grow:1; display:flex; flex-direction:column; margin-bottom:5px; " class="container maincontainer">
+                <div class="maintable" style="     flex-grow:1">
+                    <div class="cell1"> </div>
+                    <div class="cell2" id="contentContainer">
+                        
+
+
+ 
+
+ 
+
+
+
+
+<h1>  Registrations</h1>
+
+
+  
+<form id="theform" novalidate="novalidate">
+    <div class="row">
+        
+                <div class="col-xs-12 col-sm-6  ">  
+ <label>Date</label>
+ <input type="text" name="date" value="17/08/2025" class="form-control mydate required" placeholder="dd/mm/yyyy" autocomplete="off" aria-required="true"> 
+ 
+  
+    </div>
+     </div>
+ 
+    <div class="row" style="margin-bottom:20px">
+          <div class="col-xs-12 col-sm-6  ">    
+         
+          <button type="submit" class="btn btn-success pull-left">Generate Report <span class="glyphicon glyphicon-play"></span></button>
+
+      </div>
+
+
+
+    </div>
+</form>
+
+ <style>
+
+
+
+
+    
+
+
+
+   @media (max-width: 990px) {  
+       #registrationstable td.name a { 
+              margin-left:10px; display:inline-block; position:relative; top:-5px;
+              
+            
+     }
+         #registrationstable  th:nth-child(2) {
+           padding-left:50px;
+          
+         
+         }
+     
+   
+     }
+
+
+
+      
+
+    
+      #registrationstable .textlink {
+       display:block;  padding-bottom:5px;
+         
+         
+          }
+
+
+      #registrationstable tbody   td {
+         padding-left:10px; padding-right:10px;   padding-bottom:3px;   padding-top:3px;  
+         vertical-align:middle!important;
+    }
+
+ 
+
+       #registrationstable  th {
+         padding:10px;   border-bottom:solid 1px black;
+    }
+        #registrationstable td.edit {
+             padding:5px; cursor:pointer
+    }
+  
+       #registrationstable td {
+             white-space:nowrap
+    }
+
+           #registrationstable   a.phonelink { display:block;
+           margin-top:4px; margin-bottom:4px;
+    }
+
+                 #registrationstable   .language{  text-align:center;   width:1%; padding:0!important;   vertical-align:middle!important;
+    }
+
+          #registrationstable td.comments {
+             white-space:normal;  width:200px;
+    }
+
+     #registrationstable .footable-row-detail-cell {
+       background-color:white
+     }
+
+ </style>
+
+   
+    <h2>Registrations Aug 17, 2025   </h2>
+     <table id="registrationstable" class="alternatecolors footable table toggle-square-filled toggle-large default footable-loaded">
+    
+         <thead>
+             <tr>
+                <th data-ignore="true" data-hide="all" style="display: none;"></th>
+                   <th data-toggle="true" class="footable-visible footable-first-column">Name</th>
+                       <th class="language footable-visible" data-hide="phone">Lang</th> 
+
+                 <th data-hide="phone,tablet" class="footable-visible">Time</th>
+                
+                   <th data-hide="phone" class="footable-visible">Phone</th> 
+                  <th data-hide="phone,tablet" class="footable-visible">Course</th>
+                 <th data-hide="phone,tablet" class="footable-visible">1<sup>st</sup> Class</th>
+                 <th class="footable-visible footable-last-column">Comments</th> 
+             </tr>
+
+
+         </thead>
+         
+           <tbody>
+          
+<tr class="odd">
+      
+  
+      <td class="id" style="display: none;">231470</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231672&amp;courseId=1"> Maroun, Max</a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">12:01pm</td>
+      
+     <td class="phone footable-visible">    514-915-0408  <span>&nbsp;(m)</span>   <br>  
+ 
+             514-594-3314  <span>&nbsp;(h)</span>   <br>  
+ 
+             </td>
+      
+     <td class="footable-visible"> Automobile<br> Dollard-des-Ormeaux</td>
+    
+     <td class="footable-visible"> 21/08/2025 <br> 5:00pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+<tr class="even">
+      
+  
+      <td class="id" style="display: none;">231471</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231673&amp;courseId=2"> Abdallah, Rim</a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">1:09pm</td>
+      
+     <td class="phone footable-visible">    514-804-7463  <span>&nbsp;(m)</span>   <br>  
+ 
+              
+             </td>
+      
+     <td class="footable-visible"> Motorcycle<br> Dollard-des-Ormeaux</td>
+    
+     <td class="footable-visible"> 22/08/2025 <br> 6:00pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+<tr class="odd">
+      
+  
+      <td class="id" style="display: none;">231472</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231674&amp;courseId=1"> Katz, Levi</a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">2:52pm</td>
+      
+     <td class="phone footable-visible">    514-582-9548  <span>&nbsp;(m)</span>   <br>  
+ 
+             514-675-1009  <span>&nbsp;(h)</span>   <br>  
+ 
+             514-717-9548  <span>&nbsp;(w)</span>   <br>  
+</td>
+      
+     <td class="footable-visible"> Automobile<br> Dollard-des-Ormeaux</td>
+    
+     <td class="footable-visible"> 09/09/2025 <br> 7:00pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+<tr class="even">
+      
+  
+      <td class="id" style="display: none;">231473</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231675&amp;courseId=2"> Khalidi, Hajar</a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">4:45pm</td>
+      
+     <td class="phone footable-visible">    514-709-9407  <span>&nbsp;(m)</span>   <br>  
+ 
+              
+             </td>
+      
+     <td class="footable-visible"> Motorcycle<br> Montreal</td>
+    
+     <td class="footable-visible"> 28/11/2025 <br> 6:00pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+<tr class="odd">
+      
+  
+      <td class="id" style="display: none;">231474</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231676&amp;courseId=2"> Payes Rizzo, Vanessa</a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">5:15pm</td>
+      
+     <td class="phone footable-visible">    514-574-5727  <span>&nbsp;(m)</span>   <br>  
+ 
+              
+             </td>
+      
+     <td class="footable-visible"> Motorcycle<br> Montreal</td>
+    
+     <td class="footable-visible"> 22/08/2025 <br> 6:00pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+<tr class="even">
+      
+  
+      <td class="id" style="display: none;">231475</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231677&amp;courseId=3"> Nechyporenko, Andrii</a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">5:17pm</td>
+      
+     <td class="phone footable-visible">    438-926-7321  <span>&nbsp;(m)</span>   <br>  
+ 
+              
+             </td>
+      
+     <td class="footable-visible"> Scooter<br> Montreal</td>
+    
+     <td class="footable-visible"> 21/09/2025 <br> 5:30pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+<tr class="odd">
+      
+  
+      <td class="id" style="display: none;">231476</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231678&amp;courseId=1"> Rickey, Joseph</a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">5:40pm</td>
+      
+     <td class="phone footable-visible">    514-951-6174  <span>&nbsp;(m)</span>   <br>  
+ 
+             514-951-6174  <span>&nbsp;(h)</span>   <br>  
+ 
+             </td>
+      
+     <td class="footable-visible"> Automobile<br> Kirkland</td>
+    
+     <td class="footable-visible"> 08/10/2025 <br> 7:00pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+<tr class="even">
+      
+  
+      <td class="id" style="display: none;">231478</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231680&amp;courseId=1"> Haimovitz, Marley</a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">6:16pm</td>
+      
+     <td class="phone footable-visible">    514-774-5592  <span>&nbsp;(m)</span>   <br>  
+ 
+             514-781-5592  <span>&nbsp;(h)</span>   <br>  
+ 
+             </td>
+      
+     <td class="footable-visible"> Automobile<br> Montreal</td>
+    
+     <td class="footable-visible"> 09/09/2025 <br> 7:00pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+<tr class="odd">
+      
+  
+      <td class="id" style="display: none;">231479</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231681&amp;courseId=1"> Pittaro, Myles</a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">7:16pm</td>
+      
+     <td class="phone footable-visible">    514-824-7134  <span>&nbsp;(m)</span>   <br>  
+ 
+              
+             </td>
+      
+     <td class="footable-visible"> Automobile<br> Vaudreuil-Dorion</td>
+    
+     <td class="footable-visible"> 24/08/2025 <br> 3:00pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+<tr class="even">
+      
+  
+      <td class="id" style="display: none;">231480</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231682&amp;courseId=1"> Kornai, Tanner </a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">7:43pm</td>
+      
+     <td class="phone footable-visible">    514-575-6717  <span>&nbsp;(m)</span>   <br>  
+ 
+              
+             </td>
+      
+     <td class="footable-visible"> Automobile<br> Dollard-des-Ormeaux</td>
+    
+     <td class="footable-visible"> 21/08/2025 <br> 5:00pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+<tr class="odd">
+      
+  
+      <td class="id" style="display: none;">231481</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231683&amp;courseId=1"> faerman, alexis</a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">8:13pm</td>
+      
+     <td class="phone footable-visible">    438-522-6491  <span>&nbsp;(m)</span>   <br>  
+ 
+              
+             </td>
+      
+     <td class="footable-visible"> Automobile<br> Montreal</td>
+    
+     <td class="footable-visible"> 21/08/2025 <br> 5:00pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+<tr class="even">
+      
+  
+      <td class="id" style="display: none;">231482</td>
+    <td class="name footable-visible footable-first-column"><span class="footable-toggle"></span>    <a href="../../studentfile/?studentuserid=231684&amp;courseId=1"> Dizazzo, Bridget</a></td>
+     <td class="language footable-visible">  EN        </td>
+ 
+       <td class="footable-visible">9:28pm</td>
+      
+     <td class="phone footable-visible">    438-520-2320  <span>&nbsp;(m)</span>   <br>  
+ 
+              
+             </td>
+      
+     <td class="footable-visible"> Automobile<br> Vaudreuil-Dorion</td>
+    
+     <td class="footable-visible"> 08/10/2025 <br> 7:00pm</td>
+            <td style="position:relative" class="comments footable-visible footable-last-column"><div> </div>    <a href="#" style=" position:absolute; display:block; top:3px; right:7px;  " data-original-title="" title="">edit</a> </td>
+           
+             
+</tr>
+    
+    </tbody>
+      </table> 
+
+ 
+    
+    
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script>var globals={isLoggedIn:true,isStudent:false,isStaff:true,isInstructor:true,isOffice:true,loadTimeMS:(new Date().getTime()),IsDateWidgetSupported:false,isMobile:false,showMenu:true,schoolId:1,UserId:"87",userName:"Ilan Preisler",currentLanguageId:1,defaultLanguageId:1,currentLanguageCode:"en",defaultLanguageCode:"en"}</script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script><script>$(document).ajaxError(function(r,t,s,o){s.suppressAjaxError||(401==t.status||403==t.status?location.href='/':'abort'!=o&&setTimeout(alert,10,'error '+t.status+' '+o+' '+t.responseJSON))});</script><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js" type="text/javascript"></script><script src="/js/utils.min.10.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.16.0/jquery.validate.min.js" type="text/javascript"></script><script>$.validator.addMethod('mydate',function(t,e){if(this.optional(e))return!0;if(/^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.test(t)){var a=t.split('-'),r=new Date;if(r.setFullYear(a[0],a[1]-1,a[2]),!isNaN(r))return r.getMonth()+1===+a[1]&&r.getDate()===+a[2]&&r.getFullYear()===+a[0]}else if(/^(0?[1-9]|[12][0-9]|3[01])[- /.](0?[1-9]|1[012])[- /.](19|20)\d\d$/.test(t)){var a=t.split('/'),r=new Date;if(r.setFullYear(a[2],a[1]-1,a[0]),!isNaN(r))return r.getMonth()+1===+a[1]&&r.getDate()===+a[0]&&r.getFullYear()===+a[2]}return!1},'Please input valid date.');</script><script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" type="text/javascript"></script><script>$.fn.datepicker.defaults.zIndexOffset=100000;</script><script src="/js/coact.editablefield.min.2.js" type="text/javascript"></script><script src="//cdn.jsdelivr.net/jquery.footable/2.0.3/footable.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.js" type="text/javascript"></script>
+    <script>$(function(){$('.mydate').datepicker({todayHighlight:true, format:'dd/mm/yyyy', autoclose:true, forceParse: false}).on('changeDate', function () {$(this).valid()});$('#theform').validate();})</script>
+    
+       
+       
+       
+
+
+        <script>
+
+            $(function () {
+
+             
+               
+ 
+
+
+                $('#registrationstable').footable(
+                {
+                   
+                    toggleSelector: " > tbody > tr > td > span.footable-toggle",
+                   breakpoints: { // The different screen resolution breakpoints
+                    phone: 480,
+                    tablet: 768
+            }
+                }
+
+                    )
+            }).find('.comments div')
+
+           .editablefield({
+                
+                editbutton:function(){     return $(this).siblings('a')     },
+                 inputtype:'textarea',
+                 placement: "left", title:"Edit Comment",updateFunc: function (newVal ) {
+                     return $.ajax(
+                   {
+                       type: "POST",
+                       url: '../registrationCommentUpdate_ajax',
+                       data: JSON.stringify({ value: newVal,   id:$(this).parent().parent().find('.id').html() }),
+                       contentType: 'application/json; charset=utf-8'
+                   })  
+                }
+            })
+       
+
+
+             
+        </script>
+
+
+        
+    
+
+    <script>
+        if(globals.showMenu&&(new Mmenu(document.querySelector("#menu"),{setSelected:{current:!0,parent:!0},navbar:{title:"Menu"},offCanvas:!1,extensions:globals.isMobile?[]:["theme-white","border-full"]}),globals.isMobile)){let e=new Drawer;document.getElementById("hamburger").addEventListener("click",e.open),document.getElementById("menuCloseButton").addEventListener("click",e.close)}; document.getElementById('loaderoverlay').remove(); document.body.classList.remove('loaderbody')
+    </script>
+
+    
+
+
+
+
+</body></html>

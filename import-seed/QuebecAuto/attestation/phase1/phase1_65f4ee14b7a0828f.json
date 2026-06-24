@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224295",
+  "url_hash": "65f4ee14b7a0828f",
+  "scraped_at": "2026-02-13T09:25:56.884Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03203623 A-106 MacDonald, Macey 210 Rue Des Sittelles Chateauguay QC J6K 0G6 0001235831 4387784445 X Ilan Preisler 14 janv. 2026 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 18 2025 10 15 2025 10 09 2025 10 16 2026 01 08 COPIE D'ÉLÈVE 03203623 A-106 MacDonald, Macey 210 Rue Des Sittelles Chateauguay QC J6K 0G6 0001235831 4387784445 X Ilan Preisler 14 janv. 2026 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 18 2025 10 15 2025 10 09 2025 10 16 2026 01 08 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203623&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203623&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10005,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224295"
+}

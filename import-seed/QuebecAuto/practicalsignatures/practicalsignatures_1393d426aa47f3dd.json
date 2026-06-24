@@ -1,0 +1,919 @@
+{
+  "url": "https://mortys.drivetraqr.ca/quebecauto/practicalsignatures/?studentuserid=224379&courseComponentId=14",
+  "url_hash": "1393d426aa47f3dd",
+  "scraped_at": "2026-02-13T07:21:36.035Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Automobile Practical Lesson #2 - Sign In"
+    },
+    {
+      "level": 2,
+      "text": "Weiss, Matthew"
+    },
+    {
+      "level": 2,
+      "text": ""
+    },
+    {
+      "level": 6,
+      "text": "Student Signature"
+    },
+    {
+      "level": 6,
+      "text": "Instructor Signature"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Automobile Practical Lesson #2 - Sign In Weiss, Matthew Location choose location Côte Saint-Luc Dollard-des-Ormeaux Kirkland Montreal Vaudreuil-Dorion Date Time 7:00am 7:15am 7:30am 7:45am 8:00am 8:15am 8:30am 8:45am 9:00am 9:15am 9:30am 9:45am 10:00am 10:15am 10:30am 10:45am 11:00am 11:15am 11:30am 11:45am 12:00pm 12:15pm 12:30pm 12:45pm 1:00pm 1:15pm 1:30pm 1:45pm 2:00pm 2:15pm 2:30pm 2:45pm 3:00pm 3:15pm 3:30pm 3:45pm 4:00pm 4:15pm 4:30pm 4:45pm 5:00pm 5:15pm 5:30pm 5:45pm 6:00pm 6:15pm 6:30pm 6:45pm 7:00pm 7:15pm 7:30pm 7:45pm 8:00pm 8:15pm 8:30pm 8:45pm 9:00pm 9:15pm 9:30pm 9:45pm 10:00pm 10:15pm 10:30pm 10:45pm 11:00pm 11:15pm 11:30pm Student Weiss, Matthew Student Signature Instructor Select Instructor Adam Sevy Anatoli Touranski Andre Robinson Andrew Matthews Aqib Qureshi Bruce Hafner Charly Pizzuco Chris Cayer Earl Sachin Eli Dayan Erik Olynyk Firas Matouk Frank Cooper Gary Grant Gary Trace Geoff Kloos Gerard Harfouche Guy Zamir Hikmat Rahimee Humy Ayubi Ilan Preisler Jack Meshoulam James Nawrot Jeff Shan Jose De Los Rios Karen Reynolds Karmi Dexter Ken McCullough Marcel Caron Marcel Roland Mario Mastronardi Melanie Cater Michael Bensemana Miguel Abuel Mirhan Geovshanian Mohsen Saoud Morty Preisler Nabil Rifai Oren Preisler Peter Armand Prince Geevarghese Richard Kobersy Scott Caminsky Sean C Shahid H Tze L Uli Zamir Vito Peragine Wissam Saoud Instructor Signature Save cancel",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "componentNo",
+          "type": "hidden",
+          "id": "",
+          "value": "14",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "",
+          "value": "224379",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "select",
+          "name": "locationId",
+          "type": "text",
+          "id": "locationId",
+          "value": "2",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "",
+              "text": "choose location",
+              "selected": false
+            },
+            {
+              "value": "11",
+              "text": "Côte Saint-Luc",
+              "selected": false
+            },
+            {
+              "value": "2",
+              "text": "Dollard-des-Ormeaux",
+              "selected": true
+            },
+            {
+              "value": "4",
+              "text": "Kirkland",
+              "selected": false
+            },
+            {
+              "value": "1",
+              "text": "Montreal",
+              "selected": false
+            },
+            {
+              "value": "6",
+              "text": "Vaudreuil-Dorion",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 2
+        },
+        {
+          "tag": "input",
+          "name": "classDate",
+          "type": "text",
+          "id": "",
+          "value": "13/02/2026",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "select",
+          "name": "classTime",
+          "type": "text",
+          "id": "",
+          "value": " 07:00:00",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": " 07:00:00",
+              "text": "7:00am",
+              "selected": true
+            },
+            {
+              "value": " 07:15:00",
+              "text": "7:15am",
+              "selected": false
+            },
+            {
+              "value": " 07:30:00",
+              "text": "7:30am",
+              "selected": false
+            },
+            {
+              "value": " 07:45:00",
+              "text": "7:45am",
+              "selected": false
+            },
+            {
+              "value": " 08:00:00",
+              "text": "8:00am",
+              "selected": false
+            },
+            {
+              "value": " 08:15:00",
+              "text": "8:15am",
+              "selected": false
+            },
+            {
+              "value": " 08:30:00",
+              "text": "8:30am",
+              "selected": false
+            },
+            {
+              "value": " 08:45:00",
+              "text": "8:45am",
+              "selected": false
+            },
+            {
+              "value": " 09:00:00",
+              "text": "9:00am",
+              "selected": false
+            },
+            {
+              "value": " 09:15:00",
+              "text": "9:15am",
+              "selected": false
+            },
+            {
+              "value": " 09:30:00",
+              "text": "9:30am",
+              "selected": false
+            },
+            {
+              "value": " 09:45:00",
+              "text": "9:45am",
+              "selected": false
+            },
+            {
+              "value": " 10:00:00",
+              "text": "10:00am",
+              "selected": false
+            },
+            {
+              "value": " 10:15:00",
+              "text": "10:15am",
+              "selected": false
+            },
+            {
+              "value": " 10:30:00",
+              "text": "10:30am",
+              "selected": false
+            },
+            {
+              "value": " 10:45:00",
+              "text": "10:45am",
+              "selected": false
+            },
+            {
+              "value": " 11:00:00",
+              "text": "11:00am",
+              "selected": false
+            },
+            {
+              "value": " 11:15:00",
+              "text": "11:15am",
+              "selected": false
+            },
+            {
+              "value": " 11:30:00",
+              "text": "11:30am",
+              "selected": false
+            },
+            {
+              "value": " 11:45:00",
+              "text": "11:45am",
+              "selected": false
+            },
+            {
+              "value": " 12:00:00",
+              "text": "12:00pm",
+              "selected": false
+            },
+            {
+              "value": " 12:15:00",
+              "text": "12:15pm",
+              "selected": false
+            },
+            {
+              "value": " 12:30:00",
+              "text": "12:30pm",
+              "selected": false
+            },
+            {
+              "value": " 12:45:00",
+              "text": "12:45pm",
+              "selected": false
+            },
+            {
+              "value": " 13:00:00",
+              "text": "1:00pm",
+              "selected": false
+            },
+            {
+              "value": " 13:15:00",
+              "text": "1:15pm",
+              "selected": false
+            },
+            {
+              "value": " 13:30:00",
+              "text": "1:30pm",
+              "selected": false
+            },
+            {
+              "value": " 13:45:00",
+              "text": "1:45pm",
+              "selected": false
+            },
+            {
+              "value": " 14:00:00",
+              "text": "2:00pm",
+              "selected": false
+            },
+            {
+              "value": " 14:15:00",
+              "text": "2:15pm",
+              "selected": false
+            },
+            {
+              "value": " 14:30:00",
+              "text": "2:30pm",
+              "selected": false
+            },
+            {
+              "value": " 14:45:00",
+              "text": "2:45pm",
+              "selected": false
+            },
+            {
+              "value": " 15:00:00",
+              "text": "3:00pm",
+              "selected": false
+            },
+            {
+              "value": " 15:15:00",
+              "text": "3:15pm",
+              "selected": false
+            },
+            {
+              "value": " 15:30:00",
+              "text": "3:30pm",
+              "selected": false
+            },
+            {
+              "value": " 15:45:00",
+              "text": "3:45pm",
+              "selected": false
+            },
+            {
+              "value": " 16:00:00",
+              "text": "4:00pm",
+              "selected": false
+            },
+            {
+              "value": " 16:15:00",
+              "text": "4:15pm",
+              "selected": false
+            },
+            {
+              "value": " 16:30:00",
+              "text": "4:30pm",
+              "selected": false
+            },
+            {
+              "value": " 16:45:00",
+              "text": "4:45pm",
+              "selected": false
+            },
+            {
+              "value": " 17:00:00",
+              "text": "5:00pm",
+              "selected": false
+            },
+            {
+              "value": " 17:15:00",
+              "text": "5:15pm",
+              "selected": false
+            },
+            {
+              "value": " 17:30:00",
+              "text": "5:30pm",
+              "selected": false
+            },
+            {
+              "value": " 17:45:00",
+              "text": "5:45pm",
+              "selected": false
+            },
+            {
+              "value": " 18:00:00",
+              "text": "6:00pm",
+              "selected": false
+            },
+            {
+              "value": " 18:15:00",
+              "text": "6:15pm",
+              "selected": false
+            },
+            {
+              "value": " 18:30:00",
+              "text": "6:30pm",
+              "selected": false
+            },
+            {
+              "value": " 18:45:00",
+              "text": "6:45pm",
+              "selected": false
+            },
+            {
+              "value": " 19:00:00",
+              "text": "7:00pm",
+              "selected": false
+            },
+            {
+              "value": " 19:15:00",
+              "text": "7:15pm",
+              "selected": false
+            },
+            {
+              "value": " 19:30:00",
+              "text": "7:30pm",
+              "selected": false
+            },
+            {
+              "value": " 19:45:00",
+              "text": "7:45pm",
+              "selected": false
+            },
+            {
+              "value": " 20:00:00",
+              "text": "8:00pm",
+              "selected": false
+            },
+            {
+              "value": " 20:15:00",
+              "text": "8:15pm",
+              "selected": false
+            },
+            {
+              "value": " 20:30:00",
+              "text": "8:30pm",
+              "selected": false
+            },
+            {
+              "value": " 20:45:00",
+              "text": "8:45pm",
+              "selected": false
+            },
+            {
+              "value": " 21:00:00",
+              "text": "9:00pm",
+              "selected": false
+            },
+            {
+              "value": " 21:15:00",
+              "text": "9:15pm",
+              "selected": false
+            },
+            {
+              "value": " 21:30:00",
+              "text": "9:30pm",
+              "selected": false
+            },
+            {
+              "value": " 21:45:00",
+              "text": "9:45pm",
+              "selected": false
+            },
+            {
+              "value": " 22:00:00",
+              "text": "10:00pm",
+              "selected": false
+            },
+            {
+              "value": " 22:15:00",
+              "text": "10:15pm",
+              "selected": false
+            },
+            {
+              "value": " 22:30:00",
+              "text": "10:30pm",
+              "selected": false
+            },
+            {
+              "value": " 22:45:00",
+              "text": "10:45pm",
+              "selected": false
+            },
+            {
+              "value": " 23:00:00",
+              "text": "11:00pm",
+              "selected": false
+            },
+            {
+              "value": " 23:15:00",
+              "text": "11:15pm",
+              "selected": false
+            },
+            {
+              "value": " 23:30:00",
+              "text": "11:30pm",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "input",
+          "name": "studentSignatureId",
+          "type": "hidden",
+          "id": "studentSignatureId",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "select",
+          "name": "instructorUserId",
+          "type": "text",
+          "id": "",
+          "value": "233614",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "",
+              "text": "Select  Instructor",
+              "selected": false
+            },
+            {
+              "value": "48103",
+              "text": "Adam Sevy",
+              "selected": false
+            },
+            {
+              "value": "82002",
+              "text": "Anatoli Touranski",
+              "selected": false
+            },
+            {
+              "value": "113372",
+              "text": "Andre Robinson",
+              "selected": false
+            },
+            {
+              "value": "74",
+              "text": "Andrew Matthews",
+              "selected": false
+            },
+            {
+              "value": "228464",
+              "text": "Aqib Qureshi",
+              "selected": false
+            },
+            {
+              "value": "78",
+              "text": "Bruce Hafner",
+              "selected": false
+            },
+            {
+              "value": "124661",
+              "text": "Charly Pizzuco",
+              "selected": false
+            },
+            {
+              "value": "228466",
+              "text": "Chris Cayer",
+              "selected": false
+            },
+            {
+              "value": "170684",
+              "text": "Earl Sachin",
+              "selected": false
+            },
+            {
+              "value": "90",
+              "text": "Eli Dayan",
+              "selected": false
+            },
+            {
+              "value": "10989",
+              "text": "Erik Olynyk",
+              "selected": false
+            },
+            {
+              "value": "85",
+              "text": "Firas Matouk",
+              "selected": false
+            },
+            {
+              "value": "75351",
+              "text": "Frank Cooper",
+              "selected": false
+            },
+            {
+              "value": "80",
+              "text": "Gary Grant",
+              "selected": false
+            },
+            {
+              "value": "219857",
+              "text": "Gary Trace",
+              "selected": false
+            },
+            {
+              "value": "83",
+              "text": "Geoff Kloos",
+              "selected": false
+            },
+            {
+              "value": "10332",
+              "text": "Gerard Harfouche",
+              "selected": false
+            },
+            {
+              "value": "77",
+              "text": "Guy Zamir",
+              "selected": false
+            },
+            {
+              "value": "77642",
+              "text": "Hikmat Rahimee",
+              "selected": false
+            },
+            {
+              "value": "157990",
+              "text": "Humy Ayubi",
+              "selected": false
+            },
+            {
+              "value": "87",
+              "text": "Ilan Preisler",
+              "selected": false
+            },
+            {
+              "value": "81",
+              "text": "Jack Meshoulam",
+              "selected": false
+            },
+            {
+              "value": "82",
+              "text": "James Nawrot",
+              "selected": false
+            },
+            {
+              "value": "228562",
+              "text": "Jeff Shan",
+              "selected": false
+            },
+            {
+              "value": "61189",
+              "text": "Jose De Los Rios",
+              "selected": false
+            },
+            {
+              "value": "37920",
+              "text": "Karen Reynolds",
+              "selected": false
+            },
+            {
+              "value": "41712",
+              "text": "Karmi Dexter",
+              "selected": false
+            },
+            {
+              "value": "137929",
+              "text": "Ken McCullough",
+              "selected": false
+            },
+            {
+              "value": "10521",
+              "text": "Marcel Caron",
+              "selected": false
+            },
+            {
+              "value": "219856",
+              "text": "Marcel Roland",
+              "selected": false
+            },
+            {
+              "value": "75",
+              "text": "Mario Mastronardi",
+              "selected": false
+            },
+            {
+              "value": "84",
+              "text": "Melanie Cater",
+              "selected": false
+            },
+            {
+              "value": "233614",
+              "text": "Michael Bensemana",
+              "selected": true
+            },
+            {
+              "value": "73195",
+              "text": "Miguel Abuel",
+              "selected": false
+            },
+            {
+              "value": "119261",
+              "text": "Mirhan Geovshanian",
+              "selected": false
+            },
+            {
+              "value": "48026",
+              "text": "Mohsen Saoud",
+              "selected": false
+            },
+            {
+              "value": "89",
+              "text": "Morty Preisler",
+              "selected": false
+            },
+            {
+              "value": "23275",
+              "text": "Nabil Rifai",
+              "selected": false
+            },
+            {
+              "value": "86",
+              "text": "Oren Preisler",
+              "selected": false
+            },
+            {
+              "value": "231886",
+              "text": "Peter Armand",
+              "selected": false
+            },
+            {
+              "value": "81920",
+              "text": "Prince Geevarghese",
+              "selected": false
+            },
+            {
+              "value": "61290",
+              "text": "Richard Kobersy",
+              "selected": false
+            },
+            {
+              "value": "12162",
+              "text": "Scott Caminsky",
+              "selected": false
+            },
+            {
+              "value": "79",
+              "text": "Sean C",
+              "selected": false
+            },
+            {
+              "value": "101637",
+              "text": "Shahid H",
+              "selected": false
+            },
+            {
+              "value": "10137",
+              "text": "Tze L",
+              "selected": false
+            },
+            {
+              "value": "76",
+              "text": "Uli Zamir",
+              "selected": false
+            },
+            {
+              "value": "13320",
+              "text": "Vito Peragine",
+              "selected": false
+            },
+            {
+              "value": "26209",
+              "text": "Wissam Saoud",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 33
+        },
+        {
+          "tag": "input",
+          "name": "instructorSignatureId",
+          "type": "hidden",
+          "id": "instructorSignatureId",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "componentNo": "14",
+        "studentUserId": "224379",
+        "locationId": "2",
+        "classDate": "13/02/2026",
+        "classTime": " 07:00:00",
+        "instructorUserId": "233614"
+      }
+    }
+  ],
+  "tables": [],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/css/img/nosignature.2.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/css/img/nosignature.2.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {
+    "Student": "Weiss, Matthew"
+  },
+  "raw_html_length": 25588,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/quebecauto/practicalsignatures/?studentuserid=224379&courseComponentId=14"
+}

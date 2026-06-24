@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231815",
+  "url_hash": "69640a11daac2225",
+  "scraped_at": "2026-02-12T19:07:11.353Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "G612423100905 03277172 L-021 Gervasi, Gabriella 18034 Rue Addison Pierrefonds QC H9K1N7 0001235799 5143861023 5143861023 X Ilan Preisler 10 déc. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 09 09 2025 09 25 2025 09 30 2025 10 16 2025 12 02 COPIE D'ÉLÈVE G612423100905 03277172 L-021 Gervasi, Gabriella 18034 Rue Addison Pierrefonds QC H9K1N7 0001235799 5143861023 5143861023 X Ilan Preisler 10 déc. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 09 09 2025 09 25 2025 09 30 2025 10 16 2025 12 02 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277172&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277172&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10603,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231815"
+}

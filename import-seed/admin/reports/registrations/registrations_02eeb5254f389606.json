@@ -1,0 +1,427 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=22%2F09%2F2025",
+  "url_hash": "02eeb5254f389606",
+  "scraped_at": "2026-02-12T13:28:06.675Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Sep 22, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Sep 22, 2025 Name Lang Time Phone Course 1 st Class Comments 231806 Longpré , Tyler EN 4:45pm 514-703-8373 (m) Automobile Vaudreuil-Dorion 29/09/2025 7:00pm edit 231807 Atkinson, Lilli EN 5:35pm 514-791-6599 (m) 514-977-3944 (h) Automobile Dollard-des-Ormeaux 23/10/2025 5:00pm edit 231808 Centeno, Arielle EN 7:45pm 514-978-6494 (m) Automobile Montreal 29/09/2025 7:00pm edit 231809 Pîrvulescu, Andreea Livia EN 7:49pm 438-926-9893 (m) 514-995-1031 (h) Automobile Côte Saint-Luc 04/11/2025 7:00pm edit 231810 Pîrvulescu, Gavriil Gheorghe EN 7:52pm 438-927-9893 (m) 514-995-1031 (h) Automobile Côte Saint-Luc 04/11/2025 7:00pm edit 231811 Alaee, Navid EN 9:23pm 647-618-4558 (m) Motorcycle Montreal 24/10/2025 6:00pm edit 231812 Mainville, Samantha Tara EN 9:39pm 514-660-2433 (m) 514-771-2342 (h) Automobile Montreal 29/09/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "22/09/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "22/09/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231806",
+          "Longpré , Tyler",
+          "EN",
+          "4:45pm",
+          "514-703-8373   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231807",
+          "Atkinson, Lilli",
+          "EN",
+          "5:35pm",
+          "514-791-6599   (m)     \n \n             514-977-3944   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "23/10/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231808",
+          "Centeno, Arielle",
+          "EN",
+          "7:45pm",
+          "514-978-6494   (m)",
+          "Automobile Montreal",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231809",
+          "Pîrvulescu, Andreea Livia",
+          "EN",
+          "7:49pm",
+          "438-926-9893   (m)     \n \n             514-995-1031   (h)",
+          "Automobile Côte Saint-Luc",
+          "04/11/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231810",
+          "Pîrvulescu, Gavriil Gheorghe",
+          "EN",
+          "7:52pm",
+          "438-927-9893   (m)     \n \n             514-995-1031   (h)",
+          "Automobile Côte Saint-Luc",
+          "04/11/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231811",
+          "Alaee, Navid",
+          "EN",
+          "9:23pm",
+          "647-618-4558   (m)",
+          "Motorcycle Montreal",
+          "24/10/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231812",
+          "Mainville, Samantha Tara",
+          "EN",
+          "9:39pm",
+          "514-660-2433   (m)     \n \n             514-771-2342   (h)",
+          "Automobile Montreal",
+          "29/09/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231806",
+          "Name": "Longpré , Tyler",
+          "Lang": "EN",
+          "Time": "4:45pm",
+          "Phone": "514-703-8373   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231807",
+          "Name": "Atkinson, Lilli",
+          "Lang": "EN",
+          "Time": "5:35pm",
+          "Phone": "514-791-6599   (m)     \n \n             514-977-3944   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "23/10/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231808",
+          "Name": "Centeno, Arielle",
+          "Lang": "EN",
+          "Time": "7:45pm",
+          "Phone": "514-978-6494   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231809",
+          "Name": "Pîrvulescu, Andreea Livia",
+          "Lang": "EN",
+          "Time": "7:49pm",
+          "Phone": "438-926-9893   (m)     \n \n             514-995-1031   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "04/11/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231810",
+          "Name": "Pîrvulescu, Gavriil Gheorghe",
+          "Lang": "EN",
+          "Time": "7:52pm",
+          "Phone": "438-927-9893   (m)     \n \n             514-995-1031   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "04/11/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231811",
+          "Name": "Alaee, Navid",
+          "Lang": "EN",
+          "Time": "9:23pm",
+          "Phone": "647-618-4558   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "24/10/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231812",
+          "Name": "Mainville, Samantha Tara",
+          "Lang": "EN",
+          "Time": "9:39pm",
+          "Phone": "514-660-2433   (m)     \n \n             514-771-2342   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232008&courseId=1",
+      "text": "Longpré , Tyler",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232009&courseId=1",
+      "text": "Atkinson, Lilli",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232010&courseId=1",
+      "text": "Centeno, Arielle",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232011&courseId=1",
+      "text": "Pîrvulescu, Andreea Livia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232012&courseId=1",
+      "text": "Pîrvulescu, Gavriil Gheorghe",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232013&courseId=2",
+      "text": "Alaee, Navid",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232014&courseId=1",
+      "text": "Mainville, Samantha Tara",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 22806,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=22%2F09%2F2025"
+}

@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4/?studentUserId=231651",
+  "url_hash": "d9c0bf3aa973832e",
+  "scraped_at": "2026-02-12T23:45:11.294Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "B510424100908 03288644 A-355 Benabou, Gabriella 29 Crois Applewood Hampstead QC H3x3v8 0001235583 4389248994 X Ilan Preisler 27 oct. 2025 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 09 03 2025 09 18 2025 09 28 2025 10 31 2025 11 19 2025 10 28 2025 11 28 2025 12 12 2026 01 06 2026 01 23 -------------------------------- 2026 01 13 -------------------------------- -------------------------------- 2026 01 08 -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE D'ÉLÈVE B510424100908 03288644 A-355 Benabou, Gabriella 29 Crois Applewood Hampstead QC H3x3v8 0001235583 4389248994 X Ilan Preisler 27 oct. 2025 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 09 03 2025 09 18 2025 09 28 2025 10 31 2025 11 19 2025 10 28 2025 11 28 2025 12 12 2026 01 06 2026 01 23 -------------------------------- 2026 01 13 -------------------------------- -------------------------------- 2026 01 08 -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE D'ÉCOLE B510424100908 03288644 A-355 Benabou, Gabriella 29 Crois Applewood Hampstead QC H3x3v8 0001235583 4389248994 X Ilan Preisler 27 oct. 2025 École de Conduite Mortys 5800 boul. Cavendish D1 Côte Saint-Luc QC H4W 0A9 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 09 03 2025 09 18 2025 09 28 2025 10 31 2025 11 19 2025 10 28 2025 11 28 2025 12 12 2026 01 06 2026 01 23 -------------------------------- 2026 01 13 -------------------------------- -------------------------------- 2026 01 08 -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 12 févr. 2026 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288644&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288644&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03288644&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 30888,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4/?studentUserId=231651"
+}

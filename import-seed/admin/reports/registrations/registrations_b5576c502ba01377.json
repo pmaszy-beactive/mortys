@@ -1,0 +1,675 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=11%2F08%2F2025",
+  "url_hash": "b5576c502ba01377",
+  "scraped_at": "2026-02-13T00:42:22.716Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 11, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 11, 2025 Name Lang Time Phone Course 1 st Class Comments 230393 Yoskovitch, Daniel EN 3:59am 514-772-0976 (m) Motorcycle Montreal 22/08/2025 6:00pm edit 230394 Glinischi, Mariana EN 7:49am 438-229-2793 (m) Automobile Montreal 24/08/2025 3:00pm edit 230395 Czaputowicz, Oliver EN 9:22am 514-885-6559 (m) Motorcycle Montreal 22/08/2025 6:00pm edit 230396 selvarajah, rithesh EN 11:34am 514-451-3625 (m) Automobile Dollard-des-Ormeaux 21/08/2025 5:00pm edit 230397 Azuelos, Natan EN 12:14pm 514-927-5550 (m) 514-781-7847 (h) 514-975-5500 (w) Automobile Montreal 13/08/2025 5:00pm edit 230398 Gontovnick, Jasi EN 12:20pm 514-883-6271 (m) Automobile Dollard-des-Ormeaux 21/08/2025 5:00pm edit 230399 Flower, Imogen EN 12:21pm 514-260-5848 (m) Automobile Montreal 13/08/2025 5:00pm edit 230400 Ifrah, Jonah Trey Lev EN 12:45pm 438-282-9111 (m) Automobile Montreal 13/08/2025 5:00pm edit 230401 Grenier, Hémily EN 12:49pm 514-516-2325 (m) Motorcycle Dollard-des-Ormeaux 22/08/2025 6:00pm edit 230403 Gelgor, Hugo EN 1:28pm 514-984-4003 (m) 514-237-8482 (h) 514-708-9300 (w) Automobile Montreal 13/08/2025 5:00pm edit 230404 Ahmad, Tarek EN 2:14pm 438-538-7060 (m) Automobile Dollard-des-Ormeaux 13/08/2025 5:00pm edit 230405 Coburn, Emma Anne EN 4:17pm 514-295-1171 (m) Automobile Kirkland 18/09/2025 7:00pm edit 230406 Demers-Boccangello, Tristan EN 4:29pm 438-483-6040 (m) Automobile Montreal 21/08/2025 5:00pm edit 230407 Mckell, Liam EN 6:43pm 450-288-7720 (m) 450-825-2768 (h) 450-288-7720 (w) Motorcycle Vaudreuil-Dorion 22/08/2025 6:00pm edit 230408 Zenou, Liam EN 7:24pm 514-560-0779 (m) Automobile Côte Saint-Luc 13/08/2025 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "11/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "11/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "230393",
+          "Yoskovitch, Daniel",
+          "EN",
+          "3:59am",
+          "514-772-0976   (m)",
+          "Motorcycle Montreal",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "230394",
+          "Glinischi, Mariana",
+          "EN",
+          "7:49am",
+          "438-229-2793   (m)",
+          "Automobile Montreal",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "230395",
+          "Czaputowicz, Oliver",
+          "EN",
+          "9:22am",
+          "514-885-6559   (m)",
+          "Motorcycle Montreal",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "230396",
+          "selvarajah, rithesh",
+          "EN",
+          "11:34am",
+          "514-451-3625   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230397",
+          "Azuelos, Natan",
+          "EN",
+          "12:14pm",
+          "514-927-5550   (m)     \n \n             514-781-7847   (h)     \n \n             514-975-5500   (w)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230398",
+          "Gontovnick, Jasi",
+          "EN",
+          "12:20pm",
+          "514-883-6271   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230399",
+          "Flower, Imogen",
+          "EN",
+          "12:21pm",
+          "514-260-5848   (m)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230400",
+          "Ifrah, Jonah Trey Lev",
+          "EN",
+          "12:45pm",
+          "438-282-9111   (m)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230401",
+          "Grenier, Hémily",
+          "EN",
+          "12:49pm",
+          "514-516-2325   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "230403",
+          "Gelgor, Hugo",
+          "EN",
+          "1:28pm",
+          "514-984-4003   (m)     \n \n             514-237-8482   (h)     \n \n             514-708-9300   (w)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230404",
+          "Ahmad, Tarek",
+          "EN",
+          "2:14pm",
+          "438-538-7060   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230405",
+          "Coburn, Emma Anne",
+          "EN",
+          "4:17pm",
+          "514-295-1171   (m)",
+          "Automobile Kirkland",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "230406",
+          "Demers-Boccangello, Tristan",
+          "EN",
+          "4:29pm",
+          "438-483-6040   (m)",
+          "Automobile Montreal",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230407",
+          "Mckell, Liam",
+          "EN",
+          "6:43pm",
+          "450-288-7720   (m)     \n \n             450-825-2768   (h)     \n \n             450-288-7720   (w)",
+          "Motorcycle Vaudreuil-Dorion",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "230408",
+          "Zenou, Liam",
+          "EN",
+          "7:24pm",
+          "514-560-0779   (m)",
+          "Automobile Côte Saint-Luc",
+          "13/08/2025  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "230393",
+          "Name": "Yoskovitch, Daniel",
+          "Lang": "EN",
+          "Time": "3:59am",
+          "Phone": "514-772-0976   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "230394",
+          "Name": "Glinischi, Mariana",
+          "Lang": "EN",
+          "Time": "7:49am",
+          "Phone": "438-229-2793   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "230395",
+          "Name": "Czaputowicz, Oliver",
+          "Lang": "EN",
+          "Time": "9:22am",
+          "Phone": "514-885-6559   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "230396",
+          "Name": "selvarajah, rithesh",
+          "Lang": "EN",
+          "Time": "11:34am",
+          "Phone": "514-451-3625   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "230397",
+          "Name": "Azuelos, Natan",
+          "Lang": "EN",
+          "Time": "12:14pm",
+          "Phone": "514-927-5550   (m)     \n \n             514-781-7847   (h)     \n \n             514-975-5500   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "230398",
+          "Name": "Gontovnick, Jasi",
+          "Lang": "EN",
+          "Time": "12:20pm",
+          "Phone": "514-883-6271   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "230399",
+          "Name": "Flower, Imogen",
+          "Lang": "EN",
+          "Time": "12:21pm",
+          "Phone": "514-260-5848   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "230400",
+          "Name": "Ifrah, Jonah Trey Lev",
+          "Lang": "EN",
+          "Time": "12:45pm",
+          "Phone": "438-282-9111   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "230401",
+          "Name": "Grenier, Hémily",
+          "Lang": "EN",
+          "Time": "12:49pm",
+          "Phone": "514-516-2325   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "230403",
+          "Name": "Gelgor, Hugo",
+          "Lang": "EN",
+          "Time": "1:28pm",
+          "Phone": "514-984-4003   (m)     \n \n             514-237-8482   (h)     \n \n             514-708-9300   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "230404",
+          "Name": "Ahmad, Tarek",
+          "Lang": "EN",
+          "Time": "2:14pm",
+          "Phone": "438-538-7060   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "230405",
+          "Name": "Coburn, Emma Anne",
+          "Lang": "EN",
+          "Time": "4:17pm",
+          "Phone": "514-295-1171   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 12,
+          "column_0": "230406",
+          "Name": "Demers-Boccangello, Tristan",
+          "Lang": "EN",
+          "Time": "4:29pm",
+          "Phone": "438-483-6040   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 13,
+          "column_0": "230407",
+          "Name": "Mckell, Liam",
+          "Lang": "EN",
+          "Time": "6:43pm",
+          "Phone": "450-288-7720   (m)     \n \n             450-825-2768   (h)     \n \n             450-288-7720   (w)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 14,
+          "column_0": "230408",
+          "Name": "Zenou, Liam",
+          "Lang": "EN",
+          "Time": "7:24pm",
+          "Phone": "514-560-0779   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230595&courseId=2",
+      "text": "Yoskovitch, Daniel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230596&courseId=1",
+      "text": "Glinischi, Mariana",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230597&courseId=2",
+      "text": "Czaputowicz, Oliver",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230598&courseId=1",
+      "text": "selvarajah, rithesh",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230599&courseId=1",
+      "text": "Azuelos, Natan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230600&courseId=1",
+      "text": "Gontovnick, Jasi",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230601&courseId=1",
+      "text": "Flower, Imogen",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230602&courseId=1",
+      "text": "Ifrah, Jonah Trey Lev",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230603&courseId=2",
+      "text": "Grenier, Hémily",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230605&courseId=1",
+      "text": "Gelgor, Hugo",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230606&courseId=1",
+      "text": "Ahmad, Tarek",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230607&courseId=1",
+      "text": "Coburn, Emma Anne",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230608&courseId=1",
+      "text": "Demers-Boccangello, Tristan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230609&courseId=2",
+      "text": "Mckell, Liam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230610&courseId=1",
+      "text": "Zenou, Liam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 30343,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=11%2F08%2F2025"
+}

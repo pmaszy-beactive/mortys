@@ -1,0 +1,551 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=08%2F07%2F2025",
+  "url_hash": "b7835a46f1c57d5e",
+  "scraped_at": "2026-02-13T11:10:40.666Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jul 8, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jul 8, 2025 Name Lang Time Phone Course 1 st Class Comments 223012 Wang, Shawn EN 12:28am 438-979-7987 (m) Automobile Dollard-des-Ormeaux 15/07/2025 7:00pm edit 223013 Rouleau-Dick, Etienne EN 11:09am 418-509-2691 (m) Motorcycle Montreal 11/07/2025 6:00pm edit 223014 Bukhari, Yusaf EN 12:12pm 514-924-4498 (m) 514-999-4498 (h) Automobile Dollard-des-Ormeaux 15/07/2025 7:00pm edit 223015 Wang, Haoran EN 1:53pm 514-553-9028 (m) Automobile Kirkland 15/07/2025 7:00pm edit 223016 Ikhlef, Billal FR 2:51pm 438-985-6659 (m) Motorcycle Dollard-des-Ormeaux 11/07/2025 6:00pm edit 223017 Benguira, Jacob EN 5:16pm 514-704-2810 (m) Automobile Dollard-des-Ormeaux 15/07/2025 7:00pm edit 223018 Kugathasan , Sugash EN 5:50pm 438-337-2085 (m) 514-683-0598 (h) Automobile Vaudreuil-Dorion 15/07/2025 7:00pm edit 223019 Qu, Annie Linna EN 7:17pm 438-929-5989 (m) 514-461-2238 (h) Automobile Montreal 15/07/2025 7:00pm edit 223020 Qu, Angel EN 7:48pm 438-941-6328 (m) Automobile Montreal 15/07/2025 7:00pm edit 223021 Aaquil, Adam EN 8:17pm 514-809-3711 (m) 514-809-3711 (h) Motorcycle Montreal 08/08/2025 6:00pm edit 223022 Larabi, Maram EN 8:52pm 514-812-9600 (m) 514-667-4072 (h) Automobile Dollard-des-Ormeaux 15/07/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "08/07/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "08/07/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "223012",
+          "Wang, Shawn",
+          "EN",
+          "12:28am",
+          "438-979-7987   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223013",
+          "Rouleau-Dick, Etienne",
+          "EN",
+          "11:09am",
+          "418-509-2691   (m)",
+          "Motorcycle Montreal",
+          "11/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "223014",
+          "Bukhari, Yusaf",
+          "EN",
+          "12:12pm",
+          "514-924-4498   (m)     \n \n             514-999-4498   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223015",
+          "Wang, Haoran",
+          "EN",
+          "1:53pm",
+          "514-553-9028   (m)",
+          "Automobile Kirkland",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223016",
+          "Ikhlef, Billal",
+          "FR",
+          "2:51pm",
+          "438-985-6659   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "11/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "223017",
+          "Benguira, Jacob",
+          "EN",
+          "5:16pm",
+          "514-704-2810   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223018",
+          "Kugathasan , Sugash",
+          "EN",
+          "5:50pm",
+          "438-337-2085   (m)     \n \n             514-683-0598   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223019",
+          "Qu, Annie Linna",
+          "EN",
+          "7:17pm",
+          "438-929-5989   (m)     \n \n             514-461-2238   (h)",
+          "Automobile Montreal",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223020",
+          "Qu, Angel",
+          "EN",
+          "7:48pm",
+          "438-941-6328   (m)",
+          "Automobile Montreal",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223021",
+          "Aaquil, Adam",
+          "EN",
+          "8:17pm",
+          "514-809-3711   (m)     \n \n             514-809-3711   (h)",
+          "Motorcycle Montreal",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "223022",
+          "Larabi, Maram",
+          "EN",
+          "8:52pm",
+          "514-812-9600   (m)     \n \n             514-667-4072   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "15/07/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "223012",
+          "Name": "Wang, Shawn",
+          "Lang": "EN",
+          "Time": "12:28am",
+          "Phone": "438-979-7987   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "223013",
+          "Name": "Rouleau-Dick, Etienne",
+          "Lang": "EN",
+          "Time": "11:09am",
+          "Phone": "418-509-2691   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "11/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "223014",
+          "Name": "Bukhari, Yusaf",
+          "Lang": "EN",
+          "Time": "12:12pm",
+          "Phone": "514-924-4498   (m)     \n \n             514-999-4498   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "223015",
+          "Name": "Wang, Haoran",
+          "Lang": "EN",
+          "Time": "1:53pm",
+          "Phone": "514-553-9028   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "223016",
+          "Name": "Ikhlef, Billal",
+          "Lang": "FR",
+          "Time": "2:51pm",
+          "Phone": "438-985-6659   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "11/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "223017",
+          "Name": "Benguira, Jacob",
+          "Lang": "EN",
+          "Time": "5:16pm",
+          "Phone": "514-704-2810   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "223018",
+          "Name": "Kugathasan , Sugash",
+          "Lang": "EN",
+          "Time": "5:50pm",
+          "Phone": "438-337-2085   (m)     \n \n             514-683-0598   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "223019",
+          "Name": "Qu, Annie Linna",
+          "Lang": "EN",
+          "Time": "7:17pm",
+          "Phone": "438-929-5989   (m)     \n \n             514-461-2238   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "223020",
+          "Name": "Qu, Angel",
+          "Lang": "EN",
+          "Time": "7:48pm",
+          "Phone": "438-941-6328   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "223021",
+          "Name": "Aaquil, Adam",
+          "Lang": "EN",
+          "Time": "8:17pm",
+          "Phone": "514-809-3711   (m)     \n \n             514-809-3711   (h)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "223022",
+          "Name": "Larabi, Maram",
+          "Lang": "EN",
+          "Time": "8:52pm",
+          "Phone": "514-812-9600   (m)     \n \n             514-667-4072   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223214&courseId=1",
+      "text": "Wang, Shawn",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223215&courseId=2",
+      "text": "Rouleau-Dick, Etienne",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223216&courseId=1",
+      "text": "Bukhari, Yusaf",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223217&courseId=1",
+      "text": "Wang, Haoran",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223218&courseId=2",
+      "text": "Ikhlef, Billal",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223219&courseId=1",
+      "text": "Benguira, Jacob",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223220&courseId=1",
+      "text": "Kugathasan , Sugash",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223221&courseId=1",
+      "text": "Qu, Annie Linna",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223222&courseId=1",
+      "text": "Qu, Angel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223223&courseId=2",
+      "text": "Aaquil, Adam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223224&courseId=1",
+      "text": "Larabi, Maram",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 26555,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=08%2F07%2F2025"
+}

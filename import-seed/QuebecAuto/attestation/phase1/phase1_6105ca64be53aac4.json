@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231767",
+  "url_hash": "6105ca64be53aac4",
+  "scraped_at": "2026-02-12T20:21:04.411Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03277377 L-774 Brena, Isabella 4 place du Madeira Kirkland QC H9H 5J6 0001235994 5146639907 X Ilan Preisler 21 nov. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 10 12 2025 10 19 2025 10 26 2025 11 02 2025 11 20 COPIE D'ÉLÈVE 03277377 L-774 Brena, Isabella 4 place du Madeira Kirkland QC H9H 5J6 0001235994 5146639907 X Ilan Preisler 21 nov. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 10 12 2025 10 19 2025 10 26 2025 11 02 2025 11 20 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277377&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277377&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10175,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231767"
+}

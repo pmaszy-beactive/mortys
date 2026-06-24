@@ -1,0 +1,489 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/aqtr/",
+  "url_hash": "70e9f6571dff109d",
+  "scraped_at": "2026-02-11T22:15:57.225Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "AQTR Reports"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout AQTR Reports Quarterly Reports Quarter January to March April to June July to September October to December Year 2026 2025 2024 2023 2022 2021 2020 2019 2018 2017 Report Registrations Attestations Generate Report Class Lists Month January February March April May June July August September October November December Year 2026 2025 2024 2023 2022 2021 2020 2019 2018 2017 Location select Côte Saint-Luc Dollard-des-Ormeaux Kirkland Montreal Vaudreuil-Dorion Generate Report",
+  "forms": [
+    {
+      "action": "/admin/reports/AQTR/",
+      "method": "post",
+      "id": "form1",
+      "name": "",
+      "fields": [
+        {
+          "tag": "select",
+          "name": "quarter",
+          "type": "text",
+          "id": "",
+          "value": "1",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "1",
+              "text": "January to March",
+              "selected": true
+            },
+            {
+              "value": "2",
+              "text": "April to June",
+              "selected": false
+            },
+            {
+              "value": "3",
+              "text": "July to September",
+              "selected": false
+            },
+            {
+              "value": "4",
+              "text": "October to December",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "select",
+          "name": "year",
+          "type": "text",
+          "id": "",
+          "value": "2026",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "2026",
+              "text": "2026",
+              "selected": true
+            },
+            {
+              "value": "2025",
+              "text": "2025",
+              "selected": false
+            },
+            {
+              "value": "2024",
+              "text": "2024",
+              "selected": false
+            },
+            {
+              "value": "2023",
+              "text": "2023",
+              "selected": false
+            },
+            {
+              "value": "2022",
+              "text": "2022",
+              "selected": false
+            },
+            {
+              "value": "2021",
+              "text": "2021",
+              "selected": false
+            },
+            {
+              "value": "2020",
+              "text": "2020",
+              "selected": false
+            },
+            {
+              "value": "2019",
+              "text": "2019",
+              "selected": false
+            },
+            {
+              "value": "2018",
+              "text": "2018",
+              "selected": false
+            },
+            {
+              "value": "2017",
+              "text": "2017",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "input",
+          "name": "report",
+          "type": "radio",
+          "id": "registrations",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "report",
+          "type": "radio",
+          "id": "attestations",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "quarter": "1",
+        "year": "2026"
+      }
+    },
+    {
+      "action": "/admin/reports/AQTRClassLists/",
+      "method": "post",
+      "id": "form2",
+      "name": "",
+      "fields": [
+        {
+          "tag": "select",
+          "name": "month",
+          "type": "text",
+          "id": "",
+          "value": "1",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "1",
+              "text": "January",
+              "selected": true
+            },
+            {
+              "value": "2",
+              "text": "February",
+              "selected": false
+            },
+            {
+              "value": "3",
+              "text": "March",
+              "selected": false
+            },
+            {
+              "value": "4",
+              "text": "April",
+              "selected": false
+            },
+            {
+              "value": "5",
+              "text": "May",
+              "selected": false
+            },
+            {
+              "value": "6",
+              "text": "June",
+              "selected": false
+            },
+            {
+              "value": "7",
+              "text": "July",
+              "selected": false
+            },
+            {
+              "value": "8",
+              "text": "August",
+              "selected": false
+            },
+            {
+              "value": "9",
+              "text": "September",
+              "selected": false
+            },
+            {
+              "value": "10",
+              "text": "October",
+              "selected": false
+            },
+            {
+              "value": "11",
+              "text": "November",
+              "selected": false
+            },
+            {
+              "value": "12",
+              "text": "December",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "select",
+          "name": "year",
+          "type": "text",
+          "id": "",
+          "value": "2026",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "2026",
+              "text": "2026",
+              "selected": true
+            },
+            {
+              "value": "2025",
+              "text": "2025",
+              "selected": false
+            },
+            {
+              "value": "2024",
+              "text": "2024",
+              "selected": false
+            },
+            {
+              "value": "2023",
+              "text": "2023",
+              "selected": false
+            },
+            {
+              "value": "2022",
+              "text": "2022",
+              "selected": false
+            },
+            {
+              "value": "2021",
+              "text": "2021",
+              "selected": false
+            },
+            {
+              "value": "2020",
+              "text": "2020",
+              "selected": false
+            },
+            {
+              "value": "2019",
+              "text": "2019",
+              "selected": false
+            },
+            {
+              "value": "2018",
+              "text": "2018",
+              "selected": false
+            },
+            {
+              "value": "2017",
+              "text": "2017",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        },
+        {
+          "tag": "select",
+          "name": "locationId",
+          "type": "text",
+          "id": "locationId",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "",
+              "text": "select",
+              "selected": true
+            },
+            {
+              "value": "11",
+              "text": "Côte Saint-Luc",
+              "selected": false
+            },
+            {
+              "value": "2",
+              "text": "Dollard-des-Ormeaux",
+              "selected": false
+            },
+            {
+              "value": "4",
+              "text": "Kirkland",
+              "selected": false
+            },
+            {
+              "value": "1",
+              "text": "Montreal",
+              "selected": false
+            },
+            {
+              "value": "6",
+              "text": "Vaudreuil-Dorion",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 0
+        }
+      ],
+      "field_data": {
+        "month": "1",
+        "year": "2026"
+      }
+    }
+  ],
+  "tables": [],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 17479,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/aqtr/"
+}

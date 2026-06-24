@@ -1,0 +1,396 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=10%2F09%2F2025",
+  "url_hash": "9280eefc8de2d74e",
+  "scraped_at": "2026-02-12T15:58:48.236Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Sep 10, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Sep 10, 2025 Name Lang Time Phone Course 1 st Class Comments 231718 Danovitch, Hailey Anne Julia EN 12:55am 514-882-4997 (m) Automobile Côte Saint-Luc 18/09/2025 7:00pm edit 231719 Djajaatmadja, Fanuella Anamarie EN 8:59am 438-531-2305 (m) 438-531-2305 (h) 438-531-2305 (w) Automobile Montreal 18/09/2025 7:00pm edit 231721 Migali, Youri EN 11:37am 514-425-0236 (m) Motorcycle Vaudreuil-Dorion 19/09/2025 6:00pm edit 231722 Koulocheris , Olivia EN 5:43pm 514-945-5485 (m) Automobile Montreal 18/09/2025 7:00pm edit 231723 Allyhossen, Fateen EN 6:02pm 416-732-9366 (m) Motorcycle Dollard-des-Ormeaux 19/09/2025 6:00pm edit 231724 Rinzler , Oliver EN 9:45pm 514-996-7369 (m) 514-294-7369 (h) Automobile Côte Saint-Luc 18/09/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "10/09/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "10/09/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231718",
+          "Danovitch, Hailey Anne Julia",
+          "EN",
+          "12:55am",
+          "514-882-4997   (m)",
+          "Automobile Côte Saint-Luc",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231719",
+          "Djajaatmadja, Fanuella Anamarie",
+          "EN",
+          "8:59am",
+          "438-531-2305   (m)     \n \n             438-531-2305   (h)     \n \n             438-531-2305   (w)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231721",
+          "Migali, Youri",
+          "EN",
+          "11:37am",
+          "514-425-0236   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "19/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231722",
+          "Koulocheris , Olivia",
+          "EN",
+          "5:43pm",
+          "514-945-5485   (m)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231723",
+          "Allyhossen, Fateen",
+          "EN",
+          "6:02pm",
+          "416-732-9366   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "19/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231724",
+          "Rinzler , Oliver",
+          "EN",
+          "9:45pm",
+          "514-996-7369   (m)     \n \n             514-294-7369   (h)",
+          "Automobile Côte Saint-Luc",
+          "18/09/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231718",
+          "Name": "Danovitch, Hailey Anne Julia",
+          "Lang": "EN",
+          "Time": "12:55am",
+          "Phone": "514-882-4997   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231719",
+          "Name": "Djajaatmadja, Fanuella Anamarie",
+          "Lang": "EN",
+          "Time": "8:59am",
+          "Phone": "438-531-2305   (m)     \n \n             438-531-2305   (h)     \n \n             438-531-2305   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231721",
+          "Name": "Migali, Youri",
+          "Lang": "EN",
+          "Time": "11:37am",
+          "Phone": "514-425-0236   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "19/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231722",
+          "Name": "Koulocheris , Olivia",
+          "Lang": "EN",
+          "Time": "5:43pm",
+          "Phone": "514-945-5485   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231723",
+          "Name": "Allyhossen, Fateen",
+          "Lang": "EN",
+          "Time": "6:02pm",
+          "Phone": "416-732-9366   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "19/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231724",
+          "Name": "Rinzler , Oliver",
+          "Lang": "EN",
+          "Time": "9:45pm",
+          "Phone": "514-996-7369   (m)     \n \n             514-294-7369   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231920&courseId=1",
+      "text": "Danovitch, Hailey Anne Julia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231921&courseId=1",
+      "text": "Djajaatmadja, Fanuella Anamarie",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231923&courseId=2",
+      "text": "Migali, Youri",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231924&courseId=1",
+      "text": "Koulocheris , Olivia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231925&courseId=2",
+      "text": "Allyhossen, Fateen",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231926&courseId=1",
+      "text": "Rinzler , Oliver",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 21841,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=10%2F09%2F2025"
+}

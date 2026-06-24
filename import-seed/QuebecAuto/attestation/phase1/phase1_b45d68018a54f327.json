@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231896",
+  "url_hash": "b45d68018a54f327",
+  "scraped_at": "2026-02-12T16:43:17.167Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03277359 L-774 Rangasamy, Shaylen Nethy 122 Terry-Fox St Kirkland QC H9H 4M3 0001235856 5145053930 5142225901 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 09 18 2025 09 25 2025 11 06 -------------------------------- -------------------------------- COPIE D'ÉLÈVE 03277359 L-774 Rangasamy, Shaylen Nethy 122 Terry-Fox St Kirkland QC H9H 4M3 0001235856 5145053930 5142225901 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 09 18 2025 09 25 2025 11 06 -------------------------------- -------------------------------- COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277359&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277359&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 9507,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231896"
+}

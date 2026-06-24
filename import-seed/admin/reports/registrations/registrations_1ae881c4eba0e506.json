@@ -1,0 +1,613 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=03%2F09%2F2025",
+  "url_hash": "1ae881c4eba0e506",
+  "scraped_at": "2026-02-12T17:28:06.133Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Sep 3, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Sep 3, 2025 Name Lang Time Phone Course 1 st Class Comments 231656 Azar, Anna Maria EN 12:49am 514-574-8934 (m) Automobile Montreal 09/09/2025 7:00pm edit 231657 Pinlac, Ethan Gabriel EN 11:19am 514-839-7186 (m) Automobile Vaudreuil-Dorion 18/09/2025 7:00pm edit 231658 Beaudin, Crystal EN 12:07pm 438-929-8811 (m) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit 231659 Bichut, Alexandre EN 12:13pm 514-432-8869 (m) Motorcycle Montreal 05/09/2025 6:00pm edit 231660 Levy, Jacob EN 2:00pm 514-699-8418 (m) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231661 Yalovsky, Jonah EN 4:18pm 438-372-9805 (m) 438-372-4861 (h) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit 231662 Vaughan, Ryan EN 5:14pm 263-880-7405 (m) 514-999-6187 (h) Automobile Montreal 18/09/2025 7:00pm edit 231663 Gilbert , Hayden EN 5:17pm 514-318-0536 (m) 514-969-5939 (h) Automobile Vaudreuil-Dorion 12/10/2025 3:00pm edit 231664 Nelson, Amelia EN 6:12pm 514-838-2759 (m) Automobile Montreal 23/10/2025 5:00pm edit 231665 Azoulay, Noam EN 6:34pm 438-349-9755 (m) 514-924-7866 (h) Automobile Côte Saint-Luc 29/09/2025 7:00pm edit 231666 Zampetoulakis, Sophia EN 7:38pm 514-979-1808 (m) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231667 Berson-Klein, Hannah EN 9:13pm 514-647-8951 (m) Automobile Montreal 18/09/2025 7:00pm edit 231668 Wardrop, Aidan EN 9:22pm 438-396-7855 (m) 514-693-1186 (h) Automobile Kirkland 09/09/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "03/09/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "03/09/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231656",
+          "Azar, Anna Maria",
+          "EN",
+          "12:49am",
+          "514-574-8934   (m)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231657",
+          "Pinlac, Ethan Gabriel",
+          "EN",
+          "11:19am",
+          "514-839-7186   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231658",
+          "Beaudin, Crystal",
+          "EN",
+          "12:07pm",
+          "438-929-8811   (m)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231659",
+          "Bichut, Alexandre",
+          "EN",
+          "12:13pm",
+          "514-432-8869   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231660",
+          "Levy, Jacob",
+          "EN",
+          "2:00pm",
+          "514-699-8418   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231661",
+          "Yalovsky, Jonah",
+          "EN",
+          "4:18pm",
+          "438-372-9805   (m)     \n \n             438-372-4861   (h)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231662",
+          "Vaughan, Ryan",
+          "EN",
+          "5:14pm",
+          "263-880-7405   (m)     \n \n             514-999-6187   (h)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231663",
+          "Gilbert , Hayden",
+          "EN",
+          "5:17pm",
+          "514-318-0536   (m)     \n \n             514-969-5939   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "12/10/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231664",
+          "Nelson, Amelia",
+          "EN",
+          "6:12pm",
+          "514-838-2759   (m)",
+          "Automobile Montreal",
+          "23/10/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231665",
+          "Azoulay, Noam",
+          "EN",
+          "6:34pm",
+          "438-349-9755   (m)     \n \n             514-924-7866   (h)",
+          "Automobile Côte Saint-Luc",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231666",
+          "Zampetoulakis, Sophia",
+          "EN",
+          "7:38pm",
+          "514-979-1808   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231667",
+          "Berson-Klein, Hannah",
+          "EN",
+          "9:13pm",
+          "514-647-8951   (m)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231668",
+          "Wardrop, Aidan",
+          "EN",
+          "9:22pm",
+          "438-396-7855   (m)     \n \n             514-693-1186   (h)",
+          "Automobile Kirkland",
+          "09/09/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231656",
+          "Name": "Azar, Anna Maria",
+          "Lang": "EN",
+          "Time": "12:49am",
+          "Phone": "514-574-8934   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231657",
+          "Name": "Pinlac, Ethan Gabriel",
+          "Lang": "EN",
+          "Time": "11:19am",
+          "Phone": "514-839-7186   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231658",
+          "Name": "Beaudin, Crystal",
+          "Lang": "EN",
+          "Time": "12:07pm",
+          "Phone": "438-929-8811   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231659",
+          "Name": "Bichut, Alexandre",
+          "Lang": "EN",
+          "Time": "12:13pm",
+          "Phone": "514-432-8869   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231660",
+          "Name": "Levy, Jacob",
+          "Lang": "EN",
+          "Time": "2:00pm",
+          "Phone": "514-699-8418   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231661",
+          "Name": "Yalovsky, Jonah",
+          "Lang": "EN",
+          "Time": "4:18pm",
+          "Phone": "438-372-9805   (m)     \n \n             438-372-4861   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231662",
+          "Name": "Vaughan, Ryan",
+          "Lang": "EN",
+          "Time": "5:14pm",
+          "Phone": "263-880-7405   (m)     \n \n             514-999-6187   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231663",
+          "Name": "Gilbert , Hayden",
+          "Lang": "EN",
+          "Time": "5:17pm",
+          "Phone": "514-318-0536   (m)     \n \n             514-969-5939   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "12/10/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231664",
+          "Name": "Nelson, Amelia",
+          "Lang": "EN",
+          "Time": "6:12pm",
+          "Phone": "514-838-2759   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "23/10/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231665",
+          "Name": "Azoulay, Noam",
+          "Lang": "EN",
+          "Time": "6:34pm",
+          "Phone": "438-349-9755   (m)     \n \n             514-924-7866   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "231666",
+          "Name": "Zampetoulakis, Sophia",
+          "Lang": "EN",
+          "Time": "7:38pm",
+          "Phone": "514-979-1808   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "231667",
+          "Name": "Berson-Klein, Hannah",
+          "Lang": "EN",
+          "Time": "9:13pm",
+          "Phone": "514-647-8951   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 12,
+          "column_0": "231668",
+          "Name": "Wardrop, Aidan",
+          "Lang": "EN",
+          "Time": "9:22pm",
+          "Phone": "438-396-7855   (m)     \n \n             514-693-1186   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231858&courseId=1",
+      "text": "Azar, Anna Maria",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231859&courseId=1",
+      "text": "Pinlac, Ethan Gabriel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231860&courseId=1",
+      "text": "Beaudin, Crystal",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231861&courseId=2",
+      "text": "Bichut, Alexandre",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231862&courseId=1",
+      "text": "Levy, Jacob",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231863&courseId=1",
+      "text": "Yalovsky, Jonah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231864&courseId=1",
+      "text": "Vaughan, Ryan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231865&courseId=1",
+      "text": "Gilbert , Hayden",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231866&courseId=1",
+      "text": "Nelson, Amelia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231867&courseId=1",
+      "text": "Azoulay, Noam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231868&courseId=1",
+      "text": "Zampetoulakis, Sophia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231869&courseId=1",
+      "text": "Berson-Klein, Hannah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231870&courseId=1",
+      "text": "Wardrop, Aidan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 28428,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=03%2F09%2F2025"
+}

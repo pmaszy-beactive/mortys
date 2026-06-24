@@ -1,0 +1,489 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=08%2F01%2F2026",
+  "url_hash": "35ce1248012010da",
+  "scraped_at": "2026-02-11T22:35:34.169Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jan 8, 2026"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jan 8, 2026 Name Lang Time Phone Course 1 st Class Comments 233443 Marmor, Zachary EN 9:26am 514-561-6963 (m) Automobile Dollard-des-Ormeaux 14/01/2026 5:00pm edit 233444 Dissou, Hannan EN 12:13pm 819-329-8034 (m) Automobile Montreal 14/01/2026 5:00pm edit 233445 Merelant, Clifrid EN 1:13pm 438-936-1822 (m) 438-876-0413 (h) Motorcycle Vaudreuil-Dorion 23/01/2026 6:00pm edit 233446 Fellen, Maya EN 3:17pm 514-216-6121 (m) 514-862-0320 (h) 514-299-6121 (w) Automobile Côte Saint-Luc 05/02/2026 5:00pm edit 233447 Jacobs, Brandon EN 3:52pm 263-556-2278 (m) Automobile Kirkland 18/01/2026 3:00pm edit 233448 Yaacoub, Adam EN 5:44pm 514-809-9782 (m) 757-977-8221 (h) Automobile Kirkland 14/01/2026 5:00pm edit 233449 Mucci, Justin EN 7:31pm 514-949-4431 (m) Motorcycle Montreal 23/01/2026 6:00pm edit 233450 Dreckmann, Michael EN 7:54pm 514-815-9573 (m) 450-458-4472 (h) 450-424-4112 (w) Motorcycle Vaudreuil-Dorion 20/02/2026 6:00pm edit 233451 Avgenikos, Arianna EN 9:07pm 514-266-3906 (m) 514-909-7722 (h) 514-969-3737 (w) Automobile Dollard-des-Ormeaux 14/01/2026 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "08/01/2026",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "08/01/2026"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "233443",
+          "Marmor, Zachary",
+          "EN",
+          "9:26am",
+          "514-561-6963   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "14/01/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233444",
+          "Dissou, Hannan",
+          "EN",
+          "12:13pm",
+          "819-329-8034   (m)",
+          "Automobile Montreal",
+          "14/01/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233445",
+          "Merelant, Clifrid",
+          "EN",
+          "1:13pm",
+          "438-936-1822   (m)     \n \n             438-876-0413   (h)",
+          "Motorcycle Vaudreuil-Dorion",
+          "23/01/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233446",
+          "Fellen, Maya",
+          "EN",
+          "3:17pm",
+          "514-216-6121   (m)     \n \n             514-862-0320   (h)     \n \n             514-299-6121   (w)",
+          "Automobile Côte Saint-Luc",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233447",
+          "Jacobs, Brandon",
+          "EN",
+          "3:52pm",
+          "263-556-2278   (m)",
+          "Automobile Kirkland",
+          "18/01/2026  3:00pm",
+          "edit"
+        ],
+        [
+          "233448",
+          "Yaacoub, Adam",
+          "EN",
+          "5:44pm",
+          "514-809-9782   (m)     \n \n             757-977-8221   (h)",
+          "Automobile Kirkland",
+          "14/01/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233449",
+          "Mucci, Justin",
+          "EN",
+          "7:31pm",
+          "514-949-4431   (m)",
+          "Motorcycle Montreal",
+          "23/01/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233450",
+          "Dreckmann, Michael",
+          "EN",
+          "7:54pm",
+          "514-815-9573   (m)     \n \n             450-458-4472   (h)     \n \n             450-424-4112   (w)",
+          "Motorcycle Vaudreuil-Dorion",
+          "20/02/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233451",
+          "Avgenikos, Arianna",
+          "EN",
+          "9:07pm",
+          "514-266-3906   (m)     \n \n             514-909-7722   (h)     \n \n             514-969-3737   (w)",
+          "Automobile Dollard-des-Ormeaux",
+          "14/01/2026  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "233443",
+          "Name": "Marmor, Zachary",
+          "Lang": "EN",
+          "Time": "9:26am",
+          "Phone": "514-561-6963   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "233444",
+          "Name": "Dissou, Hannan",
+          "Lang": "EN",
+          "Time": "12:13pm",
+          "Phone": "819-329-8034   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "233445",
+          "Name": "Merelant, Clifrid",
+          "Lang": "EN",
+          "Time": "1:13pm",
+          "Phone": "438-936-1822   (m)     \n \n             438-876-0413   (h)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "23/01/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "233446",
+          "Name": "Fellen, Maya",
+          "Lang": "EN",
+          "Time": "3:17pm",
+          "Phone": "514-216-6121   (m)     \n \n             514-862-0320   (h)     \n \n             514-299-6121   (w)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "233447",
+          "Name": "Jacobs, Brandon",
+          "Lang": "EN",
+          "Time": "3:52pm",
+          "Phone": "263-556-2278   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "18/01/2026  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "233448",
+          "Name": "Yaacoub, Adam",
+          "Lang": "EN",
+          "Time": "5:44pm",
+          "Phone": "514-809-9782   (m)     \n \n             757-977-8221   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "233449",
+          "Name": "Mucci, Justin",
+          "Lang": "EN",
+          "Time": "7:31pm",
+          "Phone": "514-949-4431   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "23/01/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "233450",
+          "Name": "Dreckmann, Michael",
+          "Lang": "EN",
+          "Time": "7:54pm",
+          "Phone": "514-815-9573   (m)     \n \n             450-458-4472   (h)     \n \n             450-424-4112   (w)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "20/02/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "233451",
+          "Name": "Avgenikos, Arianna",
+          "Lang": "EN",
+          "Time": "9:07pm",
+          "Phone": "514-266-3906   (m)     \n \n             514-909-7722   (h)     \n \n             514-969-3737   (w)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233647&courseId=1",
+      "text": "Marmor, Zachary",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233648&courseId=1",
+      "text": "Dissou, Hannan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233649&courseId=2",
+      "text": "Merelant, Clifrid",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233650&courseId=1",
+      "text": "Fellen, Maya",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233651&courseId=1",
+      "text": "Jacobs, Brandon",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233652&courseId=1",
+      "text": "Yaacoub, Adam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233653&courseId=2",
+      "text": "Mucci, Justin",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233654&courseId=2",
+      "text": "Dreckmann, Michael",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233655&courseId=1",
+      "text": "Avgenikos, Arianna",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 24829,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=08%2F01%2F2026"
+}

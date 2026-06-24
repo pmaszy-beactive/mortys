@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233783",
+  "url_hash": "b706a583c4942c53",
+  "scraped_at": "2026-02-11T23:44:07.548Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03304584 L-774 Turturici, Nicolina 53 Rue Monsadel Kirkland QC H9J3M5 0001236585 5143779967 4389373775 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2026 01 27 2026 02 03 2026 02 10 -------------------------------- -------------------------------- COPIE D'ÉLÈVE 03304584 L-774 Turturici, Nicolina 53 Rue Monsadel Kirkland QC H9J3M5 0001236585 5143779967 4389373775 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2026 01 27 2026 02 03 2026 02 10 -------------------------------- -------------------------------- COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304584&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304584&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 9493,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233783"
+}

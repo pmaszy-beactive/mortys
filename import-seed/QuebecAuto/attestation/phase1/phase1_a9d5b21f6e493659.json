@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233839",
+  "url_hash": "a9d5b21f6e493659",
+  "scraped_at": "2026-02-11T23:21:05.746Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03296805 L-021 Hasnany, Yaqoob 12720 Rue Joron Montreal QC H8Z 3L4 0001236537 4389287928 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- COPIE D'ÉLÈVE 03296805 L-021 Hasnany, Yaqoob 12720 Rue Joron Montreal QC H8Z 3L4 0001236537 4389287928 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03296805&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03296805&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 7995,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233839"
+}

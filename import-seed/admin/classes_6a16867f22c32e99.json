@@ -1,0 +1,244 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/classes/",
+  "url_hash": "6a16867f22c32e99",
+  "scraped_at": "2026-02-11T22:15:33.134Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Classes"
+    },
+    {
+      "level": 2,
+      "text": "Dollard-des-Ormeaux, \n               Feb 11, 2026"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Classes Location choose location Côte Saint-Luc Dollard-des-Ormeaux Kirkland Montreal Morty's Motorcycle Track Vaudreuil-Dorion Zoom Date Get Classes Dollard-des-Ormeaux, Feb 11, 2026 No Classes found.",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "classesForm",
+      "name": "",
+      "fields": [
+        {
+          "tag": "select",
+          "name": "locationId",
+          "type": "text",
+          "id": "locationId",
+          "value": "2",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "",
+              "text": "choose location",
+              "selected": false
+            },
+            {
+              "value": "11",
+              "text": "Côte Saint-Luc",
+              "selected": false
+            },
+            {
+              "value": "2",
+              "text": "Dollard-des-Ormeaux",
+              "selected": true
+            },
+            {
+              "value": "4",
+              "text": "Kirkland",
+              "selected": false
+            },
+            {
+              "value": "1",
+              "text": "Montreal",
+              "selected": false
+            },
+            {
+              "value": "5",
+              "text": "Morty's Motorcycle Track",
+              "selected": false
+            },
+            {
+              "value": "6",
+              "text": "Vaudreuil-Dorion",
+              "selected": false
+            },
+            {
+              "value": "8",
+              "text": "Zoom",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 2
+        },
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "date",
+          "id": "date",
+          "value": "2026-02-11",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "locationId": "2",
+        "date": "2026-02-11"
+      }
+    }
+  ],
+  "tables": [],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 13962,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/classes/"
+}

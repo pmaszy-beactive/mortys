@@ -1,0 +1,551 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=22%2F01%2F2026",
+  "url_hash": "1722777c52c6c296",
+  "scraped_at": "2026-02-11T23:46:10.569Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jan 22, 2026"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jan 22, 2026 Name Lang Time Phone Course 1 st Class Comments 233562 Thayer, Samantha EN 11:54am 450-775-3160 (m) Automobile Montreal 27/01/2026 7:00pm edit 233563 Osman, Nema FR 12:22pm 514-710-4978 (m) 450-424-9976 (h) Automobile Vaudreuil-Dorion 27/01/2026 7:00pm edit 233564 Masson, Reece EN 1:05pm 438-864-0954 (m) Automobile Vaudreuil-Dorion 27/01/2026 7:00pm edit 233565 Gao-ay, Jairus Shane EN 2:43pm 438-886-5854 (m) Automobile Montreal 05/02/2026 5:00pm edit 233566 Misola, Ellaine Mae EN 3:00pm 438-924-7695 (m) 514-733-6527 (h) Automobile Montreal 05/02/2026 5:00pm edit 233567 Rotili, Eva Sophia EN 3:49pm 514-298-1025 (m) 438-838-1280 (h) Automobile Côte Saint-Luc 05/02/2026 5:00pm edit 233568 Santibanez Rosales, Mar EN 5:30pm 438-509-6726 (m) Automobile Montreal 27/01/2026 7:00pm edit 233569 Wunderl, Angelika EN 6:34pm 438-535-4998 (m) 450-458-4472 (h) Motorcycle Vaudreuil-Dorion 20/02/2026 6:00pm edit 233571 Benjamin, Armstrong EN 8:33pm 514-806-9016 (m) Automobile Montreal 16/02/2026 5:00pm edit 233572 Delos Santos, Alyssa Mar EN 9:33pm 438-504-8494 (m) Automobile Montreal 27/01/2026 7:00pm edit 233573 Luong, Mai Khanh EN 9:44pm 514-663-6798 (m) Automobile Montreal 05/02/2026 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "22/01/2026",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "22/01/2026"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "233562",
+          "Thayer, Samantha",
+          "EN",
+          "11:54am",
+          "450-775-3160   (m)",
+          "Automobile Montreal",
+          "27/01/2026  7:00pm",
+          "edit"
+        ],
+        [
+          "233563",
+          "Osman, Nema",
+          "FR",
+          "12:22pm",
+          "514-710-4978   (m)     \n \n             450-424-9976   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "27/01/2026  7:00pm",
+          "edit"
+        ],
+        [
+          "233564",
+          "Masson, Reece",
+          "EN",
+          "1:05pm",
+          "438-864-0954   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "27/01/2026  7:00pm",
+          "edit"
+        ],
+        [
+          "233565",
+          "Gao-ay, Jairus Shane",
+          "EN",
+          "2:43pm",
+          "438-886-5854   (m)",
+          "Automobile Montreal",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233566",
+          "Misola, Ellaine Mae",
+          "EN",
+          "3:00pm",
+          "438-924-7695   (m)     \n \n             514-733-6527   (h)",
+          "Automobile Montreal",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233567",
+          "Rotili, Eva Sophia",
+          "EN",
+          "3:49pm",
+          "514-298-1025   (m)     \n \n             438-838-1280   (h)",
+          "Automobile Côte Saint-Luc",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233568",
+          "Santibanez Rosales, Mar",
+          "EN",
+          "5:30pm",
+          "438-509-6726   (m)",
+          "Automobile Montreal",
+          "27/01/2026  7:00pm",
+          "edit"
+        ],
+        [
+          "233569",
+          "Wunderl, Angelika",
+          "EN",
+          "6:34pm",
+          "438-535-4998   (m)     \n \n             450-458-4472   (h)",
+          "Motorcycle Vaudreuil-Dorion",
+          "20/02/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233571",
+          "Benjamin, Armstrong",
+          "EN",
+          "8:33pm",
+          "514-806-9016   (m)",
+          "Automobile Montreal",
+          "16/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233572",
+          "Delos Santos, Alyssa Mar",
+          "EN",
+          "9:33pm",
+          "438-504-8494   (m)",
+          "Automobile Montreal",
+          "27/01/2026  7:00pm",
+          "edit"
+        ],
+        [
+          "233573",
+          "Luong, Mai Khanh",
+          "EN",
+          "9:44pm",
+          "514-663-6798   (m)",
+          "Automobile Montreal",
+          "05/02/2026  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "233562",
+          "Name": "Thayer, Samantha",
+          "Lang": "EN",
+          "Time": "11:54am",
+          "Phone": "450-775-3160   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "27/01/2026  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "233563",
+          "Name": "Osman, Nema",
+          "Lang": "FR",
+          "Time": "12:22pm",
+          "Phone": "514-710-4978   (m)     \n \n             450-424-9976   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "27/01/2026  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "233564",
+          "Name": "Masson, Reece",
+          "Lang": "EN",
+          "Time": "1:05pm",
+          "Phone": "438-864-0954   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "27/01/2026  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "233565",
+          "Name": "Gao-ay, Jairus Shane",
+          "Lang": "EN",
+          "Time": "2:43pm",
+          "Phone": "438-886-5854   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "233566",
+          "Name": "Misola, Ellaine Mae",
+          "Lang": "EN",
+          "Time": "3:00pm",
+          "Phone": "438-924-7695   (m)     \n \n             514-733-6527   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "233567",
+          "Name": "Rotili, Eva Sophia",
+          "Lang": "EN",
+          "Time": "3:49pm",
+          "Phone": "514-298-1025   (m)     \n \n             438-838-1280   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "233568",
+          "Name": "Santibanez Rosales, Mar",
+          "Lang": "EN",
+          "Time": "5:30pm",
+          "Phone": "438-509-6726   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "27/01/2026  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "233569",
+          "Name": "Wunderl, Angelika",
+          "Lang": "EN",
+          "Time": "6:34pm",
+          "Phone": "438-535-4998   (m)     \n \n             450-458-4472   (h)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "20/02/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "233571",
+          "Name": "Benjamin, Armstrong",
+          "Lang": "EN",
+          "Time": "8:33pm",
+          "Phone": "514-806-9016   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "16/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "233572",
+          "Name": "Delos Santos, Alyssa Mar",
+          "Lang": "EN",
+          "Time": "9:33pm",
+          "Phone": "438-504-8494   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "27/01/2026  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "233573",
+          "Name": "Luong, Mai Khanh",
+          "Lang": "EN",
+          "Time": "9:44pm",
+          "Phone": "514-663-6798   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233766&courseId=1",
+      "text": "Thayer, Samantha",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233767&courseId=1",
+      "text": "Osman, Nema",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233768&courseId=1",
+      "text": "Masson, Reece",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233769&courseId=1",
+      "text": "Gao-ay, Jairus Shane",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233770&courseId=1",
+      "text": "Misola, Ellaine Mae",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233771&courseId=1",
+      "text": "Rotili, Eva Sophia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233772&courseId=1",
+      "text": "Santibanez Rosales, Mar",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233773&courseId=2",
+      "text": "Wunderl, Angelika",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233775&courseId=1",
+      "text": "Benjamin, Armstrong",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233776&courseId=1",
+      "text": "Delos Santos, Alyssa Mar",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233777&courseId=1",
+      "text": "Luong, Mai Khanh",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 26517,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=22%2F01%2F2026"
+}

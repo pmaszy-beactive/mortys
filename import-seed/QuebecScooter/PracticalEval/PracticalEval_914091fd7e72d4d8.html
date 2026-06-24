@@ -1,0 +1,693 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Mortys Driving School</title>
+    <meta name="google" content="notranslate">
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+
+   
+    <script>
+        
+              window.onunload = function () { }; // disable bfcache
+        var avivaronload = (function () {
+          
+                  var loaded = false,
+                      onload = (persisted) => {
+                          if (persisted ) window.location.reload();},
+                      loadController = function (ev) {
+                          var persisted = (ev.persisted !== undefined) && ev.persisted;
+                          if (persisted || !loaded) {  //just in case bfcache was not successfully disabled
+                              onload(persisted);
+                              loaded = true;
+                          }
+                      }
+                  window.addEventListener('pageshow', loadController)
+                  window.addEventListener('load', loadController)
+                  return {
+                      add: function (f) {
+                          var oldlonload = onload;
+                          onload = function (persisted) { oldlonload(persisted); f(persisted); }
+                      }
+                  }
+              })();
+
+                
+                   (function () {
+
+                    window.readCookie = function(n){ return (n = new RegExp('(?:^|;\\s*)' + ('' + n).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)').exec(document.cookie)) && n[1]; }
+                    var   cookie = readCookie('signmodeurl');
+                    if (cookie && cookie != (window.location.pathname + window.location.search)) {
+                            window.location.href = cookie
+                   }
+                })
+                ();
+
+             
+
+
+    </script>
+
+
+
+
+
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" type="text/css"><link href="/css/base/base_desktop5.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.4/css/bootstrap-dialog.css" rel="stylesheet" type="text/css"><link href="/css/signatureControl/signaturecontrol.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.css" rel="stylesheet" type="text/css"><style>.mm-menu {--mm-offset-top: 50px;--mm-offset-bottom: 15px;--mm-offset-left: 1px}</style>
+    
+    
+</head>
+<body class="">
+    
+            <div class="container mm-wrapper" style="position:fixed;   height:100%;   top:0; z-index:100;  margin-left:auto;  margin-right:auto; left:0; right:0;  pointer-events:none">
+                
+
+
+
+
+<nav id="menu" class="mm-menu mm-menu_selected-parent mm-menu_theme-white mm-menu_border-full">
+
+    <button id="menuCloseButton" class="closebutton"> </button>
+    
+    <div class="mm-panels"><div id="mm-0" class="mm-panel mm-panel_opened"><div class="mm-navbar mm-navbar_sticky"><a class="mm-navbar__title"><span>Menu</span></a></div><ul class="mm-listview">
+<li class="mm-listitem"><a href="/admin/" class="mm-listitem__text">Student Files</a></li>
+<li class="mm-listitem"><a href="/admin/classes/" class="mm-listitem__text">Classes</a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-1">Instructor<span class="mm-sronly">Open submenu</span></a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-4">Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/schedule/" class="mm-listitem__text">Set Class Schedule</a></li>
+<li class="mm-listitem"><a href="/admin/schoolpermit/" class="mm-listitem__text">School Permits</a></li>
+
+    </ul></div><div id="mm-1" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Instructor</span></a></div><ul class="mm-listview">
+                        <li class="mm-listitem">
+                            
+                            
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-2">Instructor Schedule<span class="mm-sronly">Open submenu</span></a></li>
+
+
+
+                        <li class="mm-listitem">
+                            
+                            
+
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-3">Instructor Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/instructorsignatures/" class="mm-listitem__text">My Signatures</a></li>
+
+                    </ul></div><div id="mm-2" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Schedule</span></a></div><ul class="mm-listview">
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/" class="mm-listitem__text">Booked Appointments</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/workhours/" class="mm-listitem__text">Specify Hours</a></li>
+
+
+
+                            </ul></div><div id="mm-3" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Reports</span></a></div><ul class="mm-listview">
+
+
+                                <li class="mm-listitem"><a href="/admin/reports/worksummary/" class="mm-listitem__text">Work Summary</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/reports/instructorstodolists/" class="mm-listitem__text">To Do Lists</a></li>
+
+
+                            </ul></div><div id="mm-4" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Reports</span></a></div><ul class="mm-listview">
+
+                       
+                        <li class="mm-listitem"><a href="/admin/reports/aqtr/" class="mm-listitem__text">AQTR</a></li>
+
+                        <li class="mm-listitem"><a href="/admin/reports/registrations/" class="mm-listitem__text">Registrations</a></li>
+
+                 
+
+ 
+                    </ul></div></div></nav>
+
+
+ 
+ 
+            </div>
+     
+
+<div id="header" class="container header">
+    <a style="margin-left:10px" href="/"><img style=" height:45px ;" src="/img/logo.png"></a>
+
+
+
+        <div style="   text-align:right  ; flex-grow:1  ">
+            <ul class="nav ace-nav navbar-buttons   " role="navigation">
+                <li class="light-blue pull-right">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <span class="user-info">
+                            Ilan Preisler
+                            <b class="caret"></b>
+                        </span>
+
+                    </a>
+
+
+
+           
+                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                        <li>
+                            <a href="/logout/">
+                                <i class="ace-icon fa fa-power-off"></i>
+                                logout
+                            </a>
+
+                        </li>
+                    </ul>
+                
+            </li></ul>
+        </div>
+
+
+
+
+
+     
+</div>
+
+ 
+ 
+
+
+ 
+        <div style="min-height:calc(100% - 50px);    position:relative ;  ; display:flex; flex-direction:column;     ">
+            <div style="   flex-grow:1; display:flex; flex-direction:column; margin-bottom:5px; " class="container maincontainer">
+                <div class="maintable" style="     flex-grow:1">
+                    <div class="cell1"> </div>
+                    <div class="cell2" id="contentContainer">
+                         
+
+
+<style>
+
+
+
+  
+
+    .score input[type=radio] {
+
+        position:absolute;
+        z-index:-1;
+        visibility:hidden;
+
+    }
+
+     .score label {
+        line-height:30px;
+      
+        
+        display:inline-block;
+        border:solid 1px gray;
+        width:30px;
+        height:30px;
+        text-align:center;
+        font-size:16px;
+
+
+    }
+
+      .score input:checked  +  label  {
+                   background:blue;
+                   color:white
+    }
+
+     
+
+
+</style>
+
+
+<h1 style="margin-bottom:0px">Scooter Evaluation</h1>  
+
+<h5>Student name:  Cooperman, Levi </h5>
+
+<h5>Date of evaluation:  Sep 7, 2025</h5>
+                
+         <h5>       Result: <span id="totalScore">86/100</span></h5>   
+                  
+               
+
+
+ 
+
+ 
+
+
+
+    
+    
+    
+ 
+
+
+
+
+
+
+<div id="formContainer">
+ 
+ 
+    
+    
+    <form id="theform" method="get" action="#" novalidate="novalidate">
+
+          <input id="studentUserId" name="studentUserId" type="hidden" value="231687">
+
+
+         <div class="row">
+            <div class="col-xs-12 clearfix">
+               
+                       <div data-label="Instructor Signature" data-signing-text="Instructor Signature" class="signaturecontrol form-control" style="width:140px; height:auto  ;    position:relative">
+    <input type="hidden" id="InstructorSignatureId" name="InstructorSignatureId" required="" value="H47kZD_GCkWtah5AQhhC7w" aria-required="true">  
+       
+   
+               <h6 style="margin:0"> Instructor Signature  </h6> 
+          <div style="  height:25px; text-align:center; ">   
+                                             
+           <img style="max-height:20px;max-width:100px" src="/signatureImage.ashx?id=H47kZD_GCkWtah5AQhhC7w">   
+         </div>        
+       </div>   
+
+              
+             
+                </div>  
+          </div>    
+        
+        <div class="row">
+            <div class="col-xs-12 clearfix">
+                             <div data-label="Student Signature" data-signing-text="Student Signature" class="signaturecontrol form-control" style="width:140px; height:auto  ;    position:relative">
+    <input type="hidden" id="StudentSignatureId" name="StudentSignatureId" required="" value="A4luublnrEyQHMQpCRtspQ" aria-required="true">  
+       
+   
+               <h6 style="margin:0"> Student Signature  </h6> 
+          <div style="  height:25px; text-align:center; ">   
+                                             
+           <img style="max-height:20px;max-width:100px" src="/signatureImage.ashx?id=A4luublnrEyQHMQpCRtspQ">   
+         </div>        
+       </div>   
+
+                        
+             
+                </div>  
+          </div>    
+         
+                
+          
+       
+            
+                   <div class="row   scrollOnError">
+            
+        <div class="scorecontainer col-xs-12">
+   
+        <div class="score" style="position:relative">   
+         <h5 style="margin-bottom:5px">Sits in safe driving position</h5>     
+                       
+<input class="required" id="sitsInSafeDrivingPosition0" name="sitsInSafeDrivingPosition" type="radio" value="0" aria-required="true">                 <label for="sitsInSafeDrivingPosition0"> 0 </label>
+<input class="required" id="sitsInSafeDrivingPosition1" name="sitsInSafeDrivingPosition" type="radio" value="1" aria-required="true">                 <label for="sitsInSafeDrivingPosition1"> 1 </label>
+<input class="required" id="sitsInSafeDrivingPosition2" name="sitsInSafeDrivingPosition" type="radio" value="2" aria-required="true">                 <label for="sitsInSafeDrivingPosition2"> 2 </label>
+<input class="required" id="sitsInSafeDrivingPosition3" name="sitsInSafeDrivingPosition" type="radio" value="3" aria-required="true">                 <label for="sitsInSafeDrivingPosition3"> 3 </label>
+<input class="required" id="sitsInSafeDrivingPosition4" name="sitsInSafeDrivingPosition" type="radio" value="4" aria-required="true">                 <label for="sitsInSafeDrivingPosition4"> 4 </label>
+<input checked="checked" class="required" id="sitsInSafeDrivingPosition5" name="sitsInSafeDrivingPosition" type="radio" value="5" aria-required="true">                 <label for="sitsInSafeDrivingPosition5"> 5 </label>
+         </div> 
+     </div>
+       </div>
+
+                 <div class="row   scrollOnError">
+            
+        <div class="scorecontainer col-xs-12">
+   
+        <div class="score" style="position:relative">   
+         <h5 style="margin-bottom:5px">Performs and effective visual scan</h5>     
+                       
+<input class="required" id="performsEffectiveVisualScan0" name="performsEffectiveVisualScan" type="radio" value="0" aria-required="true">                 <label for="performsEffectiveVisualScan0"> 0 </label>
+<input class="required" id="performsEffectiveVisualScan1" name="performsEffectiveVisualScan" type="radio" value="1" aria-required="true">                 <label for="performsEffectiveVisualScan1"> 1 </label>
+<input class="required" id="performsEffectiveVisualScan2" name="performsEffectiveVisualScan" type="radio" value="2" aria-required="true">                 <label for="performsEffectiveVisualScan2"> 2 </label>
+<input class="required" id="performsEffectiveVisualScan3" name="performsEffectiveVisualScan" type="radio" value="3" aria-required="true">                 <label for="performsEffectiveVisualScan3"> 3 </label>
+<input class="required" id="performsEffectiveVisualScan4" name="performsEffectiveVisualScan" type="radio" value="4" aria-required="true">                 <label for="performsEffectiveVisualScan4"> 4 </label>
+<input class="required" id="performsEffectiveVisualScan5" name="performsEffectiveVisualScan" type="radio" value="5" aria-required="true">                 <label for="performsEffectiveVisualScan5"> 5 </label>
+<input class="required" id="performsEffectiveVisualScan6" name="performsEffectiveVisualScan" type="radio" value="6" aria-required="true">                 <label for="performsEffectiveVisualScan6"> 6 </label>
+<input class="required" id="performsEffectiveVisualScan7" name="performsEffectiveVisualScan" type="radio" value="7" aria-required="true">                 <label for="performsEffectiveVisualScan7"> 7 </label>
+<input checked="checked" class="required" id="performsEffectiveVisualScan8" name="performsEffectiveVisualScan" type="radio" value="8" aria-required="true">                 <label for="performsEffectiveVisualScan8"> 8 </label>
+<input class="required" id="performsEffectiveVisualScan9" name="performsEffectiveVisualScan" type="radio" value="9" aria-required="true">                 <label for="performsEffectiveVisualScan9"> 9 </label>
+<input class="required" id="performsEffectiveVisualScan10" name="performsEffectiveVisualScan" type="radio" value="10" aria-required="true">                 <label for="performsEffectiveVisualScan10"> 10 </label>
+         </div> 
+     </div>
+       </div>
+
+                   <div class="row   scrollOnError">
+            
+        <div class="scorecontainer col-xs-12">
+   
+        <div class="score" style="position:relative">   
+         <h5 style="margin-bottom:5px">Checks the rearview mirror</h5>     
+                       
+<input class="required" id="checksRearViewMirror0" name="checksRearViewMirror" type="radio" value="0" aria-required="true">                 <label for="checksRearViewMirror0"> 0 </label>
+<input class="required" id="checksRearViewMirror1" name="checksRearViewMirror" type="radio" value="1" aria-required="true">                 <label for="checksRearViewMirror1"> 1 </label>
+<input class="required" id="checksRearViewMirror2" name="checksRearViewMirror" type="radio" value="2" aria-required="true">                 <label for="checksRearViewMirror2"> 2 </label>
+<input class="required" id="checksRearViewMirror3" name="checksRearViewMirror" type="radio" value="3" aria-required="true">                 <label for="checksRearViewMirror3"> 3 </label>
+<input class="required" id="checksRearViewMirror4" name="checksRearViewMirror" type="radio" value="4" aria-required="true">                 <label for="checksRearViewMirror4"> 4 </label>
+<input class="required" id="checksRearViewMirror5" name="checksRearViewMirror" type="radio" value="5" aria-required="true">                 <label for="checksRearViewMirror5"> 5 </label>
+<input class="required" id="checksRearViewMirror6" name="checksRearViewMirror" type="radio" value="6" aria-required="true">                 <label for="checksRearViewMirror6"> 6 </label>
+<input class="required" id="checksRearViewMirror7" name="checksRearViewMirror" type="radio" value="7" aria-required="true">                 <label for="checksRearViewMirror7"> 7 </label>
+<input checked="checked" class="required" id="checksRearViewMirror8" name="checksRearViewMirror" type="radio" value="8" aria-required="true">                 <label for="checksRearViewMirror8"> 8 </label>
+<input class="required" id="checksRearViewMirror9" name="checksRearViewMirror" type="radio" value="9" aria-required="true">                 <label for="checksRearViewMirror9"> 9 </label>
+<input class="required" id="checksRearViewMirror10" name="checksRearViewMirror" type="radio" value="10" aria-required="true">                 <label for="checksRearViewMirror10"> 10 </label>
+         </div> 
+     </div>
+       </div>
+  
+                   <div class="row   scrollOnError">
+            
+        <div class="scorecontainer col-xs-12">
+   
+        <div class="score" style="position:relative">   
+         <h5 style="margin-bottom:5px">Shoulder checks (blindspots)</h5>     
+                       
+<input class="required" id="shoulderChecks0" name="shoulderChecks" type="radio" value="0" aria-required="true">                 <label for="shoulderChecks0"> 0 </label>
+<input class="required" id="shoulderChecks1" name="shoulderChecks" type="radio" value="1" aria-required="true">                 <label for="shoulderChecks1"> 1 </label>
+<input class="required" id="shoulderChecks2" name="shoulderChecks" type="radio" value="2" aria-required="true">                 <label for="shoulderChecks2"> 2 </label>
+<input class="required" id="shoulderChecks3" name="shoulderChecks" type="radio" value="3" aria-required="true">                 <label for="shoulderChecks3"> 3 </label>
+<input class="required" id="shoulderChecks4" name="shoulderChecks" type="radio" value="4" aria-required="true">                 <label for="shoulderChecks4"> 4 </label>
+<input class="required" id="shoulderChecks5" name="shoulderChecks" type="radio" value="5" aria-required="true">                 <label for="shoulderChecks5"> 5 </label>
+<input class="required" id="shoulderChecks6" name="shoulderChecks" type="radio" value="6" aria-required="true">                 <label for="shoulderChecks6"> 6 </label>
+<input class="required" id="shoulderChecks7" name="shoulderChecks" type="radio" value="7" aria-required="true">                 <label for="shoulderChecks7"> 7 </label>
+<input checked="checked" class="required" id="shoulderChecks8" name="shoulderChecks" type="radio" value="8" aria-required="true">                 <label for="shoulderChecks8"> 8 </label>
+<input class="required" id="shoulderChecks9" name="shoulderChecks" type="radio" value="9" aria-required="true">                 <label for="shoulderChecks9"> 9 </label>
+<input class="required" id="shoulderChecks10" name="shoulderChecks" type="radio" value="10" aria-required="true">                 <label for="shoulderChecks10"> 10 </label>
+         </div> 
+     </div>
+       </div>
+
+ 
+                 <div class="row   scrollOnError">
+            
+        <div class="scorecontainer col-xs-12">
+   
+        <div class="score" style="position:relative">   
+         <h5 style="margin-bottom:5px">Uses safety signals and brake light</h5>     
+                       
+<input class="required" id="usedTurnSignalsAndBrakeLight0" name="usedTurnSignalsAndBrakeLight" type="radio" value="0" aria-required="true">                 <label for="usedTurnSignalsAndBrakeLight0"> 0 </label>
+<input class="required" id="usedTurnSignalsAndBrakeLight1" name="usedTurnSignalsAndBrakeLight" type="radio" value="1" aria-required="true">                 <label for="usedTurnSignalsAndBrakeLight1"> 1 </label>
+<input class="required" id="usedTurnSignalsAndBrakeLight2" name="usedTurnSignalsAndBrakeLight" type="radio" value="2" aria-required="true">                 <label for="usedTurnSignalsAndBrakeLight2"> 2 </label>
+<input class="required" id="usedTurnSignalsAndBrakeLight3" name="usedTurnSignalsAndBrakeLight" type="radio" value="3" aria-required="true">                 <label for="usedTurnSignalsAndBrakeLight3"> 3 </label>
+<input class="required" id="usedTurnSignalsAndBrakeLight4" name="usedTurnSignalsAndBrakeLight" type="radio" value="4" aria-required="true">                 <label for="usedTurnSignalsAndBrakeLight4"> 4 </label>
+<input class="required" id="usedTurnSignalsAndBrakeLight5" name="usedTurnSignalsAndBrakeLight" type="radio" value="5" aria-required="true">                 <label for="usedTurnSignalsAndBrakeLight5"> 5 </label>
+<input class="required" id="usedTurnSignalsAndBrakeLight6" name="usedTurnSignalsAndBrakeLight" type="radio" value="6" aria-required="true">                 <label for="usedTurnSignalsAndBrakeLight6"> 6 </label>
+<input class="required" id="usedTurnSignalsAndBrakeLight7" name="usedTurnSignalsAndBrakeLight" type="radio" value="7" aria-required="true">                 <label for="usedTurnSignalsAndBrakeLight7"> 7 </label>
+<input checked="checked" class="required" id="usedTurnSignalsAndBrakeLight8" name="usedTurnSignalsAndBrakeLight" type="radio" value="8" aria-required="true">                 <label for="usedTurnSignalsAndBrakeLight8"> 8 </label>
+<input class="required" id="usedTurnSignalsAndBrakeLight9" name="usedTurnSignalsAndBrakeLight" type="radio" value="9" aria-required="true">                 <label for="usedTurnSignalsAndBrakeLight9"> 9 </label>
+<input class="required" id="usedTurnSignalsAndBrakeLight10" name="usedTurnSignalsAndBrakeLight" type="radio" value="10" aria-required="true">                 <label for="usedTurnSignalsAndBrakeLight10"> 10 </label>
+         </div> 
+     </div>
+       </div>
+
+ 
+                 <div class="row   scrollOnError">
+            
+        <div class="scorecontainer col-xs-12">
+   
+        <div class="score" style="position:relative">   
+         <h5 style="margin-bottom:5px">Maintains stafety margins all around the moped or scooter</h5>     
+                       
+<input class="required" id="maintainsSafetyMargins0" name="maintainsSafetyMargins" type="radio" value="0" aria-required="true">                 <label for="maintainsSafetyMargins0"> 0 </label>
+<input class="required" id="maintainsSafetyMargins1" name="maintainsSafetyMargins" type="radio" value="1" aria-required="true">                 <label for="maintainsSafetyMargins1"> 1 </label>
+<input class="required" id="maintainsSafetyMargins2" name="maintainsSafetyMargins" type="radio" value="2" aria-required="true">                 <label for="maintainsSafetyMargins2"> 2 </label>
+<input class="required" id="maintainsSafetyMargins3" name="maintainsSafetyMargins" type="radio" value="3" aria-required="true">                 <label for="maintainsSafetyMargins3"> 3 </label>
+<input class="required" id="maintainsSafetyMargins4" name="maintainsSafetyMargins" type="radio" value="4" aria-required="true">                 <label for="maintainsSafetyMargins4"> 4 </label>
+<input class="required" id="maintainsSafetyMargins5" name="maintainsSafetyMargins" type="radio" value="5" aria-required="true">                 <label for="maintainsSafetyMargins5"> 5 </label>
+<input class="required" id="maintainsSafetyMargins6" name="maintainsSafetyMargins" type="radio" value="6" aria-required="true">                 <label for="maintainsSafetyMargins6"> 6 </label>
+<input class="required" id="maintainsSafetyMargins7" name="maintainsSafetyMargins" type="radio" value="7" aria-required="true">                 <label for="maintainsSafetyMargins7"> 7 </label>
+<input class="required" id="maintainsSafetyMargins8" name="maintainsSafetyMargins" type="radio" value="8" aria-required="true">                 <label for="maintainsSafetyMargins8"> 8 </label>
+<input class="required" id="maintainsSafetyMargins9" name="maintainsSafetyMargins" type="radio" value="9" aria-required="true">                 <label for="maintainsSafetyMargins9"> 9 </label>
+<input class="required" id="maintainsSafetyMargins10" name="maintainsSafetyMargins" type="radio" value="10" aria-required="true">                 <label for="maintainsSafetyMargins10"> 10 </label>
+<input class="required" id="maintainsSafetyMargins11" name="maintainsSafetyMargins" type="radio" value="11" aria-required="true">                 <label for="maintainsSafetyMargins11"> 11 </label>
+<input class="required" id="maintainsSafetyMargins12" name="maintainsSafetyMargins" type="radio" value="12" aria-required="true">                 <label for="maintainsSafetyMargins12"> 12 </label>
+<input class="required" id="maintainsSafetyMargins13" name="maintainsSafetyMargins" type="radio" value="13" aria-required="true">                 <label for="maintainsSafetyMargins13"> 13 </label>
+<input checked="checked" class="required" id="maintainsSafetyMargins14" name="maintainsSafetyMargins" type="radio" value="14" aria-required="true">                 <label for="maintainsSafetyMargins14"> 14 </label>
+<input class="required" id="maintainsSafetyMargins15" name="maintainsSafetyMargins" type="radio" value="15" aria-required="true">                 <label for="maintainsSafetyMargins15"> 15 </label>
+         </div> 
+     </div>
+       </div>
+
+ 
+                <div class="row   scrollOnError">
+            
+        <div class="scorecontainer col-xs-12">
+   
+        <div class="score" style="position:relative">   
+         <h5 style="margin-bottom:5px">Controls steering of the moped or scooter</h5>     
+                       
+<input class="required" id="constrolsSteeting0" name="constrolsSteeting" type="radio" value="0" aria-required="true">                 <label for="constrolsSteeting0"> 0 </label>
+<input class="required" id="constrolsSteeting1" name="constrolsSteeting" type="radio" value="1" aria-required="true">                 <label for="constrolsSteeting1"> 1 </label>
+<input class="required" id="constrolsSteeting2" name="constrolsSteeting" type="radio" value="2" aria-required="true">                 <label for="constrolsSteeting2"> 2 </label>
+<input class="required" id="constrolsSteeting3" name="constrolsSteeting" type="radio" value="3" aria-required="true">                 <label for="constrolsSteeting3"> 3 </label>
+<input class="required" id="constrolsSteeting4" name="constrolsSteeting" type="radio" value="4" aria-required="true">                 <label for="constrolsSteeting4"> 4 </label>
+<input class="required" id="constrolsSteeting5" name="constrolsSteeting" type="radio" value="5" aria-required="true">                 <label for="constrolsSteeting5"> 5 </label>
+<input class="required" id="constrolsSteeting6" name="constrolsSteeting" type="radio" value="6" aria-required="true">                 <label for="constrolsSteeting6"> 6 </label>
+<input class="required" id="constrolsSteeting7" name="constrolsSteeting" type="radio" value="7" aria-required="true">                 <label for="constrolsSteeting7"> 7 </label>
+<input class="required" id="constrolsSteeting8" name="constrolsSteeting" type="radio" value="8" aria-required="true">                 <label for="constrolsSteeting8"> 8 </label>
+<input class="required" id="constrolsSteeting9" name="constrolsSteeting" type="radio" value="9" aria-required="true">                 <label for="constrolsSteeting9"> 9 </label>
+<input class="required" id="constrolsSteeting10" name="constrolsSteeting" type="radio" value="10" aria-required="true">                 <label for="constrolsSteeting10"> 10 </label>
+<input class="required" id="constrolsSteeting11" name="constrolsSteeting" type="radio" value="11" aria-required="true">                 <label for="constrolsSteeting11"> 11 </label>
+<input class="required" id="constrolsSteeting12" name="constrolsSteeting" type="radio" value="12" aria-required="true">                 <label for="constrolsSteeting12"> 12 </label>
+<input class="required" id="constrolsSteeting13" name="constrolsSteeting" type="radio" value="13" aria-required="true">                 <label for="constrolsSteeting13"> 13 </label>
+<input class="required" id="constrolsSteeting14" name="constrolsSteeting" type="radio" value="14" aria-required="true">                 <label for="constrolsSteeting14"> 14 </label>
+<input class="required" id="constrolsSteeting15" name="constrolsSteeting" type="radio" value="15" aria-required="true">                 <label for="constrolsSteeting15"> 15 </label>
+<input class="required" id="constrolsSteeting16" name="constrolsSteeting" type="radio" value="16" aria-required="true">                 <label for="constrolsSteeting16"> 16 </label>
+<input checked="checked" class="required" id="constrolsSteeting17" name="constrolsSteeting" type="radio" value="17" aria-required="true">                 <label for="constrolsSteeting17"> 17 </label>
+<input class="required" id="constrolsSteeting18" name="constrolsSteeting" type="radio" value="18" aria-required="true">                 <label for="constrolsSteeting18"> 18 </label>
+<input class="required" id="constrolsSteeting19" name="constrolsSteeting" type="radio" value="19" aria-required="true">                 <label for="constrolsSteeting19"> 19 </label>
+<input class="required" id="constrolsSteeting20" name="constrolsSteeting" type="radio" value="20" aria-required="true">                 <label for="constrolsSteeting20"> 20 </label>
+         </div> 
+     </div>
+       </div>
+
+         <div class="row   scrollOnError">
+            
+        <div class="scorecontainer col-xs-12">
+   
+        <div class="score" style="position:relative">   
+         <h5 style="margin-bottom:5px">Controls the speed of the moped or scooter</h5>     
+                       
+<input class="required" id="controlsSpeed0" name="controlsSpeed" type="radio" value="0" aria-required="true">                 <label for="controlsSpeed0"> 0 </label>
+<input class="required" id="controlsSpeed1" name="controlsSpeed" type="radio" value="1" aria-required="true">                 <label for="controlsSpeed1"> 1 </label>
+<input class="required" id="controlsSpeed2" name="controlsSpeed" type="radio" value="2" aria-required="true">                 <label for="controlsSpeed2"> 2 </label>
+<input class="required" id="controlsSpeed3" name="controlsSpeed" type="radio" value="3" aria-required="true">                 <label for="controlsSpeed3"> 3 </label>
+<input class="required" id="controlsSpeed4" name="controlsSpeed" type="radio" value="4" aria-required="true">                 <label for="controlsSpeed4"> 4 </label>
+<input class="required" id="controlsSpeed5" name="controlsSpeed" type="radio" value="5" aria-required="true">                 <label for="controlsSpeed5"> 5 </label>
+<input class="required" id="controlsSpeed6" name="controlsSpeed" type="radio" value="6" aria-required="true">                 <label for="controlsSpeed6"> 6 </label>
+<input class="required" id="controlsSpeed7" name="controlsSpeed" type="radio" value="7" aria-required="true">                 <label for="controlsSpeed7"> 7 </label>
+<input class="required" id="controlsSpeed8" name="controlsSpeed" type="radio" value="8" aria-required="true">                 <label for="controlsSpeed8"> 8 </label>
+<input class="required" id="controlsSpeed9" name="controlsSpeed" type="radio" value="9" aria-required="true">                 <label for="controlsSpeed9"> 9 </label>
+<input class="required" id="controlsSpeed10" name="controlsSpeed" type="radio" value="10" aria-required="true">                 <label for="controlsSpeed10"> 10 </label>
+<input class="required" id="controlsSpeed11" name="controlsSpeed" type="radio" value="11" aria-required="true">                 <label for="controlsSpeed11"> 11 </label>
+<input class="required" id="controlsSpeed12" name="controlsSpeed" type="radio" value="12" aria-required="true">                 <label for="controlsSpeed12"> 12 </label>
+<input class="required" id="controlsSpeed13" name="controlsSpeed" type="radio" value="13" aria-required="true">                 <label for="controlsSpeed13"> 13 </label>
+<input class="required" id="controlsSpeed14" name="controlsSpeed" type="radio" value="14" aria-required="true">                 <label for="controlsSpeed14"> 14 </label>
+<input class="required" id="controlsSpeed15" name="controlsSpeed" type="radio" value="15" aria-required="true">                 <label for="controlsSpeed15"> 15 </label>
+<input class="required" id="controlsSpeed16" name="controlsSpeed" type="radio" value="16" aria-required="true">                 <label for="controlsSpeed16"> 16 </label>
+<input class="required" id="controlsSpeed17" name="controlsSpeed" type="radio" value="17" aria-required="true">                 <label for="controlsSpeed17"> 17 </label>
+<input checked="checked" class="required" id="controlsSpeed18" name="controlsSpeed" type="radio" value="18" aria-required="true">                 <label for="controlsSpeed18"> 18 </label>
+<input class="required" id="controlsSpeed19" name="controlsSpeed" type="radio" value="19" aria-required="true">                 <label for="controlsSpeed19"> 19 </label>
+<input class="required" id="controlsSpeed20" name="controlsSpeed" type="radio" value="20" aria-required="true">                 <label for="controlsSpeed20"> 20 </label>
+         </div> 
+     </div>
+       </div>
+
+ 
+
+ 
+          <div class="row" style="margin-bottom:5px">
+          <div class="col-xs-12">  
+         <h5>Comments </h5>
+          <textarea rows="2" class="form-control" name="comments"></textarea>   
+         </div>
+
+    </div> <!-- row -->
+        
+             <div class="row">
+                <div class="col-xs-12  ">
+                 <button type="submit" class="btn btn-sm btn-success doneButton"><span class="glyphicon glyphicon-ok"></span> Save</button> 
+                 </div>
+                  </div>
+
+</form>
+    </div>
+
+
+
+ 
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script>var globals={isLoggedIn:true,isStudent:false,isStaff:true,isInstructor:true,isOffice:true,loadTimeMS:(new Date().getTime()),IsDateWidgetSupported:false,isMobile:false,showMenu:true,schoolId:1,UserId:"87",userName:"Ilan Preisler",currentLanguageId:1,defaultLanguageId:1,currentLanguageCode:"en",defaultLanguageCode:"en"}</script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script><script>$(document).ajaxError(function(r,t,s,o){s.suppressAjaxError||(401==t.status||403==t.status?location.href='/':'abort'!=o&&setTimeout(alert,10,'error '+t.status+' '+o+' '+t.responseJSON))});</script><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js" type="text/javascript"></script><script src="/js/utils.min.10.js" type="text/javascript"></script><script src="/js/jsignature.all.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.16.0/jquery.validate.min.js" type="text/javascript"></script><script>$.validator.addMethod('mydate',function(t,e){if(this.optional(e))return!0;if(/^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.test(t)){var a=t.split('-'),r=new Date;if(r.setFullYear(a[0],a[1]-1,a[2]),!isNaN(r))return r.getMonth()+1===+a[1]&&r.getDate()===+a[2]&&r.getFullYear()===+a[0]}else if(/^(0?[1-9]|[12][0-9]|3[01])[- /.](0?[1-9]|1[012])[- /.](19|20)\d\d$/.test(t)){var a=t.split('/'),r=new Date;if(r.setFullYear(a[2],a[1]-1,a[0]),!isNaN(r))return r.getMonth()+1===+a[1]&&r.getDate()===+a[0]&&r.getFullYear()===+a[2]}return!1},'Please input valid date.');</script><script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.4/js/bootstrap-dialog.min.js" type="text/javascript"></script><script src="/js/signatureControl.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.js" type="text/javascript"></script>
+    
+    
+        
+
+
+  <script>
+
+     
+
+
+
+      function showScore() {
+
+          var sum = 0;
+
+          $("#theform .score").each(function () {
+             
+            var points =    $(this).find('input:checked').val(); 
+            if (points) {               
+                sum += parseInt(points)
+            }
+            else {
+                 sum = null;
+                 return false
+            }
+              
+
+          });
+          $('#totalScore').html(  sum? (sum.toString()+"/100"): "incomplete"             )
+
+      }
+
+
+           
+            
+
+     
+
+
+      $(function () {
+          showScore();
+          onSubmit = function () {
+                $.ajax(
+                    {
+                        type: "POST",
+                        url: 'componentSave_ajax',
+                        data:  $('#theform').serialize()
+                    }).done(
+
+                    function () {
+
+                          window.history.back();
+
+                    }
+                    )
+          },
+        
+             
+          $(".score input:radio").change(showScore)
+
+          thevalidator = $('#theform').validate(
+            {
+                  invalidHandler:function()
+                  {
+                     
+
+BootstrapDialog.confirm({
+            
+            message: 'This form is incomplete. Save anyhow?',
+            type: BootstrapDialog.TYPE_WARNING, // <-- Default value is BootstrapDialog.TYPE_PRIMARY
+            closable: true, // <-- Default value is false       
+            btnOKClass: 'btn-warning', // <-- If you didn't specify it, dialog type will be used,
+            callback: function(result) {
+                // result will be true if button was click, while it will be false if users close the dialog directly.
+                if(result) {
+                    onSubmit();
+                } 
+            }
+        });                               
+        },
+                ignore:"",
+                submitHandler: onSubmit,
+
+                errorPlacement: function (error, element) {
+                    if (element.is(':radio'))
+                        element.closest('.scorecontainer').append(error) 
+                    else {
+                        error.insertBefore(element);
+
+                    }
+ 
+                       
+                },
+
+
+      
+            }
+
+
+            );
+
+       
+             $('.signaturecontrol').signaturecontrol(
+             {
+                 afterDone: function () {
+                   
+                     thevalidator.element( $(this).find('input')[0] )
+                 },
+
+                 beforeInvoke: function () {         
+                     var valid = true;
+                     thevalidator.elements().not('.signaturecontrol input').each(
+                         function () {
+                             valid = thevalidator.element( this ) && valid;
+                         });                       
+                     if (valid) {
+                         return true;
+                     }
+                     else {
+                         BootstrapDialog.alert({ type: BootstrapDialog.TYPE_WARNING, title: "One step at a time...", message: "You must complete the evaluation before signing." })
+                         return false;
+                     }
+
+                      
+                 }
+             }
+
+              );     
+         
+
+     
+                     
+      
+          
+
+
+
+
+
+      });
+
+  </script>
+  
+  
+
+
+    <script>
+        if(globals.showMenu&&(new Mmenu(document.querySelector("#menu"),{setSelected:{current:!0,parent:!0},navbar:{title:"Menu"},offCanvas:!1,extensions:globals.isMobile?[]:["theme-white","border-full"]}),globals.isMobile)){let e=new Drawer;document.getElementById("hamburger").addEventListener("click",e.open),document.getElementById("menuCloseButton").addEventListener("click",e.close)}; document.getElementById('loaderoverlay').remove(); document.body.classList.remove('loaderbody')
+    </script>
+
+    
+
+
+
+
+</body></html>

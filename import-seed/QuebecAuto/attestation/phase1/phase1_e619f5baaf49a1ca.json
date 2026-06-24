@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231981",
+  "url_hash": "e619f5baaf49a1ca",
+  "scraped_at": "2026-02-12T14:10:38.022Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "E323520090902 03277202 L-021 Edgett, Jacob 2947 Rue Guy-Hoffmann Saint Laurent QC H4R2R1 0001235911 5145018040 X Ilan Preisler 4 nov. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 09 29 2025 10 06 2025 10 20 2025 10 16 2025 11 03 COPIE D'ÉLÈVE E323520090902 03277202 L-021 Edgett, Jacob 2947 Rue Guy-Hoffmann Saint Laurent QC H4R2R1 0001235911 5145018040 X Ilan Preisler 4 nov. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 09 29 2025 10 06 2025 10 20 2025 10 16 2025 11 03 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277202&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277202&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10403,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231981"
+}

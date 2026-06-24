@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231686",
+  "url_hash": "794b6816f7909885",
+  "scraped_at": "2026-02-12T22:12:35.380Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "W263503120906 03277191 L-021 Wishart, James 132 Rue Sandra Dollard-Des Ormeaux QC H9A 1L6 0001235818 5148024611 5142329395 X Ilan Preisler 1 déc. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 09 09 2025 09 25 2025 10 09 2025 10 29 2025 11 20 COPIE D'ÉLÈVE W263503120906 03277191 L-021 Wishart, James 132 Rue Sandra Dollard-Des Ormeaux QC H9A 1L6 0001235818 5148024611 5142329395 X Ilan Preisler 1 déc. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 09 09 2025 09 25 2025 10 09 2025 10 29 2025 11 20 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277191&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277191&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10605,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231686"
+}

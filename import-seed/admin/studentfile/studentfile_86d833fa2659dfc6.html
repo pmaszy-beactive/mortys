@@ -1,0 +1,892 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Mortys Driving School</title>
+    <meta name="google" content="notranslate">
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+
+   
+    <script>
+        
+              window.onunload = function () { }; // disable bfcache
+        var avivaronload = (function () {
+          
+                  var loaded = false,
+                      onload = (persisted) => {
+                          if (persisted ) window.location.reload();},
+                      loadController = function (ev) {
+                          var persisted = (ev.persisted !== undefined) && ev.persisted;
+                          if (persisted || !loaded) {  //just in case bfcache was not successfully disabled
+                              onload(persisted);
+                              loaded = true;
+                          }
+                      }
+                  window.addEventListener('pageshow', loadController)
+                  window.addEventListener('load', loadController)
+                  return {
+                      add: function (f) {
+                          var oldlonload = onload;
+                          onload = function (persisted) { oldlonload(persisted); f(persisted); }
+                      }
+                  }
+              })();
+
+                
+                   (function () {
+
+                    window.readCookie = function(n){ return (n = new RegExp('(?:^|;\\s*)' + ('' + n).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)').exec(document.cookie)) && n[1]; }
+                    var   cookie = readCookie('signmodeurl');
+                    if (cookie && cookie != (window.location.pathname + window.location.search)) {
+                            window.location.href = cookie
+                   }
+                })
+                ();
+
+             
+
+
+    </script>
+
+
+
+
+
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" type="text/css"><link href="/css/base/base_desktop5.min.css" rel="stylesheet" type="text/css"><link href="/css/fontello2/css/fontello.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.css" rel="stylesheet" type="text/css"><style>.mm-menu {--mm-offset-top: 50px;--mm-offset-bottom: 15px;--mm-offset-left: 1px}</style>
+    
+    
+</head>
+<body class="">
+    
+            <div class="container mm-wrapper" style="position:fixed;   height:100%;   top:0; z-index:100;  margin-left:auto;  margin-right:auto; left:0; right:0;  pointer-events:none">
+                
+
+
+
+
+<nav id="menu" class="mm-menu mm-menu_selected-parent mm-menu_theme-white mm-menu_border-full">
+
+    <button id="menuCloseButton" class="closebutton"> </button>
+    
+    <div class="mm-panels"><div id="mm-0" class="mm-panel mm-panel_opened"><div class="mm-navbar mm-navbar_sticky"><a class="mm-navbar__title"><span>Menu</span></a></div><ul class="mm-listview">
+<li class="mm-listitem"><a href="/admin/" class="mm-listitem__text">Student Files</a></li>
+<li class="mm-listitem"><a href="/admin/classes/" class="mm-listitem__text">Classes</a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-1">Instructor<span class="mm-sronly">Open submenu</span></a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-4">Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/schedule/" class="mm-listitem__text">Set Class Schedule</a></li>
+<li class="mm-listitem"><a href="/admin/schoolpermit/" class="mm-listitem__text">School Permits</a></li>
+
+    </ul></div><div id="mm-1" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Instructor</span></a></div><ul class="mm-listview">
+                        <li class="mm-listitem">
+                            
+                            
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-2">Instructor Schedule<span class="mm-sronly">Open submenu</span></a></li>
+
+
+
+                        <li class="mm-listitem">
+                            
+                            
+
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-3">Instructor Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/instructorsignatures/" class="mm-listitem__text">My Signatures</a></li>
+
+                    </ul></div><div id="mm-2" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Schedule</span></a></div><ul class="mm-listview">
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/" class="mm-listitem__text">Booked Appointments</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/workhours/" class="mm-listitem__text">Specify Hours</a></li>
+
+
+
+                            </ul></div><div id="mm-3" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Reports</span></a></div><ul class="mm-listview">
+
+
+                                <li class="mm-listitem"><a href="/admin/reports/worksummary/" class="mm-listitem__text">Work Summary</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/reports/instructorstodolists/" class="mm-listitem__text">To Do Lists</a></li>
+
+
+                            </ul></div><div id="mm-4" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Reports</span></a></div><ul class="mm-listview">
+
+                       
+                        <li class="mm-listitem"><a href="/admin/reports/aqtr/" class="mm-listitem__text">AQTR</a></li>
+
+                        <li class="mm-listitem"><a href="/admin/reports/registrations/" class="mm-listitem__text">Registrations</a></li>
+
+                 
+
+ 
+                    </ul></div></div></nav>
+
+
+ 
+ 
+            </div>
+     
+
+<div id="header" class="container header">
+    <a style="margin-left:10px" href="/"><img style=" height:45px ;" src="/img/logo.png"></a>
+
+
+
+        <div style="   text-align:right  ; flex-grow:1  ">
+            <ul class="nav ace-nav navbar-buttons   " role="navigation">
+                <li class="light-blue pull-right">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <span class="user-info">
+                            Ilan Preisler
+                            <b class="caret"></b>
+                        </span>
+
+                    </a>
+
+
+
+           
+                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                        <li>
+                            <a href="/logout/">
+                                <i class="ace-icon fa fa-power-off"></i>
+                                logout
+                            </a>
+
+                        </li>
+                    </ul>
+                
+            </li></ul>
+        </div>
+
+
+
+
+
+     
+</div>
+
+ 
+ 
+
+
+ 
+        <div style="min-height:calc(100% - 50px);    position:relative ;  ; display:flex; flex-direction:column;     ">
+            <div style="   flex-grow:1; display:flex; flex-direction:column; margin-bottom:5px; " class="container maincontainer">
+                <div class="maintable" style="     flex-grow:1">
+                    <div class="cell1"> </div>
+                    <div class="cell2" id="contentContainer">
+                           
+ 
+ 
+
+<style>
+
+    #toprow_spacer {
+        display: none;
+        height: 15px;
+    }
+
+    @media only screen and (min-width: 992px) {
+        .row-eq-height {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
+        }
+
+            .row-eq-height fieldset {
+                margin-bottom: 0 !important;
+                height: 100%;
+            }
+
+        #toprow_spacer {
+            display: block
+        }
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div style="position:relative; top:5px; " class="dropdown pull-right">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            Actions
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+
+            
+            <li><a href="/studentfile/printcontracts/?studentUserId=231775&amp;courseId=2">print contract</a></li>
+
+                <li> <a href="/QuebecMoto/attestation/?studentUserId=231775">print attestation</a></li>
+
+
+            <li> <a href="/QuebecMoto/CourseTransfer/?studentUserId=231775">course transfer</a></li>
+            <li><a id="deleteCourse" href="#">delete course</a></li>
+
+        </ul>
+    </div>
+<h1>Matthew Itzcovitch       </h1>
+<div class="row row-eq-height">
+    <div class="col-sm-12 col-md-6">
+         
+
+
+
+
+
+
+
+
+
+
+
+
+    <fieldset class="panel panel-default" style="padding:0">
+  <legend>Course Info</legend>   
+
+
+
+   <div class="tight" id="GeneralCourseInfo" style="padding:5px;  position:relative;    background-color:white">
+  
+               <label>Course</label>
+<div style="background-color:#edf3ff; margin-top:3px;">
+	Motorcycle
+</div>             <label>Location</label> <div style="background-color:#edf3ff; margin-top:3px;">
+	Montreal
+</div>    <div class="row">
+        <div class="col-xs-6">
+          <label>Start Date</label> <div style="background-color:#edf3ff; margin-top:3px;">
+	Sep 5, 2025
+</div>
+         
+           </div> 
+
+          <div class="col-xs-6">
+             <label>Contract No </label>
+               <div style="background-color:#edf3ff; margin-top:3px;">
+	1235925
+</div> 
+               </div>
+
+          </div>
+        <div class="clearfix">
+      <div class="pull-right">  <a class="editbutton" href="#"> edit </a> </div>
+     </div>
+
+  </div> 
+ <div class="tight" id="SpecificCourseInfo" style="    border-top:solid 1px black;     padding:5px;   position:relative;    background-color:white">     
+        
+    
+<div class="row">
+    <div class="col-xs-6">
+    
+    <label>Attestation No</label>
+03152074   
+   
+  </div>
+
+  <div class="col-xs-6">
+    <label>Attestation Date</label>
+             <span> &nbsp;</span>
+         </div>      
+
+    </div>
+
+
+   
+  <label>Class 6R Learner's Licence</label>
+I3216-121294-05   
+
+    
+      <div class="clearfix">
+      <div class="pull-right">  <a class="editbutton" href="#"> edit </a> </div>
+     </div>
+ 
+      
+  
+     
+    
+     
+     
+ 
+      
+</div>
+   
+     
+         
+
+   
+</fieldset>
+
+
+
+
+ 
+  
+
+
+ 
+      
+
+
+
+
+    </div>
+    <div class="col-sm-12 col-md-6 toprow">
+
+        <fieldset class="panel panel-default" style="padding:0">
+            <legend>Personal Info</legend>
+
+            <div class="tight" id="personalDetails" style="padding:5px;  position:relative;    background-color:white">
+
+
+                
+
+
+
+ 
+
+ 
+    <div class="row">
+    
+    
+         <div class="col-sm-6 ">
+       Itzcovitch, Matthew<br>
+       
+ 
+  
+    111 Alexis Nihon,                                  Apt 704,
+    Saint Laurent,   QC<br>
+    h4m0b2 
+     <div style="position:relative; left:-3px;  "><i class="icon-birthday"></i> Dec 12, 1994
+        
+         English </div> 
+     </div>
+     <div class="col-sm-6 "> <i class="glyphicon glyphicon-envelope"></i>
+
+
+
+itzcovitch@hotmail.com         <br>
+    
+      <span class="glyphicon glyphicon-earphone"></span>    514-880-7505  (cell)<br>
+               
+           </div> 
+      
+ 
+    
+     <div class="col-xs-12 clearfix">
+      <div class="pull-right">  <a class="editbutton" href="#"> edit </a></div>
+      
+      </div> 
+      
+     
+ </div>
+       
+ 
+ 
+ 
+
+    
+    
+ 
+
+
+            </div>
+
+
+                <div id="notescontainer" class="tight  " style="   border-top:solid 1px black;             padding:5px;   position:relative;    background-color:white">
+                    <h2 style="margin-top:0; margin-bottom:5px">Office Use Only - Notes</h2>
+                    <div class="notes"></div>
+
+                    <div class="formbuttonscontainer" style="display:none">
+                        <button type="button" name="submit" class="btn btn-xs btn-primary savebutton"><span class="glyphicon glyphicon-ok"></span> Save   </button>
+                        <button type="button" class="btn btn-xs btn-danger cancelbutton"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+                    </div>
+
+                    <div class="editbuttoncontainer clearfix">
+                        <div class="pull-right">  <a class="editbutton" href="#"> edit </a> </div>
+                    </div>
+                </div>
+
+
+
+        </fieldset>
+
+
+
+
+    </div>
+</div>
+
+<div id="toprow_spacer"> </div>
+
+
+
+
+
+ 
+
+
+
+ <div class="row">
+
+ 
+ <div class="col-md-12">
+  
+
+<fieldset class="panel panel-default alternatecolors">
+  <legend id="studentCourseToDoContainerInstructor">To Do (Instructor)</legend>
+</fieldset>
+ </div>
+
+
+
+ 
+
+     </div>
+      
+
+
+ 
+
+
+
+
+
+ 
+  
+
+ 
+
+
+
+ <div class="row">
+
+ 
+ <div class="col-md-12">
+  
+
+<fieldset class="panel panel-default alternatecolors" id="studentCourseToDoContainerStudent">
+  <legend>Up Next</legend>
+
+       <div class="paditem">
+            <div style=" overflow: hidden;">
+        <div style="float:right" data-reservationid="537666" data-scheduledclassid="52381">
+<a href="#" class="cancelbooking  "> cancel reservation</a>        </div>
+        Closed Track 1  <span style="font-size:smaller">May 9, 2026 8:00am-12:00pm  at Morty's Moto Track   (reserved) </span>
+    </div>
+
+
+
+
+
+
+
+
+
+
+ 
+      </div>
+</fieldset>
+ </div> </div>
+      
+
+
+ 
+
+
+
+
+
+ 
+  
+
+
+
+
+
+ 
+
+
+
+
+
+
+ <div class="row">
+
+ 
+ <div class="col-md-12">
+  
+
+<fieldset class="panel panel-default  alternatecolors">
+  <legend id="studentCourseComponentsContainer">Module History</legend>   
+ 
+    <div style=" overflow-x:auto; overflow-y:hidden">
+        <div class="paditem" style="position:relative">  
+         
+
+    
+ 
+
+ 
+
+
+
+Theory 1: Yard Prep <span style="font-size:smaller">Sep 5, 2025 6:00pm-9:00pm</span>
+
+<button name="deleteComponent" data-delete-label="Theory 1: Yard Prep" data-delete-course-component-id="33" type="button" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-trash"></span> delete</button>
+<br>
+
+
+        <table class="signaturetable">
+            <thead><tr><td>time</td><td>student</td><td>instructor</td><td></td></tr> </thead>
+            <tbody>
+                    <tr>
+                        <td>
+                            6:00pm-9:00pm
+                        </td>
+                        <td style="text-align:left">
+                                    <span>&nbsp;</span><a href="//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231573-00033-0.jpg?483"> Zoom screenshot</a><span>&nbsp;</span><a href="/zoomscreenshot/?studentuserid=231775&amp;courseId=2&amp;courseComponentId=33&amp;screenshotNo=0"><span class="glyphicon glyphicon-edit"></span></a>
+                                                                <span>&nbsp;</span><a href="//zoomscreenshots.s3.ca-central-1.amazonaws.com/0001-0231573-00033-1.jpg?200"> Zoom screenshot</a><span>&nbsp;</span><a href="/zoomscreenshot/?studentuserid=231775&amp;courseId=2&amp;courseComponentId=33&amp;screenshotNo=1"><span class="glyphicon glyphicon-edit"></span></a>
+
+
+                        </td>
+                        <td>
+<button class="revealsignature mylink" onclick="RevealsignaturesBootstrap(this)" data-image-src="/signatureimage.ashx?id=_NFhXYFynUWlRj8UKyvn6A" style="padding-left:2px; padding-right:2px;">reveal signature</button>                          
+                        </td>
+                        <td>
+
+                                   L10136
+
+
+                        </td>
+                    </tr>
+            </tbody>
+        </table>
+
+
+
+ 
+
+        
+  
+
+   
+        </div>       
+        </div>
+</fieldset>
+ </div>
+     </div>
+      
+
+
+
+
+
+
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+    <style>
+
+   
+
+    @media (max-width: 767px) {
+     
+      #statementOfAccountData    {
+    
+      font-size:12px;
+    }   
+	}
+
+    #statementOfAccountData th {
+     text-align:center
+    }
+
+      #statementOfAccountData   td {
+       text-align:right;
+        padding:5px;
+          
+    }
+
+
+    #statementOfAccountData td:first-child {
+         text-align:left;
+    }
+
+
+
+
+</style>
+<div id="dlgAddCredit" style="display:none">
+    <form>
+  
+<input type="hidden" name="studentUserId" value="231775">
+    <input type="hidden" name="CourseId" value="2">
+<div class="row">
+      <div class="col-xs-12">
+         <select name="typeId">
+           
+                   <option value="3">
+                      credit card 
+                   </option>                  
+                   <option value="6">
+                      debit card 
+                   </option>                  
+                   <option value="5">
+                      cash payment 
+                   </option>                  
+                   <option value="4">
+                      cheque  
+                   </option>                  
+                   <option value="8">
+                      email transfer 
+                   </option>                  
+                   <option value="1">
+                      course discount 
+                   </option>                  
+                   <option value="7">
+                      other 
+                   </option>                  
+
+
+
+
+    </select> 
+          <input id="creditIncludeTaxes" name="includeTaxes" type="checkbox" value="true"><input name="includeTaxes" type="hidden" value="false">
+          <label for="creditIncludeTaxes">include taxes</label>
+   
+         </div>
+          
+           </div>
+       
+    <div class="row">
+    
+     <div class="col-xs-12 col-md-3">
+                 Amount<br>  <input type="text" name="amount"> 
+            </div> 
+     <div class="col-xs-12 col-md-3"> GST <br><input disabled="" type="text" name="tax1"> 
+         </div>
+      <div class="col-xs-12 col-md-3"> PST <br><input disabled="" type="text" name="tax2"> 
+         </div>
+      <div class="col-xs-12 col-md-3"> Total  <br><input disabled="" type="text" name="total"> 
+         </div>
+
+           </div>        
+      
+                        
+       <div class="row">
+    
+     <div class="col-xs-12">
+         Comments<br>
+         <textarea name="comments" style="width:100%"></textarea>
+
+           </div>  
+       </div>      
+      
+
+  
+
+       
+        
+     <button type="submit" name="submit">submit</button>
+         <button type="button" name="cancel">cancel</button>
+        </form>
+</div>
+<div id="dlgAddDebit" style="display:none">
+    <form>
+  
+
+<input type="hidden" name="studentUserId" value="231775">
+    <input type="hidden" name="CourseId" value="2">
+
+<div class="row">
+      <div class="col-xs-12">
+         <select name="typeId">
+           
+                   <option value="2">
+                      correction 
+                   </option>                  
+                   <option value="3">
+                      missed scheduled class 
+                   </option>                  
+                   <option value="4">
+                      materials 
+                   </option>                  
+                   <option value="5">
+                      other 
+                   </option>                  
+
+
+
+
+    </select> 
+           <input id="debitIncludeTaxes" name="includeTaxes" type="checkbox" value="true"><input name="includeTaxes" type="hidden" value="false">
+          
+          <label for="debitIncludeTaxes">include taxes</label>
+   
+         </div>
+          
+           </div>
+       
+    <div class="row">
+    
+     <div class="col-xs-12 col-md-3">
+                 Amount<br>  <input type="text" name="amount"> 
+            </div> 
+     <div class="col-xs-12 col-md-3"> GST <br><input disabled="" type="text" name="tax1"> 
+         </div>
+      <div class="col-xs-12 col-md-3"> PST <br><input disabled="" type="text" name="tax2"> 
+         </div>
+      <div class="col-xs-12 col-md-3"> Total  <br><input disabled="" type="text" name="total"> 
+         </div>
+
+           </div>        
+      
+                        
+       <div class="row">
+    
+     <div class="col-xs-12">
+         Comments<br>
+         <textarea name="comments" style="width:100%"></textarea>
+
+           </div>  
+       </div>      
+      
+
+  
+
+       
+        
+     <button type="submit" name="submit">submit</button>
+         <button type="button" name="cancel">cancel</button>
+        </form>
+</div>
+<div class="row">
+    
+        <div id="statementOfAccountContainer" style="position:relative;  padding-bottom:0px;  margin-bottom:10px; padding-top:4px" class="col-md-12">
+
+            <button name="quit" type="button" class="btn btn-xs btn-default" style="position:absolute; right:20px; top:5px; display:none "><span class="glyphicon glyphicon-remove"></span> quit</button>
+
+            <div id="accountStatementExclusive" style="display:none; "> </div>
+
+            <fieldset id="student" class="panel panel-default  ">
+                <legend>Statement of Account</legend>
+
+                <div class="table-responsive">
+                    <table class="alternatecolors" id="statementOfAccountData" style="margin-bottom:3px">
+                            <tbody><tr><th>decription</th><th>date</th> <th>amount</th><th>gst</th><th>pst</th><th>total</th><th> </th></tr>
+           <tr>
+   <td>course</td>
+   <td nowrap="">26/08/2025</td>
+   <td nowrap=""> $1,100.00</td>
+   <td nowrap=""> $55.00</td>
+               <td nowrap=""> $109.73</td>
+               <td nowrap=""> $1,264.73</td>
+ 
+
+        </tr>
+           <tr>
+   <td>email transfer</td>
+   <td nowrap="">05/09/2025</td>
+   <td nowrap=""> ($347.90)</td>
+   <td nowrap=""> ($17.40)</td>
+               <td nowrap=""> ($34.70)</td>
+               <td nowrap=""> ($400.00)</td>
+ 
+
+        </tr>
+ <tr><td></td> <td></td> <td></td> <td></td> <td>Balance:</td> <td> $864.73        </td>  </tr>
+
+
+                    </tbody></table>
+                </div>
+
+                    <div name="regularModeButtonsContainer" style="text-align:right"> <a id="editmode" href="#"> edit </a>   </div>
+                    <div name="editModeButtonsContainer" style="display:none;">           <button type="button" name="insertCredit" class="btn btn-xs btn-default">credit <span class="glyphicon glyphicon-minus"></span></button>    <button type="button" name="insertDebit" class="btn btn-xs btn-default">debit <span class="glyphicon glyphicon-plus"></span></button>         </div>
+
+
+
+
+
+
+            </fieldset>
+          
+        </div>
+
+
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+ 
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script>var globals={courseId:"2",studentUserId:"231775",studentName:"Matthew Itzcovitch",bootstrap3dialogsrc:"//cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.4/js/bootstrap-dialog.min.js",bootstrap3dialogcss:"//cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.4/css/bootstrap-dialog.css",deletecoursesrc:"/js/deletecourse.min.js",deletecoursecomponentsrc:"/js/deletecoursecomponent.js",bDateWidgetSupported:false,autosize_js:"//cdnjs.cloudflare.com/ajax/libs/autosize.js/3.0.20/autosize.min.js",filenoteseditor_js:"/js/fileNotesEditor.min.1.js",bootstrap3dialog_src:"//cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.4/js/bootstrap-dialog.min.js",bootstrap3dialog_css:"//cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.4/css/bootstrap-dialog.css",cancelbookings_js:"/js/cancelbookings2.js",isLoggedIn:true,isStudent:false,isStaff:true,isInstructor:true,isOffice:true,loadTimeMS:(new Date().getTime()),IsDateWidgetSupported:false,isMobile:false,showMenu:true,schoolId:1,UserId:"87",userName:"Ilan Preisler",currentLanguageId:1,defaultLanguageId:1,currentLanguageCode:"en",defaultLanguageCode:"en"}</script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script><script>$(document).ajaxError(function(r,t,s,o){s.suppressAjaxError||(401==t.status||403==t.status?location.href='/':'abort'!=o&&setTimeout(alert,10,'error '+t.status+' '+o+' '+t.responseJSON))});</script><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js" type="text/javascript"></script><script src="/js/utils.min.10.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.16.0/jquery.validate.min.js" type="text/javascript"></script><script>$.validator.addMethod('mydate',function(t,e){if(this.optional(e))return!0;if(/^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.test(t)){var a=t.split('-'),r=new Date;if(r.setFullYear(a[0],a[1]-1,a[2]),!isNaN(r))return r.getMonth()+1===+a[1]&&r.getDate()===+a[2]&&r.getFullYear()===+a[0]}else if(/^(0?[1-9]|[12][0-9]|3[01])[- /.](0?[1-9]|1[012])[- /.](19|20)\d\d$/.test(t)){var a=t.split('/'),r=new Date;if(r.setFullYear(a[2],a[1]-1,a[0]),!isNaN(r))return r.getMonth()+1===+a[1]&&r.getDate()===+a[0]&&r.getFullYear()===+a[2]}return!1},'Please input valid date.');</script><script src="/js/expose.min.js" type="text/javascript"></script><script src="/js/specificcoursedetails/quebecmoto.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" type="text/javascript"></script><script>$.fn.datepicker.defaults.zIndexOffset=100000;</script><script src="/js/studentStatement.min.2.js" type="text/javascript"></script><script src="/js/generalCourseDetails2.min.js" type="text/javascript"></script><script src="/js/personaldetails.min.2.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.js" type="text/javascript"></script>
+    <script>RevealsignaturesBootstrap=function(target){coact.ondemandloader.loadscripts('/js/revealsignatures/revealsignatures.min.js',  function(){ Revealsignatures(target)})};$(function(){$('#studentCourseToDoContainerStudent').on('click','.cancelbooking',function(){     var $id=parseInt( $(this).parent().data().reservationid);   coact.ondemandloader.loadcss(globals.bootstrap3dialog_css);   coact.ondemandloader.loadscripts(globals.cancelbookings_js, globals.bootstrap3dialog_src,  function(){  cancelBookings.start ( $id );}) ;    return false;});     $('#deleteCourse').click(function () {$(this).closest('.dropdown-menu').dropdown('toggle');coact.ondemandloader.loadscripts(globals.deletecoursesrc, function () { deleteCourse(); });return false;});$('#notescontainer').on('click', '.editbutton' ,function(){   coact.ondemandloader.loadscripts(globals.autosize_js,globals.filenoteseditor_js, function(){fileNotesEditor.start (); }   );return false;});   $('button[name="deleteComponent"]' ).click( function(){     let $this=$(this);           coact.ondemandloader.loadscripts(globals.deletecoursecomponentsrc , function(){    let data=$this.data();   console.log(data);          deleteComponent( data.deleteLabel ,data.deleteCourseComponentId,        )  } ); return false        });})</script>
+    
+
+    <script>
+        if(globals.showMenu&&(new Mmenu(document.querySelector("#menu"),{setSelected:{current:!0,parent:!0},navbar:{title:"Menu"},offCanvas:!1,extensions:globals.isMobile?[]:["theme-white","border-full"]}),globals.isMobile)){let e=new Drawer;document.getElementById("hamburger").addEventListener("click",e.open),document.getElementById("menuCloseButton").addEventListener("click",e.close)}; document.getElementById('loaderoverlay').remove(); document.body.classList.remove('loaderbody')
+    </script>
+
+    
+
+
+
+
+</body></html>

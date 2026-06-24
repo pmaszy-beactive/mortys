@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231864",
+  "url_hash": "6d9eb1c84df852a9",
+  "scraped_at": "2026-02-12T17:39:49.767Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "V250719080907 03287020 L-020 Vaughan, Ryan 580 Cote Saint Antoine Montréal QC H3Y 2K6 0001235878 5149996187 2638807405 X Ilan Preisler 30 oct. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 18 2025 09 25 2025 10 09 2025 10 16 2025 10 23 COPIE D'ÉLÈVE V250719080907 03287020 L-020 Vaughan, Ryan 580 Cote Saint Antoine Montréal QC H3Y 2K6 0001235878 5149996187 2638807405 X Ilan Preisler 30 oct. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 18 2025 09 25 2025 10 09 2025 10 16 2025 10 23 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287020&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287020&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10363,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231864"
+}

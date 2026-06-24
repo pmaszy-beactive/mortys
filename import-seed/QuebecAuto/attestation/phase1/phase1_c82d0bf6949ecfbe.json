@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231716",
+  "url_hash": "c82d0bf6949ecfbe",
+  "scraped_at": "2026-02-12T21:37:38.266Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "G621928040207 03277309 L-774 Garigipati, Vishnu 6 Rue Yuile kirkland QC H9H 5K6 0001235563 5145661791 5146410366 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- COPIE D'ÉLÈVE G621928040207 03277309 L-774 Garigipati, Vishnu 6 Rue Yuile kirkland QC H9H 5K6 0001235563 5145661791 5146410366 X Ilan Preisler 12 févr. 2026 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277309&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277309&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 8345,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231716"
+}

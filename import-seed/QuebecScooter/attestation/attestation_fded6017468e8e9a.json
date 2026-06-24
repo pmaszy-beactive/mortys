@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=223242",
+  "url_hash": "fded6017468e8e9a",
+  "scraped_at": "2026-02-13T10:39:28.407Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03284194 A-107 Dragulin, Nicholas 215 Av Du Parc L'Île-Perrot QC J7V 9P3 0001235850 5148082917 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 21 2025 09 28 X Ilan Preisler 13 févr. 2026 COPIE D'ÉLÈVE 03284194 A-107 Dragulin, Nicholas 215 Av Du Parc L'Île-Perrot QC J7V 9P3 0001235850 5148082917 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 21 2025 09 28 X Ilan Preisler 13 févr. 2026 COPIE D'ÉCOLE 03284194 A-107 Dragulin, Nicholas 215 Av Du Parc L'Île-Perrot QC J7V 9P3 0001235850 5148082917 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 21 2025 09 28 X Ilan Preisler 13 févr. 2026 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03284194&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03284194&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03284194&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 11337,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecScooter/attestation/?studentUserId=223242"
+}

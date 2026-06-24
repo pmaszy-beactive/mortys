@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224347",
+  "url_hash": "837ef590b22ac961",
+  "scraped_at": "2026-02-13T08:09:59.740Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "L260607080904 03277019 L-020 Lazar, Mikayla 5756 Ave Notre-Dame-de-Grace Montreal QC H4A 1M4 0001235450 5144843892 4388628560 X Ilan Preisler 20 oct. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 31 2025 08 07 2025 08 27 2025 09 03 2025 09 10 COPIE D'ÉLÈVE L260607080904 03277019 L-020 Lazar, Mikayla 5756 Ave Notre-Dame-de-Grace Montreal QC H4A 1M4 0001235450 5144843892 4388628560 X Ilan Preisler 20 oct. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 31 2025 08 07 2025 08 27 2025 09 03 2025 09 10 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277019&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277019&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10375,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224347"
+}

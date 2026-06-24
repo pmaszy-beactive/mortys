@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223189",
+  "url_hash": "f16a9169b0805c65",
+  "scraped_at": "2026-02-13T12:09:55.474Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03277079 L-021 Chughtai, Maryam 149 rue Albareto Dollard-des-Ormeaux QC H9G 2Y8 0001235300 5142385122 X Ilan Preisler 13 févr. 2026 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 07 15 2025 07 22 2025 07 29 2025 08 05 2025 08 28 COPIE D'ÉLÈVE 03277079 L-021 Chughtai, Maryam 149 rue Albareto Dollard-des-Ormeaux QC H9G 2Y8 0001235300 5142385122 X Ilan Preisler 13 févr. 2026 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 07 15 2025 07 22 2025 07 29 2025 08 05 2025 08 28 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277079&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277079&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10231,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223189"
+}

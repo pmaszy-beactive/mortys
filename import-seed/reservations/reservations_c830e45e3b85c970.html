@@ -1,0 +1,485 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Mortys Driving School</title>
+    <meta name="google" content="notranslate">
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+
+   
+    <script>
+        
+              window.onunload = function () { }; // disable bfcache
+        var avivaronload = (function () {
+          
+                  var loaded = false,
+                      onload = (persisted) => {
+                          if (persisted ) window.location.reload();},
+                      loadController = function (ev) {
+                          var persisted = (ev.persisted !== undefined) && ev.persisted;
+                          if (persisted || !loaded) {  //just in case bfcache was not successfully disabled
+                              onload(persisted);
+                              loaded = true;
+                          }
+                      }
+                  window.addEventListener('pageshow', loadController)
+                  window.addEventListener('load', loadController)
+                  return {
+                      add: function (f) {
+                          var oldlonload = onload;
+                          onload = function (persisted) { oldlonload(persisted); f(persisted); }
+                      }
+                  }
+              })();
+
+                
+                   (function () {
+
+                    window.readCookie = function(n){ return (n = new RegExp('(?:^|;\\s*)' + ('' + n).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)').exec(document.cookie)) && n[1]; }
+                    var   cookie = readCookie('signmodeurl');
+                    if (cookie && cookie != (window.location.pathname + window.location.search)) {
+                            window.location.href = cookie
+                   }
+                })
+                ();
+
+             
+
+
+    </script>
+
+
+
+
+
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" type="text/css"><link href="/css/base/base_desktop5.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.4/css/bootstrap-dialog.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.css" rel="stylesheet" type="text/css"><style>.mm-menu {--mm-offset-top: 50px;--mm-offset-bottom: 15px;--mm-offset-left: 1px}</style>
+    
+    
+<style>
+    .closedcircuitstream {
+    }
+     .closedcircuitstream .form-control {
+         height:auto;
+         cursor:pointer;
+    }
+     .closedcircuitstream .form-control:hover {
+         border-color:green 
+    }
+     .confirmationmessage p {
+         margin-top:5px;
+    }
+     .times {
+         margin-top:5px;
+         margin-bottom:5px;
+    }
+     .confirmationmessage .times > div {
+         margin:auto;
+         max-width:350px;
+    }
+     .times > div {
+     
+         display:block;
+         white-space:nowrap;
+         padding-top:0px;
+         padding-bottom:0px;
+    }
+     .times .dayofweek {
+         display: inline-block;
+         text-align: left;
+         width: 33%;
+    }
+     .times .date {
+         display :inline-block ;
+         width:33%;
+         text-align:left;
+    }
+     .times .time {
+         display:inline-block;
+         text-align:left;
+         width:33%;
+    }
+
+    @media (max-device-width:400px) {
+        .times, .confirmationmessage {  font-size:12px
+        } 
+    }
+
+</head>
+<body class="loaderbody">
+    <div id="loaderoverlay"><div class="loader"><div class="bar1"></div><div class="bar2"></div><div class="bar3"></div><div class="bar4"></div><div class="bar5"></div><div class="bar6"></div></div></div>
+            <div class="container" style="position:fixed;   height:100%;   top:0; z-index:100;  margin-left:auto;  margin-right:auto; left:0; right:0;  pointer-events:none">
+                
+
+
+
+
+<nav id="menu">
+
+    <button id="menuCloseButton" class="closebutton"> </button>
+    <ul>
+<li ><a href="/admin/">Student Files</a></li>
+<li ><a href="/admin/classes/">Classes</a></li>
+                <li>
+
+                    <span>Instructor</span>
+                    <ul>
+                        <li>
+                            <span>Instructor Schedule</span>
+                            <ul>
+                                <li ><a href="/admin/instructorschedule/">Booked Appointments</a></li>
+
+                                <li ><a href="/admin/instructorschedule/workhours/">Specify Hours</a></li>
+
+
+
+                            </ul>
+                        </li>
+
+
+
+                        <li>
+                            <span>Instructor Reports</span>
+                            <ul>
+
+
+                                <li ><a href="/admin/reports/worksummary/">Work Summary</a></li>
+
+                                <li ><a href="/admin/reports/instructorstodolists/">To Do Lists</a></li>
+
+
+                            </ul>
+
+                        </li>
+<li ><a href="/admin/instructorsignatures/">My Signatures</a></li>
+
+                    </ul>
+
+
+
+
+                </li>
+                <li>
+
+                    <span>Reports</span>
+                    <ul>
+
+                       
+                        <li ><a href="/admin/reports/aqtr/">AQTR</a></li>
+
+                        <li ><a href="/admin/reports/registrations/">Registrations</a></li>
+
+                 
+
+ 
+                    </ul>
+
+
+                </li>
+<li ><a href="/admin/schedule/">Set Class Schedule</a></li>
+<li ><a href="/admin/schoolpermit/">School Permits</a></li>
+
+    </ul>
+    </nav>
+
+
+ 
+ 
+            </div>
+     
+
+<div id="header" class="container header">
+    <a style="margin-left:10px" href="/"><img style=" height:45px ;" src='/img/logo.png' /></a>
+
+
+
+        <div style="   text-align:right  ; flex-grow:1  ">
+            <ul class="nav ace-nav navbar-buttons   " role="navigation">
+                <li class="light-blue pull-right">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <span class="user-info">
+                            Ilan Preisler
+                            <b class="caret"></b>
+                        </span>
+
+                    </a>
+
+
+
+           
+                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                        <li>
+                            <a href='/logout/'>
+                                <i class="ace-icon fa fa-power-off"></i>
+                                logout
+                            </a>
+
+                        </li>
+                    </ul>
+                
+            </ul>
+        </div>
+
+
+
+
+
+     
+</div>
+
+ 
+ 
+
+
+ 
+        <div style="min-height:calc(100% - 50px);    position:relative ;  ; display:flex; flex-direction:column;     ">
+            <div style="   flex-grow:1; display:flex; flex-direction:column; margin-bottom:5px; " class="container maincontainer">
+                <div class="maintable" style="     flex-grow:1">
+                    <div class="cell1"> </div>
+                    <div class="cell2" id="contentContainer">
+                        
+
+
+<h1>Max Yang  -  Reserve</h1>
+ 
+
+
+  
+     
+
+
+          </style>
+
+</head><body>}
+
+ 
+
+ 
+    
+        
+     
+
+ 
+
+
+
+    <div id="classes" class="panel panel-primary  ">
+<div class="panel-heading">   <label>Choose a series of 4  classes  </label></div>   
+
+  <div class="panel-body">
+ 
+     
+
+       
+
+
+  <div class="row"><div class="col-xs-12  col-sm-6  closedcircuitstream"> <div class="form-control times"><input type="hidden" value="11766"><div><span class="dayofweek">Saturday</span> <span class="date">Apr 11, 2026</span><span class="time">8:00am-12:00pm</span></div><div><span class="dayofweek">Sunday</span> <span class="date">Apr 12, 2026</span><span class="time">8:00am-12:00pm</span></div><div><span class="dayofweek">Saturday</span> <span class="date">Apr 18, 2026</span><span class="time">8:00am-12:00pm</span></div><div><span class="dayofweek">Sunday</span> <span class="date">Apr 19, 2026</span><span class="time">8:00am-12:00pm</span></div></div></div><div class="col-xs-12  col-sm-6  closedcircuitstream"> <div class="form-control times"><input type="hidden" value="11767"><div><span class="dayofweek">Saturday</span> <span class="date">Apr 11, 2026</span><span class="time">12:30pm-4:30pm</span></div><div><span class="dayofweek">Sunday</span> <span class="date">Apr 12, 2026</span><span class="time">12:30pm-4:30pm</span></div><div><span class="dayofweek">Saturday</span> <span class="date">Apr 18, 2026</span><span class="time">12:30pm-4:30pm</span></div><div><span class="dayofweek">Sunday</span> <span class="date">Apr 19, 2026</span><span class="time">12:30pm-4:30pm</span></div></div></div></div></div>
+         <div class="panel-footer">      <input class="btn center-block btn-info" id="more" type="button" value="Load More Dates..."> </div>
+
+</div>
+
+ 
+
+
+
+
+
+
+
+ 
+    
+                    
+                
+            
+        
+    <script>var globals={courseId:2,actionId:203,studentUserId:"231772",studentName:"Max Yang",state:{"courseStreamsShowing":0,"numCourseStreams":32},isLoggedIn:true,isStudent:false,isStaff:true,isInstructor:true,isOffice:true,loadTimeMS:(new Date().getTime()),IsDateWidgetSupported:false,isMobile:false,showMenu:true,schoolId:1,UserId:"87",userName:"Ilan Preisler",currentLanguageId:1,defaultLanguageId:1,currentLanguageCode:"en",defaultLanguageCode:"en"}</script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script><script>$(document).ajaxError(function(r,t,s,o){s.suppressAjaxError||(401==t.status||403==t.status?location.href='/':'abort'!=o&&setTimeout(alert,10,'error '+t.status+' '+o+' '+t.responseJSON))});</script><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js" type="text/javascript"></script><script src="/js/utils.min.10.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.4/js/bootstrap-dialog.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.js" type="text/javascript"></script>
+    
+    
+
+    <script>
+var streams=[{"HoursUntilStart":1385,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11766,"classes":[{"dayofweek":"Saturday","scheduledClassId":52301,"courseComponentId":28,"date":"Apr 11, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52302,"courseComponentId":29,"date":"Apr 12, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52303,"courseComponentId":30,"date":"Apr 18, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52304,"courseComponentId":31,"date":"Apr 19, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":1389,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11767,"classes":[{"dayofweek":"Saturday","scheduledClassId":52305,"courseComponentId":28,"date":"Apr 11, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52306,"courseComponentId":29,"date":"Apr 12, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52307,"courseComponentId":30,"date":"Apr 18, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52308,"courseComponentId":31,"date":"Apr 19, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":1437,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11770,"classes":[{"dayofweek":"Monday","scheduledClassId":52317,"courseComponentId":28,"date":"Apr 13, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Wednesday","scheduledClassId":52318,"courseComponentId":29,"date":"Apr 15, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Monday","scheduledClassId":52319,"courseComponentId":30,"date":"Apr 20, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Wednesday","scheduledClassId":52320,"courseComponentId":31,"date":"Apr 22, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":1442,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11772,"classes":[{"dayofweek":"Monday","scheduledClassId":52325,"courseComponentId":28,"date":"Apr 13, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Wednesday","scheduledClassId":52326,"courseComponentId":29,"date":"Apr 15, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Monday","scheduledClassId":52327,"courseComponentId":30,"date":"Apr 20, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Wednesday","scheduledClassId":52328,"courseComponentId":31,"date":"Apr 22, 2026","startTime":"5:00pm","endTime":"9:00pm"}]},{"HoursUntilStart":1721,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11782,"classes":[{"dayofweek":"Saturday","scheduledClassId":52365,"courseComponentId":28,"date":"Apr 25, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52366,"courseComponentId":29,"date":"Apr 26, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52367,"courseComponentId":30,"date":"May 2, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52368,"courseComponentId":31,"date":"May 3, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":1725,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11784,"classes":[{"dayofweek":"Saturday","scheduledClassId":52373,"courseComponentId":28,"date":"Apr 25, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52374,"courseComponentId":29,"date":"Apr 26, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52375,"courseComponentId":30,"date":"May 2, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52376,"courseComponentId":31,"date":"May 3, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":1773,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11778,"classes":[{"dayofweek":"Monday","scheduledClassId":52349,"courseComponentId":28,"date":"Apr 27, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Wednesday","scheduledClassId":52350,"courseComponentId":29,"date":"Apr 29, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Monday","scheduledClassId":52351,"courseComponentId":30,"date":"May 4, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Wednesday","scheduledClassId":52352,"courseComponentId":31,"date":"May 6, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":1778,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11780,"classes":[{"dayofweek":"Monday","scheduledClassId":52357,"courseComponentId":28,"date":"Apr 27, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Wednesday","scheduledClassId":52358,"courseComponentId":29,"date":"Apr 29, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Monday","scheduledClassId":52359,"courseComponentId":30,"date":"May 4, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Wednesday","scheduledClassId":52360,"courseComponentId":31,"date":"May 6, 2026","startTime":"5:00pm","endTime":"9:00pm"}]},{"HoursUntilStart":2057,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11786,"classes":[{"dayofweek":"Saturday","scheduledClassId":52381,"courseComponentId":28,"date":"May 9, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52382,"courseComponentId":29,"date":"May 10, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52383,"courseComponentId":30,"date":"May 16, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52384,"courseComponentId":31,"date":"May 17, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":2061,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11788,"classes":[{"dayofweek":"Saturday","scheduledClassId":52389,"courseComponentId":28,"date":"May 9, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52390,"courseComponentId":29,"date":"May 10, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52391,"courseComponentId":30,"date":"May 16, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52392,"courseComponentId":31,"date":"May 17, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":2109,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11790,"classes":[{"dayofweek":"Monday","scheduledClassId":52397,"courseComponentId":28,"date":"May 11, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Wednesday","scheduledClassId":52398,"courseComponentId":29,"date":"May 13, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Monday","scheduledClassId":52399,"courseComponentId":30,"date":"May 18, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Wednesday","scheduledClassId":52400,"courseComponentId":31,"date":"May 20, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":2114,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11792,"classes":[{"dayofweek":"Monday","scheduledClassId":52405,"courseComponentId":28,"date":"May 11, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Wednesday","scheduledClassId":52406,"courseComponentId":29,"date":"May 13, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Monday","scheduledClassId":52407,"courseComponentId":30,"date":"May 18, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Wednesday","scheduledClassId":52408,"courseComponentId":31,"date":"May 20, 2026","startTime":"5:00pm","endTime":"9:00pm"}]},{"HoursUntilStart":2393,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11794,"classes":[{"dayofweek":"Saturday","scheduledClassId":52413,"courseComponentId":28,"date":"May 23, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52414,"courseComponentId":29,"date":"May 24, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52415,"courseComponentId":30,"date":"May 30, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52416,"courseComponentId":31,"date":"May 31, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":2397,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11796,"classes":[{"dayofweek":"Saturday","scheduledClassId":52421,"courseComponentId":28,"date":"May 23, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52422,"courseComponentId":29,"date":"May 24, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52423,"courseComponentId":30,"date":"May 30, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52424,"courseComponentId":31,"date":"May 31, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":2445,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11798,"classes":[{"dayofweek":"Monday","scheduledClassId":52429,"courseComponentId":28,"date":"May 25, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Wednesday","scheduledClassId":52430,"courseComponentId":29,"date":"May 27, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Monday","scheduledClassId":52431,"courseComponentId":30,"date":"Jun 1, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Wednesday","scheduledClassId":52432,"courseComponentId":31,"date":"Jun 3, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":2450,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11800,"classes":[{"dayofweek":"Monday","scheduledClassId":52437,"courseComponentId":28,"date":"May 25, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Wednesday","scheduledClassId":52438,"courseComponentId":29,"date":"May 27, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Monday","scheduledClassId":52439,"courseComponentId":30,"date":"Jun 1, 2026","startTime":"5:00pm","endTime":"9:00pm"},{"dayofweek":"Wednesday","scheduledClassId":52440,"courseComponentId":31,"date":"Jun 3, 2026","startTime":"5:00pm","endTime":"9:00pm"}]},{"HoursUntilStart":2729,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11802,"classes":[{"dayofweek":"Saturday","scheduledClassId":52445,"courseComponentId":28,"date":"Jun 6, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52446,"courseComponentId":29,"date":"Jun 7, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52447,"courseComponentId":30,"date":"Jun 13, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52448,"courseComponentId":31,"date":"Jun 14, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":2733,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11804,"classes":[{"dayofweek":"Saturday","scheduledClassId":52453,"courseComponentId":28,"date":"Jun 6, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52454,"courseComponentId":29,"date":"Jun 7, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52455,"courseComponentId":30,"date":"Jun 13, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52456,"courseComponentId":31,"date":"Jun 14, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":3065,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11806,"classes":[{"dayofweek":"Saturday","scheduledClassId":52461,"courseComponentId":28,"date":"Jun 20, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52462,"courseComponentId":29,"date":"Jun 21, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52463,"courseComponentId":30,"date":"Jun 27, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52464,"courseComponentId":31,"date":"Jun 28, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":3069,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11808,"classes":[{"dayofweek":"Saturday","scheduledClassId":52469,"courseComponentId":28,"date":"Jun 20, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52470,"courseComponentId":29,"date":"Jun 21, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52471,"courseComponentId":30,"date":"Jun 27, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52472,"courseComponentId":31,"date":"Jun 28, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":3401,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11810,"classes":[{"dayofweek":"Saturday","scheduledClassId":52477,"courseComponentId":28,"date":"Jul 4, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52478,"courseComponentId":29,"date":"Jul 5, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52479,"courseComponentId":30,"date":"Jul 11, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52480,"courseComponentId":31,"date":"Jul 12, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":3405,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11812,"classes":[{"dayofweek":"Saturday","scheduledClassId":52485,"courseComponentId":28,"date":"Jul 4, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52486,"courseComponentId":29,"date":"Jul 5, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52487,"courseComponentId":30,"date":"Jul 11, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52488,"courseComponentId":31,"date":"Jul 12, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":3737,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11814,"classes":[{"dayofweek":"Saturday","scheduledClassId":52493,"courseComponentId":28,"date":"Jul 18, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52494,"courseComponentId":29,"date":"Jul 19, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52495,"courseComponentId":30,"date":"Jul 25, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52496,"courseComponentId":31,"date":"Jul 26, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":3741,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11816,"classes":[{"dayofweek":"Saturday","scheduledClassId":52501,"courseComponentId":28,"date":"Jul 18, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52502,"courseComponentId":29,"date":"Jul 19, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52503,"courseComponentId":30,"date":"Jul 25, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52504,"courseComponentId":31,"date":"Jul 26, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":4073,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11818,"classes":[{"dayofweek":"Saturday","scheduledClassId":52509,"courseComponentId":28,"date":"Aug 1, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52510,"courseComponentId":29,"date":"Aug 2, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52511,"courseComponentId":30,"date":"Aug 8, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52512,"courseComponentId":31,"date":"Aug 9, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":4077,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11820,"classes":[{"dayofweek":"Saturday","scheduledClassId":52517,"courseComponentId":28,"date":"Aug 1, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52518,"courseComponentId":29,"date":"Aug 2, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52519,"courseComponentId":30,"date":"Aug 8, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52520,"courseComponentId":31,"date":"Aug 9, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":4409,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11822,"classes":[{"dayofweek":"Saturday","scheduledClassId":52525,"courseComponentId":28,"date":"Aug 15, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52526,"courseComponentId":29,"date":"Aug 16, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52527,"courseComponentId":30,"date":"Aug 22, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52528,"courseComponentId":31,"date":"Aug 23, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":4413,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11824,"classes":[{"dayofweek":"Saturday","scheduledClassId":52533,"courseComponentId":28,"date":"Aug 15, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52534,"courseComponentId":29,"date":"Aug 16, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52535,"courseComponentId":30,"date":"Aug 22, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52536,"courseComponentId":31,"date":"Aug 23, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":4745,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11826,"classes":[{"dayofweek":"Saturday","scheduledClassId":52541,"courseComponentId":28,"date":"Aug 29, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52542,"courseComponentId":29,"date":"Aug 30, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52543,"courseComponentId":30,"date":"Sep 5, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52544,"courseComponentId":31,"date":"Sep 6, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":4749,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11828,"classes":[{"dayofweek":"Saturday","scheduledClassId":52549,"courseComponentId":28,"date":"Aug 29, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52550,"courseComponentId":29,"date":"Aug 30, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52551,"courseComponentId":30,"date":"Sep 5, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52552,"courseComponentId":31,"date":"Sep 6, 2026","startTime":"12:30pm","endTime":"4:30pm"}]},{"HoursUntilStart":5081,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11830,"classes":[{"dayofweek":"Saturday","scheduledClassId":52557,"courseComponentId":28,"date":"Sep 12, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52558,"courseComponentId":29,"date":"Sep 13, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Saturday","scheduledClassId":52559,"courseComponentId":30,"date":"Sep 19, 2026","startTime":"8:00am","endTime":"12:00pm"},{"dayofweek":"Sunday","scheduledClassId":52560,"courseComponentId":31,"date":"Sep 20, 2026","startTime":"8:00am","endTime":"12:00pm"}]},{"HoursUntilStart":5085,"MustPayAmount":null,"MustPayNowYesNo":false,"MustPayByDate":null,"MustPayByTime":null,"scheduledClassSequenceId":11832,"classes":[{"dayofweek":"Saturday","scheduledClassId":52565,"courseComponentId":28,"date":"Sep 12, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52566,"courseComponentId":29,"date":"Sep 13, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Saturday","scheduledClassId":52567,"courseComponentId":30,"date":"Sep 19, 2026","startTime":"12:30pm","endTime":"4:30pm"},{"dayofweek":"Sunday","scheduledClassId":52568,"courseComponentId":31,"date":"Sep 20, 2026","startTime":"12:30pm","endTime":"4:30pm"}]}]   
+        onAddRow=function()
+        {
+            if(globals.state.courseStreamsShowing<globals.state.numCourseStreams)
+            {     
+                var s = "";
+                for (var i = 0; i < 2; i++) {
+                    if (globals.state.courseStreamsShowing < globals.state.numCourseStreams) {
+                        var rowNo = globals.state.courseStreamsShowing;
+
+                        s += "<div class='col-xs-12  col-sm-6  closedcircuitstream' > <div  class='form-control times'><input   type='hidden'  value='" + streams[rowNo].scheduledClassSequenceId + "' />";
+                        for (var j = 0; j < streams[rowNo].classes.length; j++)
+                            s += "<div><span class=dayofweek>" + streams[rowNo].classes[j].dayofweek + "</span> <span class=date>" + streams[rowNo].classes[j].date + "</span><span class=time>" + streams[rowNo].classes[j].startTime + "-" + streams[rowNo].classes[j].endTime + "</span></div>";
+                       s+= "</div></div>";
+                      globals.state.courseStreamsShowing++;
+                  }
+              }
+
+
+           
+              if (globals.state.courseStreamsShowing == globals.state.numCourseStreams)
+                 $('#more').hide()
+                  
+            
+          
+                $('.panel-body').append("<div class='row'>"+s+"</div>")
+               
+                    
+               
+
+               
+            }
+
+ 
+
+
+        }
+
+
+
+        $(function () {
+            onAddRow();
+            $('#more').click(onAddRow)
+
+            $("#classes").on('click', '.closedcircuitstream', function () {
+
+              var scheduledClassSequenceId=  $(this).find('input').val()
+         
+
+              var row   =  $.grep(streams, function(item){
+                return item.scheduledClassSequenceId == scheduledClassSequenceId;
+            })[0];
+
+       
+              
+              var msgText = '<div class="confirmationmessage" ><div> Read carefully: You are about to confirm your closed-track reservation of the following '+ row.classes.length +' dates and times:</div> <div class=times></div><div></div>';
+              if(row.HoursUntilStart>48)
+              {
+                  msgText+='You may cancel your reservation without penalty up to 48 hours before the first class begins. After that, you will be assessed a  <b style="color:red">$75.00 fee if you cancel or miss any of the four reserved lessons</b>.'
+              }
+              else
+              {
+                  msgText+='The first class begins in less than 48 hours. Therefore,   you will be assessed a  <b style="color:red">$75.00 fee if you cancel or miss any of the four reserved lessons</b>.'
+              }
+         
+            + 'Additionally, missing a reserved class will delay completion of your course. Please check your dates and times carefully before confirming!';
+
+              if (row.MustPayAmount)
+                  msgText += '<p><b>Please note: </b>You will be required to pay your balance of  '+row.MustPayAmount +' before the first class.<p>' 
+
+               msgText+=' </div>';
+              var msg = $(msgText);
+
+             var times =  msg.find('.times')
+ 
+           for (var i = 0 ; i < row.classes.length ; i++)
+           times.append("<div><span class=dayofweek>" + row.classes[i].dayofweek +"</span><span class=date>"  +  row.classes[i].date + "</span><span class=time>" + row.classes[i].startTime + "-" + row.classes[i].endTime + "</span></div>")
+
+                
+
+                 BootstrapDialog.confirm({
+                     title: 'Confirm Reservation?',
+                     
+                   message:msg,   
+             type: BootstrapDialog.TYPE_WARNING,  
+            btnCancelLabel: 'No Thanks', 
+            btnOKLabel: 'Confirm',  
+                    
+            btnOKClass: 'btn-warning', 
+            callback: function(result) {
+                
+                if (result) {
+                    
+                   var  stream=$.grep(streams, function(item){return item.scheduledClassSequenceId == scheduledClassSequenceId; })[0],
+                       scheduledClassIds = jQuery.map(stream.classes, function (a) { return a.scheduledClassId; }),
+                       courseComponentIds = jQuery.map(stream.classes, function (a) { return a.courseComponentId; })
+                    
+                      
+                    $.ajax({
+                        type: "POST",
+                        url: 'reserveStream_ajax/?studentUserId='+ globals.studentUserId,  //must put userid here, otherwise it does not get picked up when authenticating specific student
+                        data: JSON.stringify( {                        
+                            scheduledClassSequenceId: scheduledClassSequenceId,
+                            courseId: globals.courseId,
+                            actionId: globals.actionId,
+                            scheduledClassIds: scheduledClassIds,
+                           courseComponentIds: courseComponentIds
+                        }),
+
+                          contentType: "application/json; charset=utf-8",  
+                          dataType: "json",  
+                    
+                 
+                      
+                    }).done(function (response) {                       
+                        if (response.errors) {
+                           
+                                var msg = response.errors[0] == "overbooked" ? "Oops! Someone else just took the last spot. Try again." : response.errors.join("<br>");
+
+                                BootstrapDialog.alert({
+                                    message: msg, title: "There was a problem", type: BootstrapDialog.TYPE_DANGER,
+                                    callback: function () { location.reload(); }
+
+                                });
+
+                
+                        }
+                        else {
+                            BootstrapDialog.alert({
+                                message: "Your spots have been reserved.", title: "Success!", type: BootstrapDialog.TYPE_SUCCESS,
+                                callback: function () { window.history.back(); }
+                            })
+
+                        }
+                   });   
+
+
+
+
+
+
+
+
+
+
+                } 
+            }
+        });
+        
+
+
+
+ 
+
+
+
+             
+            })
+
+
+
+        })
+        
+
+
+
+
+        
+
+
+
+
+     </script>
+
+
+
+    <script>
+        if(globals.showMenu&&(new Mmenu(document.querySelector("#menu"),{setSelected:{current:!0,parent:!0},navbar:{title:"Menu"},offCanvas:!1,extensions:globals.isMobile?[]:["theme-white","border-full"]}),globals.isMobile)){let e=new Drawer;document.getElementById("hamburger").addEventListener("click",e.open),document.getElementById("menuCloseButton").addEventListener("click",e.close)}; document.getElementById('loaderoverlay').remove(); document.body.classList.remove('loaderbody')
+    </script>
+
+    
+
+
+
+
+</body></html>

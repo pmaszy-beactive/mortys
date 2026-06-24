@@ -1,0 +1,737 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=14%2F08%2F2025",
+  "url_hash": "f5d1c7c5b284b238",
+  "scraped_at": "2026-02-12T23:22:31.261Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 14, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 14, 2025 Name Lang Time Phone Course 1 st Class Comments 231437 Marleau, Zoey EN 6:17am 514-979-1027 (m) 514-402-9456 (h) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit 231438 Szabo-Knox, Jasmine EN 9:28am 514-651-4016 (m) Automobile Montreal 09/09/2025 7:00pm edit 231439 Niang, Moussa Samba EN 9:29am 438-455-1841 (m) Automobile Montreal 21/08/2025 5:00pm edit 231440 Viens, Phoenix EN 10:28am 514-951-9584 (m) 514-961-8903 (h) Automobile Vaudreuil-Dorion 21/08/2025 5:00pm edit 231441 hernandez sanchez, albin EN 12:11pm 438-509-3342 (m) Motorcycle Montreal 05/09/2025 6:00pm edit 231442 Ciccone, Matteo EN 12:41pm 438-871-2762 (m) Motorcycle Dollard-des-Ormeaux 22/08/2025 6:00pm edit 231443 Maha, Anika EN 12:52pm 438-455-4782 (m) Automobile Vaudreuil-Dorion 21/08/2025 5:00pm edit 231444 Dayan , Gabriela EN 1:06pm 347-605-9035 (m) 514-953-2721 (h) Automobile Montreal 21/08/2025 5:00pm edit 231445 Greenspoon, Carolyn EN 3:28pm 514-677-7340 (m) 514-794-6777 (h) Automobile Montreal 18/09/2025 7:00pm edit 231446 CLOUTIER, CAMERON EN 3:46pm 514-712-5837 (m) Automobile Vaudreuil-Dorion 21/08/2025 5:00pm edit 231447 Griffin, Colm Michael EN 5:45pm 438-526-3339 (m) Automobile Montreal 21/08/2025 5:00pm edit 231448 Lafrance-Todaro, Nancy EN 6:21pm 514-659-8042 (m) Automobile Montreal 24/08/2025 3:00pm edit 231449 Benabou, Gabriella EN 6:25pm 438-924-8994 (m) Automobile Côte Saint-Luc 21/08/2025 5:00pm edit 231451 Lafrance-Todaro, Amélie EN 6:35pm 514-659-8042 (m) Automobile Montreal 24/08/2025 3:00pm edit 231452 KLigman , Madison EN 8:14pm 416-875-3276 (m) Automobile Kirkland 21/08/2025 5:00pm edit 231453 Markus, Nathan EN 9:03pm 514-592-6863 (m) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231454 Thomas, Julia EN 9:13pm 514-512-0232 (m) Automobile Dollard-des-Ormeaux 08/10/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "14/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "14/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231437",
+          "Marleau, Zoey",
+          "EN",
+          "6:17am",
+          "514-979-1027   (m)     \n \n             514-402-9456   (h)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231438",
+          "Szabo-Knox, Jasmine",
+          "EN",
+          "9:28am",
+          "514-651-4016   (m)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231439",
+          "Niang, Moussa Samba",
+          "EN",
+          "9:29am",
+          "438-455-1841   (m)",
+          "Automobile Montreal",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231440",
+          "Viens, Phoenix",
+          "EN",
+          "10:28am",
+          "514-951-9584   (m)     \n \n             514-961-8903   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231441",
+          "hernandez sanchez, albin",
+          "EN",
+          "12:11pm",
+          "438-509-3342   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231442",
+          "Ciccone, Matteo",
+          "EN",
+          "12:41pm",
+          "438-871-2762   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231443",
+          "Maha, Anika",
+          "EN",
+          "12:52pm",
+          "438-455-4782   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231444",
+          "Dayan , Gabriela",
+          "EN",
+          "1:06pm",
+          "347-605-9035   (m)     \n \n             514-953-2721   (h)",
+          "Automobile Montreal",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231445",
+          "Greenspoon, Carolyn",
+          "EN",
+          "3:28pm",
+          "514-677-7340   (m)     \n \n             514-794-6777   (h)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231446",
+          "CLOUTIER, CAMERON",
+          "EN",
+          "3:46pm",
+          "514-712-5837   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231447",
+          "Griffin, Colm Michael",
+          "EN",
+          "5:45pm",
+          "438-526-3339   (m)",
+          "Automobile Montreal",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231448",
+          "Lafrance-Todaro, Nancy",
+          "EN",
+          "6:21pm",
+          "514-659-8042   (m)",
+          "Automobile Montreal",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231449",
+          "Benabou, Gabriella",
+          "EN",
+          "6:25pm",
+          "438-924-8994   (m)",
+          "Automobile Côte Saint-Luc",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231451",
+          "Lafrance-Todaro, Amélie",
+          "EN",
+          "6:35pm",
+          "514-659-8042   (m)",
+          "Automobile Montreal",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231452",
+          "KLigman , Madison",
+          "EN",
+          "8:14pm",
+          "416-875-3276   (m)",
+          "Automobile Kirkland",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231453",
+          "Markus, Nathan",
+          "EN",
+          "9:03pm",
+          "514-592-6863   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231454",
+          "Thomas, Julia",
+          "EN",
+          "9:13pm",
+          "514-512-0232   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "08/10/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231437",
+          "Name": "Marleau, Zoey",
+          "Lang": "EN",
+          "Time": "6:17am",
+          "Phone": "514-979-1027   (m)     \n \n             514-402-9456   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231438",
+          "Name": "Szabo-Knox, Jasmine",
+          "Lang": "EN",
+          "Time": "9:28am",
+          "Phone": "514-651-4016   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231439",
+          "Name": "Niang, Moussa Samba",
+          "Lang": "EN",
+          "Time": "9:29am",
+          "Phone": "438-455-1841   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231440",
+          "Name": "Viens, Phoenix",
+          "Lang": "EN",
+          "Time": "10:28am",
+          "Phone": "514-951-9584   (m)     \n \n             514-961-8903   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231441",
+          "Name": "hernandez sanchez, albin",
+          "Lang": "EN",
+          "Time": "12:11pm",
+          "Phone": "438-509-3342   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231442",
+          "Name": "Ciccone, Matteo",
+          "Lang": "EN",
+          "Time": "12:41pm",
+          "Phone": "438-871-2762   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231443",
+          "Name": "Maha, Anika",
+          "Lang": "EN",
+          "Time": "12:52pm",
+          "Phone": "438-455-4782   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231444",
+          "Name": "Dayan , Gabriela",
+          "Lang": "EN",
+          "Time": "1:06pm",
+          "Phone": "347-605-9035   (m)     \n \n             514-953-2721   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231445",
+          "Name": "Greenspoon, Carolyn",
+          "Lang": "EN",
+          "Time": "3:28pm",
+          "Phone": "514-677-7340   (m)     \n \n             514-794-6777   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231446",
+          "Name": "CLOUTIER, CAMERON",
+          "Lang": "EN",
+          "Time": "3:46pm",
+          "Phone": "514-712-5837   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "231447",
+          "Name": "Griffin, Colm Michael",
+          "Lang": "EN",
+          "Time": "5:45pm",
+          "Phone": "438-526-3339   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "231448",
+          "Name": "Lafrance-Todaro, Nancy",
+          "Lang": "EN",
+          "Time": "6:21pm",
+          "Phone": "514-659-8042   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 12,
+          "column_0": "231449",
+          "Name": "Benabou, Gabriella",
+          "Lang": "EN",
+          "Time": "6:25pm",
+          "Phone": "438-924-8994   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 13,
+          "column_0": "231451",
+          "Name": "Lafrance-Todaro, Amélie",
+          "Lang": "EN",
+          "Time": "6:35pm",
+          "Phone": "514-659-8042   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 14,
+          "column_0": "231452",
+          "Name": "KLigman , Madison",
+          "Lang": "EN",
+          "Time": "8:14pm",
+          "Phone": "416-875-3276   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 15,
+          "column_0": "231453",
+          "Name": "Markus, Nathan",
+          "Lang": "EN",
+          "Time": "9:03pm",
+          "Phone": "514-592-6863   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 16,
+          "column_0": "231454",
+          "Name": "Thomas, Julia",
+          "Lang": "EN",
+          "Time": "9:13pm",
+          "Phone": "514-512-0232   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "08/10/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231639&courseId=1",
+      "text": "Marleau, Zoey",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231640&courseId=1",
+      "text": "Szabo-Knox, Jasmine",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231641&courseId=1",
+      "text": "Niang, Moussa Samba",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231642&courseId=1",
+      "text": "Viens, Phoenix",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231643&courseId=2",
+      "text": "hernandez sanchez, albin",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231644&courseId=2",
+      "text": "Ciccone, Matteo",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231645&courseId=1",
+      "text": "Maha, Anika",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231646&courseId=1",
+      "text": "Dayan , Gabriela",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231647&courseId=1",
+      "text": "Greenspoon, Carolyn",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231648&courseId=1",
+      "text": "CLOUTIER, CAMERON",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231649&courseId=1",
+      "text": "Griffin, Colm Michael",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231650&courseId=1",
+      "text": "Lafrance-Todaro, Nancy",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231651&courseId=1",
+      "text": "Benabou, Gabriella",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231653&courseId=1",
+      "text": "Lafrance-Todaro, Amélie",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231654&courseId=1",
+      "text": "KLigman , Madison",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231655&courseId=1",
+      "text": "Markus, Nathan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231656&courseId=1",
+      "text": "Thomas, Julia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 32134,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=14%2F08%2F2025"
+}

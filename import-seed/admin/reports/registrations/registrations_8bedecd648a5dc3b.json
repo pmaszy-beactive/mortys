@@ -1,0 +1,365 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=13%2F07%2F2025",
+  "url_hash": "8bedecd648a5dc3b",
+  "scraped_at": "2026-02-13T09:55:49.774Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jul 13, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jul 13, 2025 Name Lang Time Phone Course 1 st Class Comments 224071 Naboulsi, Kareem EN 11:09am 438-508-8738 (m) Automobile Montreal 15/07/2025 7:00pm edit 224072 Makarov, Egor FR 11:33am 514-431-6323 (m) Automobile Montreal 31/07/2025 7:00pm edit 224074 Johnston, Abigail EN 12:36pm 514-808-1599 (m) Scooter Dollard-des-Ormeaux 20/07/2025 5:30pm edit 224075 Kassabry, Jimmy EN 3:50pm 514-292-3063 (m) 514-571-9984 (h) Automobile Montreal 13/08/2025 5:00pm edit 224076 Chandrasegaram, Nitsinth EN 6:05pm 416-315-4802 (m) Motorcycle Vaudreuil-Dorion 25/07/2025 6:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "13/07/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "13/07/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "224071",
+          "Naboulsi, Kareem",
+          "EN",
+          "11:09am",
+          "438-508-8738   (m)",
+          "Automobile Montreal",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224072",
+          "Makarov, Egor",
+          "FR",
+          "11:33am",
+          "514-431-6323   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224074",
+          "Johnston, Abigail",
+          "EN",
+          "12:36pm",
+          "514-808-1599   (m)",
+          "Scooter Dollard-des-Ormeaux",
+          "20/07/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "224075",
+          "Kassabry, Jimmy",
+          "EN",
+          "3:50pm",
+          "514-292-3063   (m)     \n \n             514-571-9984   (h)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "224076",
+          "Chandrasegaram, Nitsinth",
+          "EN",
+          "6:05pm",
+          "416-315-4802   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "25/07/2025  6:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "224071",
+          "Name": "Naboulsi, Kareem",
+          "Lang": "EN",
+          "Time": "11:09am",
+          "Phone": "438-508-8738   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "224072",
+          "Name": "Makarov, Egor",
+          "Lang": "FR",
+          "Time": "11:33am",
+          "Phone": "514-431-6323   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "224074",
+          "Name": "Johnston, Abigail",
+          "Lang": "EN",
+          "Time": "12:36pm",
+          "Phone": "514-808-1599   (m)",
+          "Course": "Scooter Dollard-des-Ormeaux",
+          "1st Class": "20/07/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "224075",
+          "Name": "Kassabry, Jimmy",
+          "Lang": "EN",
+          "Time": "3:50pm",
+          "Phone": "514-292-3063   (m)     \n \n             514-571-9984   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "224076",
+          "Name": "Chandrasegaram, Nitsinth",
+          "Lang": "EN",
+          "Time": "6:05pm",
+          "Phone": "416-315-4802   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "25/07/2025  6:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224273&courseId=1",
+      "text": "Naboulsi, Kareem",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224274&courseId=1",
+      "text": "Makarov, Egor",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224276&courseId=3",
+      "text": "Johnston, Abigail",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224277&courseId=1",
+      "text": "Kassabry, Jimmy",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224278&courseId=2",
+      "text": "Chandrasegaram, Nitsinth",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 20780,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=13%2F07%2F2025"
+}

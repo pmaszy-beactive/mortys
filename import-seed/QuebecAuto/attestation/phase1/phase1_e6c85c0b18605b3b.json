@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231683",
+  "url_hash": "e6c85c0b18605b3b",
+  "scraped_at": "2026-02-12T22:45:14.388Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03286948 L-020 faerman, alexis 4836 rue vittorio fioruchi montreal QC h4r 0l5 0001235630 4385226491 X Ilan Preisler 13 nov. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 10 07 2025 11 09 COPIE D'ÉLÈVE 03286948 L-020 faerman, alexis 4836 rue vittorio fioruchi montreal QC h4r 0l5 0001235630 4385226491 X Ilan Preisler 13 nov. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 21 2025 08 28 2025 09 04 2025 10 07 2025 11 09 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286948&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286948&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 9987,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231683"
+}

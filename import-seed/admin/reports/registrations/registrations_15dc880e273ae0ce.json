@@ -1,0 +1,334 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=26%2F09%2F2025",
+  "url_hash": "15dc880e273ae0ce",
+  "scraped_at": "2026-02-12T12:43:58.388Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Sep 26, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Sep 26, 2025 Name Lang Time Phone Course 1 st Class Comments 231836 Dube, Jeremy EN 11:32am 424-383-4559 (m) Motorcycle Montreal 24/10/2025 6:00pm edit 231837 Wilcox, Scott EN 5:19pm 514-827-8387 (m) Automobile Kirkland 29/09/2025 7:00pm edit 231838 Lovetri, Matteo EN 6:36pm 514-951-5684 (m) Automobile Côte Saint-Luc 12/10/2025 3:00pm edit 231839 Greenwood-Ng, Taylor EN 8:27pm 514-778-2572 (m) Motorcycle Dollard-des-Ormeaux 24/10/2025 6:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "26/09/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "26/09/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231836",
+          "Dube, Jeremy",
+          "EN",
+          "11:32am",
+          "424-383-4559   (m)",
+          "Motorcycle Montreal",
+          "24/10/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231837",
+          "Wilcox, Scott",
+          "EN",
+          "5:19pm",
+          "514-827-8387   (m)",
+          "Automobile Kirkland",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231838",
+          "Lovetri, Matteo",
+          "EN",
+          "6:36pm",
+          "514-951-5684   (m)",
+          "Automobile Côte Saint-Luc",
+          "12/10/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231839",
+          "Greenwood-Ng, Taylor",
+          "EN",
+          "8:27pm",
+          "514-778-2572   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "24/10/2025  6:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231836",
+          "Name": "Dube, Jeremy",
+          "Lang": "EN",
+          "Time": "11:32am",
+          "Phone": "424-383-4559   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "24/10/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231837",
+          "Name": "Wilcox, Scott",
+          "Lang": "EN",
+          "Time": "5:19pm",
+          "Phone": "514-827-8387   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231838",
+          "Name": "Lovetri, Matteo",
+          "Lang": "EN",
+          "Time": "6:36pm",
+          "Phone": "514-951-5684   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "12/10/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231839",
+          "Name": "Greenwood-Ng, Taylor",
+          "Lang": "EN",
+          "Time": "8:27pm",
+          "Phone": "514-778-2572   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "24/10/2025  6:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232038&courseId=2",
+      "text": "Dube, Jeremy",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232041&courseId=1",
+      "text": "Wilcox, Scott",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232042&courseId=1",
+      "text": "Lovetri, Matteo",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=232043&courseId=2",
+      "text": "Greenwood-Ng, Taylor",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 19796,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=26%2F09%2F2025"
+}

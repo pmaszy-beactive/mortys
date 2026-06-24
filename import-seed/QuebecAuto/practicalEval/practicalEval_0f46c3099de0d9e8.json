@@ -1,0 +1,267 @@
+{
+  "url": "https://mortys.drivetraqr.ca/quebecauto/practicalEval/?studentUserId=231707&courseComponentId=17",
+  "url_hash": "0f46c3099de0d9e8",
+  "scraped_at": "2026-02-12T21:58:16.961Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Self-Evaluation of In-Car Session"
+    },
+    {
+      "level": 2,
+      "text": "Practical Session #5\n    Bherer, Charles Robert"
+    },
+    {
+      "level": 6,
+      "text": "Student Signature"
+    },
+    {
+      "level": 6,
+      "text": "Instructor Signature"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Self-Evaluation of In-Car Session Practical Session #5 Bherer, Charles Robert 1. In the Learner's view, what are the strengths and what are the weaknesses to be worked on at this stage of he practical training? Strengths: Awareness of surroundings, such as check left and right at stop sign and checking blind spots. Weaknesses: Staying between the lanes and few occasions of going over the speed limit. 2. In the Instructor's view, what are the strengths and what are the weaknesses to be worked on at this stage of he practical training? Student is a good driver and a safe driver the areas of improvement I would suggest him to stay within the lane and scan the road environment and to stay within the speed limits and also practice the reverse 90&#176; parking. Student Student Signature Bherer, Charles Robert Jan 29, 2026 Instructor Instructor Signature Aqib Qureshi Save",
+  "forms": [
+    {
+      "action": "#",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "studentUserId",
+          "value": "231707",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "courseComponentId",
+          "type": "hidden",
+          "id": "courseComponentId",
+          "value": "17",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "studentComments",
+          "type": "text",
+          "id": "studentComments",
+          "value": "     Strengths: Awareness of surroundings, such as check left and right at stop sign and checking blind spots.\nWeaknesses: Staying between the lanes and few occasions of going over the speed limit. ",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "instructorComments",
+          "type": "text",
+          "id": "instructorComments",
+          "value": "     Student is a good driver and a safe driver the areas of improvement I would suggest him to stay within the lane and scan the road environment and to stay within the speed limits and also practice the reverse 90&#176; parking. ",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "studentSignatureId",
+          "type": "hidden",
+          "id": "studentSignatureId",
+          "value": "CLp43GqaekSNYsBrE-B5bw",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "InstructorSignatureId",
+          "type": "hidden",
+          "id": "InstructorSignatureId",
+          "value": "H9RHNZPh1UOzoYoaoRDN-Q",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "231707",
+        "courseComponentId": "17",
+        "studentComments": "     Strengths: Awareness of surroundings, such as check left and right at stop sign and checking blind spots.\nWeaknesses: Staying between the lanes and few occasions of going over the speed limit. ",
+        "instructorComments": "     Student is a good driver and a safe driver the areas of improvement I would suggest him to stay within the lane and scan the road environment and to stay within the speed limits and also practice the reverse 90&#176; parking. ",
+        "studentSignatureId": "CLp43GqaekSNYsBrE-B5bw",
+        "InstructorSignatureId": "H9RHNZPh1UOzoYoaoRDN-Q"
+      }
+    }
+  ],
+  "tables": [],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/signatureImage.ashx?id=CLp43GqaekSNYsBrE-B5bw",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/signatureImage.ashx?id=H9RHNZPh1UOzoYoaoRDN-Q",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 17797,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/quebecauto/practicalEval/?studentUserId=231707&courseComponentId=17"
+}

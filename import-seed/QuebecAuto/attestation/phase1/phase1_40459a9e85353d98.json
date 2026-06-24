@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=232014",
+  "url_hash": "40459a9e85353d98",
+  "scraped_at": "2026-02-12T13:40:07.484Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03287032 L-020 Mainville, Samantha Tara 8350 Avenue de l'Épée Montréal QC H3N 2G4 0001235938 5147712342 5146602433 X Ilan Preisler 18 janv. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 29 2025 10 06 2025 10 09 2025 10 27 2025 11 09 COPIE D'ÉLÈVE 03287032 L-020 Mainville, Samantha Tara 8350 Avenue de l'Épée Montréal QC H3N 2G4 0001235938 5147712342 5146602433 X Ilan Preisler 18 janv. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 29 2025 10 06 2025 10 09 2025 10 27 2025 11 09 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287032&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287032&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10199,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=232014"
+}

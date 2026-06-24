@@ -1,0 +1,551 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=31%2F01%2F2026",
+  "url_hash": "00c70dd8d9a700f4",
+  "scraped_at": "2026-02-11T23:13:04.744Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jan 31, 2026"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jan 31, 2026 Name Lang Time Phone Course 1 st Class Comments 233637 Aniero, Ebuka Stanly EN 10:52am 438-365-9281 (m) Automobile Côte Saint-Luc 25/02/2026 7:00pm edit 233638 Antonicka-Johns, Markéta EN 11:59am 514-882-7000 (m) 514-575-8232 (h) Automobile Montreal 05/02/2026 5:00pm edit 233639 Wakiaga, Maeva EN 12:04pm 438-366-7036 (m) Automobile Côte Saint-Luc 05/02/2026 5:00pm edit 233640 Brierley, Liam EN 12:48pm 438-501-2678 (m) 514-482-6508 (h) Automobile Montreal 05/02/2026 5:00pm edit 233641 Brook, Kennedy EN 1:10pm 438-282-1485 (m) 514-757-3229 (h) 514-232-1999 (w) Automobile Kirkland 05/02/2026 5:00pm edit 233642 Seliniotakis, Stelio EN 3:59pm 438-337-6668 (m) Automobile Kirkland 16/02/2026 5:00pm edit 233643 Atkin, Immanuel EN 4:30pm 263-880-8646 (m) 514-808-8810 (h) Automobile Vaudreuil-Dorion 25/02/2026 7:00pm edit 233644 Khawam-Bayola, Catalina EN 6:29pm 514-434-5273 (m) Automobile Kirkland 17/03/2026 5:00pm edit 233645 Kaur, Narinder EN 6:57pm 514-258-6386 (m) Automobile Montreal 05/02/2026 5:00pm edit 233646 Brown, Tristan EN 7:21pm 514-605-1916 (m) Automobile Montreal 26/03/2026 7:00pm edit 233647 Ould Braham, Yacine EN 8:21pm 514-443-2510 (m) Motorcycle Vaudreuil-Dorion 20/02/2026 6:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "31/01/2026",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "31/01/2026"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "233637",
+          "Aniero, Ebuka Stanly",
+          "EN",
+          "10:52am",
+          "438-365-9281   (m)",
+          "Automobile Côte Saint-Luc",
+          "25/02/2026  7:00pm",
+          "edit"
+        ],
+        [
+          "233638",
+          "Antonicka-Johns, Markéta",
+          "EN",
+          "11:59am",
+          "514-882-7000   (m)     \n \n             514-575-8232   (h)",
+          "Automobile Montreal",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233639",
+          "Wakiaga, Maeva",
+          "EN",
+          "12:04pm",
+          "438-366-7036   (m)",
+          "Automobile Côte Saint-Luc",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233640",
+          "Brierley, Liam",
+          "EN",
+          "12:48pm",
+          "438-501-2678   (m)     \n \n             514-482-6508   (h)",
+          "Automobile Montreal",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233641",
+          "Brook, Kennedy",
+          "EN",
+          "1:10pm",
+          "438-282-1485   (m)     \n \n             514-757-3229   (h)     \n \n             514-232-1999   (w)",
+          "Automobile Kirkland",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233642",
+          "Seliniotakis, Stelio",
+          "EN",
+          "3:59pm",
+          "438-337-6668   (m)",
+          "Automobile Kirkland",
+          "16/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233643",
+          "Atkin, Immanuel",
+          "EN",
+          "4:30pm",
+          "263-880-8646   (m)     \n \n             514-808-8810   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "25/02/2026  7:00pm",
+          "edit"
+        ],
+        [
+          "233644",
+          "Khawam-Bayola, Catalina",
+          "EN",
+          "6:29pm",
+          "514-434-5273   (m)",
+          "Automobile Kirkland",
+          "17/03/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233645",
+          "Kaur, Narinder",
+          "EN",
+          "6:57pm",
+          "514-258-6386   (m)",
+          "Automobile Montreal",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233646",
+          "Brown, Tristan",
+          "EN",
+          "7:21pm",
+          "514-605-1916   (m)",
+          "Automobile Montreal",
+          "26/03/2026  7:00pm",
+          "edit"
+        ],
+        [
+          "233647",
+          "Ould Braham, Yacine",
+          "EN",
+          "8:21pm",
+          "514-443-2510   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "20/02/2026  6:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "233637",
+          "Name": "Aniero, Ebuka Stanly",
+          "Lang": "EN",
+          "Time": "10:52am",
+          "Phone": "438-365-9281   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "25/02/2026  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "233638",
+          "Name": "Antonicka-Johns, Markéta",
+          "Lang": "EN",
+          "Time": "11:59am",
+          "Phone": "514-882-7000   (m)     \n \n             514-575-8232   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "233639",
+          "Name": "Wakiaga, Maeva",
+          "Lang": "EN",
+          "Time": "12:04pm",
+          "Phone": "438-366-7036   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "233640",
+          "Name": "Brierley, Liam",
+          "Lang": "EN",
+          "Time": "12:48pm",
+          "Phone": "438-501-2678   (m)     \n \n             514-482-6508   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "233641",
+          "Name": "Brook, Kennedy",
+          "Lang": "EN",
+          "Time": "1:10pm",
+          "Phone": "438-282-1485   (m)     \n \n             514-757-3229   (h)     \n \n             514-232-1999   (w)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "233642",
+          "Name": "Seliniotakis, Stelio",
+          "Lang": "EN",
+          "Time": "3:59pm",
+          "Phone": "438-337-6668   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "16/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "233643",
+          "Name": "Atkin, Immanuel",
+          "Lang": "EN",
+          "Time": "4:30pm",
+          "Phone": "263-880-8646   (m)     \n \n             514-808-8810   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "25/02/2026  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "233644",
+          "Name": "Khawam-Bayola, Catalina",
+          "Lang": "EN",
+          "Time": "6:29pm",
+          "Phone": "514-434-5273   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "17/03/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "233645",
+          "Name": "Kaur, Narinder",
+          "Lang": "EN",
+          "Time": "6:57pm",
+          "Phone": "514-258-6386   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "233646",
+          "Name": "Brown, Tristan",
+          "Lang": "EN",
+          "Time": "7:21pm",
+          "Phone": "514-605-1916   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "26/03/2026  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "233647",
+          "Name": "Ould Braham, Yacine",
+          "Lang": "EN",
+          "Time": "8:21pm",
+          "Phone": "514-443-2510   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "20/02/2026  6:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233841&courseId=1",
+      "text": "Aniero, Ebuka Stanly",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233842&courseId=1",
+      "text": "Antonicka-Johns, Markéta",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233843&courseId=1",
+      "text": "Wakiaga, Maeva",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233844&courseId=1",
+      "text": "Brierley, Liam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233845&courseId=1",
+      "text": "Brook, Kennedy",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233846&courseId=1",
+      "text": "Seliniotakis, Stelio",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233847&courseId=1",
+      "text": "Atkin, Immanuel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233848&courseId=1",
+      "text": "Khawam-Bayola, Catalina",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233849&courseId=1",
+      "text": "Kaur, Narinder",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233850&courseId=1",
+      "text": "Brown, Tristan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233851&courseId=2",
+      "text": "Ould Braham, Yacine",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 26558,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=31%2F01%2F2026"
+}

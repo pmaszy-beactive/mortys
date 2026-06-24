@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223190",
+  "url_hash": "1b48d2e82e432d9a",
+  "scraped_at": "2026-02-13T12:11:41.395Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "O420504050806 03277087 L-021 Oleas, Laurana 25 Rue Browning Dollard-des-Ormeaux QC H9G 2K5 0001235308 5145696255 4383896732 X Ilan Preisler 15 août 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 07 15 2025 07 22 2025 07 29 2025 07 27 2025 08 12 COPIE D'ÉLÈVE O420504050806 03277087 L-021 Oleas, Laurana 25 Rue Browning Dollard-des-Ormeaux QC H9G 2K5 0001235308 5145696255 4383896732 X Ilan Preisler 15 août 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 07 15 2025 07 22 2025 07 29 2025 07 27 2025 08 12 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277087&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277087&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10609,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223190"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224285",
+  "url_hash": "5bb4c28fc3927de2",
+  "scraped_at": "2026-02-13T09:48:55.949Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "O160108060607 03277300 L-774 Oprea, Antoniu 47 Beacon Kirkland QC H9J2E9 0001235406 4385308140 X Ilan Preisler 15 oct. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 07 31 2025 08 07 2025 08 14 2025 08 05 2025 08 28 COPIE D'ÉLÈVE O160108060607 03277300 L-774 Oprea, Antoniu 47 Beacon Kirkland QC H9J2E9 0001235406 4385308140 X Ilan Preisler 15 oct. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 07 31 2025 08 07 2025 08 14 2025 08 05 2025 08 28 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277300&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277300&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10339,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224285"
+}

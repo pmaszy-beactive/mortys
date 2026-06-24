@@ -1,0 +1,365 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=02%2F08%2F2025",
+  "url_hash": "28285d7f3ccaa0cd",
+  "scraped_at": "2026-02-13T03:33:28.809Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 2, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 2, 2025 Name Lang Time Phone Course 1 st Class Comments 228306 Morm, Brandon EN 2:26am 514-588-9109 (m) Motorcycle Montreal 05/09/2025 6:00pm edit 228307 Pimentel, Jayden EN 4:35am 438-778-1968 (m) Scooter Vaudreuil-Dorion 10/08/2025 5:30pm edit 228309 Jones-Sauray, Chelsee-Marie EN 5:39pm 514-813-3859 (m) Automobile Montreal 09/09/2025 7:00pm edit 228310 Rusjan, Tatiana Jasmine EN 9:35pm 416-797-6834 (m) Automobile Montreal 13/08/2025 5:00pm edit 228311 Racine, Chase EN 11:00pm 438-928-5300 (m) Automobile Kirkland 21/08/2025 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "02/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "02/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "228306",
+          "Morm, Brandon",
+          "EN",
+          "2:26am",
+          "514-588-9109   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "228307",
+          "Pimentel, Jayden",
+          "EN",
+          "4:35am",
+          "438-778-1968   (m)",
+          "Scooter Vaudreuil-Dorion",
+          "10/08/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "228309",
+          "Jones-Sauray, Chelsee-Marie",
+          "EN",
+          "5:39pm",
+          "514-813-3859   (m)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "228310",
+          "Rusjan, Tatiana Jasmine",
+          "EN",
+          "9:35pm",
+          "416-797-6834   (m)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228311",
+          "Racine, Chase",
+          "EN",
+          "11:00pm",
+          "438-928-5300   (m)",
+          "Automobile Kirkland",
+          "21/08/2025  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "228306",
+          "Name": "Morm, Brandon",
+          "Lang": "EN",
+          "Time": "2:26am",
+          "Phone": "514-588-9109   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "228307",
+          "Name": "Pimentel, Jayden",
+          "Lang": "EN",
+          "Time": "4:35am",
+          "Phone": "438-778-1968   (m)",
+          "Course": "Scooter Vaudreuil-Dorion",
+          "1st Class": "10/08/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "228309",
+          "Name": "Jones-Sauray, Chelsee-Marie",
+          "Lang": "EN",
+          "Time": "5:39pm",
+          "Phone": "514-813-3859   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "228310",
+          "Name": "Rusjan, Tatiana Jasmine",
+          "Lang": "EN",
+          "Time": "9:35pm",
+          "Phone": "416-797-6834   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "228311",
+          "Name": "Racine, Chase",
+          "Lang": "EN",
+          "Time": "11:00pm",
+          "Phone": "438-928-5300   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228508&courseId=2",
+      "text": "Morm, Brandon",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228509&courseId=3",
+      "text": "Pimentel, Jayden",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228511&courseId=1",
+      "text": "Jones-Sauray, Chelsee-Marie",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228512&courseId=1",
+      "text": "Rusjan, Tatiana Jasmine",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228513&courseId=1",
+      "text": "Racine, Chase",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 20728,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=02%2F08%2F2025"
+}

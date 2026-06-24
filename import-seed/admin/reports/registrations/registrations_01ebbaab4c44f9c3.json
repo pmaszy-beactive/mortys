@@ -1,0 +1,334 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=20%2F09%2F2025",
+  "url_hash": "01ebbaab4c44f9c3",
+  "scraped_at": "2026-02-12T13:55:49.892Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Sep 20, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Sep 20, 2025 Name Lang Time Phone Course 1 st Class Comments 231794 Menegon, David EN 9:34am 514-701-6378 (m) Automobile Montreal 29/09/2025 7:00pm edit 231795 Saissi, Ahmad EN 12:20pm 514-516-5345 (m) 438-993-3681 (h) Automobile Kirkland 29/09/2025 7:00pm edit 231796 Santhiralingam, Aswin EN 4:29pm 514-880-6471 (m) Motorcycle Dollard-des-Ormeaux 24/10/2025 6:00pm edit 231797 Sabbag, Sacha EN 6:52pm 514-889-7224 (m) Scooter Montreal 21/09/2025 5:30pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "20/09/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "20/09/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231794",
+          "Menegon, David",
+          "EN",
+          "9:34am",
+          "514-701-6378   (m)",
+          "Automobile Montreal",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231795",
+          "Saissi, Ahmad",
+          "EN",
+          "12:20pm",
+          "514-516-5345   (m)     \n \n             438-993-3681   (h)",
+          "Automobile Kirkland",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231796",
+          "Santhiralingam, Aswin",
+          "EN",
+          "4:29pm",
+          "514-880-6471   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "24/10/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231797",
+          "Sabbag, Sacha",
+          "EN",
+          "6:52pm",
+          "514-889-7224   (m)",
+          "Scooter Montreal",
+          "21/09/2025  5:30pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231794",
+          "Name": "Menegon, David",
+          "Lang": "EN",
+          "Time": "9:34am",
+          "Phone": "514-701-6378   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231795",
+          "Name": "Saissi, Ahmad",
+          "Lang": "EN",
+          "Time": "12:20pm",
+          "Phone": "514-516-5345   (m)     \n \n             438-993-3681   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231796",
+          "Name": "Santhiralingam, Aswin",
+          "Lang": "EN",
+          "Time": "4:29pm",
+          "Phone": "514-880-6471   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "24/10/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231797",
+          "Name": "Sabbag, Sacha",
+          "Lang": "EN",
+          "Time": "6:52pm",
+          "Phone": "514-889-7224   (m)",
+          "Course": "Scooter Montreal",
+          "1st Class": "21/09/2025  5:30pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231996&courseId=1",
+      "text": "Menegon, David",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231997&courseId=1",
+      "text": "Saissi, Ahmad",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231998&courseId=2",
+      "text": "Santhiralingam, Aswin",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231999&courseId=3",
+      "text": "Sabbag, Sacha",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 19834,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=20%2F09%2F2025"
+}

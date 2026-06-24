@@ -1,0 +1,458 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=12%2F07%2F2025",
+  "url_hash": "ab522b9f777a4d8e",
+  "scraped_at": "2026-02-13T09:59:53.787Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jul 12, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jul 12, 2025 Name Lang Time Phone Course 1 st Class Comments 223064 Boullais, Pascal EN 8:30am 438-372-8999 (m) Motorcycle Montreal 08/08/2025 6:00pm edit 223065 Linsdell, Ethan EN 11:32am 514-968-9283 (m) Automobile Kirkland 15/07/2025 7:00pm edit 223066 Pollock , Abigail EN 1:26pm 514-973-4383 (m) 514-972-4383 (h) Automobile Kirkland 21/08/2025 5:00pm edit 223067 Friedman, Emmett EN 5:15pm 514-775-6644 (m) Automobile Montreal 31/07/2025 7:00pm edit 223068 Tessier , Gabrielle charlotte EN 6:36pm 438-505-1367 (m) Automobile Montreal 31/07/2025 7:00pm edit 223069 Bergevin, Sophie Almaz Marie EN 6:36pm 514-883-7186 (m) 514-485-7181 (h) Automobile Montreal 31/07/2025 7:00pm edit 223070 Sabbag, Sacha EN 7:15pm 514-889-7224 (m) 514-889-7224 (h) Automobile Montreal 31/07/2025 7:00pm edit 223071 daou, yorgo EN 10:12pm 514-627-9884 (m) Motorcycle Montreal 25/07/2025 6:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "12/07/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "12/07/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "223064",
+          "Boullais, Pascal",
+          "EN",
+          "8:30am",
+          "438-372-8999   (m)",
+          "Motorcycle Montreal",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "223065",
+          "Linsdell, Ethan",
+          "EN",
+          "11:32am",
+          "514-968-9283   (m)",
+          "Automobile Kirkland",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223066",
+          "Pollock , Abigail",
+          "EN",
+          "1:26pm",
+          "514-973-4383   (m)     \n \n             514-972-4383   (h)",
+          "Automobile Kirkland",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "223067",
+          "Friedman, Emmett",
+          "EN",
+          "5:15pm",
+          "514-775-6644   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223068",
+          "Tessier , Gabrielle charlotte",
+          "EN",
+          "6:36pm",
+          "438-505-1367   (m)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223069",
+          "Bergevin, Sophie Almaz Marie",
+          "EN",
+          "6:36pm",
+          "514-883-7186   (m)     \n \n             514-485-7181   (h)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223070",
+          "Sabbag, Sacha",
+          "EN",
+          "7:15pm",
+          "514-889-7224   (m)     \n \n             514-889-7224   (h)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "223071",
+          "daou, yorgo",
+          "EN",
+          "10:12pm",
+          "514-627-9884   (m)",
+          "Motorcycle Montreal",
+          "25/07/2025  6:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "223064",
+          "Name": "Boullais, Pascal",
+          "Lang": "EN",
+          "Time": "8:30am",
+          "Phone": "438-372-8999   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "223065",
+          "Name": "Linsdell, Ethan",
+          "Lang": "EN",
+          "Time": "11:32am",
+          "Phone": "514-968-9283   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "223066",
+          "Name": "Pollock , Abigail",
+          "Lang": "EN",
+          "Time": "1:26pm",
+          "Phone": "514-973-4383   (m)     \n \n             514-972-4383   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "223067",
+          "Name": "Friedman, Emmett",
+          "Lang": "EN",
+          "Time": "5:15pm",
+          "Phone": "514-775-6644   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "223068",
+          "Name": "Tessier , Gabrielle charlotte",
+          "Lang": "EN",
+          "Time": "6:36pm",
+          "Phone": "438-505-1367   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "223069",
+          "Name": "Bergevin, Sophie Almaz Marie",
+          "Lang": "EN",
+          "Time": "6:36pm",
+          "Phone": "514-883-7186   (m)     \n \n             514-485-7181   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "223070",
+          "Name": "Sabbag, Sacha",
+          "Lang": "EN",
+          "Time": "7:15pm",
+          "Phone": "514-889-7224   (m)     \n \n             514-889-7224   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "223071",
+          "Name": "daou, yorgo",
+          "Lang": "EN",
+          "Time": "10:12pm",
+          "Phone": "514-627-9884   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "25/07/2025  6:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223266&courseId=2",
+      "text": "Boullais, Pascal",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223267&courseId=1",
+      "text": "Linsdell, Ethan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223268&courseId=1",
+      "text": "Pollock , Abigail",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223269&courseId=1",
+      "text": "Friedman, Emmett",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223270&courseId=1",
+      "text": "Tessier , Gabrielle charlotte",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223271&courseId=1",
+      "text": "Bergevin, Sophie Almaz Marie",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223272&courseId=1",
+      "text": "Sabbag, Sacha",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223273&courseId=2",
+      "text": "daou, yorgo",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 23655,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=12%2F07%2F2025"
+}

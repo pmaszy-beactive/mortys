@@ -1,0 +1,582 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=06%2F01%2F2026",
+  "url_hash": "e08b8d5ef26240d7",
+  "scraped_at": "2026-02-11T22:46:21.065Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jan 6, 2026"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jan 6, 2026 Name Lang Time Phone Course 1 st Class Comments 233419 O'Neill, Luca EN 8:32am 438-226-3060 (m) 514-793-3046 (h) Automobile Montreal 14/01/2026 5:00pm edit 233420 Adutwumwaah , Rosemary EN 8:33am 514-261-9335 (m) 514-261-9335 (h) Automobile Montreal 14/01/2026 5:00pm edit 233421 Simpson, Juliette Poppy EN 12:59pm 438-827-8856 (m) 514-835-8137 (h) Automobile Montreal 14/01/2026 5:00pm edit 233422 Vegh, Jordan EN 1:54pm 438-867-5736 (m) 514-497-7224 (h) Motorcycle Dollard-des-Ormeaux 23/01/2026 6:00pm edit 233423 Burgess-walker, Kia edith joy EN 2:55pm 514-293-2345 (m) 438-680-1193 (w) Automobile Montreal 14/01/2026 5:00pm edit 233424 Mirsaidghazi, Borna EN 3:59pm 438-345-0909 (m) Automobile Côte Saint-Luc 18/01/2026 3:00pm edit 233425 D’Amico, Jesse EN 6:45pm 514-702-2847 (m) Automobile Vaudreuil-Dorion 05/02/2026 5:00pm edit 233426 Munk, Gaby EN 7:01pm 514-775-0373 (m) 514-947-9707 (h) 514-947-9707 (w) Automobile Côte Saint-Luc 27/01/2026 7:00pm edit 233427 Jacobson, Miley EN 7:36pm 514-585-5934 (m) 514-953-5934 (h) Automobile Côte Saint-Luc 16/02/2026 5:00pm edit 233428 D’Amico, Lilly EN 8:11pm 438-370-3221 (m) 514-953-3558 (h) 514-631-2540 (w) Automobile Dollard-des-Ormeaux 14/01/2026 5:00pm edit 233429 Loeu, Jetson EN 9:57pm 514-726-3953 (m) Motorcycle Montreal 20/02/2026 6:00pm edit 233430 Nanreh, Simranjit EN 11:37pm 514-663-7732 (m) Automobile Vaudreuil-Dorion 27/01/2026 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "06/01/2026",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "06/01/2026"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "233419",
+          "O'Neill, Luca",
+          "EN",
+          "8:32am",
+          "438-226-3060   (m)     \n \n             514-793-3046   (h)",
+          "Automobile Montreal",
+          "14/01/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233420",
+          "Adutwumwaah , Rosemary",
+          "EN",
+          "8:33am",
+          "514-261-9335   (m)     \n \n             514-261-9335   (h)",
+          "Automobile Montreal",
+          "14/01/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233421",
+          "Simpson, Juliette Poppy",
+          "EN",
+          "12:59pm",
+          "438-827-8856   (m)     \n \n             514-835-8137   (h)",
+          "Automobile Montreal",
+          "14/01/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233422",
+          "Vegh, Jordan",
+          "EN",
+          "1:54pm",
+          "438-867-5736   (m)     \n \n             514-497-7224   (h)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "23/01/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233423",
+          "Burgess-walker, Kia edith joy",
+          "EN",
+          "2:55pm",
+          "514-293-2345   (m)     \n \n              \n             438-680-1193   (w)",
+          "Automobile Montreal",
+          "14/01/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233424",
+          "Mirsaidghazi, Borna",
+          "EN",
+          "3:59pm",
+          "438-345-0909   (m)",
+          "Automobile Côte Saint-Luc",
+          "18/01/2026  3:00pm",
+          "edit"
+        ],
+        [
+          "233425",
+          "D’Amico, Jesse",
+          "EN",
+          "6:45pm",
+          "514-702-2847   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "05/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233426",
+          "Munk, Gaby",
+          "EN",
+          "7:01pm",
+          "514-775-0373   (m)     \n \n             514-947-9707   (h)     \n \n             514-947-9707   (w)",
+          "Automobile Côte Saint-Luc",
+          "27/01/2026  7:00pm",
+          "edit"
+        ],
+        [
+          "233427",
+          "Jacobson, Miley",
+          "EN",
+          "7:36pm",
+          "514-585-5934   (m)     \n \n             514-953-5934   (h)",
+          "Automobile Côte Saint-Luc",
+          "16/02/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233428",
+          "D’Amico, Lilly",
+          "EN",
+          "8:11pm",
+          "438-370-3221   (m)     \n \n             514-953-3558   (h)     \n \n             514-631-2540   (w)",
+          "Automobile Dollard-des-Ormeaux",
+          "14/01/2026  5:00pm",
+          "edit"
+        ],
+        [
+          "233429",
+          "Loeu, Jetson",
+          "EN",
+          "9:57pm",
+          "514-726-3953   (m)",
+          "Motorcycle Montreal",
+          "20/02/2026  6:00pm",
+          "edit"
+        ],
+        [
+          "233430",
+          "Nanreh, Simranjit",
+          "EN",
+          "11:37pm",
+          "514-663-7732   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "27/01/2026  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "233419",
+          "Name": "O'Neill, Luca",
+          "Lang": "EN",
+          "Time": "8:32am",
+          "Phone": "438-226-3060   (m)     \n \n             514-793-3046   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "233420",
+          "Name": "Adutwumwaah , Rosemary",
+          "Lang": "EN",
+          "Time": "8:33am",
+          "Phone": "514-261-9335   (m)     \n \n             514-261-9335   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "233421",
+          "Name": "Simpson, Juliette Poppy",
+          "Lang": "EN",
+          "Time": "12:59pm",
+          "Phone": "438-827-8856   (m)     \n \n             514-835-8137   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "233422",
+          "Name": "Vegh, Jordan",
+          "Lang": "EN",
+          "Time": "1:54pm",
+          "Phone": "438-867-5736   (m)     \n \n             514-497-7224   (h)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "23/01/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "233423",
+          "Name": "Burgess-walker, Kia edith joy",
+          "Lang": "EN",
+          "Time": "2:55pm",
+          "Phone": "514-293-2345   (m)     \n \n              \n             438-680-1193   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "233424",
+          "Name": "Mirsaidghazi, Borna",
+          "Lang": "EN",
+          "Time": "3:59pm",
+          "Phone": "438-345-0909   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "18/01/2026  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "233425",
+          "Name": "D’Amico, Jesse",
+          "Lang": "EN",
+          "Time": "6:45pm",
+          "Phone": "514-702-2847   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "05/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "233426",
+          "Name": "Munk, Gaby",
+          "Lang": "EN",
+          "Time": "7:01pm",
+          "Phone": "514-775-0373   (m)     \n \n             514-947-9707   (h)     \n \n             514-947-9707   (w)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "27/01/2026  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "233427",
+          "Name": "Jacobson, Miley",
+          "Lang": "EN",
+          "Time": "7:36pm",
+          "Phone": "514-585-5934   (m)     \n \n             514-953-5934   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "16/02/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "233428",
+          "Name": "D’Amico, Lilly",
+          "Lang": "EN",
+          "Time": "8:11pm",
+          "Phone": "438-370-3221   (m)     \n \n             514-953-3558   (h)     \n \n             514-631-2540   (w)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "14/01/2026  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "233429",
+          "Name": "Loeu, Jetson",
+          "Lang": "EN",
+          "Time": "9:57pm",
+          "Phone": "514-726-3953   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "20/02/2026  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "233430",
+          "Name": "Nanreh, Simranjit",
+          "Lang": "EN",
+          "Time": "11:37pm",
+          "Phone": "514-663-7732   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "27/01/2026  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233623&courseId=1",
+      "text": "O'Neill, Luca",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233624&courseId=1",
+      "text": "Adutwumwaah , Rosemary",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233625&courseId=1",
+      "text": "Simpson, Juliette Poppy",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233626&courseId=2",
+      "text": "Vegh, Jordan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233627&courseId=1",
+      "text": "Burgess-walker, Kia edith joy",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233628&courseId=1",
+      "text": "Mirsaidghazi, Borna",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233629&courseId=1",
+      "text": "D’Amico, Jesse",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233630&courseId=1",
+      "text": "Munk, Gaby",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233631&courseId=1",
+      "text": "Jacobson, Miley",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233632&courseId=1",
+      "text": "D’Amico, Lilly",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233633&courseId=2",
+      "text": "Loeu, Jetson",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=233634&courseId=1",
+      "text": "Nanreh, Simranjit",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 27738,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=06%2F01%2F2026"
+}

@@ -1,0 +1,582 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=17%2F08%2F2025",
+  "url_hash": "9a5d27ac66957428",
+  "scraped_at": "2026-02-12T22:30:23.359Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 17, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 17, 2025 Name Lang Time Phone Course 1 st Class Comments 231470 Maroun, Max EN 12:01pm 514-915-0408 (m) 514-594-3314 (h) Automobile Dollard-des-Ormeaux 21/08/2025 5:00pm edit 231471 Abdallah, Rim EN 1:09pm 514-804-7463 (m) Motorcycle Dollard-des-Ormeaux 22/08/2025 6:00pm edit 231472 Katz, Levi EN 2:52pm 514-582-9548 (m) 514-675-1009 (h) 514-717-9548 (w) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231473 Khalidi, Hajar EN 4:45pm 514-709-9407 (m) Motorcycle Montreal 28/11/2025 6:00pm edit 231474 Payes Rizzo, Vanessa EN 5:15pm 514-574-5727 (m) Motorcycle Montreal 22/08/2025 6:00pm edit 231475 Nechyporenko, Andrii EN 5:17pm 438-926-7321 (m) Scooter Montreal 21/09/2025 5:30pm edit 231476 Rickey, Joseph EN 5:40pm 514-951-6174 (m) 514-951-6174 (h) Automobile Kirkland 08/10/2025 7:00pm edit 231478 Haimovitz, Marley EN 6:16pm 514-774-5592 (m) 514-781-5592 (h) Automobile Montreal 09/09/2025 7:00pm edit 231479 Pittaro, Myles EN 7:16pm 514-824-7134 (m) Automobile Vaudreuil-Dorion 24/08/2025 3:00pm edit 231480 Kornai, Tanner EN 7:43pm 514-575-6717 (m) Automobile Dollard-des-Ormeaux 21/08/2025 5:00pm edit 231481 faerman, alexis EN 8:13pm 438-522-6491 (m) Automobile Montreal 21/08/2025 5:00pm edit 231482 Dizazzo, Bridget EN 9:28pm 438-520-2320 (m) Automobile Vaudreuil-Dorion 08/10/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "17/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "17/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231470",
+          "Maroun, Max",
+          "EN",
+          "12:01pm",
+          "514-915-0408   (m)     \n \n             514-594-3314   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231471",
+          "Abdallah, Rim",
+          "EN",
+          "1:09pm",
+          "514-804-7463   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231472",
+          "Katz, Levi",
+          "EN",
+          "2:52pm",
+          "514-582-9548   (m)     \n \n             514-675-1009   (h)     \n \n             514-717-9548   (w)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231473",
+          "Khalidi, Hajar",
+          "EN",
+          "4:45pm",
+          "514-709-9407   (m)",
+          "Motorcycle Montreal",
+          "28/11/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231474",
+          "Payes Rizzo, Vanessa",
+          "EN",
+          "5:15pm",
+          "514-574-5727   (m)",
+          "Motorcycle Montreal",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231475",
+          "Nechyporenko, Andrii",
+          "EN",
+          "5:17pm",
+          "438-926-7321   (m)",
+          "Scooter Montreal",
+          "21/09/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "231476",
+          "Rickey, Joseph",
+          "EN",
+          "5:40pm",
+          "514-951-6174   (m)     \n \n             514-951-6174   (h)",
+          "Automobile Kirkland",
+          "08/10/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231478",
+          "Haimovitz, Marley",
+          "EN",
+          "6:16pm",
+          "514-774-5592   (m)     \n \n             514-781-5592   (h)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231479",
+          "Pittaro, Myles",
+          "EN",
+          "7:16pm",
+          "514-824-7134   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231480",
+          "Kornai, Tanner",
+          "EN",
+          "7:43pm",
+          "514-575-6717   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231481",
+          "faerman, alexis",
+          "EN",
+          "8:13pm",
+          "438-522-6491   (m)",
+          "Automobile Montreal",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231482",
+          "Dizazzo, Bridget",
+          "EN",
+          "9:28pm",
+          "438-520-2320   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "08/10/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231470",
+          "Name": "Maroun, Max",
+          "Lang": "EN",
+          "Time": "12:01pm",
+          "Phone": "514-915-0408   (m)     \n \n             514-594-3314   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231471",
+          "Name": "Abdallah, Rim",
+          "Lang": "EN",
+          "Time": "1:09pm",
+          "Phone": "514-804-7463   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231472",
+          "Name": "Katz, Levi",
+          "Lang": "EN",
+          "Time": "2:52pm",
+          "Phone": "514-582-9548   (m)     \n \n             514-675-1009   (h)     \n \n             514-717-9548   (w)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231473",
+          "Name": "Khalidi, Hajar",
+          "Lang": "EN",
+          "Time": "4:45pm",
+          "Phone": "514-709-9407   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "28/11/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231474",
+          "Name": "Payes Rizzo, Vanessa",
+          "Lang": "EN",
+          "Time": "5:15pm",
+          "Phone": "514-574-5727   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231475",
+          "Name": "Nechyporenko, Andrii",
+          "Lang": "EN",
+          "Time": "5:17pm",
+          "Phone": "438-926-7321   (m)",
+          "Course": "Scooter Montreal",
+          "1st Class": "21/09/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231476",
+          "Name": "Rickey, Joseph",
+          "Lang": "EN",
+          "Time": "5:40pm",
+          "Phone": "514-951-6174   (m)     \n \n             514-951-6174   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "08/10/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231478",
+          "Name": "Haimovitz, Marley",
+          "Lang": "EN",
+          "Time": "6:16pm",
+          "Phone": "514-774-5592   (m)     \n \n             514-781-5592   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231479",
+          "Name": "Pittaro, Myles",
+          "Lang": "EN",
+          "Time": "7:16pm",
+          "Phone": "514-824-7134   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231480",
+          "Name": "Kornai, Tanner",
+          "Lang": "EN",
+          "Time": "7:43pm",
+          "Phone": "514-575-6717   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "231481",
+          "Name": "faerman, alexis",
+          "Lang": "EN",
+          "Time": "8:13pm",
+          "Phone": "438-522-6491   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "231482",
+          "Name": "Dizazzo, Bridget",
+          "Lang": "EN",
+          "Time": "9:28pm",
+          "Phone": "438-520-2320   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "08/10/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231672&courseId=1",
+      "text": "Maroun, Max",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231673&courseId=2",
+      "text": "Abdallah, Rim",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231674&courseId=1",
+      "text": "Katz, Levi",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231675&courseId=2",
+      "text": "Khalidi, Hajar",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231676&courseId=2",
+      "text": "Payes Rizzo, Vanessa",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231677&courseId=3",
+      "text": "Nechyporenko, Andrii",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231678&courseId=1",
+      "text": "Rickey, Joseph",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231680&courseId=1",
+      "text": "Haimovitz, Marley",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231681&courseId=1",
+      "text": "Pittaro, Myles",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231682&courseId=1",
+      "text": "Kornai, Tanner",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231683&courseId=1",
+      "text": "faerman, alexis",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231684&courseId=1",
+      "text": "Dizazzo, Bridget",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 27485,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=17%2F08%2F2025"
+}

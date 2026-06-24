@@ -1,0 +1,680 @@
+{
+  "url": "https://mortys.drivetraqr.ca/reservations/?studentUserId=231991&courseId=1&actionId=147",
+  "url_hash": "2cd479ca2d3162f3",
+  "scraped_at": "2026-02-12T14:01:53.101Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Eric Mills  -  reserve  Theory 1"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Eric Mills - reserve Theory 1 Côte Saint-Luc Dollard-des-Ormeaux Kirkland Montreal Morty's Motorcycle Track Vaudreuil-Dorion Zoom date optional Reserve a class Location Date Time Kirkland Feb 16, 2026 5:00pm - 7:00pm Reserve Kirkland Feb 25, 2026 7:00pm - 9:00pm Reserve Kirkland Mar 8, 2026 3:00pm - 5:00pm Reserve Kirkland Mar 17, 2026 5:00pm - 7:00pm Reserve Kirkland Mar 26, 2026 7:00pm - 9:00pm Reserve Kirkland Apr 7, 2026 7:00pm - 9:00pm Reserve Kirkland Apr 16, 2026 5:00pm - 7:00pm Reserve Kirkland Apr 27, 2026 7:00pm - 9:00pm Reserve Kirkland May 6, 2026 5:00pm - 7:00pm Reserve Kirkland May 10, 2026 3:00pm - 5:00pm Reserve Kirkland May 21, 2026 7:00pm - 9:00pm Reserve Kirkland Jun 1, 2026 5:00pm - 7:00pm Reserve Kirkland Jun 9, 2026 7:00pm - 9:00pm Reserve Kirkland Jun 18, 2026 5:00pm - 7:00pm Reserve Kirkland Jun 28, 2026 3:00pm - 5:00pm Reserve Kirkland Jun 29, 2026 7:00pm - 9:00pm Reserve Kirkland Jul 8, 2026 7:00pm - 9:00pm Reserve Kirkland Jul 20, 2026 5:00pm - 7:00pm Reserve Kirkland Jul 30, 2026 7:00pm - 9:00pm Reserve Kirkland Aug 11, 2026 7:00pm - 9:00pm Reserve Kirkland Aug 16, 2026 3:00pm - 5:00pm Reserve Kirkland Aug 20, 2026 5:00pm - 7:00pm Reserve Kirkland Sep 2, 2026 7:00pm - 9:00pm Reserve Kirkland Sep 15, 2026 5:00pm - 7:00pm Reserve Kirkland Sep 24, 2026 7:00pm - 9:00pm Reserve Kirkland Oct 6, 2026 7:00pm - 9:00pm Reserve Kirkland Oct 11, 2026 3:00pm - 5:00pm Reserve Kirkland Oct 15, 2026 5:00pm - 7:00pm Reserve Kirkland Oct 26, 2026 7:00pm - 9:00pm Reserve Kirkland Nov 4, 2026 7:00pm - 9:00pm Reserve Kirkland Nov 8, 2026 5:00pm - 7:00pm Reserve Kirkland Nov 17, 2026 5:00pm - 7:00pm Reserve Kirkland Nov 29, 2026 3:00pm - 5:00pm Reserve",
+  "forms": [
+    {
+      "action": "#",
+      "method": "get",
+      "id": "theForm",
+      "name": "",
+      "fields": [
+        {
+          "tag": "select",
+          "name": "schoolLocationId",
+          "type": "text",
+          "id": "schoolLocationId",
+          "value": "4",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false,
+          "options": [
+            {
+              "value": "11",
+              "text": "Côte Saint-Luc",
+              "selected": false
+            },
+            {
+              "value": "2",
+              "text": "Dollard-des-Ormeaux",
+              "selected": false
+            },
+            {
+              "value": "4",
+              "text": "Kirkland",
+              "selected": true
+            },
+            {
+              "value": "1",
+              "text": "Montreal",
+              "selected": false
+            },
+            {
+              "value": "5",
+              "text": "Morty's Motorcycle Track",
+              "selected": false
+            },
+            {
+              "value": "6",
+              "text": "Vaudreuil-Dorion",
+              "selected": false
+            },
+            {
+              "value": "8",
+              "text": "Zoom",
+              "selected": false
+            }
+          ],
+          "selectedIndex": 2
+        },
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "date",
+          "value": "",
+          "placeholder": "yyyy-mm-dd",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "schoolLocationId": "4"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "classTable",
+      "class": " alternatecolors",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "Location",
+        "Date",
+        "Time",
+        ""
+      ],
+      "rows": [
+        [
+          "Kirkland",
+          "Feb 16, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Feb 25, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Mar 8, 2026",
+          "3:00pm - 5:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Mar 17, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Mar 26, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Apr 7, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Apr 16, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Apr 27, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "May 6, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "May 10, 2026",
+          "3:00pm - 5:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "May 21, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Jun 1, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Jun 9, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Jun 18, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Jun 28, 2026",
+          "3:00pm - 5:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Jun 29, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Jul 8, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Jul 20, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Jul 30, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Aug 11, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Aug 16, 2026",
+          "3:00pm - 5:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Aug 20, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Sep 2, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Sep 15, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Sep 24, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Oct 6, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Oct 11, 2026",
+          "3:00pm - 5:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Oct 15, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Oct 26, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Nov 4, 2026",
+          "7:00pm - 9:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Nov 8, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Nov 17, 2026",
+          "5:00pm - 7:00pm",
+          "Reserve"
+        ],
+        [
+          "Kirkland",
+          "Nov 29, 2026",
+          "3:00pm - 5:00pm",
+          "Reserve"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "Location": "Kirkland",
+          "Date": "Feb 16, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 1,
+          "Location": "Kirkland",
+          "Date": "Feb 25, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 2,
+          "Location": "Kirkland",
+          "Date": "Mar 8, 2026",
+          "Time": "3:00pm - 5:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 3,
+          "Location": "Kirkland",
+          "Date": "Mar 17, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 4,
+          "Location": "Kirkland",
+          "Date": "Mar 26, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 5,
+          "Location": "Kirkland",
+          "Date": "Apr 7, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 6,
+          "Location": "Kirkland",
+          "Date": "Apr 16, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 7,
+          "Location": "Kirkland",
+          "Date": "Apr 27, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 8,
+          "Location": "Kirkland",
+          "Date": "May 6, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 9,
+          "Location": "Kirkland",
+          "Date": "May 10, 2026",
+          "Time": "3:00pm - 5:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 10,
+          "Location": "Kirkland",
+          "Date": "May 21, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 11,
+          "Location": "Kirkland",
+          "Date": "Jun 1, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 12,
+          "Location": "Kirkland",
+          "Date": "Jun 9, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 13,
+          "Location": "Kirkland",
+          "Date": "Jun 18, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 14,
+          "Location": "Kirkland",
+          "Date": "Jun 28, 2026",
+          "Time": "3:00pm - 5:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 15,
+          "Location": "Kirkland",
+          "Date": "Jun 29, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 16,
+          "Location": "Kirkland",
+          "Date": "Jul 8, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 17,
+          "Location": "Kirkland",
+          "Date": "Jul 20, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 18,
+          "Location": "Kirkland",
+          "Date": "Jul 30, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 19,
+          "Location": "Kirkland",
+          "Date": "Aug 11, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 20,
+          "Location": "Kirkland",
+          "Date": "Aug 16, 2026",
+          "Time": "3:00pm - 5:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 21,
+          "Location": "Kirkland",
+          "Date": "Aug 20, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 22,
+          "Location": "Kirkland",
+          "Date": "Sep 2, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 23,
+          "Location": "Kirkland",
+          "Date": "Sep 15, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 24,
+          "Location": "Kirkland",
+          "Date": "Sep 24, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 25,
+          "Location": "Kirkland",
+          "Date": "Oct 6, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 26,
+          "Location": "Kirkland",
+          "Date": "Oct 11, 2026",
+          "Time": "3:00pm - 5:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 27,
+          "Location": "Kirkland",
+          "Date": "Oct 15, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 28,
+          "Location": "Kirkland",
+          "Date": "Oct 26, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 29,
+          "Location": "Kirkland",
+          "Date": "Nov 4, 2026",
+          "Time": "7:00pm - 9:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 30,
+          "Location": "Kirkland",
+          "Date": "Nov 8, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 31,
+          "Location": "Kirkland",
+          "Date": "Nov 17, 2026",
+          "Time": "5:00pm - 7:00pm",
+          "column_3": "Reserve"
+        },
+        {
+          "_row_index": 32,
+          "Location": "Kirkland",
+          "Date": "Nov 29, 2026",
+          "Time": "3:00pm - 5:00pm",
+          "column_3": "Reserve"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 37700,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/reservations/?studentUserId=231991&courseId=1&actionId=147"
+}

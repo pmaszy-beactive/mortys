@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233625",
+  "url_hash": "15e8b102a0618b9c",
+  "scraped_at": "2026-02-11T22:48:18.184Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03304433 L-020 Simpson, Juliette Poppy 5207 rue Saranac Montréal QC H3W 2G5 0001236428 5148358137 4388278856 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2026 01 14 2026 01 21 2026 01 28 2026 02 04 2026 02 11 COPIE D'ÉLÈVE 03304433 L-020 Simpson, Juliette Poppy 5207 rue Saranac Montréal QC H3W 2G5 0001236428 5148358137 4388278856 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2026 01 14 2026 01 21 2026 01 28 2026 02 04 2026 02 11 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304433&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304433&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10185,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233625"
+}

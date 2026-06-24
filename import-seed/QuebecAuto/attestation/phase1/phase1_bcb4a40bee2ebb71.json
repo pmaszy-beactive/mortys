@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231753",
+  "url_hash": "bcb4a40bee2ebb71",
+  "scraped_at": "2026-02-12T20:38:09.878Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "Z000501120705 03277348 L-774 Zou, Jennie 132 Rue Lincoln Beaconsfield QC H9W 1M6 0001235762 5148020876 5147918861 X Ilan Preisler 5 nov. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 07 2025 11 03 COPIE D'ÉLÈVE Z000501120705 03277348 L-774 Zou, Jennie 132 Rue Lincoln Beaconsfield QC H9W 1M6 0001235762 5148020876 5147918861 X Ilan Preisler 5 nov. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 07 2025 11 03 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277348&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277348&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10553,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231753"
+}

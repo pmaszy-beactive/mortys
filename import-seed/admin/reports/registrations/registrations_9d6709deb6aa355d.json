@@ -1,0 +1,582 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=25%2F08%2F2025",
+  "url_hash": "9d6709deb6aa355d",
+  "scraped_at": "2026-02-12T20:09:15.953Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 25, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 25, 2025 Name Lang Time Phone Course 1 st Class Comments 231558 McNicol, Hayden EN 9:13am 438-378-3401 (m) 514-924-9355 (h) Automobile Kirkland 29/09/2025 7:00pm edit 231559 Markus, Ryan EN 11:36am 514-926-7926 (m) 514-824-5606 (h) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit 231560 Lee, Matthew EN 11:48am 514-917-9649 (m) 514-233-6668 (h) Automobile Montreal 18/09/2025 7:00pm edit 231561 Pelletier, Talya EN 12:31pm 438-372-2715 (m) Automobile Vaudreuil-Dorion 09/09/2025 7:00pm edit 231562 Maazami, Ayoub EN 2:14pm 514-944-3502 (m) Motorcycle Montreal 05/09/2025 6:00pm edit 231563 idowu, tanwa EN 4:19pm 514-569-8053 (m) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit 231564 Stenberg, Erol EN 4:39pm 514-867-1194 (m) 514-833-6195 (h) 450-458-0469 (w) Automobile Vaudreuil-Dorion 29/09/2025 7:00pm edit 231565 Brena, Isabella EN 5:17pm 514-663-9907 (m) Automobile Kirkland 12/10/2025 3:00pm edit 231566 Henrico, Bradley EN 5:18pm 438-779-3785 (m) 514-952-5955 (h) Automobile Kirkland 09/09/2025 7:00pm edit 231567 Henrico, Matthew EN 5:20pm 514-697-3789 (m) 514-952-5955 (h) Automobile Kirkland 09/09/2025 7:00pm edit 231568 Buonamici, Gia EN 6:52pm 438-884-1558 (m) Automobile Kirkland 09/09/2025 7:00pm edit 231569 Na, Yan EN 9:35pm 263-382-6526 (m) Motorcycle Montreal 05/09/2025 6:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "25/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "25/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large tablet breakpoint footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231558",
+          "McNicol, Hayden",
+          "EN",
+          "9:13am",
+          "438-378-3401   (m)     \n \n             514-924-9355   (h)",
+          "Automobile Kirkland",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231559",
+          "Markus, Ryan",
+          "EN",
+          "11:36am",
+          "514-926-7926   (m)     \n \n             514-824-5606   (h)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231560",
+          "Lee, Matthew",
+          "EN",
+          "11:48am",
+          "514-917-9649   (m)     \n \n             514-233-6668   (h)",
+          "Automobile Montreal",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231561",
+          "Pelletier, Talya",
+          "EN",
+          "12:31pm",
+          "438-372-2715   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231562",
+          "Maazami, Ayoub",
+          "EN",
+          "2:14pm",
+          "514-944-3502   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231563",
+          "idowu, tanwa",
+          "EN",
+          "4:19pm",
+          "514-569-8053   (m)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231564",
+          "Stenberg, Erol",
+          "EN",
+          "4:39pm",
+          "514-867-1194   (m)     \n \n             514-833-6195   (h)     \n \n             450-458-0469   (w)",
+          "Automobile Vaudreuil-Dorion",
+          "29/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231565",
+          "Brena, Isabella",
+          "EN",
+          "5:17pm",
+          "514-663-9907   (m)",
+          "Automobile Kirkland",
+          "12/10/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231566",
+          "Henrico, Bradley",
+          "EN",
+          "5:18pm",
+          "438-779-3785   (m)     \n \n             514-952-5955   (h)",
+          "Automobile Kirkland",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231567",
+          "Henrico, Matthew",
+          "EN",
+          "5:20pm",
+          "514-697-3789   (m)     \n \n             514-952-5955   (h)",
+          "Automobile Kirkland",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231568",
+          "Buonamici, Gia",
+          "EN",
+          "6:52pm",
+          "438-884-1558   (m)",
+          "Automobile Kirkland",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231569",
+          "Na, Yan",
+          "EN",
+          "9:35pm",
+          "263-382-6526   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231558",
+          "Name": "McNicol, Hayden",
+          "Lang": "EN",
+          "Time": "9:13am",
+          "Phone": "438-378-3401   (m)     \n \n             514-924-9355   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231559",
+          "Name": "Markus, Ryan",
+          "Lang": "EN",
+          "Time": "11:36am",
+          "Phone": "514-926-7926   (m)     \n \n             514-824-5606   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231560",
+          "Name": "Lee, Matthew",
+          "Lang": "EN",
+          "Time": "11:48am",
+          "Phone": "514-917-9649   (m)     \n \n             514-233-6668   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231561",
+          "Name": "Pelletier, Talya",
+          "Lang": "EN",
+          "Time": "12:31pm",
+          "Phone": "438-372-2715   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231562",
+          "Name": "Maazami, Ayoub",
+          "Lang": "EN",
+          "Time": "2:14pm",
+          "Phone": "514-944-3502   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231563",
+          "Name": "idowu, tanwa",
+          "Lang": "EN",
+          "Time": "4:19pm",
+          "Phone": "514-569-8053   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231564",
+          "Name": "Stenberg, Erol",
+          "Lang": "EN",
+          "Time": "4:39pm",
+          "Phone": "514-867-1194   (m)     \n \n             514-833-6195   (h)     \n \n             450-458-0469   (w)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "29/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231565",
+          "Name": "Brena, Isabella",
+          "Lang": "EN",
+          "Time": "5:17pm",
+          "Phone": "514-663-9907   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "12/10/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231566",
+          "Name": "Henrico, Bradley",
+          "Lang": "EN",
+          "Time": "5:18pm",
+          "Phone": "438-779-3785   (m)     \n \n             514-952-5955   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231567",
+          "Name": "Henrico, Matthew",
+          "Lang": "EN",
+          "Time": "5:20pm",
+          "Phone": "514-697-3789   (m)     \n \n             514-952-5955   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "231568",
+          "Name": "Buonamici, Gia",
+          "Lang": "EN",
+          "Time": "6:52pm",
+          "Phone": "438-884-1558   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 11,
+          "column_0": "231569",
+          "Name": "Na, Yan",
+          "Lang": "EN",
+          "Time": "9:35pm",
+          "Phone": "263-382-6526   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231760&courseId=1",
+      "text": "McNicol, Hayden",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231761&courseId=1",
+      "text": "Markus, Ryan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231762&courseId=1",
+      "text": "Lee, Matthew",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231763&courseId=1",
+      "text": "Pelletier, Talya",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231764&courseId=2",
+      "text": "Maazami, Ayoub",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231765&courseId=1",
+      "text": "idowu, tanwa",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231766&courseId=1",
+      "text": "Stenberg, Erol",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231767&courseId=1",
+      "text": "Brena, Isabella",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231768&courseId=1",
+      "text": "Henrico, Bradley",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231769&courseId=1",
+      "text": "Henrico, Matthew",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231770&courseId=1",
+      "text": "Buonamici, Gia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231771&courseId=2",
+      "text": "Na, Yan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 27467,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=25%2F08%2F2025"
+}

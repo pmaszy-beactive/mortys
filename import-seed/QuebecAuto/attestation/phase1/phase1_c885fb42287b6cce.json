@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231742",
+  "url_hash": "c885fb42287b6cce",
+  "scraped_at": "2026-02-12T21:19:15.941Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "T200312100608 03277163 L-021 Tescu, Elizabeth 26 RUE EASTMOOR DOLLARD-DES-ORMEAUX QC H9G2N1 0001235695 5146219619 X Ilan Preisler 22 sept. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 24 2025 08 31 2025 09 04 2025 09 11 2025 09 21 COPIE D'ÉLÈVE T200312100608 03277163 L-021 Tescu, Elizabeth 26 RUE EASTMOOR DOLLARD-DES-ORMEAUX QC H9G2N1 0001235695 5146219619 X Ilan Preisler 22 sept. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 24 2025 08 31 2025 09 04 2025 09 11 2025 09 21 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277163&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277163&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10413,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231742"
+}

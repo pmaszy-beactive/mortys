@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228541",
+  "url_hash": "fab5a3003cf4b215",
+  "scraped_at": "2026-02-13T02:32:27.867Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "J230231030905 03203585 A-106 Jaquith, Cameron 1902 Rue de la Bernache Saint Lazare QC J7T3G8 0001235515 4384050510 4385250582 X Ilan Preisler 15 sept. 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 13 2025 08 20 2025 09 04 2025 09 03 2025 09 10 COPIE D'ÉLÈVE J230231030905 03203585 A-106 Jaquith, Cameron 1902 Rue de la Bernache Saint Lazare QC J7T3G8 0001235515 4384050510 4385250582 X Ilan Preisler 15 sept. 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 13 2025 08 20 2025 09 04 2025 09 03 2025 09 10 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203585&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203585&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10395,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228541"
+}

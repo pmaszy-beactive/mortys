@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=227460",
+  "url_hash": "e01b3aaa44f2ffb8",
+  "scraped_at": "2026-02-13T05:16:08.135Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "M230621030600 03286929 L-020 McAdoo, Nicole Anne 4274 Dorchester Blvd Montreal QC H3Z 1V6 0001235562 5149330831 5149070831 X Ilan Preisler 12 sept. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 13 2025 08 20 2025 08 27 2025 09 03 2025 09 10 COPIE D'ÉLÈVE M230621030600 03286929 L-020 McAdoo, Nicole Anne 4274 Dorchester Blvd Montreal QC H3Z 1V6 0001235562 5149330831 5149070831 X Ilan Preisler 12 sept. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 13 2025 08 20 2025 08 27 2025 09 03 2025 09 10 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286929&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286929&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10371,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=227460"
+}

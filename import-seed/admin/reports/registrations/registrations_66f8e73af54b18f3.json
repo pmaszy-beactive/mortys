@@ -1,0 +1,551 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=07%2F08%2F2025",
+  "url_hash": "66f8e73af54b18f3",
+  "scraped_at": "2026-02-13T01:49:16.301Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 7, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 7, 2025 Name Lang Time Phone Course 1 st Class Comments 228358 Servello, Lorenzo EN 1:10pm 438-765-8557 (m) Automobile Côte Saint-Luc 21/08/2025 5:00pm edit 228359 Volikas, Michael EN 1:58pm 514-946-1633 (m) Automobile Dollard-des-Ormeaux 21/08/2025 5:00pm edit 228361 Pollack, Isaac EN 4:11pm 438-540-3584 (m) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit 228362 Licari, Alexandre EN 4:18pm 514-704-3904 (m) 514-266-6904 (h) Automobile Côte Saint-Luc 21/08/2025 5:00pm edit 228363 De Castro, Karleen EN 4:44pm 514-299-2131 (m) Automobile Kirkland 13/08/2025 5:00pm edit 228364 Godfrey, Gabriel EN 5:34pm 438-778-7750 (m) Motorcycle Montreal 05/09/2025 6:00pm edit 228365 Di Venere, Justin EN 5:55pm 438-930-7599 (m) Scooter Vaudreuil-Dorion 10/08/2025 5:30pm edit 228366 Thiberge, Pauline EN 6:50pm 263-381-1392 (m) Automobile Montreal 13/08/2025 5:00pm edit 228367 Maliantovitch, Kira EN 7:16pm 438-402-1880 (m) Automobile Montreal 13/08/2025 5:00pm edit 228369 Simms, Lukas EN 9:21pm 438-458-7176 (m) 514-445-7176 (h) Automobile Vaudreuil-Dorion 13/08/2025 5:00pm edit 228370 Vannicola-Primeau, Dante EN 11:28pm 514-883-4444 (m) Automobile Kirkland 13/08/2025 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "07/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "07/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "228358",
+          "Servello, Lorenzo",
+          "EN",
+          "1:10pm",
+          "438-765-8557   (m)",
+          "Automobile Côte Saint-Luc",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228359",
+          "Volikas, Michael",
+          "EN",
+          "1:58pm",
+          "514-946-1633   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228361",
+          "Pollack, Isaac",
+          "EN",
+          "4:11pm",
+          "438-540-3584   (m)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "228362",
+          "Licari, Alexandre",
+          "EN",
+          "4:18pm",
+          "514-704-3904   (m)     \n \n             514-266-6904   (h)",
+          "Automobile Côte Saint-Luc",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228363",
+          "De Castro, Karleen",
+          "EN",
+          "4:44pm",
+          "514-299-2131   (m)",
+          "Automobile Kirkland",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228364",
+          "Godfrey, Gabriel",
+          "EN",
+          "5:34pm",
+          "438-778-7750   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "228365",
+          "Di Venere, Justin",
+          "EN",
+          "5:55pm",
+          "438-930-7599   (m)",
+          "Scooter Vaudreuil-Dorion",
+          "10/08/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "228366",
+          "Thiberge, Pauline",
+          "EN",
+          "6:50pm",
+          "263-381-1392   (m)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228367",
+          "Maliantovitch, Kira",
+          "EN",
+          "7:16pm",
+          "438-402-1880   (m)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228369",
+          "Simms, Lukas",
+          "EN",
+          "9:21pm",
+          "438-458-7176   (m)     \n \n             514-445-7176   (h)",
+          "Automobile Vaudreuil-Dorion",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228370",
+          "Vannicola-Primeau, Dante",
+          "EN",
+          "11:28pm",
+          "514-883-4444   (m)",
+          "Automobile Kirkland",
+          "13/08/2025  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "228358",
+          "Name": "Servello, Lorenzo",
+          "Lang": "EN",
+          "Time": "1:10pm",
+          "Phone": "438-765-8557   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "228359",
+          "Name": "Volikas, Michael",
+          "Lang": "EN",
+          "Time": "1:58pm",
+          "Phone": "514-946-1633   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "228361",
+          "Name": "Pollack, Isaac",
+          "Lang": "EN",
+          "Time": "4:11pm",
+          "Phone": "438-540-3584   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "228362",
+          "Name": "Licari, Alexandre",
+          "Lang": "EN",
+          "Time": "4:18pm",
+          "Phone": "514-704-3904   (m)     \n \n             514-266-6904   (h)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "228363",
+          "Name": "De Castro, Karleen",
+          "Lang": "EN",
+          "Time": "4:44pm",
+          "Phone": "514-299-2131   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "228364",
+          "Name": "Godfrey, Gabriel",
+          "Lang": "EN",
+          "Time": "5:34pm",
+          "Phone": "438-778-7750   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "228365",
+          "Name": "Di Venere, Justin",
+          "Lang": "EN",
+          "Time": "5:55pm",
+          "Phone": "438-930-7599   (m)",
+          "Course": "Scooter Vaudreuil-Dorion",
+          "1st Class": "10/08/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "228366",
+          "Name": "Thiberge, Pauline",
+          "Lang": "EN",
+          "Time": "6:50pm",
+          "Phone": "263-381-1392   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "228367",
+          "Name": "Maliantovitch, Kira",
+          "Lang": "EN",
+          "Time": "7:16pm",
+          "Phone": "438-402-1880   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "228369",
+          "Name": "Simms, Lukas",
+          "Lang": "EN",
+          "Time": "9:21pm",
+          "Phone": "438-458-7176   (m)     \n \n             514-445-7176   (h)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "228370",
+          "Name": "Vannicola-Primeau, Dante",
+          "Lang": "EN",
+          "Time": "11:28pm",
+          "Phone": "514-883-4444   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228560&courseId=1",
+      "text": "Servello, Lorenzo",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228561&courseId=1",
+      "text": "Volikas, Michael",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228563&courseId=1",
+      "text": "Pollack, Isaac",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228564&courseId=1",
+      "text": "Licari, Alexandre",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228565&courseId=1",
+      "text": "De Castro, Karleen",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228566&courseId=2",
+      "text": "Godfrey, Gabriel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228567&courseId=3",
+      "text": "Di Venere, Justin",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228568&courseId=1",
+      "text": "Thiberge, Pauline",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228569&courseId=1",
+      "text": "Maliantovitch, Kira",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228571&courseId=1",
+      "text": "Simms, Lukas",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228572&courseId=1",
+      "text": "Vannicola-Primeau, Dante",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 26426,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=07%2F08%2F2025"
+}

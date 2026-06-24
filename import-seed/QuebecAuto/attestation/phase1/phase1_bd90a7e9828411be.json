@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228565",
+  "url_hash": "bd90a7e9828411be",
+  "scraped_at": "2026-02-13T01:58:43.497Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "D223501070901 03277322 L-774 De Castro, Karleen 4503 Cecile St. Pierrefonds QC H9k 1N1 0001235601 5142992131 X Ilan Preisler 24 sept. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 08 13 2025 08 28 2025 09 04 2025 09 11 2025 09 21 COPIE D'ÉLÈVE D223501070901 03277322 L-774 De Castro, Karleen 4503 Cecile St. Pierrefonds QC H9k 1N1 0001235601 5142992131 X Ilan Preisler 24 sept. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 08 13 2025 08 28 2025 09 04 2025 09 11 2025 09 21 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277322&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277322&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10369,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228565"
+}

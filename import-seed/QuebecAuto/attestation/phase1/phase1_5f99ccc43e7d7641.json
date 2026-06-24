@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223192",
+  "url_hash": "5f99ccc43e7d7641",
+  "scraped_at": "2026-02-13T12:18:24.837Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "Q500316069807 03276967 L-020 Qin, Feiyan 1235 RUE BISHOP MONTREAL QC H3G 0A6 0001235221 4383659806 X Ilan Preisler 28 août 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 15 2025 07 22 2025 07 29 2025 08 05 2025 08 12 COPIE D'ÉLÈVE Q500316069807 03276967 L-020 Qin, Feiyan 1235 RUE BISHOP MONTREAL QC H3G 0A6 0001235221 4383659806 X Ilan Preisler 28 août 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 15 2025 07 22 2025 07 29 2025 08 05 2025 08 12 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03276967&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03276967&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10143,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223192"
+}

@@ -1,0 +1,520 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=15%2F08%2F2025",
+  "url_hash": "2b91a21b7c377251",
+  "scraped_at": "2026-02-12T23:01:41.028Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 15, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 15, 2025 Name Lang Time Phone Course 1 st Class Comments 231455 Goodman, Ariel EN 9:02am 263-688-1716 (m) Automobile Kirkland 21/08/2025 5:00pm edit 231456 Datte, Yedidiah EN 12:25pm 438-725-7626 (m) 514-473-5723 (h) Automobile Dollard-des-Ormeaux 21/08/2025 5:00pm edit 231457 Payne, Sarah EN 1:02pm 514-922-6218 (m) 514-835-3224 (h) Automobile Montreal 24/08/2025 3:00pm edit 231458 Dicerni, Sierra EN 1:24pm 438-270-4334 (m) Automobile Vaudreuil-Dorion 21/08/2025 5:00pm edit 231459 Sohmer, Caden EN 3:54pm 514-575-7100 (m) Automobile Dollard-des-Ormeaux 21/08/2025 5:00pm edit 231460 Straub, Marlowe Clair EN 4:08pm 438-462-4729 (m) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 231461 Zampetoulakis , Adrianna EN 5:23pm 514-794-2876 (m) 514-794-2876 (h) 514-794-2876 (w) Automobile Montreal 09/09/2025 7:00pm edit 231462 Dubé, Ashley EN 5:26pm 438-865-7034 (m) 514-554-7034 (w) Automobile Vaudreuil-Dorion 21/08/2025 5:00pm edit 231463 Chahboune, Haytam EN 8:35pm 514-616-6516 (m) 514-616-6516 (h) 514-616-6516 (w) Automobile Dollard-des-Ormeaux 24/08/2025 3:00pm edit 231464 Blanchard, Luca EN 9:02pm 438-826-2368 (m) Motorcycle Vaudreuil-Dorion 22/08/2025 6:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "15/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "15/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231455",
+          "Goodman, Ariel",
+          "EN",
+          "9:02am",
+          "263-688-1716   (m)",
+          "Automobile Kirkland",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231456",
+          "Datte, Yedidiah",
+          "EN",
+          "12:25pm",
+          "438-725-7626   (m)     \n \n             514-473-5723   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231457",
+          "Payne, Sarah",
+          "EN",
+          "1:02pm",
+          "514-922-6218   (m)     \n \n             514-835-3224   (h)",
+          "Automobile Montreal",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231458",
+          "Dicerni, Sierra",
+          "EN",
+          "1:24pm",
+          "438-270-4334   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231459",
+          "Sohmer, Caden",
+          "EN",
+          "3:54pm",
+          "514-575-7100   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231460",
+          "Straub, Marlowe Clair",
+          "EN",
+          "4:08pm",
+          "438-462-4729   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231461",
+          "Zampetoulakis , Adrianna",
+          "EN",
+          "5:23pm",
+          "514-794-2876   (m)     \n \n             514-794-2876   (h)     \n \n             514-794-2876   (w)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231462",
+          "Dubé, Ashley",
+          "EN",
+          "5:26pm",
+          "438-865-7034   (m)     \n \n              \n             514-554-7034   (w)",
+          "Automobile Vaudreuil-Dorion",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "231463",
+          "Chahboune, Haytam",
+          "EN",
+          "8:35pm",
+          "514-616-6516   (m)     \n \n             514-616-6516   (h)     \n \n             514-616-6516   (w)",
+          "Automobile Dollard-des-Ormeaux",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "231464",
+          "Blanchard, Luca",
+          "EN",
+          "9:02pm",
+          "438-826-2368   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "22/08/2025  6:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231455",
+          "Name": "Goodman, Ariel",
+          "Lang": "EN",
+          "Time": "9:02am",
+          "Phone": "263-688-1716   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231456",
+          "Name": "Datte, Yedidiah",
+          "Lang": "EN",
+          "Time": "12:25pm",
+          "Phone": "438-725-7626   (m)     \n \n             514-473-5723   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231457",
+          "Name": "Payne, Sarah",
+          "Lang": "EN",
+          "Time": "1:02pm",
+          "Phone": "514-922-6218   (m)     \n \n             514-835-3224   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231458",
+          "Name": "Dicerni, Sierra",
+          "Lang": "EN",
+          "Time": "1:24pm",
+          "Phone": "438-270-4334   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231459",
+          "Name": "Sohmer, Caden",
+          "Lang": "EN",
+          "Time": "3:54pm",
+          "Phone": "514-575-7100   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231460",
+          "Name": "Straub, Marlowe Clair",
+          "Lang": "EN",
+          "Time": "4:08pm",
+          "Phone": "438-462-4729   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231461",
+          "Name": "Zampetoulakis , Adrianna",
+          "Lang": "EN",
+          "Time": "5:23pm",
+          "Phone": "514-794-2876   (m)     \n \n             514-794-2876   (h)     \n \n             514-794-2876   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231462",
+          "Name": "Dubé, Ashley",
+          "Lang": "EN",
+          "Time": "5:26pm",
+          "Phone": "438-865-7034   (m)     \n \n              \n             514-554-7034   (w)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231463",
+          "Name": "Chahboune, Haytam",
+          "Lang": "EN",
+          "Time": "8:35pm",
+          "Phone": "514-616-6516   (m)     \n \n             514-616-6516   (h)     \n \n             514-616-6516   (w)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "231464",
+          "Name": "Blanchard, Luca",
+          "Lang": "EN",
+          "Time": "9:02pm",
+          "Phone": "438-826-2368   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231657&courseId=1",
+      "text": "Goodman, Ariel",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231658&courseId=1",
+      "text": "Datte, Yedidiah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231659&courseId=1",
+      "text": "Payne, Sarah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231660&courseId=1",
+      "text": "Dicerni, Sierra",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231661&courseId=1",
+      "text": "Sohmer, Caden",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231662&courseId=1",
+      "text": "Straub, Marlowe Clair",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231663&courseId=1",
+      "text": "Zampetoulakis , Adrianna",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231664&courseId=1",
+      "text": "Dubé, Ashley",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231665&courseId=1",
+      "text": "Chahboune, Haytam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231666&courseId=2",
+      "text": "Blanchard, Luca",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 25742,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=15%2F08%2F2025"
+}

@@ -1,0 +1,489 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=06%2F07%2F2025",
+  "url_hash": "40bc02fd61013af5",
+  "scraped_at": "2026-02-13T12:00:52.106Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jul 6, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jul 6, 2025 Name Lang Time Phone Course 1 st Class Comments 222982 Keyrouz, Jeremy EN 9:02am 438-830-7788 (m) Automobile Kirkland 06/07/2025 3:00pm edit 222983 Abbandonato , Massimo EN 10:45am 514-829-1366 (m) Motorcycle Vaudreuil-Dorion 25/07/2025 6:00pm edit 222984 Fleming, Kiara EN 11:02am 450-567-3793 (m) Automobile Vaudreuil-Dorion 06/07/2025 3:00pm edit 222985 Putterman, Mila EN 2:45pm 438-865-7986 (m) Automobile Montreal 21/08/2025 5:00pm edit 222986 Rozhansky, Shimon EN 2:48pm 514-448-3769 (m) 438-989-5618 (h) Automobile Montreal 06/07/2025 3:00pm edit 222987 Chughtai, Maryam EN 5:09pm 514-238-5122 (m) Automobile Dollard-des-Ormeaux 15/07/2025 7:00pm edit 222988 Oleas, Laurana EN 5:15pm 438-389-6732 (m) 514-569-6255 (h) Automobile Dollard-des-Ormeaux 15/07/2025 7:00pm edit 222989 Mayor Colmenares, Alejandro EN 6:48pm 514-839-0429 (m) Automobile Montreal 15/07/2025 7:00pm edit 222990 Qin, Feiyan EN 11:36pm 438-365-9806 (m) Automobile Montreal 15/07/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "06/07/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "06/07/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "222982",
+          "Keyrouz, Jeremy",
+          "EN",
+          "9:02am",
+          "438-830-7788   (m)",
+          "Automobile Kirkland",
+          "06/07/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "222983",
+          "Abbandonato , Massimo",
+          "EN",
+          "10:45am",
+          "514-829-1366   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "25/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "222984",
+          "Fleming, Kiara",
+          "EN",
+          "11:02am",
+          "450-567-3793   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "06/07/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "222985",
+          "Putterman, Mila",
+          "EN",
+          "2:45pm",
+          "438-865-7986   (m)",
+          "Automobile Montreal",
+          "21/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "222986",
+          "Rozhansky, Shimon",
+          "EN",
+          "2:48pm",
+          "514-448-3769   (m)     \n \n             438-989-5618   (h)",
+          "Automobile Montreal",
+          "06/07/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "222987",
+          "Chughtai, Maryam",
+          "EN",
+          "5:09pm",
+          "514-238-5122   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "222988",
+          "Oleas, Laurana",
+          "EN",
+          "5:15pm",
+          "438-389-6732   (m)     \n \n             514-569-6255   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "222989",
+          "Mayor Colmenares, Alejandro",
+          "EN",
+          "6:48pm",
+          "514-839-0429   (m)",
+          "Automobile Montreal",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "222990",
+          "Qin, Feiyan",
+          "EN",
+          "11:36pm",
+          "438-365-9806   (m)",
+          "Automobile Montreal",
+          "15/07/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "222982",
+          "Name": "Keyrouz, Jeremy",
+          "Lang": "EN",
+          "Time": "9:02am",
+          "Phone": "438-830-7788   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "06/07/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "222983",
+          "Name": "Abbandonato , Massimo",
+          "Lang": "EN",
+          "Time": "10:45am",
+          "Phone": "514-829-1366   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "25/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "222984",
+          "Name": "Fleming, Kiara",
+          "Lang": "EN",
+          "Time": "11:02am",
+          "Phone": "450-567-3793   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "06/07/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "222985",
+          "Name": "Putterman, Mila",
+          "Lang": "EN",
+          "Time": "2:45pm",
+          "Phone": "438-865-7986   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "21/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "222986",
+          "Name": "Rozhansky, Shimon",
+          "Lang": "EN",
+          "Time": "2:48pm",
+          "Phone": "514-448-3769   (m)     \n \n             438-989-5618   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "06/07/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "222987",
+          "Name": "Chughtai, Maryam",
+          "Lang": "EN",
+          "Time": "5:09pm",
+          "Phone": "514-238-5122   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "222988",
+          "Name": "Oleas, Laurana",
+          "Lang": "EN",
+          "Time": "5:15pm",
+          "Phone": "438-389-6732   (m)     \n \n             514-569-6255   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "222989",
+          "Name": "Mayor Colmenares, Alejandro",
+          "Lang": "EN",
+          "Time": "6:48pm",
+          "Phone": "514-839-0429   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "222990",
+          "Name": "Qin, Feiyan",
+          "Lang": "EN",
+          "Time": "11:36pm",
+          "Phone": "438-365-9806   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223184&courseId=1",
+      "text": "Keyrouz, Jeremy",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223185&courseId=2",
+      "text": "Abbandonato , Massimo",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223186&courseId=1",
+      "text": "Fleming, Kiara",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223187&courseId=1",
+      "text": "Putterman, Mila",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223188&courseId=1",
+      "text": "Rozhansky, Shimon",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223189&courseId=1",
+      "text": "Chughtai, Maryam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223190&courseId=1",
+      "text": "Oleas, Laurana",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223191&courseId=1",
+      "text": "Mayor Colmenares, Alejandro",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=223192&courseId=1",
+      "text": "Qin, Feiyan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 24563,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=06%2F07%2F2025"
+}

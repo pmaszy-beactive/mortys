@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224326",
+  "url_hash": "ae1f29bd776c0ae9",
+  "scraped_at": "2026-02-13T08:26:22.800Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "k450609090908 03277016 L-020 Klein, Noah 1 Lyncroft Hampstead QC H3x3e3 0001235447 4384086772 4384086772 X Ilan Preisler 8 sept. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 31 2025 08 07 2025 08 14 2025 08 21 2025 08 28 COPIE D'ÉLÈVE k450609090908 03277016 L-020 Klein, Noah 1 Lyncroft Hampstead QC H3x3e3 0001235447 4384086772 4384086772 X Ilan Preisler 8 sept. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 31 2025 08 07 2025 08 14 2025 08 21 2025 08 28 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277016&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277016&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10335,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224326"
+}

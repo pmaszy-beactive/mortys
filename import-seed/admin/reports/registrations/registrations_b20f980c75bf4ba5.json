@@ -1,0 +1,396 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=10%2F08%2F2025",
+  "url_hash": "b20f980c75bf4ba5",
+  "scraped_at": "2026-02-13T01:08:46.399Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 10, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 10, 2025 Name Lang Time Phone Course 1 st Class Comments 230387 Celso, Nicole Rose EN 12:04am 438-872-2353 (m) Automobile Montreal 13/08/2025 5:00pm edit 230388 Milette, Zoe EN 11:54am 438-787-6600 (m) Automobile Kirkland 13/08/2025 5:00pm edit 230389 Kapur, David EN 8:17pm 514-992-0661 (m) 514-992-0661 (h) 514-992-0661 (w) Automobile Dollard-des-Ormeaux 13/08/2025 5:00pm edit 230390 Legris, Louis-Charles EN 8:43pm 579-961-6944 (m) 450-374-1132 (h) Motorcycle Vaudreuil-Dorion 22/08/2025 6:00pm edit 230391 Riché, Jayden Prince EN 9:12pm 438-994-5521 (m) Automobile Vaudreuil-Dorion 13/08/2025 5:00pm edit 230392 Mukundente, Ketsia EN 9:21pm 514-703-2555 (m) Automobile Montreal 13/08/2025 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "10/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "10/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "230387",
+          "Celso, Nicole Rose",
+          "EN",
+          "12:04am",
+          "438-872-2353   (m)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230388",
+          "Milette, Zoe",
+          "EN",
+          "11:54am",
+          "438-787-6600   (m)",
+          "Automobile Kirkland",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230389",
+          "Kapur, David",
+          "EN",
+          "8:17pm",
+          "514-992-0661   (m)     \n \n             514-992-0661   (h)     \n \n             514-992-0661   (w)",
+          "Automobile Dollard-des-Ormeaux",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230390",
+          "Legris, Louis-Charles",
+          "EN",
+          "8:43pm",
+          "579-961-6944   (m)     \n \n             450-374-1132   (h)",
+          "Motorcycle Vaudreuil-Dorion",
+          "22/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "230391",
+          "Riché, Jayden Prince",
+          "EN",
+          "9:12pm",
+          "438-994-5521   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "230392",
+          "Mukundente, Ketsia",
+          "EN",
+          "9:21pm",
+          "514-703-2555   (m)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "230387",
+          "Name": "Celso, Nicole Rose",
+          "Lang": "EN",
+          "Time": "12:04am",
+          "Phone": "438-872-2353   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "230388",
+          "Name": "Milette, Zoe",
+          "Lang": "EN",
+          "Time": "11:54am",
+          "Phone": "438-787-6600   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "230389",
+          "Name": "Kapur, David",
+          "Lang": "EN",
+          "Time": "8:17pm",
+          "Phone": "514-992-0661   (m)     \n \n             514-992-0661   (h)     \n \n             514-992-0661   (w)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "230390",
+          "Name": "Legris, Louis-Charles",
+          "Lang": "EN",
+          "Time": "8:43pm",
+          "Phone": "579-961-6944   (m)     \n \n             450-374-1132   (h)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "230391",
+          "Name": "Riché, Jayden Prince",
+          "Lang": "EN",
+          "Time": "9:12pm",
+          "Phone": "438-994-5521   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "230392",
+          "Name": "Mukundente, Ketsia",
+          "Lang": "EN",
+          "Time": "9:21pm",
+          "Phone": "514-703-2555   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230589&courseId=1",
+      "text": "Celso, Nicole Rose",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230590&courseId=1",
+      "text": "Milette, Zoe",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230591&courseId=1",
+      "text": "Kapur, David",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230592&courseId=2",
+      "text": "Legris, Louis-Charles",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230593&courseId=1",
+      "text": "Riché, Jayden Prince",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=230594&courseId=1",
+      "text": "Mukundente, Ketsia",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 21812,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=10%2F08%2F2025"
+}

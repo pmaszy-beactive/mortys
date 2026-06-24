@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228556",
+  "url_hash": "42218b68d1d5d00c",
+  "scraped_at": "2026-02-13T02:14:04.920Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "Z000203090900 03277141 L-021 Zhao, Calvin 43 Rue du Château-Kirkland Kirkland QC H9J 3Y7 0001235673 5142964992 X Ilan Preisler 6 oct. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 13 2025 08 31 2025 09 07 2025 09 11 2025 09 21 COPIE D'ÉLÈVE Z000203090900 03277141 L-021 Zhao, Calvin 43 Rue du Château-Kirkland Kirkland QC H9J 3Y7 0001235673 5142964992 X Ilan Preisler 6 oct. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 13 2025 08 31 2025 09 07 2025 09 11 2025 09 21 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277141&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277141&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10403,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228556"
+}

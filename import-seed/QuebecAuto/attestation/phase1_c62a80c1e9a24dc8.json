@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233640",
+  "url_hash": "c62a80c1e9a24dc8",
+  "scraped_at": "2026-02-11T22:43:50.548Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03304456 L-020 Blatt, Ethan 71 Hampstead road Hampstead QC H3x1k2 0001236517 5145786293 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2026 01 27 2026 02 03 2026 02 10 -------------------------------- -------------------------------- COPIE D'ÉLÈVE 03304456 L-020 Blatt, Ethan 71 Hampstead road Hampstead QC H3x1k2 0001236517 5145786293 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2026 01 27 2026 02 03 2026 02 10 -------------------------------- -------------------------------- COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304456&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03304456&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 9083,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233640"
+}

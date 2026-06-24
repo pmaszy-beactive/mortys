@@ -1,0 +1,520 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=14%2F07%2F2025",
+  "url_hash": "0f6a30fa8d524b70",
+  "scraped_at": "2026-02-13T09:42:54.220Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jul 14, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jul 14, 2025 Name Lang Time Phone Course 1 st Class Comments 224077 Prince, Camden EN 4:43am 450-277-4972 (m) Motorcycle Vaudreuil-Dorion 25/07/2025 6:00pm edit 224078 Marshall-McCartney, Dylan EN 11:27am 450-567-4047 (m) Motorcycle Vaudreuil-Dorion 25/07/2025 6:00pm edit 224079 Pusztai, Zoe EN 12:53pm 438-832-5271 (m) Motorcycle Montreal 25/07/2025 6:00pm edit 224080 Hayden, Sidney EN 1:35pm 438-699-0407 (m) Automobile Vaudreuil-Dorion 15/07/2025 7:00pm edit 224081 Sullivan, Andreya EN 1:36pm 514-622-1844 (m) Motorcycle Vaudreuil-Dorion 25/07/2025 6:00pm edit 224082 Manikoglu, Noah EN 3:18pm 438-877-8650 (m) 514-783-1716 (h) Automobile Kirkland 31/07/2025 7:00pm edit 224083 Oprea, Antoniu EN 7:42pm 438-530-8140 (m) Automobile Kirkland 31/07/2025 7:00pm edit 224085 Corpuz, Katrina Faith EN 8:03pm 514-409-8200 (m) 514-703-3748 (h) Automobile Montreal 31/07/2025 7:00pm edit 224086 folisi-leger, rafael EN 10:27pm 514-206-4506 (m) Motorcycle Montreal 25/07/2025 6:00pm edit 224087 Radulescu, Rafael EN 10:49pm 514-442-2216 (m) 514-400-5790 (h) Automobile Montreal 13/08/2025 5:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "14/07/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "14/07/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "224077",
+          "Prince, Camden",
+          "EN",
+          "4:43am",
+          "450-277-4972   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "25/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "224078",
+          "Marshall-McCartney, Dylan",
+          "EN",
+          "11:27am",
+          "450-567-4047   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "25/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "224079",
+          "Pusztai, Zoe",
+          "EN",
+          "12:53pm",
+          "438-832-5271   (m)",
+          "Motorcycle Montreal",
+          "25/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "224080",
+          "Hayden, Sidney",
+          "EN",
+          "1:35pm",
+          "438-699-0407   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "15/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224081",
+          "Sullivan, Andreya",
+          "EN",
+          "1:36pm",
+          "514-622-1844   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "25/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "224082",
+          "Manikoglu, Noah",
+          "EN",
+          "3:18pm",
+          "438-877-8650   (m)     \n \n             514-783-1716   (h)",
+          "Automobile Kirkland",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224083",
+          "Oprea, Antoniu",
+          "EN",
+          "7:42pm",
+          "438-530-8140   (m)",
+          "Automobile Kirkland",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224085",
+          "Corpuz, Katrina Faith",
+          "EN",
+          "8:03pm",
+          "514-409-8200   (m)     \n \n             514-703-3748   (h)",
+          "Automobile Montreal",
+          "31/07/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "224086",
+          "folisi-leger, rafael",
+          "EN",
+          "10:27pm",
+          "514-206-4506   (m)",
+          "Motorcycle Montreal",
+          "25/07/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "224087",
+          "Radulescu, Rafael",
+          "EN",
+          "10:49pm",
+          "514-442-2216   (m)     \n \n             514-400-5790   (h)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "224077",
+          "Name": "Prince, Camden",
+          "Lang": "EN",
+          "Time": "4:43am",
+          "Phone": "450-277-4972   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "25/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "224078",
+          "Name": "Marshall-McCartney, Dylan",
+          "Lang": "EN",
+          "Time": "11:27am",
+          "Phone": "450-567-4047   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "25/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "224079",
+          "Name": "Pusztai, Zoe",
+          "Lang": "EN",
+          "Time": "12:53pm",
+          "Phone": "438-832-5271   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "25/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "224080",
+          "Name": "Hayden, Sidney",
+          "Lang": "EN",
+          "Time": "1:35pm",
+          "Phone": "438-699-0407   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "15/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "224081",
+          "Name": "Sullivan, Andreya",
+          "Lang": "EN",
+          "Time": "1:36pm",
+          "Phone": "514-622-1844   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "25/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "224082",
+          "Name": "Manikoglu, Noah",
+          "Lang": "EN",
+          "Time": "3:18pm",
+          "Phone": "438-877-8650   (m)     \n \n             514-783-1716   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "224083",
+          "Name": "Oprea, Antoniu",
+          "Lang": "EN",
+          "Time": "7:42pm",
+          "Phone": "438-530-8140   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "224085",
+          "Name": "Corpuz, Katrina Faith",
+          "Lang": "EN",
+          "Time": "8:03pm",
+          "Phone": "514-409-8200   (m)     \n \n             514-703-3748   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "31/07/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "224086",
+          "Name": "folisi-leger, rafael",
+          "Lang": "EN",
+          "Time": "10:27pm",
+          "Phone": "514-206-4506   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "25/07/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "224087",
+          "Name": "Radulescu, Rafael",
+          "Lang": "EN",
+          "Time": "10:49pm",
+          "Phone": "514-442-2216   (m)     \n \n             514-400-5790   (h)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224279&courseId=2",
+      "text": "Prince, Camden",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224280&courseId=2",
+      "text": "Marshall-McCartney, Dylan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224281&courseId=2",
+      "text": "Pusztai, Zoe",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224282&courseId=1",
+      "text": "Hayden, Sidney",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224283&courseId=2",
+      "text": "Sullivan, Andreya",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224284&courseId=1",
+      "text": "Manikoglu, Noah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224285&courseId=1",
+      "text": "Oprea, Antoniu",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224287&courseId=1",
+      "text": "Corpuz, Katrina Faith",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224288&courseId=2",
+      "text": "folisi-leger, rafael",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=224289&courseId=1",
+      "text": "Radulescu, Rafael",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 25537,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=14%2F07%2F2025"
+}

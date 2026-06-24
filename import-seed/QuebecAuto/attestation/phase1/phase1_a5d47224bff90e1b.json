@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=232021",
+  "url_hash": "a5d47224bff90e1b",
+  "scraped_at": "2026-02-12T13:24:52.176Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03203664 A-106 Beauregard, Fiona 91 rue Maple hudson heights QC J0P 1J0 0001236132 4388380326 X Ilan Preisler 3 févr. 2026 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 11 17 2025 11 23 2025 11 30 2025 12 07 2025 12 15 COPIE D'ÉLÈVE 03203664 A-106 Beauregard, Fiona 91 rue Maple hudson heights QC J0P 1J0 0001236132 4388380326 X Ilan Preisler 3 févr. 2026 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 11 17 2025 11 23 2025 11 30 2025 12 07 2025 12 15 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203664&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203664&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 9993,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=232021"
+}

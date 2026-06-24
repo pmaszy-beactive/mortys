@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233824",
+  "url_hash": "03d997ca6eb9d448",
+  "scraped_at": "2026-02-11T23:23:16.355Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03296806 L-021 Abdoo , Yael 209 Rue Trinidad Dollard-Des Ormeaux QC H9G 2X1 0001236540 5142424194 5145022912 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2026 02 05 -------------------------------- -------------------------------- -------------------------------- -------------------------------- COPIE D'ÉLÈVE 03296806 L-021 Abdoo , Yael 209 Rue Trinidad Dollard-Des Ormeaux QC H9G 2X1 0001236540 5142424194 5145022912 X Ilan Preisler 11 févr. 2026 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2026 02 05 -------------------------------- -------------------------------- -------------------------------- -------------------------------- COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03296806&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03296806&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 8655,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=233824"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231841",
+  "url_hash": "667fe1c518e4d758",
+  "scraped_at": "2026-02-12T18:24:16.777Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "03286971 L-020 Draper, Brooklyn Isaac 11435 Rue Suzor-Cote Montreal QC H3M 2H5 0001235718 5147799208 5144434213 X Ilan Preisler 11 nov. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 07 2025 10 23 COPIE D'ÉLÈVE 03286971 L-020 Draper, Brooklyn Isaac 11435 Rue Suzor-Cote Montreal QC H3M 2H5 0001235718 5147799208 5144434213 X Ilan Preisler 11 nov. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 07 2025 10 23 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286971&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286971&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10189,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231841"
+}

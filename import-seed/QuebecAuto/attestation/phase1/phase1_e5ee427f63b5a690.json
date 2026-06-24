@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231707",
+  "url_hash": "e5ee427f63b5a690",
+  "scraped_at": "2026-02-12T21:55:30.555Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "B660224020704 03203607 A-106 Bherer, Charles Robert 171 rue evergreen Hudson QC J0P 1H0 0001235764 5146541729 4385310693 X Ilan Preisler 28 oct. 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 09 14 2025 10 14 COPIE D'ÉLÈVE B660224020704 03203607 A-106 Bherer, Charles Robert 171 rue evergreen Hudson QC J0P 1H0 0001235764 5146541729 4385310693 X Ilan Preisler 28 oct. 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 09 14 2025 10 14 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203607&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203607&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10389,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231707"
+}

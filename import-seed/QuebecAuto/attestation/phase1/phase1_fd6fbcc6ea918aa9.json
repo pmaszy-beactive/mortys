@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=232010",
+  "url_hash": "fd6fbcc6ea918aa9",
+  "scraped_at": "2026-02-12T13:32:31.062Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "C535129049407 03287027 L-020 Centeno, Arielle 4145 Decarie Boulevard Montreal QC H4A 3J8 0001235933 5149786494 X Ilan Preisler 10 nov. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 29 2025 10 06 2025 10 20 2025 10 27 2025 11 09 COPIE D'ÉLÈVE C535129049407 03287027 L-020 Centeno, Arielle 4145 Decarie Boulevard Montreal QC H4A 3J8 0001235933 5149786494 X Ilan Preisler 10 nov. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 09 29 2025 10 06 2025 10 20 2025 10 27 2025 11 09 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287027&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03287027&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10167,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=232010"
+}

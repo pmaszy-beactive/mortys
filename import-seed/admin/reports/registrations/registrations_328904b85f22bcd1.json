@@ -1,0 +1,551 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=26%2F07%2F2025",
+  "url_hash": "328904b85f22bcd1",
+  "scraped_at": "2026-02-13T05:39:52.521Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Jul 26, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Jul 26, 2025 Name Lang Time Phone Course 1 st Class Comments 225226 Maroun , Max EN 12:16am 514-594-3314 (m) Automobile Dollard-des-Ormeaux 09/09/2025 7:00pm edit 225227 Lo Russo, Nicholas EN 1:18am 514-605-7078 (m) Motorcycle Vaudreuil-Dorion 08/08/2025 6:00pm edit 226225 Matte, Brandon EN 10:37am 514-793-2206 (m) Automobile Vaudreuil-Dorion 13/08/2025 5:00pm edit 226226 Demari, Matteo EN 12:08pm 514-444-4048 (m) Scooter Kirkland 10/08/2025 5:30pm edit 226227 Bendavid, Edward EN 1:05pm 514-791-4266 (m) Automobile Montreal 13/08/2025 5:00pm edit 226228 GERSON, Cem EN 1:12pm 437-878-7766 (m) Motorcycle Vaudreuil-Dorion 08/08/2025 6:00pm edit 226229 Bilgin, Yalin EN 1:33pm 514-242-9386 (m) Motorcycle Dollard-des-Ormeaux 08/08/2025 6:00pm edit 226230 Tan, Benjamin EN 1:35pm 514-795-9827 (m) Motorcycle Dollard-des-Ormeaux 08/08/2025 6:00pm edit 226233 Chaychi, Arash EN 6:03pm 514-208-4417 (m) Motorcycle Montreal 08/08/2025 6:00pm edit 226234 Duran, Diego EN 7:15pm 438-531-9925 (m) Motorcycle Dollard-des-Ormeaux 08/08/2025 6:00pm edit 226235 Babic, Filip EN 10:55pm 438-924-8513 (m) Motorcycle Vaudreuil-Dorion 08/08/2025 6:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "26/07/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "26/07/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "225226",
+          "Maroun , Max",
+          "EN",
+          "12:16am",
+          "514-594-3314   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "225227",
+          "Lo Russo, Nicholas",
+          "EN",
+          "1:18am",
+          "514-605-7078   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "226225",
+          "Matte, Brandon",
+          "EN",
+          "10:37am",
+          "514-793-2206   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "226226",
+          "Demari, Matteo",
+          "EN",
+          "12:08pm",
+          "514-444-4048   (m)",
+          "Scooter Kirkland",
+          "10/08/2025  5:30pm",
+          "edit"
+        ],
+        [
+          "226227",
+          "Bendavid, Edward",
+          "EN",
+          "1:05pm",
+          "514-791-4266   (m)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "226228",
+          "GERSON, Cem",
+          "EN",
+          "1:12pm",
+          "437-878-7766   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "226229",
+          "Bilgin, Yalin",
+          "EN",
+          "1:33pm",
+          "514-242-9386   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "226230",
+          "Tan, Benjamin",
+          "EN",
+          "1:35pm",
+          "514-795-9827   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "226233",
+          "Chaychi, Arash",
+          "EN",
+          "6:03pm",
+          "514-208-4417   (m)",
+          "Motorcycle Montreal",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "226234",
+          "Duran, Diego",
+          "EN",
+          "7:15pm",
+          "438-531-9925   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "08/08/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "226235",
+          "Babic, Filip",
+          "EN",
+          "10:55pm",
+          "438-924-8513   (m)",
+          "Motorcycle Vaudreuil-Dorion",
+          "08/08/2025  6:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "225226",
+          "Name": "Maroun , Max",
+          "Lang": "EN",
+          "Time": "12:16am",
+          "Phone": "514-594-3314   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "225227",
+          "Name": "Lo Russo, Nicholas",
+          "Lang": "EN",
+          "Time": "1:18am",
+          "Phone": "514-605-7078   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "226225",
+          "Name": "Matte, Brandon",
+          "Lang": "EN",
+          "Time": "10:37am",
+          "Phone": "514-793-2206   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "226226",
+          "Name": "Demari, Matteo",
+          "Lang": "EN",
+          "Time": "12:08pm",
+          "Phone": "514-444-4048   (m)",
+          "Course": "Scooter Kirkland",
+          "1st Class": "10/08/2025  5:30pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "226227",
+          "Name": "Bendavid, Edward",
+          "Lang": "EN",
+          "Time": "1:05pm",
+          "Phone": "514-791-4266   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "226228",
+          "Name": "GERSON, Cem",
+          "Lang": "EN",
+          "Time": "1:12pm",
+          "Phone": "437-878-7766   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "226229",
+          "Name": "Bilgin, Yalin",
+          "Lang": "EN",
+          "Time": "1:33pm",
+          "Phone": "514-242-9386   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "226230",
+          "Name": "Tan, Benjamin",
+          "Lang": "EN",
+          "Time": "1:35pm",
+          "Phone": "514-795-9827   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "226233",
+          "Name": "Chaychi, Arash",
+          "Lang": "EN",
+          "Time": "6:03pm",
+          "Phone": "514-208-4417   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 9,
+          "column_0": "226234",
+          "Name": "Duran, Diego",
+          "Lang": "EN",
+          "Time": "7:15pm",
+          "Phone": "438-531-9925   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 10,
+          "column_0": "226235",
+          "Name": "Babic, Filip",
+          "Lang": "EN",
+          "Time": "10:55pm",
+          "Phone": "438-924-8513   (m)",
+          "Course": "Motorcycle Vaudreuil-Dorion",
+          "1st Class": "08/08/2025  6:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=225428&courseId=1",
+      "text": "Maroun , Max",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=225429&courseId=2",
+      "text": "Lo Russo, Nicholas",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=226427&courseId=1",
+      "text": "Matte, Brandon",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=226428&courseId=3",
+      "text": "Demari, Matteo",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=226429&courseId=1",
+      "text": "Bendavid, Edward",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=226430&courseId=2",
+      "text": "GERSON, Cem",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=226431&courseId=2",
+      "text": "Bilgin, Yalin",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=226432&courseId=2",
+      "text": "Tan, Benjamin",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=226435&courseId=2",
+      "text": "Chaychi, Arash",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=226436&courseId=2",
+      "text": "Duran, Diego",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=226437&courseId=2",
+      "text": "Babic, Filip",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 26331,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=26%2F07%2F2025"
+}

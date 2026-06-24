@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4/?studentUserId=227456",
+  "url_hash": "d5bde30c6a542ad9",
+  "scraped_at": "2026-02-13T05:09:57.733Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "V420508119008 03277037 L-020 Vlahos, Jessica 5627 cote des neiges Montreal QC H3T1Y8 0001235468 5142663769 X Ilan Preisler 29 août 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 31 2025 08 07 2025 08 14 2025 08 21 2025 08 28 2025 09 04 2025 10 09 2025 10 20 2025 10 05 2025 10 21 2025 11 12 2025 11 13 2025 12 18 2025 12 22 2025 11 20 2025 12 22 -------------------------------- 2025 12 10 -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 13 févr. 2026 COPIE D'ÉLÈVE V420508119008 03277037 L-020 Vlahos, Jessica 5627 cote des neiges Montreal QC H3T1Y8 0001235468 5142663769 X Ilan Preisler 29 août 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 31 2025 08 07 2025 08 14 2025 08 21 2025 08 28 2025 09 04 2025 10 09 2025 10 20 2025 10 05 2025 10 21 2025 11 12 2025 11 13 2025 12 18 2025 12 22 2025 11 20 2025 12 22 -------------------------------- 2025 12 10 -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 13 févr. 2026 COPIE D'ÉCOLE V420508119008 03277037 L-020 Vlahos, Jessica 5627 cote des neiges Montreal QC H3T1Y8 0001235468 5142663769 X Ilan Preisler 29 août 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 31 2025 08 07 2025 08 14 2025 08 21 2025 08 28 2025 09 04 2025 10 09 2025 10 20 2025 10 05 2025 10 21 2025 11 12 2025 11 13 2025 12 18 2025 12 22 2025 11 20 2025 12 22 -------------------------------- 2025 12 10 -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- -------------------------------- X Ilan Preisler 13 févr. 2026 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277037&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277037&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto-phase4.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277037&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 31896,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase4/?studentUserId=227456"
+}

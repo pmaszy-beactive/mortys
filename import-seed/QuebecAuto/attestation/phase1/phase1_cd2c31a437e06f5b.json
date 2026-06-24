@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223199",
+  "url_hash": "cd2c31a437e06f5b",
+  "scraped_at": "2026-02-13T11:46:16.249Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "S500505010709 03276975 L-020 Samaha, Karl 2150 Boulevard Laird Montreak QC H3p2V4 0001235229 4387228778 X Ilan Preisler 20 août 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 15 2025 07 22 2025 07 29 2025 08 05 2025 08 12 COPIE D'ÉLÈVE S500505010709 03276975 L-020 Samaha, Karl 2150 Boulevard Laird Montreak QC H3p2V4 0001235229 4387228778 X Ilan Preisler 20 août 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 15 2025 07 22 2025 07 29 2025 08 05 2025 08 12 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03276975&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03276975&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10153,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223199"
+}

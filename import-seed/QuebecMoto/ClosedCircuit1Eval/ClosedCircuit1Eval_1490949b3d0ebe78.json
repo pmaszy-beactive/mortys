@@ -1,0 +1,657 @@
+{
+  "url": "https://mortys.drivetraqr.ca/quebecmoto/ClosedCircuit1Eval/?studentUserId=231835",
+  "url_hash": "1490949b3d0ebe78",
+  "scraped_at": "2026-02-12T18:37:44.679Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Closed Track 1 Evaluation"
+    },
+    {
+      "level": 2,
+      "text": "Namalteng, Richard Yinbil"
+    },
+    {
+      "level": 5,
+      "text": "Clothing and equipment"
+    },
+    {
+      "level": 5,
+      "text": "Visual Inspection"
+    },
+    {
+      "level": 5,
+      "text": "Vision & Balance"
+    },
+    {
+      "level": 5,
+      "text": "Throttle Control"
+    },
+    {
+      "level": 5,
+      "text": "Mounting, Dismounting, & Riding Positions"
+    },
+    {
+      "level": 5,
+      "text": "Starting Fine C"
+    },
+    {
+      "level": 5,
+      "text": "Friction Point & Zone"
+    },
+    {
+      "level": 5,
+      "text": "Comments optional"
+    },
+    {
+      "level": 6,
+      "text": "Student Signature"
+    },
+    {
+      "level": 6,
+      "text": "Instructor Signature"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Closed Track 1 Evaluation Namalteng, Richard Yinbil Clothing and equipment G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement Visual Inspection G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement Vision & Balance G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement Throttle Control G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement Mounting, Dismounting, & Riding Positions G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement Starting Fine C G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement Friction Point & Zone G4 G4, needs little improvement needs improvement needs much improvement needs very much improvement Comments optional Student Signature Instructor Signature Save",
+  "forms": [
+    {
+      "action": "#",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "studentUserId",
+          "type": "hidden",
+          "id": "studentUserId",
+          "value": "231835",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "clothingAndEquipment",
+          "type": "radio",
+          "id": "clothingAndEquipment5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "clothingAndEquipment",
+          "type": "radio",
+          "id": "clothingAndEquipment4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "clothingAndEquipment",
+          "type": "radio",
+          "id": "clothingAndEquipment3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "clothingAndEquipment",
+          "type": "radio",
+          "id": "clothingAndEquipment2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "clothingAndEquipment",
+          "type": "radio",
+          "id": "clothingAndEquipment1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visualInspection",
+          "type": "radio",
+          "id": "visualInspection5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visualInspection",
+          "type": "radio",
+          "id": "visualInspection4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visualInspection",
+          "type": "radio",
+          "id": "visualInspection3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visualInspection",
+          "type": "radio",
+          "id": "visualInspection2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visualInspection",
+          "type": "radio",
+          "id": "visualInspection1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visionAndBalance",
+          "type": "radio",
+          "id": "visionAndBalance5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visionAndBalance",
+          "type": "radio",
+          "id": "visionAndBalance4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visionAndBalance",
+          "type": "radio",
+          "id": "visionAndBalance3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visionAndBalance",
+          "type": "radio",
+          "id": "visionAndBalance2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "visionAndBalance",
+          "type": "radio",
+          "id": "visionAndBalance1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "throttleControl",
+          "type": "radio",
+          "id": "throttleControl5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "throttleControl",
+          "type": "radio",
+          "id": "throttleControl4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "throttleControl",
+          "type": "radio",
+          "id": "throttleControl3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "throttleControl",
+          "type": "radio",
+          "id": "throttleControl2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "throttleControl",
+          "type": "radio",
+          "id": "throttleControl1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "mountingDismountingRidingPosition",
+          "type": "radio",
+          "id": "mountingDismountingRidingPosition5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "mountingDismountingRidingPosition",
+          "type": "radio",
+          "id": "mountingDismountingRidingPosition4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "mountingDismountingRidingPosition",
+          "type": "radio",
+          "id": "mountingDismountingRidingPosition3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "mountingDismountingRidingPosition",
+          "type": "radio",
+          "id": "mountingDismountingRidingPosition2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "mountingDismountingRidingPosition",
+          "type": "radio",
+          "id": "mountingDismountingRidingPosition1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "startingFineC",
+          "type": "radio",
+          "id": "startingFineC5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "startingFineC",
+          "type": "radio",
+          "id": "startingFineC4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "startingFineC",
+          "type": "radio",
+          "id": "startingFineC3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "startingFineC",
+          "type": "radio",
+          "id": "startingFineC2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "startingFineC",
+          "type": "radio",
+          "id": "startingFineC1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "frictionPointAndZone",
+          "type": "radio",
+          "id": "frictionPointAndZone5",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "frictionPointAndZone",
+          "type": "radio",
+          "id": "frictionPointAndZone4",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "frictionPointAndZone",
+          "type": "radio",
+          "id": "frictionPointAndZone3",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "frictionPointAndZone",
+          "type": "radio",
+          "id": "frictionPointAndZone2",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "frictionPointAndZone",
+          "type": "radio",
+          "id": "frictionPointAndZone1",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "textarea",
+          "name": "comments",
+          "type": "text",
+          "id": "",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "studentSignatureId",
+          "type": "hidden",
+          "id": "studentSignatureId",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        },
+        {
+          "tag": "input",
+          "name": "InstructorSignatureId",
+          "type": "hidden",
+          "id": "InstructorSignatureId",
+          "value": "",
+          "placeholder": "",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "studentUserId": "231835"
+      }
+    }
+  ],
+  "tables": [],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/css/img/nosignature.2.png",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/css/img/nosignature.2.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 26575,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/quebecmoto/ClosedCircuit1Eval/?studentUserId=231835"
+}

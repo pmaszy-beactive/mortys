@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecMoto/attestation/?studentUserId=224359",
+  "url_hash": "715b1e17c8923a16",
+  "scraped_at": "2026-02-13T07:32:49.971Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "S260805100501 03152027 L-390 Sakr, Saymon-Aleksandr 860 Avenue McEachran Montréal QC H2V 3E1 0001235339 4383456700 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 25 2025 08 16 2025 08 17 2025 08 23 2025 08 24 2025 08 29 2025 08 30 2025 08 31 2025 08 31 2025 09 07 2025 09 07 X Ilan Preisler 7 sept. 2025 COPIE D'ÉLÈVE S260805100501 03152027 L-390 Sakr, Saymon-Aleksandr 860 Avenue McEachran Montréal QC H2V 3E1 0001235339 4383456700 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 25 2025 08 16 2025 08 17 2025 08 23 2025 08 24 2025 08 29 2025 08 30 2025 08 31 2025 08 31 2025 09 07 2025 09 07 X Ilan Preisler 7 sept. 2025 COPIE D'ÉCOLE S260805100501 03152027 L-390 Sakr, Saymon-Aleksandr 860 Avenue McEachran Montréal QC H2V 3E1 0001235339 4383456700 X X École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 07 25 2025 08 16 2025 08 17 2025 08 23 2025 08 24 2025 08 29 2025 08 30 2025 08 31 2025 08 31 2025 09 07 2025 09 07 X Ilan Preisler 7 sept. 2025 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152027&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152027&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152027&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 20909,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecMoto/attestation/?studentUserId=224359"
+}

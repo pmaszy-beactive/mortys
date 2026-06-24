@@ -1,0 +1,526 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Mortys Driving School</title>
+    <meta name="google" content="notranslate">
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+
+   
+    <script>
+        
+              window.onunload = function () { }; // disable bfcache
+        var avivaronload = (function () {
+          
+                  var loaded = false,
+                      onload = (persisted) => {
+                          if (persisted ) window.location.reload();},
+                      loadController = function (ev) {
+                          var persisted = (ev.persisted !== undefined) && ev.persisted;
+                          if (persisted || !loaded) {  //just in case bfcache was not successfully disabled
+                              onload(persisted);
+                              loaded = true;
+                          }
+                      }
+                  window.addEventListener('pageshow', loadController)
+                  window.addEventListener('load', loadController)
+                  return {
+                      add: function (f) {
+                          var oldlonload = onload;
+                          onload = function (persisted) { oldlonload(persisted); f(persisted); }
+                      }
+                  }
+              })();
+
+                
+                   (function () {
+
+                    window.readCookie = function(n){ return (n = new RegExp('(?:^|;\\s*)' + ('' + n).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)').exec(document.cookie)) && n[1]; }
+                    var   cookie = readCookie('signmodeurl');
+                    if (cookie && cookie != (window.location.pathname + window.location.search)) {
+                            window.location.href = cookie
+                   }
+                })
+                ();
+
+             
+
+
+    </script>
+
+
+
+
+
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" type="text/css"><link href="/css/base/base_desktop5.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.4/css/bootstrap-dialog.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.css" rel="stylesheet" type="text/css"><style>.mm-menu {--mm-offset-top: 50px;--mm-offset-bottom: 15px;--mm-offset-left: 1px}</style>
+    
+    
+
+
+    <style>
+
+        .confirmationmessage p {
+            margin-top: 5px;
+        }
+
+        .confirmTable {
+            margin: auto;
+        }
+
+            .confirmTable tr td:first-of-type {
+                text-align: right;
+                padding-left: 6px;
+            }
+
+
+            .confirmTable tr td:last-of-type {
+                font-weight: bold;
+                text-align: left;
+                padding-left: 6px;
+            }
+
+
+
+        #classTable {
+            width: 100%;
+        }
+
+            #classTable th {
+                padding: 10px;
+                border-bottom: solid 1px black;
+                text-align: left
+            }
+
+            #classTable tbody td {
+                white-space: nowrap;
+                padding: 10px;
+            }
+
+        @media screen and (max-width: 768px) {
+            #classTable thead {
+                display: none;
+            }
+
+            #classTable tbody td {
+                display: block;
+                padding: 0px !important;
+                padding-right: 10px !important;
+                padding-left: 10px !important;
+            }
+
+                #classTable tbody td:first-child {
+                    padding-top: 5px !important;
+                }
+
+                #classTable tbody td:nth-last-child(-n+2) {
+                    float: left;
+                    position: relative !important; /*  relative for overlay  */
+                    padding-bottom: 10px !important;
+                }
+
+                #classTable tbody td:last-child {
+                    float: right;
+                    padding-bottom: 10px !important;
+                }
+        }
+    </style>
+
+
+
+</head>
+<body class="">
+    
+            <div class="container mm-wrapper" style="position:fixed;   height:100%;   top:0; z-index:100;  margin-left:auto;  margin-right:auto; left:0; right:0;  pointer-events:none">
+                
+
+
+
+
+<nav id="menu" class="mm-menu mm-menu_selected-parent mm-menu_theme-white mm-menu_border-full">
+
+    <button id="menuCloseButton" class="closebutton"> </button>
+    
+    <div class="mm-panels"><div id="mm-0" class="mm-panel mm-panel_opened"><div class="mm-navbar mm-navbar_sticky"><a class="mm-navbar__title"><span>Menu</span></a></div><ul class="mm-listview">
+<li class="mm-listitem"><a href="/admin/" class="mm-listitem__text">Student Files</a></li>
+<li class="mm-listitem"><a href="/admin/classes/" class="mm-listitem__text">Classes</a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-1">Instructor<span class="mm-sronly">Open submenu</span></a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-4">Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/schedule/" class="mm-listitem__text">Set Class Schedule</a></li>
+<li class="mm-listitem"><a href="/admin/schoolpermit/" class="mm-listitem__text">School Permits</a></li>
+
+    </ul></div><div id="mm-1" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Instructor</span></a></div><ul class="mm-listview">
+                        <li class="mm-listitem">
+                            
+                            
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-2">Instructor Schedule<span class="mm-sronly">Open submenu</span></a></li>
+
+
+
+                        <li class="mm-listitem">
+                            
+                            
+
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-3">Instructor Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/instructorsignatures/" class="mm-listitem__text">My Signatures</a></li>
+
+                    </ul></div><div id="mm-2" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Schedule</span></a></div><ul class="mm-listview">
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/" class="mm-listitem__text">Booked Appointments</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/workhours/" class="mm-listitem__text">Specify Hours</a></li>
+
+
+
+                            </ul></div><div id="mm-3" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Reports</span></a></div><ul class="mm-listview">
+
+
+                                <li class="mm-listitem"><a href="/admin/reports/worksummary/" class="mm-listitem__text">Work Summary</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/reports/instructorstodolists/" class="mm-listitem__text">To Do Lists</a></li>
+
+
+                            </ul></div><div id="mm-4" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Reports</span></a></div><ul class="mm-listview">
+
+                       
+                        <li class="mm-listitem"><a href="/admin/reports/aqtr/" class="mm-listitem__text">AQTR</a></li>
+
+                        <li class="mm-listitem"><a href="/admin/reports/registrations/" class="mm-listitem__text">Registrations</a></li>
+
+                 
+
+ 
+                    </ul></div></div></nav>
+
+
+ 
+ 
+            </div>
+     
+
+<div id="header" class="container header">
+    <a style="margin-left:10px" href="/"><img style=" height:45px ;" src="/img/logo.png"></a>
+
+
+
+        <div style="   text-align:right  ; flex-grow:1  ">
+            <ul class="nav ace-nav navbar-buttons   " role="navigation">
+                <li class="light-blue pull-right">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <span class="user-info">
+                            Ilan Preisler
+                            <b class="caret"></b>
+                        </span>
+
+                    </a>
+
+
+
+           
+                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                        <li>
+                            <a href="/logout/">
+                                <i class="ace-icon fa fa-power-off"></i>
+                                logout
+                            </a>
+
+                        </li>
+                    </ul>
+                
+            </li></ul>
+        </div>
+
+
+
+
+
+     
+</div>
+
+ 
+ 
+
+
+ 
+        <div style="min-height:calc(100% - 50px);    position:relative ;  ; display:flex; flex-direction:column;     ">
+            <div style="   flex-grow:1; display:flex; flex-direction:column; margin-bottom:5px; " class="container maincontainer">
+                <div class="maintable" style="     flex-grow:1">
+                    <div class="cell1"> </div>
+                    <div class="cell2" id="contentContainer">
+                        
+
+
+<h1>Omer Ahmed  -  reserve  Theory 1: Yard Prep</h1>
+
+
+
+
+<form id="theForm" action="#" novalidate="novalidate">
+
+    <select class="form-control " id="schoolLocationId" name="schoolLocationId"><option value="11">Côte Saint-Luc</option>
+<option value="2">Dollard-des-Ormeaux</option>
+<option value="4">Kirkland</option>
+<option value="1">Montreal</option>
+<option value="5">Morty's Motorcycle Track</option>
+<option selected="selected" value="6">Vaudreuil-Dorion</option>
+<option value="8">Zoom</option>
+</select>
+
+    <div class="row ">
+        <div class=" col-sm-6  scrollOnError">
+            <label for="date">date <span style="color:gray; font-size:smaller">optional</span></label>
+            <input type="text" name="date" id="date" class="form-control mydate valid" placeholder="yyyy-mm-dd" autocomplete="off">
+        </div>
+    </div>
+</form>
+
+    <div id="classes" class="panel panel-primary  ">
+        <div class="panel-heading">   <label>Reserve a class  </label></div>
+
+        <div id="emptymessagecontainer" style="display:none; padding:10px;"></div>
+        <table id="classTable" style="" class=" alternatecolors">
+            <thead><tr><th>Location</th> <th>Date</th><th>Time</th> <th style="width:99%"></th></tr> </thead>
+            <tbody><tr><td>Vaudreuil-Dorion</td><td>Feb 20, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52149" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Mar 27, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52154" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Apr 17, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52155" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>May 1, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52208" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>May 15, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52210" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>May 29, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52212" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Jun 12, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52227" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Jun 26, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52229" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Jul 10, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52234" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Jul 24, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52236" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Aug 7, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52265" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Aug 21, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52267" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Sep 4, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52272" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Sep 18, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52274" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Oct 23, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52291" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> <tr><td>Vaudreuil-Dorion</td><td>Nov 27, 2026</td><td>6:00pm - 9:00pm</td><td>   <button name="reserveButton" data-scheduled-class-id="52296" class="btn btn-default btn-sm">Reserve<span class="glyphicon glyphicon-chevron-right"></span></button></td></tr> </tbody>
+        </table>
+
+        <div class="panel-footer">  </div>
+    </div>
+
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script>var globals={courseId:2,actionId:213,studentUserId:"224368",studentName:"Omer Ahmed",componentLabel:"Theory 1: Yard Prep",isLoggedIn:true,isStudent:false,isStaff:true,isInstructor:true,isOffice:true,loadTimeMS:(new Date().getTime()),IsDateWidgetSupported:false,isMobile:false,showMenu:true,schoolId:1,UserId:"87",userName:"Ilan Preisler",currentLanguageId:1,defaultLanguageId:1,currentLanguageCode:"en",defaultLanguageCode:"en"}</script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script><script>$(document).ajaxError(function(r,t,s,o){s.suppressAjaxError||(401==t.status||403==t.status?location.href='/':'abort'!=o&&setTimeout(alert,10,'error '+t.status+' '+o+' '+t.responseJSON))});</script><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js" type="text/javascript"></script><script src="/js/utils.min.10.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.16.0/jquery.validate.min.js" type="text/javascript"></script><script>$.validator.addMethod('mydate',function(t,e){if(this.optional(e))return!0;if(/^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.test(t)){var a=t.split('-'),r=new Date;if(r.setFullYear(a[0],a[1]-1,a[2]),!isNaN(r))return r.getMonth()+1===+a[1]&&r.getDate()===+a[2]&&r.getFullYear()===+a[0]}else if(/^(0?[1-9]|[12][0-9]|3[01])[- /.](0?[1-9]|1[012])[- /.](19|20)\d\d$/.test(t)){var a=t.split('/'),r=new Date;if(r.setFullYear(a[2],a[1]-1,a[0]),!isNaN(r))return r.getMonth()+1===+a[1]&&r.getDate()===+a[0]&&r.getFullYear()===+a[2]}return!1},'Please input valid date.');</script><script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.4/js/bootstrap-dialog.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" type="text/javascript"></script><script>$.fn.datepicker.defaults.zIndexOffset=100000;</script><script src="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.js" type="text/javascript"></script>
+    <script>$(function(){$('.mydate').datepicker({format:'yyyy-mm-dd', autoclose:true , clearBtn: true ,forceParse:true });})</script>
+    
+
+        <script>
+
+               var scheduledClasses=[{"scheduledClassId":52150,"courseComponentId":33,"schoolLocationId":1,"date":"Feb 20, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52151,"courseComponentId":33,"schoolLocationId":2,"date":"Feb 20, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52149,"courseComponentId":33,"schoolLocationId":6,"date":"Feb 20, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52153,"courseComponentId":33,"schoolLocationId":1,"date":"Mar 27, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52152,"courseComponentId":33,"schoolLocationId":2,"date":"Mar 27, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52154,"courseComponentId":33,"schoolLocationId":6,"date":"Mar 27, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52159,"courseComponentId":33,"schoolLocationId":1,"date":"Apr 17, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52162,"courseComponentId":33,"schoolLocationId":2,"date":"Apr 17, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52155,"courseComponentId":33,"schoolLocationId":6,"date":"Apr 17, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52203,"courseComponentId":33,"schoolLocationId":1,"date":"May 1, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52191,"courseComponentId":33,"schoolLocationId":2,"date":"May 1, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52208,"courseComponentId":33,"schoolLocationId":6,"date":"May 1, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52205,"courseComponentId":33,"schoolLocationId":1,"date":"May 15, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52194,"courseComponentId":33,"schoolLocationId":2,"date":"May 15, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52210,"courseComponentId":33,"schoolLocationId":6,"date":"May 15, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52207,"courseComponentId":33,"schoolLocationId":1,"date":"May 29, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52196,"courseComponentId":33,"schoolLocationId":2,"date":"May 29, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52212,"courseComponentId":33,"schoolLocationId":6,"date":"May 29, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52223,"courseComponentId":33,"schoolLocationId":1,"date":"Jun 12, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52216,"courseComponentId":33,"schoolLocationId":2,"date":"Jun 12, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52227,"courseComponentId":33,"schoolLocationId":6,"date":"Jun 12, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52225,"courseComponentId":33,"schoolLocationId":1,"date":"Jun 26, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52218,"courseComponentId":33,"schoolLocationId":2,"date":"Jun 26, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52229,"courseComponentId":33,"schoolLocationId":6,"date":"Jun 26, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52239,"courseComponentId":33,"schoolLocationId":1,"date":"Jul 10, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52250,"courseComponentId":33,"schoolLocationId":2,"date":"Jul 10, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52234,"courseComponentId":33,"schoolLocationId":6,"date":"Jul 10, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52241,"courseComponentId":33,"schoolLocationId":1,"date":"Jul 24, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52252,"courseComponentId":33,"schoolLocationId":2,"date":"Jul 24, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52236,"courseComponentId":33,"schoolLocationId":6,"date":"Jul 24, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52261,"courseComponentId":33,"schoolLocationId":1,"date":"Aug 7, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52255,"courseComponentId":33,"schoolLocationId":2,"date":"Aug 7, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52265,"courseComponentId":33,"schoolLocationId":6,"date":"Aug 7, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52263,"courseComponentId":33,"schoolLocationId":1,"date":"Aug 21, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52257,"courseComponentId":33,"schoolLocationId":2,"date":"Aug 21, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52267,"courseComponentId":33,"schoolLocationId":6,"date":"Aug 21, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52276,"courseComponentId":33,"schoolLocationId":1,"date":"Sep 4, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52283,"courseComponentId":33,"schoolLocationId":2,"date":"Sep 4, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52272,"courseComponentId":33,"schoolLocationId":6,"date":"Sep 4, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52278,"courseComponentId":33,"schoolLocationId":1,"date":"Sep 18, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52285,"courseComponentId":33,"schoolLocationId":2,"date":"Sep 18, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52274,"courseComponentId":33,"schoolLocationId":6,"date":"Sep 18, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52292,"courseComponentId":33,"schoolLocationId":1,"date":"Oct 23, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52293,"courseComponentId":33,"schoolLocationId":2,"date":"Oct 23, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52291,"courseComponentId":33,"schoolLocationId":6,"date":"Oct 23, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52295,"courseComponentId":33,"schoolLocationId":1,"date":"Nov 27, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52294,"courseComponentId":33,"schoolLocationId":2,"date":"Nov 27, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}},{"scheduledClassId":52296,"courseComponentId":33,"schoolLocationId":6,"date":"Nov 27, 2026","startTime":"6:00pm","endTime":"9:00pm","isAuxiliaryLocation":false,"mustPaydetails":{"amount":0.0,"hoursInAdvanceToHoldReservation":0}}];;
+               var cancelationPenaltyDetails=null;;
+               var schoolLocations={"1":"Montreal","2":"Dollard-des-Ormeaux","4":"Kirkland","5":"Morty's Motorcycle Track","6":"Vaudreuil-Dorion","8":"Zoom","11":"Côte Saint-Luc"} ;
+
+(function () {
+
+    let currentLocationName = null,
+                  $emptymessagecontainer = $("#emptymessagecontainer"), $classTable = $("#classTable")
+
+
+
+
+                function showAvailableClasses() {
+        currentLocationName = $("#schoolLocationId option:selected").text() /*declared above */
+                var locationId = parseInt($('#schoolLocationId').val()),
+                arr = jQuery.grep(scheduledClasses, function (item) { return item.schoolLocationId == locationId  ||  item.isAuxiliaryLocation });
+
+               if (arr.length == 0) {
+                    $emptymessagecontainer.text("No classes currently scheduled in " + currentLocationName + ". You can try another location.").show()
+                    $classTable.hide();
+
+               }
+               else {
+                   let s = '';
+                   for (let i = 0; i < arr.length; i++) {
+                        console.log(JSON.stringify(arr[i]))
+                       s += "<tr><td>" + currentLocationName + "</td><td>" + arr[i].date + "</td><td>" + arr[i].startTime + " - " + arr[i].endTime + "</td><td>   <button   name='reserveButton'    data-scheduled-class-id='"+    arr[i].scheduledClassId    +"'    class='btn btn-default btn-sm'>Reserve<span class='glyphicon glyphicon-chevron-right' /></td ></tr > ";
+                    }
+                    $emptymessagecontainer.hide();
+                    $classTable.find('tbody').html(s).end().show();
+                }
+
+
+            }
+
+
+            onreserve = function (ev) {
+
+                ev.preventDefault();
+                var scheduledClassId = parseInt($(this).data("scheduledClassId")),
+                currentSelection = jQuery.grep(scheduledClasses, function (item) { return item.scheduledClassId == scheduledClassId })[0];
+
+
+                var msgText = '<div class="confirmationmessage" >';
+
+                if (cancelationPenaltyDetails  ) {
+                    msgText += '<b>Missed class policy:</b> you must cancel your reservation at least ' + cancelationPenaltyDetails.hours + ' hours prior to the class or you will be assessed a <b style="color:red"> cancellation fee of  $' + cancelationPenaltyDetails.amount.toFixed(2)+'</b>.'
+                }
+
+
+                msgText += "<table  class=confirmTable><tr><td>Module:</td> <td>" + globals.componentLabel + "</td></tr> <tr><td>Location:</td> <td>" + schoolLocations[currentSelection.schoolLocationId.toString()] + "</td></tr><tr><td>Date:</td> <td>" + currentSelection.date + "</td></tr><tr><td>Time:</td> <td>" + currentSelection.startTime + " - " + currentSelection.endTime       +  "</td></tr> <tr></table>";
+
+                msgText += '</div>';
+                var msg = $(msgText);
+
+                BootstrapDialog.confirm({
+                    title: 'Confirm Reservation?',
+                    type: BootstrapDialog.TYPE_WARNING,
+                    btnCancelLabel: 'No Thanks',
+                    btnOKLabel: 'Reserve now',
+
+                    btnOKClass: 'btn-warning',
+                    autodestroy:true,
+                    message: msg,
+
+                      callback: function (result) {
+
+                        if (result) {
+
+
+                            $.ajax({
+                                type: "POST",
+                                url: 'reserveComponent_ajax/?studentUserId=' + globals.studentUserId,  //must put userid here, otherwise it does not get picked up when authenticating specific student
+                               data: {
+                                     courseId: globals.courseId,
+                                     actionId: globals.actionId,
+                                     scheduledClassId: currentSelection.scheduledClassId,
+                                     courseComponentId:currentSelection.courseComponentId
+                                },
+                                dataType: "json",
+                            }).done(function (response) {
+                                if (response.errors) {
+                                        var msg = response.errors[0] == "overbooked" ? "Oops! Someone else just took the last spot. Try again." : response.errors.join("<br>");
+                                        BootstrapDialog.alert({
+                                            message: msg, title: "There was a problem", type: BootstrapDialog.TYPE_DANGER,
+                                            callback: function () { location.reload(); }
+                                        });
+
+                                }
+                                else {
+                                    BootstrapDialog.alert({
+                                        message: "Your spot has been reserved.", title: "Success!", type: BootstrapDialog.TYPE_SUCCESS,
+                                        callback: function () {   window.history.back(); }
+                                    })
+
+                                }
+                            });
+                        }
+                    }
+
+
+
+
+
+
+
+
+                });
+
+
+
+
+
+
+
+
+
+
+                return false;
+            }
+
+             globals.rememberScheduledClasses = scheduledClasses;
+
+
+          $classTable.find('tbody').on('click', '[name=reserveButton]', onreserve)
+
+            $('#schoolLocationId').change(showAvailableClasses)
+
+
+
+         
+                onDateChange = function () {
+                    if ($('#theForm').valid()) {
+                        var date = $(this).val();
+                        if (date == '') {
+                            scheduledClasses = globals.rememberScheduledClasses ;
+                            showAvailableClasses();
+                        }
+                        else {
+
+                            $('body').coactoverlay({
+                                delay: 0
+                            });
+
+
+                            $.ajax({
+                                type: "POST",
+                                url: 'AvailableScheduledClassesByDateGet_ajax',
+                                data: {
+                                    schoolId: globals.schoolId, courseId:globals.courseId, studentUserId:globals.studentUserId,  date: date, courseId: globals.courseId, actionId: globals.actionId
+                                },
+                                dataType: "json"
+
+                            }).done(function (response) {
+
+                                $('body').coactoverlay("destroy");
+                                if (response.okay) {
+
+                                    scheduledClasses = response.scheduledClasses;
+                                    showAvailableClasses();
+
+
+                                }
+
+
+
+
+
+
+                            })
+
+
+
+                        }
+                    }
+                }
+                $('#date').on("change", onDateChange)
+             $('#theForm').on("submit", function (e) { e.preventDefault() })
+
+                $('#theForm').validate();
+
+
+                $(function () { onDateChange.call(document.getElementById('date'));  })
+
+
+
+
+       
+           })();
+
+
+
+
+
+
+
+        </script>
+
+    
+
+    <script>
+        if(globals.showMenu&&(new Mmenu(document.querySelector("#menu"),{setSelected:{current:!0,parent:!0},navbar:{title:"Menu"},offCanvas:!1,extensions:globals.isMobile?[]:["theme-white","border-full"]}),globals.isMobile)){let e=new Drawer;document.getElementById("hamburger").addEventListener("click",e.open),document.getElementById("menuCloseButton").addEventListener("click",e.close)}; document.getElementById('loaderoverlay').remove(); document.body.classList.remove('loaderbody')
+    </script>
+
+    
+
+
+
+
+</body></html>

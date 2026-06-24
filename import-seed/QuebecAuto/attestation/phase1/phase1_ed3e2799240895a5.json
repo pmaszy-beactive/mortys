@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224378",
+  "url_hash": "ed3e2799240895a5",
+  "scraped_at": "2026-02-13T07:18:44.527Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "G524728050801 03277159 L-021 Gomez Klebanov, Riany Dayana 37 barnett dollard des ormeaux QC H9G1W7 0001235691 5146611039 5144315981 X Ilan Preisler 24 sept. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 24 2025 08 31 2025 09 04 2025 09 03 2025 09 21 COPIE D'ÉLÈVE G524728050801 03277159 L-021 Gomez Klebanov, Riany Dayana 37 barnett dollard des ormeaux QC H9G1W7 0001235691 5146611039 5144315981 X Ilan Preisler 24 sept. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 08 24 2025 08 31 2025 09 04 2025 09 03 2025 09 21 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277159&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277159&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10627,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224378"
+}

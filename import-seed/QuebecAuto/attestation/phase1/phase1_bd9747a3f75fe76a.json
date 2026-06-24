@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=230607",
+  "url_hash": "bd9747a3f75fe76a",
+  "scraped_at": "2026-02-13T01:04:40.221Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "C165327100914 03277351 L-774 Coburn, Emma Anne 75 Farnham Beaconsfield QC H9W 5H7 0001235844 5142951171 X Ilan Preisler 13 nov. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 09 18 2025 09 25 2025 09 30 2025 10 16 2025 10 23 COPIE D'ÉLÈVE C165327100914 03277351 L-774 Coburn, Emma Anne 75 Farnham Beaconsfield QC H9W 5H7 0001235844 5142951171 X Ilan Preisler 13 nov. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 09 18 2025 09 25 2025 09 30 2025 10 16 2025 10 23 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277351&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277351&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10357,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=230607"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231747",
+  "url_hash": "449a92081e54fcd4",
+  "scraped_at": "2026-02-12T20:54:23.957Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "P150628110919 03277183 L-021 Pepin, Maxim 37 rue belcourt Dollard-des-Ormeaux QC H9A 1X9 0001235810 4383729321 X Ilan Preisler 24 nov. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 07 2025 11 05 COPIE D'ÉLÈVE P150628110919 03277183 L-021 Pepin, Maxim 37 rue belcourt Dollard-des-Ormeaux QC H9A 1X9 0001235810 4383729321 X Ilan Preisler 24 nov. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 07 2025 11 05 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277183&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277183&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10405,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231747"
+}

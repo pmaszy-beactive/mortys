@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224345",
+  "url_hash": "0f2df471a22d5fe7",
+  "scraped_at": "2026-02-13T08:07:02.330Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "K216520100914 03286909 L-020 Kisber, Lyla 22 Rue Heath Hampstead QC H3X 3L4 0001235542 5149993355 5146195952 X Ilan Preisler 12 nov. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 13 2025 08 28 2025 09 04 2025 09 14 2025 09 18 COPIE D'ÉLÈVE K216520100914 03286909 L-020 Kisber, Lyla 22 Rue Heath Hampstead QC H3X 3L4 0001235542 5149993355 5146195952 X Ilan Preisler 12 nov. 2025 École de Conduite Mortys 5181, boul. Decarie Montréal QC H3W 3C2 info@mortys.ca 2025 08 13 2025 08 28 2025 09 04 2025 09 14 2025 09 18 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286909&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03286909&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10341,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=224345"
+}

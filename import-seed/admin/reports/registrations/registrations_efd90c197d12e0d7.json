@@ -1,0 +1,489 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=26%2F08%2F2025",
+  "url_hash": "efd90c197d12e0d7",
+  "scraped_at": "2026-02-12T19:57:04.247Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 26, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 26, 2025 Name Lang Time Phone Course 1 st Class Comments 231570 Yang, Max EN 8:42am 514-224-9040 (m) Motorcycle Montreal 05/09/2025 6:00pm edit 231572 McFadzean, Jack EN 1:24pm 514-261-0944 (m) 514-212-2364 (h) Automobile Kirkland 18/09/2025 7:00pm edit 231573 Itzcovitch, Matthew EN 2:33pm 514-880-7505 (m) Motorcycle Montreal 05/09/2025 6:00pm edit 231574 Nagamuthu, Thipeeshaan EN 3:05pm 514-573-3125 (m) 514-345-0554 (h) Motorcycle Montreal 05/09/2025 6:00pm edit 231576 Flexer, David EN 6:14pm 438-872-6037 (m) 438-872-6037 (w) Automobile Montreal 09/09/2025 7:00pm edit 231577 Gonsalves , Maliyah EN 6:44pm 514-573-6548 (m) Automobile Côte Saint-Luc 18/09/2025 7:00pm edit 231578 MOREAU, Martin EN 8:53pm 438-509-1648 (m) Automobile Montreal 09/09/2025 7:00pm edit 231579 Rombaoa, Kelvin EN 9:38pm 514-574-5616 (m) Motorcycle Montreal 19/09/2025 6:00pm edit 231580 Kukla, Leon EN 11:11pm 514-236-6711 (m) Automobile Côte Saint-Luc 09/09/2025 7:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "26/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "26/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "231570",
+          "Yang, Max",
+          "EN",
+          "8:42am",
+          "514-224-9040   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231572",
+          "McFadzean, Jack",
+          "EN",
+          "1:24pm",
+          "514-261-0944   (m)     \n \n             514-212-2364   (h)",
+          "Automobile Kirkland",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231573",
+          "Itzcovitch, Matthew",
+          "EN",
+          "2:33pm",
+          "514-880-7505   (m)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231574",
+          "Nagamuthu, Thipeeshaan",
+          "EN",
+          "3:05pm",
+          "514-573-3125   (m)     \n \n             514-345-0554   (h)",
+          "Motorcycle Montreal",
+          "05/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231576",
+          "Flexer, David",
+          "EN",
+          "6:14pm",
+          "438-872-6037   (m)     \n \n              \n             438-872-6037   (w)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231577",
+          "Gonsalves , Maliyah",
+          "EN",
+          "6:44pm",
+          "514-573-6548   (m)",
+          "Automobile Côte Saint-Luc",
+          "18/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231578",
+          "MOREAU, Martin",
+          "EN",
+          "8:53pm",
+          "438-509-1648   (m)",
+          "Automobile Montreal",
+          "09/09/2025  7:00pm",
+          "edit"
+        ],
+        [
+          "231579",
+          "Rombaoa, Kelvin",
+          "EN",
+          "9:38pm",
+          "514-574-5616   (m)",
+          "Motorcycle Montreal",
+          "19/09/2025  6:00pm",
+          "edit"
+        ],
+        [
+          "231580",
+          "Kukla, Leon",
+          "EN",
+          "11:11pm",
+          "514-236-6711   (m)",
+          "Automobile Côte Saint-Luc",
+          "09/09/2025  7:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "231570",
+          "Name": "Yang, Max",
+          "Lang": "EN",
+          "Time": "8:42am",
+          "Phone": "514-224-9040   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "231572",
+          "Name": "McFadzean, Jack",
+          "Lang": "EN",
+          "Time": "1:24pm",
+          "Phone": "514-261-0944   (m)     \n \n             514-212-2364   (h)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "231573",
+          "Name": "Itzcovitch, Matthew",
+          "Lang": "EN",
+          "Time": "2:33pm",
+          "Phone": "514-880-7505   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "231574",
+          "Name": "Nagamuthu, Thipeeshaan",
+          "Lang": "EN",
+          "Time": "3:05pm",
+          "Phone": "514-573-3125   (m)     \n \n             514-345-0554   (h)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "05/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "231576",
+          "Name": "Flexer, David",
+          "Lang": "EN",
+          "Time": "6:14pm",
+          "Phone": "438-872-6037   (m)     \n \n              \n             438-872-6037   (w)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "231577",
+          "Name": "Gonsalves , Maliyah",
+          "Lang": "EN",
+          "Time": "6:44pm",
+          "Phone": "514-573-6548   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "18/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "231578",
+          "Name": "MOREAU, Martin",
+          "Lang": "EN",
+          "Time": "8:53pm",
+          "Phone": "438-509-1648   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "231579",
+          "Name": "Rombaoa, Kelvin",
+          "Lang": "EN",
+          "Time": "9:38pm",
+          "Phone": "514-574-5616   (m)",
+          "Course": "Motorcycle Montreal",
+          "1st Class": "19/09/2025  6:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "231580",
+          "Name": "Kukla, Leon",
+          "Lang": "EN",
+          "Time": "11:11pm",
+          "Phone": "514-236-6711   (m)",
+          "Course": "Automobile Côte Saint-Luc",
+          "1st Class": "09/09/2025  7:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231772&courseId=2",
+      "text": "Yang, Max",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231774&courseId=1",
+      "text": "McFadzean, Jack",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231775&courseId=2",
+      "text": "Itzcovitch, Matthew",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231776&courseId=2",
+      "text": "Nagamuthu, Thipeeshaan",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231778&courseId=1",
+      "text": "Flexer, David",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231779&courseId=1",
+      "text": "Gonsalves , Maliyah",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231780&courseId=1",
+      "text": "MOREAU, Martin",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231781&courseId=2",
+      "text": "Rombaoa, Kelvin",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=231782&courseId=1",
+      "text": "Kukla, Leon",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 24570,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=26%2F08%2F2025"
+}

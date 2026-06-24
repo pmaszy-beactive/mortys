@@ -1,0 +1,48 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecMoto/attestation/?studentUserId=228543",
+  "url_hash": "8ad29798f5c65116",
+  "scraped_at": "2026-02-13T02:39:33.221Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "C624321117400 03152564 A-107 Creswell, Emerson 16 montee de rockburn Dewittville QC J0S1C0 0001235473 4509578774 5143481571 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 08 2025 08 16 2025 08 17 2025 08 23 2025 08 24 2025 08 29 2025 08 30 2025 09 02 2025 09 02 2025 09 07 2025 09 07 X Ilan Preisler 24 sept. 2025 COPIE D'ÉLÈVE C624321117400 03152564 A-107 Creswell, Emerson 16 montee de rockburn Dewittville QC J0S1C0 0001235473 4509578774 5143481571 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 08 2025 08 16 2025 08 17 2025 08 23 2025 08 24 2025 08 29 2025 08 30 2025 09 02 2025 09 02 2025 09 07 2025 09 07 X Ilan Preisler 24 sept. 2025 COPIE D'ÉCOLE C624321117400 03152564 A-107 Creswell, Emerson 16 montee de rockburn Dewittville QC J0S1C0 0001235473 4509578774 5143481571 X X École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 08 2025 08 16 2025 08 17 2025 08 23 2025 08 24 2025 08 29 2025 08 30 2025 09 02 2025 09 02 2025 09 07 2025 09 07 X Ilan Preisler 24 sept. 2025 COPIE DU DÉLÉGATAIRE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152564&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152564&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-moto.v4.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03152564&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 21236,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecMoto/attestation/?studentUserId=228543"
+}

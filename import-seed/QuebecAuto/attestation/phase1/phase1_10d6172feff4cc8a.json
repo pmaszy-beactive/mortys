@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223175",
+  "url_hash": "10d6172feff4cc8a",
+  "scraped_at": "2026-02-13T12:27:38.234Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "s331624080904 03277070 L-021 Stathopoulos , Melanthi 2990 place de chazel Montreal QC H3M1C9 0001235291 5143371011 5149830180 X Ilan Preisler 5 août 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 07 06 2025 07 07 2025 07 14 2025 07 21 2025 08 03 COPIE D'ÉLÈVE s331624080904 03277070 L-021 Stathopoulos , Melanthi 2990 place de chazel Montreal QC H3M1C9 0001235291 5143371011 5149830180 X Ilan Preisler 5 août 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 07 06 2025 07 07 2025 07 14 2025 07 21 2025 08 03 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277070&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277070&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10611,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223175"
+}

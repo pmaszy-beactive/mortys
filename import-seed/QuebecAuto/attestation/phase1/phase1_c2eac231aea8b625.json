@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223261",
+  "url_hash": "c2eac231aea8b625",
+  "scraped_at": "2026-02-13T10:26:00.632Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "A123601050800 03277074 L-021 Aboukhater , Mia 4000 Sources Boulevard Dollard-Des Ormeaux QC H9B 2C8 0001235295 5146383761 X Ilan Preisler 13 août 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 07 15 2025 07 22 2025 07 29 2025 08 05 2025 08 12 COPIE D'ÉLÈVE A123601050800 03277074 L-021 Aboukhater , Mia 4000 Sources Boulevard Dollard-Des Ormeaux QC H9B 2C8 0001235295 5146383761 X Ilan Preisler 13 août 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 07 15 2025 07 22 2025 07 29 2025 08 05 2025 08 12 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277074&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277074&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10429,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=223261"
+}

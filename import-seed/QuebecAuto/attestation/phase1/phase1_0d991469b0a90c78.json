@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231688",
+  "url_hash": "0d991469b0a90c78",
+  "scraped_at": "2026-02-12T22:15:41.449Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "M225806090403 03277317 L-774 Mazakian, Sarah 4397 rue graham Montreal QC H9H2C1 0001235596 5146497394 5146497394 X Ilan Preisler 23 sept. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 08 21 2025 08 31 2025 09 04 2025 09 11 2025 09 21 COPIE D'ÉLÈVE M225806090403 03277317 L-774 Mazakian, Sarah 4397 rue graham Montreal QC H9H2C1 0001235596 5146497394 5146497394 X Ilan Preisler 23 sept. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 08 21 2025 08 31 2025 09 04 2025 09 11 2025 09 21 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277317&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277317&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10561,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231688"
+}

@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228530",
+  "url_hash": "445f80cf027da6ef",
+  "scraped_at": "2026-02-13T03:05:52.524Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "G362327070909 03203584 A-106 Gutierrez, Elio 144 Du Beau Rivage Vaudreuil-Dorion QC J7V 9X4 0001235514 5149154410 5144027579 X Ilan Preisler 22 sept. 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 13 2025 08 31 2025 08 14 2025 08 21 2025 09 21 COPIE D'ÉLÈVE G362327070909 03203584 A-106 Gutierrez, Elio 144 Du Beau Rivage Vaudreuil-Dorion QC J7V 9X4 0001235514 5149154410 5144027579 X Ilan Preisler 22 sept. 2025 École de Conduite Mortys 240, avenue St-Charles Vaudreuil-Dorion QC J7V 2L6 info@mortys.ca 2025 08 13 2025 08 31 2025 08 14 2025 08 21 2025 09 21 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203584&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03203584&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10393,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228530"
+}

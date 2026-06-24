@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228513",
+  "url_hash": "d99b3b9e08bbd2ba",
+  "scraped_at": "2026-02-13T03:38:51.550Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "R250229050900 03277328 L-774 Racine, Chase 39 Bayview Avenue Pointe Claire QC H9S 5C1 0001235607 4389285300 X Ilan Preisler 21 oct. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 08 13 2025 10 06 2025 09 07 2025 09 14 2025 10 14 COPIE D'ÉLÈVE R250229050900 03277328 L-774 Racine, Chase 39 Bayview Avenue Pointe Claire QC H9S 5C1 0001235607 4389285300 X Ilan Preisler 21 oct. 2025 École de Conduite Mortys 2915 Bd Saint-Charles 106 Kirkland QC H9H 3B5 info@mortys.ca 2025 08 13 2025 10 06 2025 09 07 2025 09 14 2025 10 14 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277328&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277328&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10365,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=228513"
+}

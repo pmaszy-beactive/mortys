@@ -1,0 +1,489 @@
+{
+  "url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=03%2F08%2F2025",
+  "url_hash": "a8c98b6f53c91719",
+  "scraped_at": "2026-02-13T03:17:33.574Z",
+  "title": "Mortys Driving School",
+  "meta": {
+    "google": "notranslate",
+    "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registrations"
+    },
+    {
+      "level": 2,
+      "text": "Registrations Aug 3, 2025"
+    }
+  ],
+  "text_content": "Menu Student Files Classes Instructor Open submenu Reports Open submenu Set Class Schedule School Permits Close submenu Instructor Instructor Schedule Open submenu Instructor Reports Open submenu My Signatures Close submenu Instructor Schedule Booked Appointments Specify Hours Close submenu Instructor Reports Work Summary To Do Lists Close submenu Reports AQTR Registrations Ilan Preisler logout Registrations Date Generate Report Registrations Aug 3, 2025 Name Lang Time Phone Course 1 st Class Comments 228312 Racine, Hailey EN 12:36pm 438-778-2303 (m) Automobile Kirkland 13/08/2025 5:00pm edit 228313 Atlas, Ben EN 2:08pm 514-299-1549 (m) Automobile Montreal 13/08/2025 5:00pm edit 228314 Singh, Agam EN 3:34pm 514-241-3921 (m) 438-887-4374 (h) Automobile Dollard-des-Ormeaux 13/08/2025 5:00pm edit 228315 Léger, Alexya EN 4:54pm 514-952-2284 (m) Automobile Vaudreuil-Dorion 24/08/2025 3:00pm edit 228316 Abramovitch, Danica EN 5:20pm 514-645-7725 (m) Automobile Montreal 24/08/2025 3:00pm edit 228317 Capotosto, Luca EN 5:33pm 438-506-8877 (m) Automobile Dollard-des-Ormeaux 13/08/2025 5:00pm edit 228318 Hajda, Michaela EN 6:15pm 514-502-1302 (m) Automobile Dollard-des-Ormeaux 13/08/2025 5:00pm edit 228319 Babadzanov, Melissa EN 8:25pm 438-926-0433 (m) Automobile Vaudreuil-Dorion 13/08/2025 5:00pm edit 228320 Ciccone, Dante EN 9:31pm 438-871-2761 (m) Motorcycle Dollard-des-Ormeaux 22/08/2025 6:00pm edit",
+  "forms": [
+    {
+      "action": "",
+      "method": "get",
+      "id": "theform",
+      "name": "",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "date",
+          "type": "text",
+          "id": "",
+          "value": "03/08/2025",
+          "placeholder": "dd/mm/yyyy",
+          "checked": false,
+          "disabled": false,
+          "readonly": false
+        }
+      ],
+      "field_data": {
+        "date": "03/08/2025"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "registrationstable",
+      "class": "alternatecolors footable table toggle-square-filled toggle-large default footable-loaded",
+      "name": "",
+      "caption": "",
+      "headers": [
+        "",
+        "Name",
+        "Lang",
+        "Time",
+        "Phone",
+        "Course",
+        "1st Class",
+        "Comments"
+      ],
+      "rows": [
+        [
+          "228312",
+          "Racine, Hailey",
+          "EN",
+          "12:36pm",
+          "438-778-2303   (m)",
+          "Automobile Kirkland",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228313",
+          "Atlas, Ben",
+          "EN",
+          "2:08pm",
+          "514-299-1549   (m)",
+          "Automobile Montreal",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228314",
+          "Singh, Agam",
+          "EN",
+          "3:34pm",
+          "514-241-3921   (m)     \n \n             438-887-4374   (h)",
+          "Automobile Dollard-des-Ormeaux",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228315",
+          "Léger, Alexya",
+          "EN",
+          "4:54pm",
+          "514-952-2284   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "228316",
+          "Abramovitch, Danica",
+          "EN",
+          "5:20pm",
+          "514-645-7725   (m)",
+          "Automobile Montreal",
+          "24/08/2025  3:00pm",
+          "edit"
+        ],
+        [
+          "228317",
+          "Capotosto, Luca",
+          "EN",
+          "5:33pm",
+          "438-506-8877   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228318",
+          "Hajda, Michaela",
+          "EN",
+          "6:15pm",
+          "514-502-1302   (m)",
+          "Automobile Dollard-des-Ormeaux",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228319",
+          "Babadzanov, Melissa",
+          "EN",
+          "8:25pm",
+          "438-926-0433   (m)",
+          "Automobile Vaudreuil-Dorion",
+          "13/08/2025  5:00pm",
+          "edit"
+        ],
+        [
+          "228320",
+          "Ciccone, Dante",
+          "EN",
+          "9:31pm",
+          "438-871-2761   (m)",
+          "Motorcycle Dollard-des-Ormeaux",
+          "22/08/2025  6:00pm",
+          "edit"
+        ]
+      ],
+      "records": [
+        {
+          "_row_index": 0,
+          "column_0": "228312",
+          "Name": "Racine, Hailey",
+          "Lang": "EN",
+          "Time": "12:36pm",
+          "Phone": "438-778-2303   (m)",
+          "Course": "Automobile Kirkland",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 1,
+          "column_0": "228313",
+          "Name": "Atlas, Ben",
+          "Lang": "EN",
+          "Time": "2:08pm",
+          "Phone": "514-299-1549   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 2,
+          "column_0": "228314",
+          "Name": "Singh, Agam",
+          "Lang": "EN",
+          "Time": "3:34pm",
+          "Phone": "514-241-3921   (m)     \n \n             438-887-4374   (h)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 3,
+          "column_0": "228315",
+          "Name": "Léger, Alexya",
+          "Lang": "EN",
+          "Time": "4:54pm",
+          "Phone": "514-952-2284   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 4,
+          "column_0": "228316",
+          "Name": "Abramovitch, Danica",
+          "Lang": "EN",
+          "Time": "5:20pm",
+          "Phone": "514-645-7725   (m)",
+          "Course": "Automobile Montreal",
+          "1st Class": "24/08/2025  3:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 5,
+          "column_0": "228317",
+          "Name": "Capotosto, Luca",
+          "Lang": "EN",
+          "Time": "5:33pm",
+          "Phone": "438-506-8877   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 6,
+          "column_0": "228318",
+          "Name": "Hajda, Michaela",
+          "Lang": "EN",
+          "Time": "6:15pm",
+          "Phone": "514-502-1302   (m)",
+          "Course": "Automobile Dollard-des-Ormeaux",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 7,
+          "column_0": "228319",
+          "Name": "Babadzanov, Melissa",
+          "Lang": "EN",
+          "Time": "8:25pm",
+          "Phone": "438-926-0433   (m)",
+          "Course": "Automobile Vaudreuil-Dorion",
+          "1st Class": "13/08/2025  5:00pm",
+          "Comments": "edit"
+        },
+        {
+          "_row_index": 8,
+          "column_0": "228320",
+          "Name": "Ciccone, Dante",
+          "Lang": "EN",
+          "Time": "9:31pm",
+          "Phone": "438-871-2761   (m)",
+          "Course": "Motorcycle Dollard-des-Ormeaux",
+          "1st Class": "22/08/2025  6:00pm",
+          "Comments": "edit"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/admin/",
+      "text": "Student Files",
+      "title": ""
+    },
+    {
+      "href": "/admin/classes/",
+      "text": "Classes",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "InstructorOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-4",
+      "text": "ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/schedule/",
+      "text": "Set Class Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/schoolpermit/",
+      "text": "School Permits",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Instructor",
+      "title": ""
+    },
+    {
+      "href": "#mm-2",
+      "text": "Instructor ScheduleOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-3",
+      "text": "Instructor ReportsOpen submenu",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorsignatures/",
+      "text": "My Signatures",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Schedule",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/",
+      "text": "Booked Appointments",
+      "title": ""
+    },
+    {
+      "href": "/admin/instructorschedule/workhours/",
+      "text": "Specify Hours",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-1",
+      "text": "Instructor Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/worksummary/",
+      "text": "Work Summary",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/instructorstodolists/",
+      "text": "To Do Lists",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Close submenu",
+      "title": ""
+    },
+    {
+      "href": "#mm-0",
+      "text": "Reports",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/aqtr/",
+      "text": "AQTR",
+      "title": ""
+    },
+    {
+      "href": "/admin/reports/registrations/",
+      "text": "Registrations",
+      "title": ""
+    },
+    {
+      "href": "/",
+      "text": "",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "Ilan Preisler",
+      "title": ""
+    },
+    {
+      "href": "/logout/",
+      "text": "logout",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228514&courseId=1",
+      "text": "Racine, Hailey",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228515&courseId=1",
+      "text": "Atlas, Ben",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228516&courseId=1",
+      "text": "Singh, Agam",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228517&courseId=1",
+      "text": "Léger, Alexya",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228518&courseId=1",
+      "text": "Abramovitch, Danica",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228519&courseId=1",
+      "text": "Capotosto, Luca",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228520&courseId=1",
+      "text": "Hajda, Michaela",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228521&courseId=1",
+      "text": "Babadzanov, Melissa",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    },
+    {
+      "href": "../../studentfile/?studentuserid=228522&courseId=2",
+      "text": "Ciccone, Dante",
+      "title": ""
+    },
+    {
+      "href": "#",
+      "text": "edit",
+      "title": ""
+    }
+  ],
+  "images": [
+    {
+      "src": "/img/logo.png",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 24516,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/admin/reports/registrations/?date=03%2F08%2F2025"
+}

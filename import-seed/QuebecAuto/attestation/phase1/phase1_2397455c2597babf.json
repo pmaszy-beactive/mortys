@@ -1,0 +1,38 @@
+{
+  "url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231854",
+  "url_hash": "2397455c2597babf",
+  "scraped_at": "2026-02-12T18:09:58.786Z",
+  "title": "",
+  "meta": {},
+  "headings": [],
+  "text_content": "M500121080901 03277180 L-021 Mina, Adriano 228 Myconos Dollard-des-Ormeaux QC H9G 2Y3 0001235807 5148143333 4389269466 X Ilan Preisler 4 nov. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 07 2025 11 03 COPIE D'ÉLÈVE M500121080901 03277180 L-021 Mina, Adriano 228 Myconos Dollard-des-Ormeaux QC H9G 2Y3 0001235807 5148143333 4389269466 X Ilan Preisler 4 nov. 2025 École de Conduite Mortys 4230, boul. St-Jean bureau 245 Dollard-des-Ormeaux QC H9H 3X4 info@mortys.ca 2025 09 09 2025 09 16 2025 09 30 2025 10 07 2025 11 03 COPIE D'ÉCOLE",
+  "forms": [],
+  "tables": [],
+  "links": [],
+  "images": [
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277180&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/img/qc-attestation-auto.phase1.v2.jpg",
+      "alt": "",
+      "title": ""
+    },
+    {
+      "src": "/barcode.aspx?d=03277180&h=40&w=300&bc=&fc=&t=Code%20128&il=False&if=jpeg&align=l ",
+      "alt": "",
+      "title": ""
+    }
+  ],
+  "label_values": {},
+  "raw_html_length": 10597,
+  "status_code": 200,
+  "final_url": "https://mortys.drivetraqr.ca/QuebecAuto/attestation/phase1/?studentUserId=231854"
+}

@@ -1,0 +1,482 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Mortys Driving School</title>
+    <meta name="google" content="notranslate">
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+
+   
+    <script>
+        
+              window.onunload = function () { }; // disable bfcache
+        var avivaronload = (function () {
+          
+                  var loaded = false,
+                      onload = (persisted) => {
+                          if (persisted ) window.location.reload();},
+                      loadController = function (ev) {
+                          var persisted = (ev.persisted !== undefined) && ev.persisted;
+                          if (persisted || !loaded) {  //just in case bfcache was not successfully disabled
+                              onload(persisted);
+                              loaded = true;
+                          }
+                      }
+                  window.addEventListener('pageshow', loadController)
+                  window.addEventListener('load', loadController)
+                  return {
+                      add: function (f) {
+                          var oldlonload = onload;
+                          onload = function (persisted) { oldlonload(persisted); f(persisted); }
+                      }
+                  }
+              })();
+
+                
+                   (function () {
+
+                    window.readCookie = function(n){ return (n = new RegExp('(?:^|;\\s*)' + ('' + n).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)').exec(document.cookie)) && n[1]; }
+                    var   cookie = readCookie('signmodeurl');
+                    if (cookie && cookie != (window.location.pathname + window.location.search)) {
+                            window.location.href = cookie
+                   }
+                })
+                ();
+
+             
+
+
+    </script>
+
+
+
+
+
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" type="text/css"><link href="/css/base/base_desktop5.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"><link href="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.css" rel="stylesheet" type="text/css"><style>.mm-menu {--mm-offset-top: 50px;--mm-offset-bottom: 15px;--mm-offset-left: 1px}</style>
+    
+    
+</head>
+<body class="">
+    
+            <div class="container mm-wrapper" style="position:fixed;   height:100%;   top:0; z-index:100;  margin-left:auto;  margin-right:auto; left:0; right:0;  pointer-events:none">
+                
+
+
+
+
+<nav id="menu" class="mm-menu mm-menu_selected-parent mm-menu_theme-white mm-menu_border-full">
+
+    <button id="menuCloseButton" class="closebutton"> </button>
+    
+    <div class="mm-panels"><div id="mm-0" class="mm-panel mm-panel_opened"><div class="mm-navbar mm-navbar_sticky"><a class="mm-navbar__title"><span>Menu</span></a></div><ul class="mm-listview">
+<li class="mm-listitem"><a href="/admin/" class="mm-listitem__text">Student Files</a></li>
+<li class="mm-listitem"><a href="/admin/classes/" class="mm-listitem__text">Classes</a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-1">Instructor<span class="mm-sronly">Open submenu</span></a></li>
+                <li class="mm-listitem">
+
+                    
+                    
+
+
+                <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-4">Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/schedule/" class="mm-listitem__text">Set Class Schedule</a></li>
+<li class="mm-listitem"><a href="/admin/schoolpermit/" class="mm-listitem__text">School Permits</a></li>
+
+    </ul></div><div id="mm-1" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Instructor</span></a></div><ul class="mm-listview">
+                        <li class="mm-listitem">
+                            
+                            
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-2">Instructor Schedule<span class="mm-sronly">Open submenu</span></a></li>
+
+
+
+                        <li class="mm-listitem">
+                            
+                            
+
+                        <a class="mm-btn mm-btn_next mm-listitem__btn mm-listitem__text" href="#mm-3">Instructor Reports<span class="mm-sronly">Open submenu</span></a></li>
+<li class="mm-listitem"><a href="/admin/instructorsignatures/" class="mm-listitem__text">My Signatures</a></li>
+
+                    </ul></div><div id="mm-2" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Schedule</span></a></div><ul class="mm-listview">
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/" class="mm-listitem__text">Booked Appointments</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/instructorschedule/workhours/" class="mm-listitem__text">Specify Hours</a></li>
+
+
+
+                            </ul></div><div id="mm-3" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-1"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-1" aria-hidden="true"><span>Instructor Reports</span></a></div><ul class="mm-listview">
+
+
+                                <li class="mm-listitem"><a href="/admin/reports/worksummary/" class="mm-listitem__text">Work Summary</a></li>
+
+                                <li class="mm-listitem"><a href="/admin/reports/instructorstodolists/" class="mm-listitem__text">To Do Lists</a></li>
+
+
+                            </ul></div><div id="mm-4" class="mm-panel mm-hidden" aria-hidden="true"><div class="mm-navbar mm-navbar_sticky"><a class="mm-btn mm-btn_prev mm-navbar__btn" href="#mm-0"><span class="mm-sronly">Close submenu</span></a><a class="mm-navbar__title" href="#mm-0" aria-hidden="true"><span>Reports</span></a></div><ul class="mm-listview">
+
+                       
+                        <li class="mm-listitem"><a href="/admin/reports/aqtr/" class="mm-listitem__text">AQTR</a></li>
+
+                        <li class="mm-listitem"><a href="/admin/reports/registrations/" class="mm-listitem__text">Registrations</a></li>
+
+                 
+
+ 
+                    </ul></div></div></nav>
+
+
+ 
+ 
+            </div>
+     
+
+<div id="header" class="container header">
+    <a style="margin-left:10px" href="/"><img style=" height:45px ;" src="/img/logo.png"></a>
+
+
+
+        <div style="   text-align:right  ; flex-grow:1  ">
+            <ul class="nav ace-nav navbar-buttons   " role="navigation">
+                <li class="light-blue pull-right">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <span class="user-info">
+                            Ilan Preisler
+                            <b class="caret"></b>
+                        </span>
+
+                    </a>
+
+
+
+           
+                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                        <li>
+                            <a href="/logout/">
+                                <i class="ace-icon fa fa-power-off"></i>
+                                logout
+                            </a>
+
+                        </li>
+                    </ul>
+                
+            </li></ul>
+        </div>
+
+
+
+
+
+     
+</div>
+
+ 
+ 
+
+
+ 
+        <div style="min-height:calc(100% - 50px);    position:relative ;  ; display:flex; flex-direction:column;     ">
+            <div style="   flex-grow:1; display:flex; flex-direction:column; margin-bottom:5px; " class="container maincontainer">
+                <div class="maintable" style="     flex-grow:1">
+                    <div class="cell1"> </div>
+                    <div class="cell2" id="contentContainer">
+                         
+
+
+<style>
+    .phasecontainer input[type="checkbox"] {
+        margin-right:4px
+    }
+   
+
+
+
+</style>
+
+
+<h1>Transfer Course</h1>
+
+
+
+
+
+
+
+ 
+ 
+
+
+<form id="theForm" action="#" method="get" novalidate="novalidate"> 
+ 
+    <input name="studentUserId" type="hidden" value="228517">
+    
+    <div class="row">
+  
+      <div class="col-xs-12 col-sm-6">
+        <label> School Name  <span style="font-size:smaller;  font-weight:normal ">skip if internal transfer</span> </label>
+             <input name="schoolName" class="form-control">                                   
+   </div>
+
+    
+</div><!-- /.row -->
+ 
+ <div class="row">
+    
+     
+       <div class="col-xs-12  col-sm-6">
+        <label> Date Of Issue of Learner's Permit</label>
+         <input class="form-control mydate" type="text" value="10/17/2025" 12:00:00="" am="" name="learnersPermitDate" id="learnersPermitDate"> 
+    </div>
+</div>
+      <div class="row">
+     
+       <div class="col-xs-12  col-sm-6">
+        <label> Current Phase </label>
+         
+              
+    <select class="form-control " name="currentPhase" id="currentPhase">
+       
+        <option value="1" selected="">phase 1</option>
+        <option value="2">phase 2</option>
+        <option value="3">phase 3</option>
+        <option value="4">phase 4</option>
+
+
+    </select>
+          
+           </div>
+
+    
+
+
+</div>
+
+   
+
+
+  
+
+
+      <div id="container1" class="phasecontainer" style=""> 
+          
+                 
+      <div class="row">
+     <div class="col-xs-12  col-sm-6">
+   <label>Start Date of Phase 1</label>
+   <input type="text" class="form-control phaseStartDate mydate required" id="phaseStartDate1" name="phaseStartDate" value="" aria-required="true">
+ 
+ </div>   
+          </div>
+
+
+      <div class="row">
+    <div class="col-xs-12  checkboxcontainer  ">     
+       
+
+
+     <input type="checkbox" id="components.1" name="components.1" class="theory" value="true"><label for="components.1">Theory 1</label> 
+            <br>
+     <input type="checkbox" id="components.2" name="components.2" class="theory" value="true"><label for="components.2">Theory 2</label> 
+            <br>
+     <input type="checkbox" id="components.3" name="components.3" class="theory" value="true"><label for="components.3">Theory 3</label> 
+            <br>
+     <input type="checkbox" id="components.4" name="components.4" class="theory" value="true"><label for="components.4">Theory 4</label> 
+            <br>
+
+              <input type="checkbox" id="components.5" name="components.5" class="theory" value="true"><label for="components.5">Theory 5</label> 
+
+        &nbsp;   &nbsp;      <input type="checkbox" id="components.passedTest5" name="components.passedTest5" class="theory" value="true"><label for="components.passedTest5">Passed Test 5</label> 
+
+ 
+
+
+   
+    
+       
+    </div>   
+       
+      </div>
+
+
+       </div>
+     
+
+
+
+         <div id="container2" class="phasecontainer" style="display: none;"> 
+        
+           <div class="row">     
+            <div class="col-xs-12  col-sm-6">
+   <label>Start Date of Phase 2</label>
+   <input type="text" class="form-control phaseStartDate mydate required" id="phaseStartDate2" name="phaseStartDate" aria-required="true" disabled="">
+ 
+ </div>   
+        </div>  
+      <div class="row">
+ <div class="col-xs-12 ">      
+     <input type="checkbox" id="components.6" name="components.6" class="theory" value="true" disabled=""><label for="components.6">Theory 6</label> 
+            <br>
+     <input type="checkbox" id="components.7" name="components.7" class="theory" value="true" disabled=""><label for="components.7">Theory 7</label> 
+            <br>
+     
+     
+     <input type="checkbox" id="components.13" name="components.13" class="incar" value="true" disabled=""><label for="components.13">In Car 1</label> 
+            <br>
+     <input type="checkbox" id="components.14" name="components.14" class="incar" value="true" disabled=""><label for="components.14">In Car 2</label> 
+            <br>
+     <input type="checkbox" id="components.15" name="components.15" class="incar" value="true" disabled=""><label for="components.15">In Car 3</label> 
+            <br>
+     <input type="checkbox" id="components.16" name="components.16" class="incar" value="true" disabled=""><label for="components.16">In Car 4</label> 
+            <br>
+
+    
+   
+
+
+
+    </div>   
+          
+     
+             
+      </div>
+
+
+       </div>
+
+
+
+        <div id="container3" class="phasecontainer" style="display: none;"> 
+          
+               
+      <div class="row">
+        <div class="col-xs-12  col-sm-6">
+   <label>Start Date of Phase 3</label>
+   <input type="text" class="form-control phaseStartDate mydate required" id="phaseStartDate3" name="phaseStartDate" aria-required="true" disabled="">
+ 
+ </div>   
+          </div>
+      <div class="row">
+ <div class="col-xs-12 ">   
+     
+     
+     <input type="checkbox" id="components.8" name="components.8" class="theory" value="true" disabled=""><label for="components.8">Theory 8</label> 
+            <br>
+     <input type="checkbox" id="components.9" name="components.9" class="theory" value="true" disabled=""><label for="components.9">Theory 9</label> 
+            <br>
+     <input type="checkbox" id="components.10" name="components.10" class="theory" value="true" disabled=""><label for="components.10">Theory 10</label> 
+            <br>
+     
+     
+     <input type="checkbox" id="components.17" name="components.17" class="incar" value="true" disabled=""><label for="components.17">In Car 5</label> 
+            <br>
+     <input type="checkbox" id="components.18" name="components.18" class="incar" value="true" disabled=""><label for="components.18">In Car 6</label> 
+            <br>
+     <input type="checkbox" id="components.19" name="components.19" class="incar" value="true" disabled=""><label for="components.19">In Car 7</label> 
+            <br>
+     <input type="checkbox" id="components.20" name="components.20" class="incar" value="true" disabled=""><label for="components.20">In Car 8</label> 
+            <br>
+     <input type="checkbox" id="components.21" name="components.21" class="incar" value="true" disabled=""><label for="components.21">In Car 9</label> 
+            <br>
+     <input type="checkbox" id="components.22" name="components.22" class="incar" value="true" disabled=""><label for="components.22">In Car 10</label> 
+            <br>
+     
+     
+     
+     
+      
+   
+
+
+
+    </div>   
+                
+             
+      </div>
+
+
+       </div>
+
+
+       <div id="container4" class="phasecontainer" style="display: none;"> 
+                
+      <div class="row">
+                      <div class="col-xs-12  col-sm-6">
+   <label>Start Date of Phase 4</label>
+   <input type="text" class="form-control phaseStartDate mydate required" id="phaseStartDate4" name="phaseStartDate" aria-required="true" disabled="">
+ 
+ </div>  
+          </div>
+      <div class="row">
+ <div class="col-xs-12 ">   
+     
+     
+     
+     <input type="checkbox" id="components.11" name="components.11" class="theory" value="true" disabled=""><label for="components.11">Theory 11</label> 
+            <br>
+     <input type="checkbox" id="components.12" name="components.12" class="theory" value="true" disabled=""><label for="components.12">Theory 12</label> 
+            <br>
+     
+     
+     <input type="checkbox" id="components.23" name="components.23" class="incar" value="true" disabled=""><label for="components.23">In Car 11</label> 
+            <br>
+     <input type="checkbox" id="components.24" name="components.24" class="incar" value="true" disabled=""><label for="components.24">In Car 12</label> 
+            <br>
+     <input type="checkbox" id="components.25" name="components.25" class="incar" value="true" disabled=""><label for="components.25">In Car 13</label> 
+            <br>
+     <input type="checkbox" id="components.26" name="components.26" class="incar" value="true" disabled=""><label for="components.26">In Car 14</label> 
+            <br>
+     <input type="checkbox" id="components.27" name="components.27" class="incar" value="true" disabled=""><label for="components.27">In Car 15</label> 
+            <br>
+     
+   
+
+
+    </div>   
+      
+      </div>
+
+
+       </div>
+
+ <div class="row">
+                <div class="col-xs-12  "> 
+                 <button type="submit" class="btn btn-sm btn-success doneButton"><span class="glyphicon glyphicon-ok"></span> Save</button> 
+                 </div>
+                  </div>
+
+</form> 
+
+
+ 
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script>var globals={isLoggedIn:true,isStudent:false,isStaff:true,isInstructor:true,isOffice:true,loadTimeMS:(new Date().getTime()),IsDateWidgetSupported:false,isMobile:false,showMenu:true,schoolId:1,UserId:"87",userName:"Ilan Preisler",currentLanguageId:1,defaultLanguageId:1,currentLanguageCode:"en",defaultLanguageCode:"en"}</script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script><script>$(document).ajaxError(function(r,t,s,o){s.suppressAjaxError||(401==t.status||403==t.status?location.href='/':'abort'!=o&&setTimeout(alert,10,'error '+t.status+' '+o+' '+t.responseJSON))});</script><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js" type="text/javascript"></script><script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.16.0/jquery.validate.min.js" type="text/javascript"></script><script>$.validator.addMethod('mydate',function(t,e){if(this.optional(e))return!0;if(/^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.test(t)){var a=t.split('-'),r=new Date;if(r.setFullYear(a[0],a[1]-1,a[2]),!isNaN(r))return r.getMonth()+1===+a[1]&&r.getDate()===+a[2]&&r.getFullYear()===+a[0]}else if(/^(0?[1-9]|[12][0-9]|3[01])[- /.](0?[1-9]|1[012])[- /.](19|20)\d\d$/.test(t)){var a=t.split('/'),r=new Date;if(r.setFullYear(a[2],a[1]-1,a[0]),!isNaN(r))return r.getMonth()+1===+a[1]&&r.getDate()===+a[0]&&r.getFullYear()===+a[2]}return!1},'Please input valid date.');</script><script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" type="text/javascript"></script><script>$.fn.datepicker.defaults.zIndexOffset=100000;</script><script src="//cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/8.5.24/mmenu.min.js" type="text/javascript"></script>
+    
+    
+
+<script>
+    !function () { var e = null, a = function () { $(".phasecontainer").hide(), $(".phasecontainer input").prop("disabled", !0); var a = $("#container" + $("#currentPhase").val()); a.show().find("input").prop("disabled", !1), e.numberOfInvalids() > 0 && $("#learnersPermitDate").valid() }, n = function () { { var a = $(this); parseInt(a.attr("id").substr(11)), $(this).closest(".phasecontainer"), a.is(":checked") } e.numberOfInvalids() > 0 && $("#learnersPermitDate").valid() }; $(function () { e = $("#theForm").validate({ rules: { learnersPermitDate: { required: { depends: function () { var e = $("#currentPhase").val(); return e > 2 || 2 == e && $("#components\\.13").is(":checked") } } } }, submitHandler: function (e) { var a = !0; return a && $.ajax({ type: "POST", url: "Save_ajax", data: $(e).serialize() }).done(function () { window.history.back() }), !1 } }), $("#currentPhase").on("change", a), a(), $(".incar").on("change", n), $("#theForm .mydate").datepicker({ keyboardNavigation: !1, format: "dd/mm/yyyy", autoclose: !0, forceParse: !1, disableTouchKeyboard: !0 }).on("changeDate", function () { $(this).valid() }) }) }();
+        
+ </script>
+    
+
+    <script>
+        if(globals.showMenu&&(new Mmenu(document.querySelector("#menu"),{setSelected:{current:!0,parent:!0},navbar:{title:"Menu"},offCanvas:!1,extensions:globals.isMobile?[]:["theme-white","border-full"]}),globals.isMobile)){let e=new Drawer;document.getElementById("hamburger").addEventListener("click",e.open),document.getElementById("menuCloseButton").addEventListener("click",e.close)}; document.getElementById('loaderoverlay').remove(); document.body.classList.remove('loaderbody')
+    </script>
+
+    
+
+
+
+
+</body></html>
