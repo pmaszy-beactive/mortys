@@ -24,7 +24,8 @@ export type NotificationType =
   | 'class_cancelled'
   | 'class_reminder'
   | 'availability_reminder'
-  | 'scrape_failure';
+  | 'scrape_failure'
+  | 'scrape_recovered';
 
 export type RecipientType = 'student' | 'parent' | 'staff';
 
@@ -282,16 +283,12 @@ export async function getOfficeRecipients(): Promise<NotificationRecipient[]> {
     }));
 }
 
-// Alert the office when the nightly registration scrape fails.
-export async function notifyScrapeFailure(failure: {
-  runDate: string;
-  reason: string;
-  logTail?: string;
-}): Promise<number | null> {
+// Build the office recipient list for scrape alerts, always including the
+// configured fallback address so failures are never silently lost (e.g. before
+// any office users exist).
+async function getScrapeAlertRecipients(): Promise<NotificationRecipient[]> {
   const recipients = await getOfficeRecipients();
 
-  // Resilience: if an explicit alert address is configured, always include it
-  // so failures are never silently lost (e.g. before any office users exist).
   const fallbackEmail = process.env.SCRAPE_ALERT_EMAIL;
   if (fallbackEmail && !recipients.some(r => r.email === fallbackEmail)) {
     recipients.push({
@@ -302,6 +299,21 @@ export async function notifyScrapeFailure(failure: {
     });
   }
 
+  return recipients;
+}
+
+// Alert the office when the nightly registration scrape fails. The cron job
+// runs nightly, so a persistent failure produces one reminder per day. The
+// `consecutiveFailures` count (tracked by the cron wrapper) lets the message
+// escalate ("failing N days in a row") so a lingering problem stays visible.
+export async function notifyScrapeFailure(failure: {
+  runDate: string;
+  reason: string;
+  logTail?: string;
+  consecutiveFailures?: number;
+}): Promise<number | null> {
+  const recipients = await getScrapeAlertRecipients();
+
   if (recipients.length === 0) {
     console.error(
       `[scrape-alert] Nightly scrape failed (${failure.runDate}) but there are no office recipients to notify.`,
@@ -309,9 +321,25 @@ export async function notifyScrapeFailure(failure: {
     return null;
   }
 
+  const streak =
+    typeof failure.consecutiveFailures === 'number' &&
+    failure.consecutiveFailures > 0
+      ? failure.consecutiveFailures
+      : 1;
+
+  const streakLine =
+    streak > 1
+      ? `This scrape has now failed ${streak} nights in a row.\n`
+      : '';
+  const title =
+    streak > 1
+      ? `Nightly Scrape Still Failing (${streak} days) — ${failure.runDate}`
+      : `Nightly Scrape Failed — ${failure.runDate}`;
+
   const tail = failure.logTail?.trim();
   const message =
     `The nightly registration scrape failed.\n\n` +
+    streakLine +
     `Run date: ${failure.runDate}\n` +
     `Reason: ${failure.reason}\n\n` +
     `Registration data may now be stale until this is resolved.` +
@@ -319,9 +347,51 @@ export async function notifyScrapeFailure(failure: {
 
   return enqueueNotification({
     type: 'scrape_failure',
-    title: `Nightly Scrape Failed — ${failure.runDate}`,
+    title,
     message,
-    payload: { runDate: failure.runDate, reason: failure.reason },
+    payload: {
+      runDate: failure.runDate,
+      reason: failure.reason,
+      consecutiveFailures: streak,
+    },
+    recipients,
+    channels: ['email', 'in_app'],
+  });
+}
+
+// Let the office know the nightly scrape is healthy again after one or more
+// failed nights. Only sent when a success follows a failure streak — healthy
+// runs that follow healthy runs stay silent.
+export async function notifyScrapeRecovered(recovery: {
+  runDate: string;
+  failedRuns?: number;
+}): Promise<number | null> {
+  const recipients = await getScrapeAlertRecipients();
+
+  if (recipients.length === 0) {
+    return null;
+  }
+
+  const failed =
+    typeof recovery.failedRuns === 'number' && recovery.failedRuns > 0
+      ? recovery.failedRuns
+      : undefined;
+
+  const streakLine = failed
+    ? `It had been failing for ${failed} night${failed === 1 ? '' : 's'} in a row.\n`
+    : '';
+
+  const message =
+    `The nightly registration scrape succeeded again.\n\n` +
+    streakLine +
+    `Run date: ${recovery.runDate}\n\n` +
+    `Registration data is up to date again. No further action is needed.`;
+
+  return enqueueNotification({
+    type: 'scrape_recovered',
+    title: `Nightly Scrape Recovered — ${recovery.runDate}`,
+    message,
+    payload: { runDate: recovery.runDate, failedRuns: failed },
     recipients,
     channels: ['email', 'in_app'],
   });

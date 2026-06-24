@@ -4206,6 +4206,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         typeof req.body?.runDate === "string" && req.body.runDate.trim()
           ? req.body.runDate.trim()
           : new Date().toISOString().slice(0, 10);
+
+      const parseCount = (value: unknown): number | undefined => {
+        const n =
+          typeof value === "number"
+            ? value
+            : typeof value === "string"
+              ? parseInt(value, 10)
+              : NaN;
+        return Number.isFinite(n) && n > 0 ? n : undefined;
+      };
+
+      // A success-after-failure run reports `recovered: true` so the office gets
+      // a one-time "all clear" instead of yet another failure alert.
+      const recovered =
+        req.body?.recovered === true || req.body?.recovered === "true";
+
+      if (recovered) {
+        const notificationId = await notificationService.notifyScrapeRecovered({
+          runDate,
+          failedRuns: parseCount(req.body?.consecutiveFailures),
+        });
+        return res.json({ ok: true, recovered: true, notificationId });
+      }
+
       const reason =
         typeof req.body?.reason === "string" && req.body.reason.trim()
           ? req.body.reason.trim()
@@ -4217,6 +4241,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         runDate,
         reason,
         logTail,
+        consecutiveFailures: parseCount(req.body?.consecutiveFailures),
       });
       res.json({ ok: true, notificationId });
     } catch (error: any) {

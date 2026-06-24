@@ -8,7 +8,10 @@
 #
 # On failure (non-zero exit, or the spider reporting an expired cookie / login
 # redirect) the office is alerted via the running app's internal alert endpoint,
-# which sends email (SendGrid) + in-app notifications. Successful runs stay quiet.
+# which sends email (SendGrid) + in-app notifications. A persisted failure
+# counter (on the /data volume) makes each failing night re-alert with the
+# running "N nights in a row" count, and the first success after a streak sends
+# a one-time "recovered" notice. Otherwise successful runs stay quiet.
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -59,6 +62,49 @@ exec >> "$LOG_FILE" 2>&1
 # Where the running app listens (same container). Used to post failure alerts.
 ALERT_URL="${SCRAPE_ALERT_URL:-http://localhost:${APP_INTERNAL_PORT:-5000}/api/internal/scrape-alert}"
 
+# Persisted failure streak. The cron is stateless across runs, so we keep a
+# tiny counter on the /data volume: it lets each failing night escalate the
+# alert ("failing N days in a row") and lets the first success afterwards send a
+# one-time "recovered" notice. Healthy runs that follow healthy runs touch this
+# file but never notify, preserving the quiet-on-success behavior.
+STATE_FILE="${SCRAPE_STATE_FILE:-/data/scrape-failure-count}"
+
+read_failure_count() {
+    local count=0
+    if [ -f "$STATE_FILE" ]; then
+        count="$(tr -dc '0-9' < "$STATE_FILE" 2>/dev/null)"
+    fi
+    [ -z "$count" ] && count=0
+    echo "$count"
+}
+
+write_failure_count() {
+    mkdir -p "$(dirname "$STATE_FILE")" 2>/dev/null
+    echo "$1" > "$STATE_FILE" 2>/dev/null || \
+        echo "# WARNING: could not write scrape state file $STATE_FILE"
+}
+
+# Helper: POST a JSON payload to the alert endpoint and log the result.
+post_alert() {
+    local payload="$1"
+    local kind="$2"
+    echo "# Sending $kind alert to $ALERT_URL"
+    if [ -z "$INTERNAL_ALERT_TOKEN" ]; then
+        echo "# WARNING: INTERNAL_ALERT_TOKEN is not set — the alert endpoint is disabled, no notification will be sent."
+    fi
+    local response
+    response="$(curl -sS -m 30 -X POST "$ALERT_URL" \
+        -H "Content-Type: application/json" \
+        -H "X-Internal-Token: ${INTERNAL_ALERT_TOKEN}" \
+        -d "$payload" 2>&1)"
+    local rc=$?
+    if [ $rc -eq 0 ]; then
+        echo "# Alert endpoint response: $response"
+    else
+        echo "# WARNING: failed to reach alert endpoint (curl exit $rc): $response"
+    fi
+}
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DAYS_BACK=7
 TODAY="$(date '+%d/%m/%Y')"
@@ -89,39 +135,53 @@ if echo "$SCRAPE_OUTPUT" | grep -qiE "Redirected to login|session cookie has exp
     REASON="Session cookie expired (scraper was redirected to the login page). Refresh the cookie."
 fi
 
+PREV_FAILURES="$(read_failure_count)"
+
 if [ -n "$REASON" ]; then
+    # This run failed: bump the streak and send a (daily) alert that notes how
+    # many consecutive nights it has now been failing.
+    CONSECUTIVE=$((PREV_FAILURES + 1))
+    write_failure_count "$CONSECUTIVE"
+    echo "# Consecutive failure count: $CONSECUTIVE"
+
     # Quote the last 40 lines of output so the alert has actionable context.
     LOG_TAIL="$(echo "$SCRAPE_OUTPUT" | tail -n 40)"
 
     # Build a JSON payload safely (use python for proper escaping; fall back to
     # a minimal payload if python is unavailable).
     if command -v python3 >/dev/null 2>&1; then
-        PAYLOAD="$(RUN_DATE="$TODAY" REASON="$REASON" LOG_TAIL="$LOG_TAIL" python3 -c '
+        PAYLOAD="$(RUN_DATE="$TODAY" REASON="$REASON" LOG_TAIL="$LOG_TAIL" CONSECUTIVE="$CONSECUTIVE" python3 -c '
 import json, os
 print(json.dumps({
     "runDate": os.environ.get("RUN_DATE", ""),
     "reason": os.environ.get("REASON", ""),
     "logTail": os.environ.get("LOG_TAIL", ""),
+    "consecutiveFailures": int(os.environ.get("CONSECUTIVE", "1") or "1"),
 }))')"
     else
-        PAYLOAD="{\"runDate\":\"$TODAY\",\"reason\":\"$REASON\"}"
+        PAYLOAD="{\"runDate\":\"$TODAY\",\"reason\":\"$REASON\",\"consecutiveFailures\":$CONSECUTIVE}"
     fi
 
-    echo "# Sending failure alert to $ALERT_URL"
-    if [ -z "$INTERNAL_ALERT_TOKEN" ]; then
-        echo "# WARNING: INTERNAL_ALERT_TOKEN is not set — the alert endpoint is disabled, no notification will be sent."
+    post_alert "$PAYLOAD" "failure"
+else
+    # This run succeeded. If we were in a failure streak, send a one-time
+    # "recovered" notice, then reset the counter. Otherwise stay silent.
+    if [ "$PREV_FAILURES" -gt 0 ]; then
+        echo "# Scrape recovered after $PREV_FAILURES failed run(s) — sending recovery notice."
+        if command -v python3 >/dev/null 2>&1; then
+            PAYLOAD="$(RUN_DATE="$TODAY" PREV="$PREV_FAILURES" python3 -c '
+import json, os
+print(json.dumps({
+    "runDate": os.environ.get("RUN_DATE", ""),
+    "recovered": True,
+    "consecutiveFailures": int(os.environ.get("PREV", "0") or "0"),
+}))')"
+        else
+            PAYLOAD="{\"runDate\":\"$TODAY\",\"recovered\":true,\"consecutiveFailures\":$PREV_FAILURES}"
+        fi
+        post_alert "$PAYLOAD" "recovery"
     fi
-
-    ALERT_RESPONSE="$(curl -sS -m 30 -X POST "$ALERT_URL" \
-        -H "Content-Type: application/json" \
-        -H "X-Internal-Token: ${INTERNAL_ALERT_TOKEN}" \
-        -d "$PAYLOAD" 2>&1)"
-    ALERT_STATUS=$?
-    if [ $ALERT_STATUS -eq 0 ]; then
-        echo "# Alert endpoint response: $ALERT_RESPONSE"
-    else
-        echo "# WARNING: failed to reach alert endpoint (curl exit $ALERT_STATUS): $ALERT_RESPONSE"
-    fi
+    write_failure_count 0
 fi
 
 exit $STATUS
