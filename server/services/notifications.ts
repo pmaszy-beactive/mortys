@@ -23,7 +23,8 @@ export type NotificationType =
   | 'policy_override'
   | 'class_cancelled'
   | 'class_reminder'
-  | 'availability_reminder';
+  | 'availability_reminder'
+  | 'scrape_failure';
 
 export type RecipientType = 'student' | 'parent' | 'staff';
 
@@ -263,6 +264,67 @@ export async function getAdminRecipients(): Promise<NotificationRecipient[]> {
       email: u.email!,
       name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Admin',
     }));
+}
+
+// Office staff who should hear about operational/system alerts (owners, admins, managers).
+export async function getOfficeRecipients(): Promise<NotificationRecipient[]> {
+  const officeUsers = await db.select()
+    .from(users)
+    .where(inArray(users.role, ['owner', 'admin', 'manager']));
+
+  return officeUsers
+    .filter(u => u.email)
+    .map(u => ({
+      type: 'staff' as RecipientType,
+      id: String(u.id),
+      email: u.email!,
+      name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Office',
+    }));
+}
+
+// Alert the office when the nightly registration scrape fails.
+export async function notifyScrapeFailure(failure: {
+  runDate: string;
+  reason: string;
+  logTail?: string;
+}): Promise<number | null> {
+  const recipients = await getOfficeRecipients();
+
+  // Resilience: if an explicit alert address is configured, always include it
+  // so failures are never silently lost (e.g. before any office users exist).
+  const fallbackEmail = process.env.SCRAPE_ALERT_EMAIL;
+  if (fallbackEmail && !recipients.some(r => r.email === fallbackEmail)) {
+    recipients.push({
+      type: 'staff',
+      id: `email:${fallbackEmail}`,
+      email: fallbackEmail,
+      name: 'Office',
+    });
+  }
+
+  if (recipients.length === 0) {
+    console.error(
+      `[scrape-alert] Nightly scrape failed (${failure.runDate}) but there are no office recipients to notify.`,
+    );
+    return null;
+  }
+
+  const tail = failure.logTail?.trim();
+  const message =
+    `The nightly registration scrape failed.\n\n` +
+    `Run date: ${failure.runDate}\n` +
+    `Reason: ${failure.reason}\n\n` +
+    `Registration data may now be stale until this is resolved.` +
+    (tail ? `\n\nRecent log output:\n${tail}` : '');
+
+  return enqueueNotification({
+    type: 'scrape_failure',
+    title: `Nightly Scrape Failed — ${failure.runDate}`,
+    message,
+    payload: { runDate: failure.runDate, reason: failure.reason },
+    recipients,
+    channels: ['email', 'in_app'],
+  });
 }
 
 export async function notifyUpcomingClass(classData: {

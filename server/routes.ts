@@ -4186,6 +4186,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Internal alert hook for the nightly scrape cron job (runs inside the same
+  // container and posts to localhost). Secured by a shared token so it cannot be
+  // triggered externally. Disabled (503) until INTERNAL_ALERT_TOKEN is set.
+  app.post("/api/internal/scrape-alert", async (req, res) => {
+    try {
+      const expected = process.env.INTERNAL_ALERT_TOKEN;
+      if (!expected) {
+        return res
+          .status(503)
+          .json({ error: "Internal alerts disabled (INTERNAL_ALERT_TOKEN not set)" });
+      }
+      const provided = req.get("x-internal-token");
+      if (!provided || provided !== expected) {
+        return res.status(401).json({ error: "Invalid internal token" });
+      }
+
+      const runDate =
+        typeof req.body?.runDate === "string" && req.body.runDate.trim()
+          ? req.body.runDate.trim()
+          : new Date().toISOString().slice(0, 10);
+      const reason =
+        typeof req.body?.reason === "string" && req.body.reason.trim()
+          ? req.body.reason.trim()
+          : "Nightly scrape exited with an error";
+      const logTail =
+        typeof req.body?.logTail === "string" ? req.body.logTail : undefined;
+
+      const notificationId = await notificationService.notifyScrapeFailure({
+        runDate,
+        reason,
+        logTail,
+      });
+      res.json({ ok: true, notificationId });
+    } catch (error: any) {
+      console.error("Failed to send scrape-failure alert:", error);
+      res.status(500).json({ error: error?.message || "Failed to send alert" });
+    }
+  });
+
   app.post("/api/migration/test-connection", async (req, res) => {
     try {
       const { username, password } = req.body;

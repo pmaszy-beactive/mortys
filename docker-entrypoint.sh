@@ -34,6 +34,27 @@ node dist/migrate.js
 # keeps a bounded set of numbered backups so it never grows without limit.
 LOG_DIR="/data/logs"
 mkdir -p "$LOG_DIR"
+
+# crond passes only a minimal env to jobs, so persist the runtime secrets the
+# wrapper needs (failure-alert token + optional overrides) to a file it sources.
+# Written to an ephemeral container path (not the /data volume) to avoid leaving
+# secrets on persistent storage.
+CRON_ENV_FILE="/etc/nightly-scrape.env"
+: > "$CRON_ENV_FILE"
+chmod 600 "$CRON_ENV_FILE"
+for var in INTERNAL_ALERT_TOKEN SCRAPE_ALERT_URL SCRAPE_ALERT_EMAIL APP_INTERNAL_PORT \
+           IMPORT_DATA_DIR MIGRATE_OUTPUT_DIR MIGRATE_COOKIE_FILE \
+           PUPPETEER_SKIP_DOWNLOAD PUPPETEER_EXECUTABLE_PATH; do
+  eval "val=\${$var}"
+  if [ -n "$val" ]; then
+    printf 'export %s=%s\n' "$var" "$(printf '%s' "$val" | sed "s/'/'\\\\''/g; s/^/'/; s/$/'/")" >> "$CRON_ENV_FILE"
+  fi
+done
+echo "[cron] Wrote cron environment to $CRON_ENV_FILE"
+if [ -z "$INTERNAL_ALERT_TOKEN" ]; then
+  echo "[cron] WARNING: INTERNAL_ALERT_TOKEN not set — scrape-failure alerts are disabled."
+fi
+
 echo "[2/3] Starting cron daemon (nightly registration scrape @ 22:00)..."
 echo "[cron] Schedule: 0 22 * * * — last 7 days of registrations"
 echo "[cron] Run log:  $LOG_DIR/nightly-scrape.log (size-rotated, 5 MB x 7 backups)"

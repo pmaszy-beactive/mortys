@@ -5,8 +5,20 @@
 # registrations) and writes spider output JSON to the import data volume.
 # Cron runs with a minimal environment, so we explicitly export everything the
 # scraper/spider need (output dir, cookie file, Puppeteer/chromium, PATH).
+#
+# On failure (non-zero exit, or the spider reporting an expired cookie / login
+# redirect) the office is alerted via the running app's internal alert endpoint,
+# which sends email (SendGrid) + in-app notifications. Successful runs stay quiet.
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# crond runs jobs with a minimal env. The entrypoint persists the runtime secrets
+# (alert token + overrides) to this file; source it so they're available here.
+CRON_ENV_FILE="${CRON_ENV_FILE:-/etc/nightly-scrape.env}"
+if [ -f "$CRON_ENV_FILE" ]; then
+    # shellcheck disable=SC1090
+    . "$CRON_ENV_FILE"
+fi
 
 export IMPORT_DATA_DIR="${IMPORT_DATA_DIR:-/data/migrate}"
 export MIGRATE_OUTPUT_DIR="${MIGRATE_OUTPUT_DIR:-/data/migrate}"
@@ -44,6 +56,9 @@ fi
 exec >> "$LOG_FILE" 2>&1
 # ---------------------------------------------------------------------------
 
+# Where the running app listens (same container). Used to post failure alerts.
+ALERT_URL="${SCRAPE_ALERT_URL:-http://localhost:${APP_INTERNAL_PORT:-5000}/api/internal/scrape-alert}"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DAYS_BACK=7
 TODAY="$(date '+%d/%m/%Y')"
@@ -56,10 +71,57 @@ echo "# Start date: $TODAY (DD/MM/YYYY), days back: $DAYS_BACK"
 echo "# Output:    $MIGRATE_OUTPUT_DIR"
 echo "############################################################"
 
-bash "$SCRIPT_DIR/migrate-site/scrape-registrations.sh" "$TODAY" "$DAYS_BACK"
+# Capture combined output so we can detect a login redirect and quote a tail of
+# it in the failure alert, while still streaming everything to the cron log.
+SCRAPE_OUTPUT="$(bash "$SCRIPT_DIR/migrate-site/scrape-registrations.sh" "$TODAY" "$DAYS_BACK" 2>&1)"
 STATUS=$?
+echo "$SCRAPE_OUTPUT"
 
 echo "# Finished:  $(date) (exit $STATUS)"
 echo "############################################################"
+
+# Determine whether this run failed and why.
+REASON=""
+if [ $STATUS -ne 0 ]; then
+    REASON="Scraper exited with status $STATUS"
+fi
+if echo "$SCRAPE_OUTPUT" | grep -qiE "Redirected to login|session cookie has expired"; then
+    REASON="Session cookie expired (scraper was redirected to the login page). Refresh the cookie."
+fi
+
+if [ -n "$REASON" ]; then
+    # Quote the last 40 lines of output so the alert has actionable context.
+    LOG_TAIL="$(echo "$SCRAPE_OUTPUT" | tail -n 40)"
+
+    # Build a JSON payload safely (use python for proper escaping; fall back to
+    # a minimal payload if python is unavailable).
+    if command -v python3 >/dev/null 2>&1; then
+        PAYLOAD="$(RUN_DATE="$TODAY" REASON="$REASON" LOG_TAIL="$LOG_TAIL" python3 -c '
+import json, os
+print(json.dumps({
+    "runDate": os.environ.get("RUN_DATE", ""),
+    "reason": os.environ.get("REASON", ""),
+    "logTail": os.environ.get("LOG_TAIL", ""),
+}))')"
+    else
+        PAYLOAD="{\"runDate\":\"$TODAY\",\"reason\":\"$REASON\"}"
+    fi
+
+    echo "# Sending failure alert to $ALERT_URL"
+    if [ -z "$INTERNAL_ALERT_TOKEN" ]; then
+        echo "# WARNING: INTERNAL_ALERT_TOKEN is not set — the alert endpoint is disabled, no notification will be sent."
+    fi
+
+    ALERT_RESPONSE="$(curl -sS -m 30 -X POST "$ALERT_URL" \
+        -H "Content-Type: application/json" \
+        -H "X-Internal-Token: ${INTERNAL_ALERT_TOKEN}" \
+        -d "$PAYLOAD" 2>&1)"
+    ALERT_STATUS=$?
+    if [ $ALERT_STATUS -eq 0 ]; then
+        echo "# Alert endpoint response: $ALERT_RESPONSE"
+    else
+        echo "# WARNING: failed to reach alert endpoint (curl exit $ALERT_STATUS): $ALERT_RESPONSE"
+    fi
+fi
 
 exit $STATUS
