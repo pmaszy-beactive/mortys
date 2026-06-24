@@ -18,14 +18,23 @@ files. Because of this:
   questions (e.g. "is this a rename or a new column?") whenever it sees the
   ambiguous drift. In dev that blocks; create the table directly via SQL instead.
 
-- **Post-merge runs db:push with stdin closed.** `scripts/post-merge.sh` runs
-  `npm run db:push`. The post-merge runner closes stdin, so any drizzle prompt
-  gets EOF and the whole post-merge step fails (or silently mis-applies drift).
-  A migration-only, non-interactive post-merge is safer.
+- **Post-merge no longer uses db:push.** `scripts/post-merge.sh` now runs
+  `npx tsx scripts/db-migrate.ts`, a non-interactive migrator that applies only
+  the committed SQL files in `./migrations` (never reads `schema.ts`, so no
+  drift is ever applied, and it never prompts).
 
-**Why:** production applies SQL via the `dist/migrate.js` runner (idempotent,
-journal-ordered), so prod is fine; the fragile path is dev/post-merge `push`.
+**Adoption/baseline gotcha:** the dev DB was built via `db:push`, so it had the
+full schema but NO `drizzle.__drizzle_migrations` tracking table. Running the
+ORM migrator as-is would replay `0000` (bare `CREATE TABLE`) and crash. So
+`db-migrate.ts` baselines on first run: if the tracking table is empty AND
+`public.users` already exists, it records every committed migration as applied
+(using Drizzle's own `readMigrationFiles` hashes so they match what the migrator
+checks). Fresh/empty DB → no baseline, migrator builds from `0000`.
 
-**How to apply:** when adding schema, write/trim a SQL migration and rely on the
-migrate runner; do not depend on `db:push` landing cleanly until the drift is
-resolved.
+**Why:** production already applies SQL via the `dist/migrate.js` ORM migrator
+(journal-ordered, idempotent). `db-migrate.ts` brings that same SQL-migration
+path to dev/post-merge instead of the fragile, drift-prone `push`.
+
+**How to apply:** when adding schema, write/trim a SQL migration + journal entry
+and rely on the migrate runner. `db:push` (`drizzle-kit push`) still exists in
+package.json but is interactive/drift-prone — avoid it in automation.
