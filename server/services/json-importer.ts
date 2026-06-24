@@ -79,6 +79,7 @@ interface ScrapedPage {
   forms?: ScrapedForm[];
   tables?: ScrapedTable[];
   images?: { src: string; alt?: string }[];
+  links?: { href?: string; text?: string }[];
   label_values?: Record<string, string>;
 }
 
@@ -167,6 +168,7 @@ export type PageType =
   | "studentfile"
   | "printcontracts"
   | "registrations"
+  | "reservations"
   | "coursetransfer"
   | "onlinetest"
   | "practicalsignatures"
@@ -181,6 +183,7 @@ function classify(relPath: string, page?: ScrapedPage): PageType {
     return "studentfile";
   if (u.includes("printcontracts")) return "printcontracts";
   if (u.includes("/reports/registrations")) return "registrations";
+  if (u.includes("reservation")) return "reservations";
   if (u.includes("coursetransfer")) return "coursetransfer";
   if (u.includes("onlinetest")) return "onlinetest";
   if (u.includes("practicalsignatures")) return "practicalsignatures";
@@ -201,6 +204,7 @@ const TYPE_PRIORITY: Record<PageType, number> = {
   practicalsignatures: 5,
   practicaleval: 5,
   zoomscreenshot: 5,
+  reservations: 6,
   attestation: 8,
   other: 9,
 };
@@ -266,15 +270,27 @@ export async function getManifest(): Promise<ManifestResult> {
   const dataDir = getImportDataDir();
   const { files } = enumerateImportFiles(dataDir);
   const byType: Record<string, number> = {};
+  const currentHashes = new Set<string>();
   for (const f of files) {
     const rel = path.relative(dataDir, f);
-    const t = classify(rel);
+    // Read the page to classify accurately and derive the same urlHash that
+    // runImport persists (page.url_hash with a path-based fallback).
+    let page: ScrapedPage | null = null;
+    try {
+      page = JSON.parse(fs.readFileSync(f, "utf8")) as ScrapedPage;
+    } catch {
+      page = null;
+    }
+    const t = classify(rel, page || undefined);
     byType[t] = (byType[t] || 0) + 1;
+    currentHashes.add(page?.url_hash || sha256(rel).slice(0, 16));
   }
+  // Count only previously-imported pages that correspond to files present now,
+  // so the metric reflects "of the current files, how many are already done".
   let alreadyImported = 0;
   try {
-    const rows = await db.select({ id: importedPages.id }).from(importedPages);
-    alreadyImported = rows.length;
+    const rows = await db.select({ urlHash: importedPages.urlHash }).from(importedPages);
+    for (const r of rows) if (r.urlHash && currentHashes.has(r.urlHash)) alreadyImported++;
   } catch {
     alreadyImported = 0;
   }
@@ -461,6 +477,18 @@ async function buildContext(): Promise<ImportContext> {
     .from(lessonRecords)
     .where(isNotNull(lessonRecords.legacyLessonId));
   for (const r of lRows) if (r.k) ctx.lessonKeys.add(r.k);
+
+  // Preload note signatures from previously imported notes so re-runs do not
+  // re-insert the same legacy notes (studentNotes has no legacy key column).
+  const nRows = await db
+    .select({ studentId: studentNotes.studentId, content: studentNotes.content })
+    .from(studentNotes)
+    .where(eq(studentNotes.authorId, "legacy-import"));
+  for (const r of nRows) {
+    if (r.content != null) {
+      ctx.noteSigs.add(`${r.studentId}:${sha256(r.content).slice(0, 16)}`);
+    }
+  }
 
   return ctx;
 }
@@ -891,6 +919,110 @@ async function importOnlineTest(
   return legacyId;
 }
 
+/**
+ * Reservations / bookings pages. Each booking row becomes a lesson record keyed
+ * by student + booking date + slot so re-runs never duplicate.
+ */
+async function importReservations(
+  page: ScrapedPage,
+  ctx: ImportContext,
+  summary: ImportSummary,
+): Promise<string | null> {
+  const legacyId = legacyIdFromPage(page);
+  if (!legacyId) return null;
+  const url = page.final_url || page.url || "";
+  const courseType = courseTypeFromUrl(url);
+  const studentId = await getOrCreateStudent(ctx, legacyId, { courseType }, summary);
+
+  let rowIdx = 0;
+  for (const table of page.tables || []) {
+    for (const rec of table.records || []) {
+      const values = Object.values(rec).map((v) => String(v ?? ""));
+      const joined = values.join(" ").toLowerCase();
+      // Find a parseable date anywhere in the row.
+      let isoDate: string | null = null;
+      for (const v of values) {
+        isoDate = toISODate(v);
+        if (isoDate) break;
+      }
+      rowIdx++;
+      if (!isoDate) continue;
+      let status = "completed";
+      if (joined.includes("cancel")) status = "cancelled";
+      else if (joined.includes("no-show") || joined.includes("no show")) status = "no-show";
+      const lessonType = joined.includes("theor") ? "theory" : "practical";
+
+      const key = `${legacyId}_resv_${isoDate}_${rowIdx}`;
+      if (ctx.lessonKeys.has(key)) {
+        summary.lessons.skipped++;
+        continue;
+      }
+      await db.insert(lessonRecords).values({
+        studentId,
+        lessonDate: isoDate,
+        lessonType,
+        duration: 60,
+        status,
+        notes: `Legacy reservation: ${values.filter(Boolean).join(" | ").slice(0, 400)}`,
+        legacyLessonId: key,
+      });
+      ctx.lessonKeys.add(key);
+      summary.lessons.created++;
+    }
+  }
+  return legacyId;
+}
+
+/**
+ * Registration report pages (the seed/discovery pages). They list registered
+ * students; we create student stubs from any student links so later detail
+ * pages can enrich them. No per-student entity data lives on these pages.
+ */
+async function importRegistrations(
+  page: ScrapedPage,
+  ctx: ImportContext,
+  summary: ImportSummary,
+): Promise<string | null> {
+  const url = page.final_url || page.url || "";
+  const courseType = courseTypeFromUrl(url);
+  for (const link of page.links || []) {
+    const href = link.href || "";
+    const sid = queryParam(href, "studentUserId") || queryParam(href, "studentuserid");
+    if (!sid) continue;
+    await getOrCreateStudent(
+      ctx,
+      sid,
+      { name: link.text?.trim(), courseType },
+      summary,
+    );
+  }
+  // Registration pages have no student-specific URL key of their own.
+  return null;
+}
+
+/**
+ * Attestation pages — flag the student's contract as attestation-generated and
+ * capture the attestation number when present.
+ */
+async function importAttestation(
+  page: ScrapedPage,
+  ctx: ImportContext,
+  summary: ImportSummary,
+): Promise<string | null> {
+  const legacyId = legacyIdFromPage(page);
+  if (!legacyId) return null;
+  const url = page.final_url || page.url || "";
+  const courseType = courseTypeFromUrl(url);
+  const lv = page.label_values || {};
+  const attestationNumber =
+    lv["Attestation No"] || lv["Attestation Number"] || lv["No. d'attestation"];
+  const studentId = await getOrCreateStudent(ctx, legacyId, { courseType }, summary);
+  if (attestationNumber) {
+    await enrichStudent(studentId, { attestationNumber }, summary);
+  }
+  return legacyId;
+}
+
 // ---------------------------------------------------------------------------
 // Shared upserts
 // ---------------------------------------------------------------------------
@@ -1121,7 +1253,16 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
           case "onlinetest":
             legacyId = await importOnlineTest(page, ctx, state.summary);
             break;
-          // attestation / registrations / other: no entity data — track as processed.
+          case "reservations":
+            legacyId = await importReservations(page, ctx, state.summary);
+            break;
+          case "registrations":
+            legacyId = await importRegistrations(page, ctx, state.summary);
+            break;
+          case "attestation":
+            legacyId = await importAttestation(page, ctx, state.summary);
+            break;
+          // other: no entity data — track as processed.
           default:
             break;
         }
