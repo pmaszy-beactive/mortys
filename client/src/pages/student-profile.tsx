@@ -34,7 +34,8 @@ import {
   Lock,
   MessageSquare,
   Send,
-  Eye
+  Eye,
+  Image as ImageIcon
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import StudentForm from "@/components/student-form";
@@ -45,7 +46,7 @@ import { StatementOfAccount } from "@/components/statement-of-account";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import type { Student, Contract, Evaluation, ClassEnrollment, Location, StudentCourse, StudentParent, Parent, Class, Instructor, StudentNote } from "@shared/schema";
+import type { Student, Contract, Evaluation, ClassEnrollment, Location, StudentCourse, StudentParent, Parent, Class, Instructor, StudentNote, StudentDocument } from "@shared/schema";
 import type { PhaseProgressData } from "@shared/phaseConfig";
 import PhaseProgressTracker, { PhaseProgressTrackerSkeleton } from "@/components/phase-progress-tracker";
 
@@ -131,6 +132,11 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
 
   const { data: instructors = [] } = useQuery<Instructor[]>({
     queryKey: ["/api/instructors"],
+  });
+
+  const { data: studentDocuments = [] } = useQuery<StudentDocument[]>({
+    queryKey: ['/api/students', studentId, 'documents'],
+    queryFn: () => apiRequest("GET", `/api/students/${studentId}/documents`),
   });
 
   const { data: studentNotes = [] } = useQuery<StudentNote[]>({
@@ -706,7 +712,7 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
 
       {/* Detailed Tabs */}
       <Tabs defaultValue="evaluations" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="evaluations" className="touch-target">Evaluations</TabsTrigger>
           <TabsTrigger value="contracts" className="touch-target">Contracts</TabsTrigger>
           <TabsTrigger value="statement" className="touch-target">Statement</TabsTrigger>
@@ -715,6 +721,7 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
           <TabsTrigger value="student-notes" className="touch-target">Student Notes</TabsTrigger>
           <TabsTrigger value="courses" className="touch-target">Courses</TabsTrigger>
           <TabsTrigger value="parents" className="touch-target">Parents</TabsTrigger>
+          <TabsTrigger value="documents" className="touch-target">Documents</TabsTrigger>
         </TabsList>
 
         <TabsContent value="evaluations">
@@ -1485,6 +1492,49 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                     <Plus className="mr-1 h-4 w-4" />
                     Link First Parent
                   </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="documents">
+          <Card className="mobile-card">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <ImageIcon className="mr-2 h-5 w-5" />
+                Zoom Screenshots
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {studentDocuments.filter((d) => d.documentType === "zoom_screenshot").length === 0 ? (
+                <p className="text-sm text-muted-foreground" data-testid="text-no-screenshots">
+                  No zoom screenshots imported for this student.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {studentDocuments
+                    .filter((d) => d.documentType === "zoom_screenshot")
+                    .map((doc) => (
+                      <a
+                        key={doc.id}
+                        href={`/api/student-documents/${doc.id}/file`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block border rounded-md overflow-hidden hover-elevate"
+                        data-testid={`link-screenshot-${doc.id}`}
+                      >
+                        <img
+                          src={`/api/student-documents/${doc.id}/file`}
+                          alt={doc.documentName}
+                          loading="lazy"
+                          className="w-full h-32 object-cover bg-muted"
+                          data-testid={`img-screenshot-${doc.id}`}
+                        />
+                        <div className="p-2 text-xs truncate" title={doc.documentName}>
+                          {doc.documentName}
+                        </div>
+                      </a>
+                    ))}
                 </div>
               )}
             </CardContent>

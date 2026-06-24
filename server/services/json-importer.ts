@@ -27,9 +27,11 @@ import {
   evaluations,
   lessonRecords,
   studentNotes,
+  studentDocuments,
 } from "@shared/schema";
 import { storage } from "../storage";
-import { eq, isNotNull } from "drizzle-orm";
+import { isS3Configured, buildDocumentKey, uploadToS3 } from "./s3";
+import { eq, and, isNotNull } from "drizzle-orm";
 import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
@@ -96,6 +98,7 @@ export interface ImportSummary {
   evaluations: EntityCounts;
   lessons: EntityCounts;
   notes: EntityCounts;
+  documents: EntityCounts;
   pages: { processed: number; skipped: number; errors: number };
 }
 
@@ -123,6 +126,7 @@ function emptySummary(): ImportSummary {
     evaluations: emptyCounts(),
     lessons: emptyCounts(),
     notes: emptyCounts(),
+    documents: emptyCounts(),
     pages: { processed: 0, skipped: 0, errors: 0 },
   };
 }
@@ -430,6 +434,7 @@ interface ImportContext {
   evalKeys: Set<string>;
   lessonKeys: Set<string>;
   noteSigs: Set<string>;
+  docKeys: Set<string>;
 }
 
 async function buildContext(): Promise<ImportContext> {
@@ -441,6 +446,7 @@ async function buildContext(): Promise<ImportContext> {
     evalKeys: new Set(),
     lessonKeys: new Set(),
     noteSigs: new Set(),
+    docKeys: new Set(),
   };
 
   const sRows = await db
@@ -489,6 +495,13 @@ async function buildContext(): Promise<ImportContext> {
       ctx.noteSigs.add(`${r.studentId}:${sha256(r.content).slice(0, 16)}`);
     }
   }
+
+  // Preload zoom-screenshot document keys so re-runs do not re-download / re-upload.
+  const dRows = await db
+    .select({ k: studentDocuments.legacyDocumentId })
+    .from(studentDocuments)
+    .where(eq(studentDocuments.documentType, "zoom_screenshot"));
+  for (const r of dRows) if (r.k) ctx.docKeys.add(r.k);
 
   return ctx;
 }
@@ -549,6 +562,132 @@ async function enrichStudent(
 // Per-page parsers. Each returns the studentLegacyId it touched (for tracking).
 // ---------------------------------------------------------------------------
 
+/** Download a public legacy image. Returns null on any failure (never throws). */
+async function fetchImage(
+  rawUrl: string,
+): Promise<{ buffer: Buffer; contentType: string } | null> {
+  const url = rawUrl.startsWith("//") ? `https:${rawUrl}` : rawUrl;
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (buffer.length === 0) return null;
+    const contentType = res.headers.get("content-type") || "image/jpeg";
+    return { buffer, contentType };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The admin student file links every zoom-screenshot attendance image. Each
+ * S3 image link (`//zoomscreenshots.s3...jpg`, text "Zoom screenshot") is
+ * immediately followed by its `/zoomscreenshot/?...&courseComponentId=N&
+ * screenshotNo=M` page link, which tells us the component + screenshot number.
+ * We copy each image into our own S3 (base64 fallback when S3 is unconfigured)
+ * and store it as a `zoom_screenshot` student document so it shows on the
+ * student record. Idempotent via the legacy document key.
+ */
+async function importZoomScreenshots(
+  page: ScrapedPage,
+  ctx: ImportContext,
+  studentId: number,
+  legacyId: string,
+  summary: ImportSummary,
+): Promise<void> {
+  const links = page.links || [];
+  for (let i = 0; i < links.length; i++) {
+    const href = links[i]?.href || "";
+    if (!href.includes("zoomscreenshots.s3")) continue;
+
+    // Look at the following links for the matching /zoomscreenshot/ page link.
+    let componentId = "0";
+    let screenshotNo = String(i);
+    for (let j = i + 1; j < Math.min(i + 3, links.length); j++) {
+      const next = links[j]?.href || "";
+      if (next.includes("/zoomscreenshot")) {
+        componentId = queryParam(next, "courseComponentId") || componentId;
+        screenshotNo = queryParam(next, "screenshotNo") || screenshotNo;
+        break;
+      }
+    }
+
+    const key = `${legacyId}_zoomimg_${componentId}_${screenshotNo}`;
+    if (ctx.docKeys.has(key)) {
+      summary.documents.skipped++;
+      continue;
+    }
+
+    const image = await fetchImage(href);
+    if (!image) {
+      // A dead URL: skip this run, but do NOT mark the key as done so a later
+      // run can retry once the source is reachable again.
+      summary.documents.skipped++;
+      continue;
+    }
+
+    const filename = `zoom-${componentId}-${screenshotNo}.jpg`;
+    const documentName = `Zoom Screenshot ${componentId}-${screenshotNo}`;
+    const today = new Date().toISOString().slice(0, 10);
+
+    try {
+      if (isS3Configured()) {
+        // Insert WITHOUT the legacy key first. We only stamp legacyDocumentId
+        // (which marks the screenshot as "done") after the S3 upload succeeds,
+        // so a failed upload leaves no row that future runs would skip forever.
+        const [row] = await db
+          .insert(studentDocuments)
+          .values({
+            studentId,
+            documentType: "zoom_screenshot",
+            documentName,
+            documentData: "",
+            uploadDate: today,
+            fileSize: image.buffer.length,
+            mimeType: image.contentType,
+            verificationStatus: "approved",
+          })
+          .returning({ id: studentDocuments.id });
+        const s3Key = buildDocumentKey(studentId, row.id, filename);
+        try {
+          await uploadToS3(s3Key, image.buffer, image.contentType);
+          await db
+            .update(studentDocuments)
+            .set({ documentData: s3Key, legacyDocumentId: key })
+            .where(eq(studentDocuments.id, row.id));
+        } catch (uploadErr) {
+          // Roll back the placeholder row so the screenshot is retried later.
+          await db.delete(studentDocuments).where(eq(studentDocuments.id, row.id));
+          throw uploadErr;
+        }
+      } else {
+        const dataUrl = `data:${image.contentType};base64,${image.buffer.toString("base64")}`;
+        await db.insert(studentDocuments).values({
+          studentId,
+          documentType: "zoom_screenshot",
+          documentName,
+          documentData: dataUrl,
+          uploadDate: today,
+          fileSize: image.buffer.length,
+          mimeType: image.contentType,
+          legacyDocumentId: key,
+          verificationStatus: "approved",
+        });
+      }
+
+      ctx.docKeys.add(key);
+      summary.documents.created++;
+    } catch (err) {
+      // One bad screenshot must never abort the whole page/import.
+      console.error(`[import] zoom screenshot ${key} failed:`, err);
+      summary.documents.skipped++;
+    }
+  }
+}
+
 async function importStudentFile(
   page: ScrapedPage,
   ctx: ImportContext,
@@ -579,6 +718,10 @@ async function importStudentFile(
     },
     summary,
   );
+
+  // Pull any zoom-screenshot attendance images linked on this student file into
+  // our own S3 (or base64 fallback) so they display on the student record.
+  await importZoomScreenshots(page, ctx, studentId, legacyId, summary);
 
   // Office-use notes: any textarea field with content on the page.
   for (const form of page.forms || []) {

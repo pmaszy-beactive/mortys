@@ -74,6 +74,7 @@ interface ImportStatus {
     evaluations: EntityCounts;
     lessons: EntityCounts;
     notes: EntityCounts;
+    documents: EntityCounts;
     pages: { processed: number; skipped: number; errors: number };
   };
   error: string | null;
@@ -596,6 +597,7 @@ function ImportTab({
     { label: "Evaluations", counts: s?.evaluations },
     { label: "Lessons", counts: s?.lessons },
     { label: "Notes", counts: s?.notes },
+    { label: "Screenshots", counts: s?.documents },
   ];
 
   return (

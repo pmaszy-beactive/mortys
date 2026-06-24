@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Car, Users, Presentation, Calendar, ClipboardCheck, Mail, BarChart3, Menu, X, Video, FileText, CreditCard, MapPin, TrendingUp, Settings, LogOut, Shield, Receipt, DollarSign, ChevronDown, ChevronRight, Wallet, RotateCcw } from "lucide-react";
+import { Car, Users, Presentation, Calendar, ClipboardCheck, Mail, BarChart3, Menu, X, Video, FileText, CreditCard, MapPin, TrendingUp, Settings, LogOut, Shield, Receipt, DollarSign, ChevronDown, ChevronRight, Wallet, RotateCcw, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { NotificationCenter } from "@/components/notification-center";
@@ -44,6 +44,7 @@ const navigation: NavItem[] = [
       { name: "Zoom Integration", href: "/zoom", icon: Video },
       { name: "Booking Policies", href: "/booking-policies", icon: Shield },
       { name: "Override Audit Logs", href: "/override-audit-logs", icon: Shield },
+      { name: "Data Migration", href: "/data-migration", icon: Database },
       { name: "System Settings", href: "/settings", icon: Settings },
     ]
   },
