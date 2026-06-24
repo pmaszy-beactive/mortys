@@ -237,29 +237,76 @@ function listJsonFiles(dir: string): string[] {
  * present. If it is missing or unreadable, we fall back to a recursive scan so
  * the importer still works on partial/manual data dumps.
  */
-function enumerateImportFiles(dir: string): {
-  files: string[];
+interface ImportFileEntry {
+  /** Absolute path to the page JSON file. */
+  full: string;
+  /** Path relative to the data dir (used for classification + hashing). */
+  rel: string;
+  /** Page URL from `_manifest.json` when available (more reliable than the path). */
+  url?: string;
+}
+
+/**
+ * Like {@link enumerateImportFiles} but also returns per-file metadata (relative
+ * path + page URL) so callers can classify and hash WITHOUT opening each file.
+ * The scraper names every file `<name>_<urlHash>.json`, and `_manifest.json`
+ * carries each page's URL, so the lightweight manifest summary never needs to
+ * read (and JSON-parse) the hundreds of MB of page bodies.
+ */
+function enumerateImportEntries(dir: string): {
+  entries: ImportFileEntry[];
   source: "manifest" | "scan";
 } {
-  if (!fs.existsSync(dir)) return { files: [], source: "scan" };
+  if (!fs.existsSync(dir)) return { entries: [], source: "scan" };
   const manifestPath = path.join(dir, "_manifest.json");
   if (fs.existsSync(manifestPath)) {
     try {
       const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
       const pages: any[] = Array.isArray(manifest?.pages) ? manifest.pages : [];
-      const files: string[] = [];
+      const entries: ImportFileEntry[] = [];
       for (const p of pages) {
         const rel = typeof p === "string" ? p : p?.file;
         if (!rel || typeof rel !== "string") continue;
         const full = path.join(dir, rel);
-        if (full.endsWith(".json") && fs.existsSync(full)) files.push(full);
+        if (full.endsWith(".json") && fs.existsSync(full)) {
+          entries.push({
+            full,
+            rel,
+            url: typeof p === "string" ? undefined : p?.url,
+          });
+        }
       }
-      if (files.length > 0) return { files, source: "manifest" };
+      if (entries.length > 0) return { entries, source: "manifest" };
     } catch {
       // Fall through to recursive scan on a malformed manifest.
     }
   }
-  return { files: listJsonFiles(dir), source: "scan" };
+  const files = listJsonFiles(dir);
+  return {
+    entries: files.map((full) => ({ full, rel: path.relative(dir, full) })),
+    source: "scan",
+  };
+}
+
+function enumerateImportFiles(dir: string): {
+  files: string[];
+  source: "manifest" | "scan";
+} {
+  const { entries, source } = enumerateImportEntries(dir);
+  return { files: entries.map((e) => e.full), source };
+}
+
+/**
+ * Derive the `urlHash` that {@link runImport} persists for a page, from its
+ * filename alone (`<name>_<16-hex>.json`). Falls back to the path hash for
+ * files that don't follow the scraper's naming convention — matching the
+ * `page.url_hash || sha256(rel)` rule used when the page is actually imported.
+ */
+function hashFromFilename(rel: string): string {
+  const base = path.basename(rel).replace(/\.json$/i, "");
+  const suffix = base.split("_").pop();
+  if (suffix && /^[0-9a-f]{16}$/i.test(suffix)) return suffix.toLowerCase();
+  return sha256(rel).slice(0, 16);
 }
 
 export interface ManifestResult {
@@ -272,22 +319,16 @@ export interface ManifestResult {
 
 export async function getManifest(): Promise<ManifestResult> {
   const dataDir = getImportDataDir();
-  const { files } = enumerateImportFiles(dataDir);
+  const { entries } = enumerateImportEntries(dataDir);
   const byType: Record<string, number> = {};
   const currentHashes = new Set<string>();
-  for (const f of files) {
-    const rel = path.relative(dataDir, f);
-    // Read the page to classify accurately and derive the same urlHash that
-    // runImport persists (page.url_hash with a path-based fallback).
-    let page: ScrapedPage | null = null;
-    try {
-      page = JSON.parse(fs.readFileSync(f, "utf8")) as ScrapedPage;
-    } catch {
-      page = null;
-    }
-    const t = classify(rel, page || undefined);
+  for (const e of entries) {
+    // Classify from the page URL (preferred) or the file path, and derive the
+    // persisted urlHash from the filename — so summarizing thousands of pages
+    // never has to open (and JSON-parse) their hundreds of MB of bodies.
+    const t = classify(e.rel, e.url ? ({ url: e.url } as ScrapedPage) : undefined);
     byType[t] = (byType[t] || 0) + 1;
-    currentHashes.add(page?.url_hash || sha256(rel).slice(0, 16));
+    currentHashes.add(hashFromFilename(e.rel));
   }
   // Count only previously-imported pages that correspond to files present now,
   // so the metric reflects "of the current files, how many are already done".
@@ -301,7 +342,7 @@ export async function getManifest(): Promise<ManifestResult> {
   return {
     dataDir,
     exists: fs.existsSync(dataDir),
-    total: files.length,
+    total: entries.length,
     byType,
     alreadyImported,
   };

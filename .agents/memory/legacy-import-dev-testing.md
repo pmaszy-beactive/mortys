@@ -55,3 +55,21 @@ arbitrary hosts (SSRF). The `.includes(...)` checks in the parsers are only sele
 
 UI: student-profile Documents tab has two galleries — "Zoom Screenshots" and "Online Test
 Questions" — each filtering by documentType.
+
+## getManifest must NOT read page bodies (perf)
+The manifest summary (GET /api/import/manifest -> getManifest) must summarize
+the scrape WITHOUT reading/JSON-parsing each page file. The real dataset is
+~16k files / ~144MB; a full read+parse pass takes ~21s and made the admin
+"Refresh" button appear to do nothing (UI shows total 0 while the request
+grinds). Classify from `_manifest.json`'s per-page `url` (or the rel path) and
+derive the persisted urlHash from the filename.
+
+**Key fact:** the scraper names every file `<name>_<16hexUrlHash>.json` and that
+suffix === the page's `url_hash` field (verified 1065/1065, 0 missing). runImport
+persists `page.url_hash || sha256(rel).slice(0,16)`, so `hashFromFilename()`
+(suffix, else sha256(rel).slice(0,16)) reproduces the persisted key without
+opening the file. Result: 21s -> ~1.5s. If a future change needs per-page detail
+in the summary, keep it filename/manifest-derived, never a body read.
+
+**Caveat:** for manually-renamed dumps where filename suffix != page.url_hash,
+the `alreadyImported` count can undercount (metric-only; import still correct).
