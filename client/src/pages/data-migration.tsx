@@ -600,6 +600,10 @@ function ImportTab({
     { label: "Screenshots", counts: s?.documents },
   ];
 
+  // Run Import is hidden for now to avoid confusing users. Flip to true to
+  // restore the import controls, progress, results, and live log.
+  const SHOW_RUN_IMPORT = false;
+
   return (
     <div className="space-y-6">
       {/* Available files by type */}
@@ -675,6 +679,7 @@ function ImportTab({
       </Card>
 
       {/* Run controls */}
+      {SHOW_RUN_IMPORT && (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -752,9 +757,10 @@ function ImportTab({
           )}
         </CardContent>
       </Card>
+      )}
 
       {/* Summary */}
-      {s && (importStatus?.status === "completed" || importStatus?.status === "running") && (
+      {SHOW_RUN_IMPORT && s && (importStatus?.status === "completed" || importStatus?.status === "running") && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -797,7 +803,7 @@ function ImportTab({
       )}
 
       {/* Live log */}
-      {importStatus && importStatus.logs.length > 0 && (
+      {SHOW_RUN_IMPORT && importStatus && importStatus.logs.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Live Log</CardTitle>
