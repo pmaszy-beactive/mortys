@@ -205,12 +205,6 @@ export default function InstructorProfile() {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  const calculateYearsOfService = (hireDate: string | null) => {
-    if (!hireDate) return 0;
-    const years = new Date().getFullYear() - new Date(hireDate).getFullYear();
-    return Math.max(0, years);
-  };
-
   if (isLoading) {
     return (
       <div className="space-y-8 pb-8 bg-gray-50 min-h-screen p-4 sm:p-6">
@@ -242,7 +236,6 @@ export default function InstructorProfile() {
 
   const specializationsData = parseSpecializations(instructor.specializations);
   const secondaryLocations = parseSecondaryLocations(instructor.secondaryLocations);
-  const yearsOfService = calculateYearsOfService(instructor.hireDate);
 
   const currentVehicle = instructor.vehicleId ? vehicles.find(v => v.id === instructor.vehicleId) : null;
   const hasValidVehicleAssignment = instructor.vehicleId ? !!currentVehicle : true;
@@ -352,23 +345,6 @@ export default function InstructorProfile() {
         </CardHeader>
       </Card>
 
-      {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="stat-card">
-          <p className="text-sm font-medium text-gray-500 mb-1">Total Classes</p>
-          <p className="text-3xl font-bold text-gray-900">{classes.length}</p>
-        </div>
-        <div className="stat-card">
-          <p className="text-sm font-medium text-gray-500 mb-1">Evaluations</p>
-          <p className="text-3xl font-bold text-gray-900">{evaluations.length}</p>
-        </div>
-        <div className="stat-card">
-          <p className="text-sm font-medium text-gray-500 mb-1">Experience</p>
-          <p className="text-3xl font-bold text-gray-900">
-            {yearsOfService > 0 ? `${yearsOfService} ${yearsOfService === 1 ? 'Year' : 'Years'}` : "New"}
-          </p>
-        </div>
-      </div>
 
       {/* Content Tabs */}
       <Tabs defaultValue="profile" className="space-y-6">
