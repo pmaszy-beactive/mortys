@@ -6,7 +6,27 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-const Select = SelectPrimitive.Root
+// Radix Select (especially when used inside a Dialog) can leave
+// `pointer-events: none` on document.body after it closes, which swallows the
+// very next click — most visibly making Cancel/Close buttons require a second
+// click. Wrapping the Root so we clear it whenever the select closes keeps every
+// control clickable on the first click, app-wide, without each form repeating
+// the fix.
+const Select = ({
+  onOpenChange,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Root>) => {
+  const handleOpenChange = (open: boolean) => {
+    onOpenChange?.(open)
+    if (!open) {
+      setTimeout(() => {
+        document.body.style.pointerEvents = ""
+      }, 0)
+    }
+  }
+  return <SelectPrimitive.Root onOpenChange={handleOpenChange} {...props} />
+}
+Select.displayName = "Select"
 
 const SelectGroup = SelectPrimitive.Group
 
