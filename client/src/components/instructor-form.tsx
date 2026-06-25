@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -96,27 +96,38 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
     return Array.isArray(locations) ? locations : [];
   };
 
+  const buildDefaults = (source?: Instructor): InstructorFormData => ({
+    firstName: source?.firstName || "",
+    lastName: source?.lastName || "",
+    email: source?.email || "",
+    phone: source?.phone || "",
+    instructorLicenseNumber: source?.instructorLicenseNumber || "",
+    permitNumber: source?.permitNumber || "",
+    locationAssignment: source?.locationAssignment || "",
+    secondaryLocations: source ? parseSecondaryLocations(source.secondaryLocations) : [],
+    hireDate: source?.hireDate || "",
+    certificationExpiry: source?.certificationExpiry || "",
+    emergencyContact: source?.emergencyContact || "",
+    emergencyPhone: source?.emergencyPhone || "",
+    notes: source?.notes || "",
+    status: source?.status || "active",
+    vehicleId: source?.vehicleId || undefined,
+    specializationsData: source ? parseSpecializations(source.specializations) : {},
+  });
+
   const form = useForm<InstructorFormData>({
     resolver: zodResolver(instructorFormSchema),
-    defaultValues: {
-      firstName: instructor?.firstName || "",
-      lastName: instructor?.lastName || "",
-      email: instructor?.email || "",
-      phone: instructor?.phone || "",
-      instructorLicenseNumber: instructor?.instructorLicenseNumber || "",
-      permitNumber: instructor?.permitNumber || "",
-      locationAssignment: instructor?.locationAssignment || "",
-      secondaryLocations: instructor ? parseSecondaryLocations(instructor.secondaryLocations) : [],
-      hireDate: instructor?.hireDate || "",
-      certificationExpiry: instructor?.certificationExpiry || "",
-      emergencyContact: instructor?.emergencyContact || "",
-      emergencyPhone: instructor?.emergencyPhone || "",
-      notes: instructor?.notes || "",
-      status: instructor?.status || "active",
-      vehicleId: instructor?.vehicleId || undefined,
-      specializationsData: instructor ? parseSpecializations(instructor.specializations) : {},
-    },
+    defaultValues: buildDefaults(instructor),
   });
+
+  // Re-sync the form with the current instructor's data whenever the record
+  // changes (e.g. the edit dialog opens or the loaded instructor updates).
+  // Without this the form can keep stale/empty values and report fields as
+  // missing even though they appear filled in the UI.
+  useEffect(() => {
+    form.reset(buildDefaults(instructor));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instructor?.id]);
 
   const createMutation = useMutation({
     mutationFn: async (data: InstructorFormData) => {
@@ -210,14 +221,34 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
         el.focus();
       }
     }
-    const missing = Object.keys(errors)
-      .map(k => fieldLabels[k] || k)
-      .join(", ");
+    // Surface the specific field + its actual validation message so an admin
+    // knows exactly what to fix (e.g. a legacy instructor with a malformed
+    // email), rather than a misleading "required fields missing" on a form
+    // that looks complete. Inline FormMessage shows the same detail per field.
+    const details = Object.entries(errors)
+      .map(([key, err]) => {
+        const label = fieldLabels[key] || key;
+        const message = err?.message ? String(err.message) : "is invalid";
+        return `${label}: ${message}`;
+      })
+      .join("; ");
     toast({
-      title: "Required fields missing",
-      description: `Please fill in: ${missing}`,
+      title: "Please fix the highlighted fields",
+      description: details,
       variant: "destructive",
     });
+  };
+
+  // Radix Select (used inside this dialog) can leave `pointer-events: none`
+  // on document.body after it closes, which swallows the very next click —
+  // most visibly making the Cancel button require a second click. Clearing it
+  // when a select closes keeps Cancel (and every other control) clickable.
+  const releasePointerEventsOnClose = (open: boolean) => {
+    if (!open) {
+      setTimeout(() => {
+        document.body.style.pointerEvents = "";
+      }, 0);
+    }
   };
 
   const toggleSpecialization = (courseType: string, type: 'theory' | 'practical') => {
@@ -421,7 +452,7 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value} onOpenChange={releasePointerEventsOnClose}>
                     <FormControl>
                       <SelectTrigger data-testid="select-status">
                         <SelectValue />
@@ -512,7 +543,7 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Primary Location</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value} onOpenChange={releasePointerEventsOnClose}>
                     <FormControl>
                       <SelectTrigger data-testid="select-location">
                         <SelectValue placeholder="Select primary location" />
@@ -539,7 +570,8 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
                   <FormLabel>Assigned Vehicle</FormLabel>
                   <Select 
                     onValueChange={(value) => field.onChange(value === "none" ? undefined : parseInt(value))} 
-                    defaultValue={field.value ? String(field.value) : "none"}
+                    value={field.value ? String(field.value) : "none"}
+                    onOpenChange={releasePointerEventsOnClose}
                   >
                     <FormControl>
                       <SelectTrigger data-testid="select-vehicle">
@@ -563,7 +595,7 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
             <div>
               <FormLabel>Secondary Locations</FormLabel>
               <div className="flex gap-2 mt-2">
-                <Select value={newSecondaryLocation} onValueChange={setNewSecondaryLocation}>
+                <Select value={newSecondaryLocation} onValueChange={setNewSecondaryLocation} onOpenChange={releasePointerEventsOnClose}>
                   <SelectTrigger className="flex-1" data-testid="select-secondary-location">
                     <SelectValue placeholder="Add secondary location" />
                   </SelectTrigger>
@@ -686,7 +718,10 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
           <Button 
             type="button" 
             variant="outline" 
-            onClick={onSuccess}
+            onClick={() => {
+              document.body.style.pointerEvents = "";
+              onSuccess();
+            }}
             data-testid="button-cancel"
           >
             Cancel
