@@ -5,8 +5,21 @@ WORKDIR /app
 COPY package*.json ./
 # Force devDependencies (vite, esbuild) even when the deploy environment sets
 # NODE_ENV=production — otherwise `npm ci` omits them and the build can't find vite.
-ENV NODE_ENV=development
-RUN npm ci --include=dev
+#
+# NPM_CONFIG_UPDATE_NOTIFIER=false disables npm's "new version available" check,
+# which runs in an exit handler and was throwing "Exit handler never called!" at
+# the end of the install — leaving node_modules/.bin/vite unlinked. Audit/fund are
+# disabled too (extra work + network that can fail the install in CI).
+ENV NODE_ENV=development \
+    NPM_CONFIG_UPDATE_NOTIFIER=false \
+    NPM_CONFIG_FUND=false \
+    NPM_CONFIG_AUDIT=false
+# Install, then verify the build tools actually got linked. The `test -x` lines
+# make this layer FAIL LOUDLY if the install was incomplete, so Docker can never
+# cache a broken node_modules (the previous failure mode).
+RUN npm ci --include=dev \
+    && test -x node_modules/.bin/vite \
+    && test -x node_modules/.bin/esbuild
 
 COPY . .
 

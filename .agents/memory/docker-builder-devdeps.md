@@ -1,23 +1,39 @@
 ---
-name: Docker builder must force devDependencies
-description: Why the multi-stage Docker builder stage installs devDeps explicitly
+name: Docker builder stage — devDeps + reliable npm install
+description: Why the builder stage forces devDeps, disables npm update-notifier, and verifies the vite/esbuild bins
 ---
 
-# Docker builder stage must force devDependencies
+# Docker builder stage: getting vite/esbuild to actually install
 
-The builder stage installs build tooling (vite, esbuild) which are
-**devDependencies** in package.json. The frontend/server build steps invoke
-`node_modules/.bin/vite` and `node_modules/.bin/esbuild` directly.
+The builder stage needs vite & esbuild (both **devDependencies**) and invokes
+`node_modules/.bin/vite` / `node_modules/.bin/esbuild` directly.
 
-**Rule:** the builder stage `npm ci` must include devDependencies
-(`ENV NODE_ENV=development` + `npm ci --include=dev`). The production stage
-keeps `npm ci --omit=dev`.
+Two distinct failure modes both produced `node_modules/.bin/vite: not found`
+(exit 127) and rolled back the ActiveAI Backbone / Jenkins deploy:
 
-**Why:** the ActiveAI Backbone / Jenkins deploy environment exports
-`NODE_ENV=production`. With that set, a plain `npm ci` omits devDependencies,
-so vite/esbuild never get installed and the build dies with
-`node_modules/.bin/vite: not found` (exit 127), then the deploy rolls back.
+1. **devDeps skipped.** The deploy environment exports `NODE_ENV=production`, so a
+   plain `npm ci` omits devDependencies. Fix: `ENV NODE_ENV=development` +
+   `npm ci --include=dev` in the builder stage. Production stage keeps `--omit=dev`.
 
-**How to apply:** never rely on a bare `npm ci` in the builder stage for a
-project where the build tools live in devDependencies and the deploy env may
-set NODE_ENV=production. Be explicit.
+2. **npm "Exit handler never called!" leaving bins unlinked, then CACHED.** npm's
+   update-notifier ("new major version of npm available") runs in an exit handler;
+   when it throws, npm can finish exit 0 but with the install incomplete (the
+   `.bin` symlinks never created). Docker then caches that broken layer, so every
+   later build reuses it.
+   Fix: `ENV NPM_CONFIG_UPDATE_NOTIFIER=false` (also FUND/AUDIT=false) and append
+   `&& test -x node_modules/.bin/vite && test -x node_modules/.bin/esbuild` to the
+   install RUN so a broken install fails the layer loudly instead of being cached.
+
+**Why it matters:** a layer marked DONE (exit 0) is NOT proof the install
+succeeded — npm can exit 0 with an incomplete node_modules. Verify critical bins
+in the same RUN.
+
+**How to apply:** on any builder stage where the deploy env may set
+NODE_ENV=production and where build tools live in devDependencies: force devDeps,
+silence npm's exit-handler notifier, and assert the bins exist before relying on
+them.
+
+Note: on the Jenkins host the repo is a fresh git checkout (no committed
+node_modules), so `COPY . .` overwriting a host node_modules is NOT the cause
+there — but a `.dockerignore` excluding node_modules/.git is still kept for
+context size/speed and for correctness when building from a dirty workspace.
