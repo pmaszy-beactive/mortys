@@ -10,9 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   TrendingUp, TrendingDown, Users, GraduationCap, Calendar, Clock, 
-  BookOpen, Car, AlertTriangle, CheckCircle, XCircle, UserX
+  BookOpen, Car, AlertTriangle, CheckCircle, XCircle, UserX, BarChart3
 } from "lucide-react";
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths } from "date-fns";
+import type { Class, Evaluation } from "@shared/schema";
 
 interface SummaryAnalytics {
   students: {
@@ -139,6 +140,57 @@ export default function Analytics() {
       return response.json();
     }
   });
+
+  const { data: classes = [] } = useQuery<Class[]>({
+    queryKey: ["/api/classes"],
+  });
+
+  const { data: evaluations = [] } = useQuery<Evaluation[]>({
+    queryKey: ["/api/evaluations"],
+  });
+
+  // Calculate total instructor hours for a given timeframe (Today/Week/Month/Year)
+  const calculateTotalHours = (timeframe: 'day' | 'week' | 'month' | 'year') => {
+    const now = new Date();
+    const startDate = new Date();
+
+    switch (timeframe) {
+      case 'day':
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case 'week':
+        startDate.setDate(now.getDate() - 7);
+        break;
+      case 'month':
+        startDate.setMonth(now.getMonth() - 1);
+        break;
+      case 'year':
+        startDate.setFullYear(now.getFullYear() - 1);
+        break;
+    }
+
+    const drivingMinutes = evaluations
+      .filter(e =>
+        e.sessionType === 'in-car' &&
+        new Date(e.evaluationDate) >= startDate &&
+        e.duration
+      )
+      .reduce((sum, e) => sum + (e.duration || 0), 0);
+
+    const theoryMinutes = classes
+      .filter(c =>
+        new Date(c.date) >= startDate &&
+        c.duration
+      )
+      .reduce((sum, c) => sum + (c.duration || 0), 0);
+
+    return (drivingMinutes + theoryMinutes) / 60;
+  };
+
+  const todayHours = calculateTotalHours('day');
+  const weekHours = calculateTotalHours('week');
+  const monthHours = calculateTotalHours('month');
+  const yearHours = calculateTotalHours('year');
 
   const enrollmentYears = Array.from(new Set(completionData.map(item => item.enrollmentYear))).sort((a, b) => b - a);
   const completionYears = Array.from(new Set(completionData.map(item => item.completionYear).filter(year => year !== null))).sort((a, b) => (b || 0) - (a || 0));
@@ -493,6 +545,68 @@ export default function Analytics() {
           </TabsContent>
 
           <TabsContent value="instructors" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-gray-500">
+                      <Clock className="h-5 w-5" />
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] uppercase font-bold px-2">Today</Badge>
+                  </div>
+                  <p className="text-gray-600 text-xs font-medium uppercase tracking-wider mb-1">Today's Hours</p>
+                  <p className="text-2xl font-bold text-gray-900" data-testid="text-hours-today">
+                    {todayHours.toFixed(1)}h
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-gray-500">
+                      <Calendar className="h-5 w-5" />
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] uppercase font-bold px-2">Week</Badge>
+                  </div>
+                  <p className="text-gray-600 text-xs font-medium uppercase tracking-wider mb-1">This Week</p>
+                  <p className="text-2xl font-bold text-gray-900" data-testid="text-hours-week">
+                    {weekHours.toFixed(1)}h
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-gray-500">
+                      <BarChart3 className="h-5 w-5" />
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] uppercase font-bold px-2">Month</Badge>
+                  </div>
+                  <p className="text-gray-600 text-xs font-medium uppercase tracking-wider mb-1">This Month</p>
+                  <p className="text-2xl font-bold text-gray-900" data-testid="text-hours-month">
+                    {monthHours.toFixed(1)}h
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-gray-500">
+                      <TrendingUp className="h-5 w-5" />
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] uppercase font-bold px-2">Year</Badge>
+                  </div>
+                  <p className="text-gray-600 text-xs font-medium uppercase tracking-wider mb-1">This Year</p>
+                  <p className="text-2xl font-bold text-gray-900" data-testid="text-hours-year">
+                    {yearHours.toFixed(1)}h
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
             <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 border-b border-amber-100">
                 <CardTitle className="text-xl font-semibold text-gray-800">Instructor Hours Breakdown</CardTitle>
