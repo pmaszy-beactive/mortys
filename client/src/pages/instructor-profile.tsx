@@ -613,7 +613,7 @@ export default function InstructorProfile() {
               <CardTitle className="text-lg font-semibold">Weekly Availability</CardTitle>
             </CardHeader>
             <CardContent>
-              <InstructorAvailability instructorId={parseInt(id!)} />
+              <InstructorAvailability instructor={instructor} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -632,7 +632,7 @@ export default function InstructorProfile() {
                         <Badge variant="outline" className="bg-white">{cls.courseType.toUpperCase()}</Badge>
                         <span className="text-xs text-gray-500 font-medium">{new Date(cls.date).toLocaleDateString()}</span>
                       </div>
-                      <p className="text-sm font-semibold text-gray-900">{cls.title || `Class #${cls.id}`}</p>
+                      <p className="text-sm font-semibold text-gray-900">{`${cls.classType === 'driving' ? 'Driving' : 'Theory'} Class #${cls.classNumber}`}</p>
                       <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
                         <Clock className="h-3 w-3" />
                         {cls.time} ({cls.duration} mins)
@@ -657,22 +657,30 @@ export default function InstructorProfile() {
             <CardContent>
               {evaluations.length > 0 ? (
                 <div className="space-y-4">
-                  {evaluations.map((evalItem) => (
+                  {evaluations.map((evalItem) => {
+                    const ratingValues = evalItem.ratings && typeof evalItem.ratings === 'object'
+                      ? Object.values(evalItem.ratings as Record<string, number>).filter((v) => typeof v === 'number')
+                      : [];
+                    const avgRating = ratingValues.length > 0
+                      ? Math.round(ratingValues.reduce((sum, v) => sum + v, 0) / ratingValues.length)
+                      : 0;
+                    return (
                     <div key={evalItem.id} className="p-4 border border-gray-100 rounded-md bg-gray-50">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-1">
                           {[...Array(5)].map((_, i) => (
                             <Star 
                               key={i} 
-                              className={`h-4 w-4 ${i < (evalItem.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
+                              className={`h-4 w-4 ${i < avgRating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
                             />
                           ))}
                         </div>
-                        <span className="text-xs text-gray-500">{new Date(evalItem.date).toLocaleDateString()}</span>
+                        <span className="text-xs text-gray-500">{evalItem.submittedAt ? new Date(evalItem.submittedAt).toLocaleDateString() : 'N/A'}</span>
                       </div>
                       <p className="text-sm text-gray-700 italic">"{evalItem.notes || 'No comments provided'}"</p>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="p-8 text-center bg-gray-50 rounded-md border border-dashed border-gray-300">
