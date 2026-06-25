@@ -1,0 +1,25 @@
+# Host-installed dependencies must NOT be copied into the image.
+# COPY . . runs after `npm ci`, so a host node_modules would overwrite the
+# freshly-installed Alpine deps (wrong platform, missing the vite/esbuild bins),
+# which made `node_modules/.bin/vite` disappear at build time.
+node_modules
+**/node_modules
+
+# Version control history — large and unnecessary for the build.
+.git
+.gitignore
+
+# Build output — produced fresh inside the builder stage.
+dist
+dist-ssr
+
+# Logs and local-only tooling state.
+*.log
+npm-debug.log*
+.local
+.agents
+
+# Editor / OS cruft.
+.DS_Store
+.vscode
+.idea
