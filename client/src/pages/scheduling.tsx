@@ -325,9 +325,15 @@ export default function Scheduling() {
     description: string;
   };
 
-  // Helper function to convert time string to minutes since midnight
-  const timeToMinutes = (timeStr: string): number => {
-    const [hours, minutes] = timeStr.split(':').map(Number);
+  // Helper function to convert time string to minutes since midnight.
+  // Returns null for missing or malformed time values so callers can skip them.
+  const timeToMinutes = (timeStr: unknown): number | null => {
+    if (typeof timeStr !== 'string') return null;
+    const parts = timeStr.split(':');
+    if (parts.length < 2) return null;
+    const hours = Number(parts[0]);
+    const minutes = Number(parts[1]);
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return null;
     return hours * 60 + minutes;
   };
 
@@ -341,12 +347,15 @@ export default function Scheduling() {
         const class1 = scheduledClasses[i];
         const class2 = scheduledClasses[j];
 
-        // Same date check
+        // Same date check - skip classes missing a date
+        if (!class1.date || !class2.date) continue;
         if (class1.date !== class2.date) continue;
 
-        // Time overlap check - using minutes since midnight for correct calculation
+        // Time overlap check - using minutes since midnight for correct calculation.
+        // Skip classes that don't have a valid time so a bad record can't crash the page.
         const time1Start = timeToMinutes(class1.time);
         const time2Start = timeToMinutes(class2.time);
+        if (time1Start === null || time2Start === null) continue;
         const time1End = time1Start + (class1.duration || 120); // Default 2 hours if not specified
         const time2End = time2Start + (class2.duration || 120);
 
@@ -691,7 +700,9 @@ export default function Scheduling() {
               {/* Calendar Days */}
               {calendarDays.map((calendarDay, i) => {
                 const dayClasses = classes.filter(cls => {
+                  if (!cls.date || typeof cls.date !== 'string') return false;
                   const [year, month, day] = cls.date.split('-').map(Number);
+                  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return false;
                   return year === calendarDay.date.getFullYear() && 
                          (month - 1) === calendarDay.date.getMonth() && 
                          day === calendarDay.date.getDate();
