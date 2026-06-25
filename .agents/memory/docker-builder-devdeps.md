@@ -15,12 +15,16 @@ Two distinct failure modes both produced `node_modules/.bin/vite: not found`
    plain `npm ci` omits devDependencies. Fix: `ENV NODE_ENV=development` +
    `npm ci --include=dev` in the builder stage. Production stage keeps `--omit=dev`.
 
-2. **npm "Exit handler never called!" leaving bins unlinked, then CACHED.** npm's
-   update-notifier ("new major version of npm available") runs in an exit handler;
-   when it throws, npm can finish exit 0 but with the install incomplete (the
-   `.bin` symlinks never created). Docker then caches that broken layer, so every
-   later build reuses it.
-   Fix: `ENV NPM_CONFIG_UPDATE_NOTIFIER=false` (also FUND/AUDIT=false) and append
+2. **npm 10.8.2 "Exit handler never called!" crash during the bigger install.**
+   node:20-alpine ships npm 10.8.2, which has an internal bug that crashes
+   (~84s in) during `npm ci --include=dev` — the larger devDep tree. The
+   production-stage `npm ci --omit=dev` (smaller tree) succeeds, so it's specific
+   to the bigger install and aggravated by memory pressure on the shared build
+   host. Disabling the update-notifier did NOT fix it (so the notifier was a red
+   herring), and a broken/incomplete install was being cached by Docker.
+   Fix: upgrade npm before installing (`npm install -g npm@11.5.2`), add
+   `--maxsockets=3` to lower peak memory/concurrency, keep update-notifier/fund/
+   audit disabled, and append
    `&& test -x node_modules/.bin/vite && test -x node_modules/.bin/esbuild` to the
    install RUN so a broken install fails the layer loudly instead of being cached.
 

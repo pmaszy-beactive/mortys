@@ -14,10 +14,18 @@ ENV NODE_ENV=development \
     NPM_CONFIG_UPDATE_NOTIFIER=false \
     NPM_CONFIG_FUND=false \
     NPM_CONFIG_AUDIT=false
-# Install, then verify the build tools actually got linked. The `test -x` lines
-# make this layer FAIL LOUDLY if the install was incomplete, so Docker can never
-# cache a broken node_modules (the previous failure mode).
-RUN npm ci --include=dev \
+
+# node:20-alpine ships npm 10.8.2, which crashes with "Exit handler never called!"
+# partway through the larger devDependency install (the production --omit=dev
+# install succeeds, so it's specific to the bigger tree). That's a known npm
+# internal bug; upgrade npm to a version that fixes it BEFORE installing.
+RUN npm install -g npm@11.5.2 && npm --version
+
+# Install, then verify the build tools actually got linked. --maxsockets lowers
+# peak memory/concurrency on the busy shared build host (helps avoid the crash).
+# The `test -x` lines make this layer FAIL LOUDLY if the install was incomplete,
+# so Docker can never cache a broken node_modules (the previous failure mode).
+RUN npm ci --include=dev --maxsockets=3 \
     && test -x node_modules/.bin/vite \
     && test -x node_modules/.bin/esbuild
 
