@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, User, Award, UserCheck, ChevronRight, Mail } from "lucide-react";
+import { Plus, User, Award, UserCheck, ChevronRight, Mail, Search } from "lucide-react";
 import InstructorForm from "@/components/instructor-form";
 import type { Instructor } from "@shared/schema";
+
+type SortOption = "name-asc" | "name-desc" | "status";
 
 function getSpecializationLabels(specializations: unknown): string[] {
   if (!specializations) return [];
@@ -31,6 +35,8 @@ function getSpecializationLabels(specializations: unknown): string[] {
 
 export default function Instructors() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState<SortOption>("name-asc");
 
   const { data: instructors = [], isLoading } = useQuery<Instructor[]>({
     queryKey: ["/api/instructors"],
@@ -38,6 +44,31 @@ export default function Instructors() {
     gcTime: 0,
     refetchOnMount: "always",
   });
+
+  const visibleInstructors = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const filtered = query
+      ? instructors.filter((instructor) => {
+          const fullName = `${instructor.firstName ?? ""} ${instructor.lastName ?? ""}`.toLowerCase();
+          const email = (instructor.email ?? "").toLowerCase();
+          return fullName.includes(query) || email.includes(query);
+        })
+      : [...instructors];
+
+    filtered.sort((a, b) => {
+      if (sortOption === "status") {
+        const statusA = (a.status ?? "").toLowerCase();
+        const statusB = (b.status ?? "").toLowerCase();
+        if (statusA !== statusB) return statusA.localeCompare(statusB);
+      }
+      const nameA = `${a.firstName ?? ""} ${a.lastName ?? ""}`.trim().toLowerCase();
+      const nameB = `${b.firstName ?? ""} ${b.lastName ?? ""}`.trim().toLowerCase();
+      const cmp = nameA.localeCompare(nameB);
+      return sortOption === "name-desc" ? -cmp : cmp;
+    });
+
+    return filtered;
+  }, [instructors, searchQuery, sortOption]);
 
   if (isLoading) {
     return (
@@ -131,7 +162,34 @@ export default function Instructors() {
 
         {/* Instructor List */}
         <div>
-          <h2 className="text-base font-semibold text-gray-900 mb-4">All Instructors</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h2 className="text-base font-semibold text-gray-900">All Instructors</h2>
+            {instructors.length > 0 && (
+              <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    type="search"
+                    placeholder="Search by name or email"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 w-full sm:w-64"
+                    data-testid="input-search-instructors"
+                  />
+                </div>
+                <Select value={sortOption} onValueChange={(v) => setSortOption(v as SortOption)}>
+                  <SelectTrigger className="w-full sm:w-48" data-testid="select-sort-instructors">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name-asc" data-testid="sort-name-asc">Name (A–Z)</SelectItem>
+                    <SelectItem value="name-desc" data-testid="sort-name-desc">Name (Z–A)</SelectItem>
+                    <SelectItem value="status" data-testid="sort-status">Status</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
           {instructors.length === 0 ? (
             <div className="bg-white border border-gray-200 rounded-md p-10 text-center" data-testid="empty-instructors">
               <UserCheck className="h-10 w-10 text-gray-300 mx-auto mb-3" />
@@ -140,9 +198,17 @@ export default function Instructors() {
                 Add your first instructor to get started.
               </p>
             </div>
+          ) : visibleInstructors.length === 0 ? (
+            <div className="bg-white border border-gray-200 rounded-md p-10 text-center" data-testid="empty-instructors-search">
+              <Search className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+              <p className="text-sm font-medium text-gray-900">No instructors found</p>
+              <p className="text-sm text-gray-500 mt-1">
+                No instructors match "{searchQuery}". Try a different search.
+              </p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {instructors.map((instructor) => {
+              {visibleInstructors.map((instructor) => {
                 const specializations = getSpecializationLabels(instructor.specializations);
                 return (
                   <Link
