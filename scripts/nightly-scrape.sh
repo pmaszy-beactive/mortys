@@ -31,9 +31,17 @@ export PUPPETEER_EXECUTABLE_PATH="${PUPPETEER_EXECUTABLE_PATH:-/usr/bin/chromium
 
 # --- Log rotation ----------------------------------------------------------
 # Cron invokes this script with no stdout redirect; we own our own logging so
-# we can rotate before writing. The log lives on the /data volume and would
+# we can rotate before writing. Logs live on the /data volume and would
 # otherwise grow unbounded over months of nightly runs. We keep a fixed number
-# of size-capped, numbered backups (.1 .. .N) and prune the rest.
+# of size-capped, numbered backups (.1 .. .N) and prune the rest, via the
+# shared rotate_log helper. Two logs are rotated here: this script's own run
+# log, and the cron daemon's log (crond.log) — the nightly cron is the natural
+# place to size-cap crond.log, which also lives on /data and otherwise grows
+# forever (one line per scheduled run).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+. "$SCRIPT_DIR/rotate-log.sh"
+
 LOG_DIR="${NIGHTLY_LOG_DIR:-/data/logs}"
 LOG_FILE="$LOG_DIR/nightly-scrape.log"
 LOG_MAX_BYTES="${NIGHTLY_LOG_MAX_BYTES:-5242880}"   # rotate when log exceeds 5 MB
@@ -41,21 +49,15 @@ LOG_KEEP="${NIGHTLY_LOG_KEEP:-7}"                     # keep this many old logs 
 
 mkdir -p "$LOG_DIR"
 
-if [ -f "$LOG_FILE" ]; then
-  CUR_SIZE="$(wc -c < "$LOG_FILE" 2>/dev/null | tr -d ' ')"
-  if [ -n "$CUR_SIZE" ] && [ "$CUR_SIZE" -ge "$LOG_MAX_BYTES" ]; then
-    # Drop the oldest, then shift each backup up by one.
-    rm -f "$LOG_FILE.$LOG_KEEP"
-    i=$((LOG_KEEP - 1))
-    while [ "$i" -ge 1 ]; do
-      [ -f "$LOG_FILE.$i" ] && mv "$LOG_FILE.$i" "$LOG_FILE.$((i + 1))"
-      i=$((i - 1))
-    done
-    mv "$LOG_FILE" "$LOG_FILE.1"
-  fi
-fi
+# Rotate the cron daemon's own log (written by `crond -L`). BusyBox crond
+# reopens its log per write, so an mv-based rotation is safe — the next logged
+# run recreates a fresh crond.log. Defaults track our run log's policy.
+CROND_LOG_FILE="${CROND_LOG_FILE:-$LOG_DIR/crond.log}"
+rotate_log "$CROND_LOG_FILE" "${CROND_LOG_MAX_BYTES:-$LOG_MAX_BYTES}" "${CROND_LOG_KEEP:-$LOG_KEEP}"
 
-# Send all stdout/stderr from here on to the (possibly freshly rotated) log.
+# Rotate our own run log, then send all stdout/stderr to the (possibly freshly
+# rotated) log.
+rotate_log "$LOG_FILE" "$LOG_MAX_BYTES" "$LOG_KEEP"
 exec >> "$LOG_FILE" 2>&1
 # ---------------------------------------------------------------------------
 
@@ -105,7 +107,6 @@ post_alert() {
     fi
 }
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DAYS_BACK=7
 TODAY="$(date '+%d/%m/%Y')"
 

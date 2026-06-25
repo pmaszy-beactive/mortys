@@ -30,8 +30,9 @@ node dist/migrate.js
 
 # Nightly registration scrape cron. crond runs jobs with a minimal env, so the
 # wrapper (scripts/nightly-scrape.sh) exports what the scraper needs. Logs persist
-# on the /data volume; the wrapper rotates nightly-scrape.log by size (5 MB) and
-# keeps a bounded set of numbered backups so it never grows without limit.
+# on the /data volume; each nightly run rotates BOTH nightly-scrape.log and the
+# cron daemon's own crond.log by size (5 MB) and keeps a bounded set of numbered
+# backups so neither grows without limit.
 LOG_DIR="/data/logs"
 mkdir -p "$LOG_DIR"
 
@@ -58,6 +59,7 @@ fi
 echo "[2/3] Starting cron daemon (nightly registration scrape @ 22:00)..."
 echo "[cron] Schedule: 0 22 * * * — last 7 days of registrations"
 echo "[cron] Run log:  $LOG_DIR/nightly-scrape.log (size-rotated, 5 MB x 7 backups)"
+echo "[cron] Daemon log: $LOG_DIR/crond.log (size-rotated nightly, 5 MB x 7 backups)"
 crond -b -c /etc/crontabs -L "$LOG_DIR/crond.log"
 
 echo "[3/3] Starting application..."

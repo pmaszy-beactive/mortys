@@ -3,4 +3,6 @@
 # registration reports. The script handles its own logging to
 # /data/logs/nightly-scrape.log, rotating it by size (5 MB) and keeping a
 # bounded number of numbered backups so the log never grows without limit.
+# It also size-rotates the cron daemon's own log (/data/logs/crond.log) on the
+# same schedule, so neither log accumulates without bound on the /data volume.
 0 22 * * * /app/scripts/nightly-scrape.sh

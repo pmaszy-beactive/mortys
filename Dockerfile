@@ -81,8 +81,9 @@ RUN cd scripts/migrate-site && npm install --omit=dev --no-package-lock
 # and runs scrape-registrations.sh for the last 7 days. crond reads the crontab
 # from /etc/crontabs/root; the entrypoint starts crond in the background.
 COPY --from=builder /app/scripts/nightly-scrape.sh ./scripts/nightly-scrape.sh
+COPY --from=builder /app/scripts/rotate-log.sh ./scripts/rotate-log.sh
 COPY --from=builder /app/scripts/crontab /etc/crontabs/root
-RUN chmod +x ./scripts/nightly-scrape.sh
+RUN chmod +x ./scripts/nightly-scrape.sh ./scripts/rotate-log.sh
 
 # Import data volume — scraper output + dedup state + session cookie persist here.
 # IMPORT_DATA_DIR is read by the in-app importer; MIGRATE_OUTPUT_DIR/MIGRATE_COOKIE_FILE
