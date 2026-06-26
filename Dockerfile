@@ -20,10 +20,18 @@ ENV NODE_ENV=development \
     NPM_CONFIG_FUND=false \
     NPM_CONFIG_AUDIT=false
 
-# Install, then verify the build tools actually got linked. The `test -x` lines
-# make this layer FAIL LOUDLY if the install was incomplete, so Docker can never
-# cache a broken node_modules.
-RUN npm ci --include=dev \
+# IMPORTANT: install in TWO steps to keep peak memory low on the shared build host.
+# A single `npm ci --include=dev` (the whole tree at once) was being OOM-killed
+# mid-install, which npm reports as the cryptic "Exit handler never called!". The
+# smaller production install (--omit=dev) always succeeds, so we run that first,
+# then layer the devDependencies on top with an incremental `npm install`. Because
+# the bulk of the tree is already on disk, the second step processes far fewer
+# packages at once and stays under the memory ceiling. Using `npm install` (NOT a
+# second `npm ci`, which would wipe node_modules and redo the whole tree) also
+# sidesteps the known npm-ci crash. --foreground-scripts surfaces any failing
+# install script in the build log instead of swallowing it.
+RUN npm ci --omit=dev
+RUN npm install --include=dev --prefer-offline --foreground-scripts \
     && test -x node_modules/.bin/vite \
     && test -x node_modules/.bin/esbuild
 

@@ -15,23 +15,26 @@ Two distinct failure modes both produced `node_modules/.bin/vite: not found`
    plain `npm ci` omits devDependencies. Fix: `ENV NODE_ENV=development` +
    `npm ci --include=dev` in the builder stage. Production stage keeps `--omit=dev`.
 
-2. **puppeteer Chromium download OOM-killed → npm "Exit handler never called!".**
-   `puppeteer` is a RUNTIME dependency; its install script downloads + extracts a
-   full Chromium (~150MB). On the memory-constrained shared build host that child
-   was being killed, which npm surfaces as the cryptic "Exit handler never
-   called!" (crashed ~74-84s into the install, across npm 10.8.2 AND 11.5.2, so it
-   is NOT an npm-version bug). The production stage sets
-   `PUPPETEER_SKIP_DOWNLOAD=true` before its `npm ci`, which is the ONLY reason the
-   prod install succeeds while the builder install crashed — it was never about
-   `--include=dev` vs `--omit=dev`.
-   Fix: set `ENV PUPPETEER_SKIP_DOWNLOAD=true` in the builder stage too (it only
-   runs vite + esbuild, never Chromium). Upgrading npm / `--maxsockets` did NOT
-   help and were reverted. Keep the
-   `&& test -x node_modules/.bin/vite && test -x node_modules/.bin/esbuild`
-   verification so a broken/incomplete install fails the layer instead of caching.
+2. **One-shot `npm ci --include=dev` OOM-killed → npm "Exit handler never
+   called!".** On the memory-constrained shared build host (52 apps) the single
+   full-tree install crashes ~74-87s in with the cryptic "Exit handler never
+   called!". RULED OUT as causes (all still crashed): npm version (10.8.2 AND
+   11.5.2), update-notifier, `--maxsockets=3`, and puppeteer's Chromium download
+   (`PUPPETEER_SKIP_DOWNLOAD=true` did NOT stop it). The constant: the SMALLER
+   production `npm ci --omit=dev` always succeeds; only the bigger one-shot install
+   dies → it's a peak-memory ceiling, not a specific package.
+   Fix: split the builder install into two steps so peak memory stays low —
+   `RUN npm ci --omit=dev` (the known-good smaller install) THEN
+   `RUN npm install --include=dev --prefer-offline --foreground-scripts` (layers
+   devDeps onto the existing tree incrementally; far fewer packages processed at
+   once). Use `npm install`, NOT a second `npm ci` (which would wipe node_modules
+   and redo the whole tree). `--foreground-scripts` surfaces a failing install
+   script if a script (not OOM) is ever the culprit. Keep
+   `PUPPETEER_SKIP_DOWNLOAD=true` and the `test -x vite/esbuild` verification.
    **Lesson:** "Exit handler never called!" with no other output during an install
-   is almost always a child process (postinstall / native build / large download)
-   being OOM-killed — look for heavy install scripts, not an npm bug.
+   is almost always OOM / a child process being killed. If the smaller install
+   works and the bigger one doesn't, reduce PEAK memory (split the install) rather
+   than chasing individual packages. Last resort: more memory on the build host.
 
 **Why it matters:** a layer marked DONE (exit 0) is NOT proof the install
 succeeded — npm can exit 0 with an incomplete node_modules. Verify critical bins
