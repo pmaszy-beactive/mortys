@@ -20,18 +20,28 @@ ENV NODE_ENV=development \
     NPM_CONFIG_FUND=false \
     NPM_CONFIG_AUDIT=false
 
-# IMPORTANT: install in TWO steps to keep peak memory low on the shared build host.
-# A single `npm ci --include=dev` (the whole tree at once) was being OOM-killed
-# mid-install, which npm reports as the cryptic "Exit handler never called!". The
-# smaller production install (--omit=dev) always succeeds, so we run that first,
-# then layer the devDependencies on top with an incremental `npm install`. Because
-# the bulk of the tree is already on disk, the second step processes far fewer
-# packages at once and stays under the memory ceiling. Using `npm install` (NOT a
-# second `npm ci`, which would wipe node_modules and redo the whole tree) also
-# sidesteps the known npm-ci crash. --foreground-scripts surfaces any failing
-# install script in the build log instead of swallowing it.
-RUN npm ci --omit=dev
-RUN npm install --include=dev --prefer-offline --foreground-scripts \
+# DIAGNOSTIC: print what the build host actually has available right now, so the
+# build log shows the real memory/disk/cpu picture instead of us guessing.
+RUN echo "=== build host resources ===" \
+    && (free -m || true) \
+    && (df -h / /tmp 2>/dev/null || true) \
+    && echo "cpus: $(nproc)" \
+    && (node -e "console.log('node:', process.version, 'npm-managed install follows')" || true)
+
+# Install devDependencies (vite, esbuild, etc). If this fails, dump npm's OWN
+# detailed debug log into the build output — that log records the real cause right
+# before the cryptic "Exit handler never called!" message (which by itself tells us
+# nothing). This stops the guessing: the next failed build will show exactly what
+# happened (a killed process, a failing script, out-of-disk, a network error, ...).
+RUN sh -c 'npm ci --include=dev --foreground-scripts; \
+    status=$?; \
+    if [ "$status" -ne 0 ]; then \
+      echo "===== npm install FAILED (exit $status) — dumping npm debug log ====="; \
+      cat /root/.npm/_logs/*-debug-*.log 2>/dev/null || echo "(no npm debug log found)"; \
+      echo "===== end npm debug log ====="; \
+      echo "=== resources AFTER failure ==="; (free -m || true); (df -h / /tmp 2>/dev/null || true); \
+      exit "$status"; \
+    fi' \
     && test -x node_modules/.bin/vite \
     && test -x node_modules/.bin/esbuild
 
