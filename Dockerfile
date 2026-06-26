@@ -6,26 +6,24 @@ COPY package*.json ./
 # Force devDependencies (vite, esbuild) even when the deploy environment sets
 # NODE_ENV=production — otherwise `npm ci` omits them and the build can't find vite.
 #
-# NPM_CONFIG_UPDATE_NOTIFIER=false disables npm's "new version available" check,
-# which runs in an exit handler and was throwing "Exit handler never called!" at
-# the end of the install — leaving node_modules/.bin/vite unlinked. Audit/fund are
-# disabled too (extra work + network that can fail the install in CI).
+# PUPPETEER_SKIP_DOWNLOAD=true is the critical one: `puppeteer` is a runtime
+# dependency, and its install script downloads + extracts a full Chromium (~150MB).
+# On the memory-starved shared build host that child process was being killed,
+# which npm reports as the cryptic "Exit handler never called!" — crashing the
+# install. The builder never runs puppeteer (it only runs vite + esbuild), and the
+# production stage already skips this download, which is why the prod install
+# succeeds while the builder install was crashing. Skip it here too.
+# NPM_CONFIG_UPDATE_NOTIFIER/FUND/AUDIT=false trim extra work and noise.
 ENV NODE_ENV=development \
+    PUPPETEER_SKIP_DOWNLOAD=true \
     NPM_CONFIG_UPDATE_NOTIFIER=false \
     NPM_CONFIG_FUND=false \
     NPM_CONFIG_AUDIT=false
 
-# node:20-alpine ships npm 10.8.2, which crashes with "Exit handler never called!"
-# partway through the larger devDependency install (the production --omit=dev
-# install succeeds, so it's specific to the bigger tree). That's a known npm
-# internal bug; upgrade npm to a version that fixes it BEFORE installing.
-RUN npm install -g npm@11.5.2 && npm --version
-
-# Install, then verify the build tools actually got linked. --maxsockets lowers
-# peak memory/concurrency on the busy shared build host (helps avoid the crash).
-# The `test -x` lines make this layer FAIL LOUDLY if the install was incomplete,
-# so Docker can never cache a broken node_modules (the previous failure mode).
-RUN npm ci --include=dev --maxsockets=3 \
+# Install, then verify the build tools actually got linked. The `test -x` lines
+# make this layer FAIL LOUDLY if the install was incomplete, so Docker can never
+# cache a broken node_modules.
+RUN npm ci --include=dev \
     && test -x node_modules/.bin/vite \
     && test -x node_modules/.bin/esbuild
 

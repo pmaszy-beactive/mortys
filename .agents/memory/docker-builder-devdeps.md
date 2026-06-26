@@ -15,18 +15,23 @@ Two distinct failure modes both produced `node_modules/.bin/vite: not found`
    plain `npm ci` omits devDependencies. Fix: `ENV NODE_ENV=development` +
    `npm ci --include=dev` in the builder stage. Production stage keeps `--omit=dev`.
 
-2. **npm 10.8.2 "Exit handler never called!" crash during the bigger install.**
-   node:20-alpine ships npm 10.8.2, which has an internal bug that crashes
-   (~84s in) during `npm ci --include=dev` — the larger devDep tree. The
-   production-stage `npm ci --omit=dev` (smaller tree) succeeds, so it's specific
-   to the bigger install and aggravated by memory pressure on the shared build
-   host. Disabling the update-notifier did NOT fix it (so the notifier was a red
-   herring), and a broken/incomplete install was being cached by Docker.
-   Fix: upgrade npm before installing (`npm install -g npm@11.5.2`), add
-   `--maxsockets=3` to lower peak memory/concurrency, keep update-notifier/fund/
-   audit disabled, and append
-   `&& test -x node_modules/.bin/vite && test -x node_modules/.bin/esbuild` to the
-   install RUN so a broken install fails the layer loudly instead of being cached.
+2. **puppeteer Chromium download OOM-killed → npm "Exit handler never called!".**
+   `puppeteer` is a RUNTIME dependency; its install script downloads + extracts a
+   full Chromium (~150MB). On the memory-constrained shared build host that child
+   was being killed, which npm surfaces as the cryptic "Exit handler never
+   called!" (crashed ~74-84s into the install, across npm 10.8.2 AND 11.5.2, so it
+   is NOT an npm-version bug). The production stage sets
+   `PUPPETEER_SKIP_DOWNLOAD=true` before its `npm ci`, which is the ONLY reason the
+   prod install succeeds while the builder install crashed — it was never about
+   `--include=dev` vs `--omit=dev`.
+   Fix: set `ENV PUPPETEER_SKIP_DOWNLOAD=true` in the builder stage too (it only
+   runs vite + esbuild, never Chromium). Upgrading npm / `--maxsockets` did NOT
+   help and were reverted. Keep the
+   `&& test -x node_modules/.bin/vite && test -x node_modules/.bin/esbuild`
+   verification so a broken/incomplete install fails the layer instead of caching.
+   **Lesson:** "Exit handler never called!" with no other output during an install
+   is almost always a child process (postinstall / native build / large download)
+   being OOM-killed — look for heavy install scripts, not an npm bug.
 
 **Why it matters:** a layer marked DONE (exit 0) is NOT proof the install
 succeeded — npm can exit 0 with an incomplete node_modules. Verify critical bins
