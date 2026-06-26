@@ -28,22 +28,23 @@ RUN echo "=== build host resources ===" \
     && echo "cpus: $(nproc)" \
     && (node -e "console.log('node:', process.version, 'npm-managed install follows')" || true)
 
-# Install devDependencies (vite, esbuild, etc). If this fails, dump npm's OWN
-# detailed debug log into the build output — that log records the real cause right
-# before the cryptic "Exit handler never called!" message (which by itself tells us
-# nothing). This stops the guessing: the next failed build will show exactly what
-# happened (a killed process, a failing script, out-of-disk, a network error, ...).
+# Install devDependencies (vite, esbuild, etc).
+# KEY INSIGHT: npm's "Exit handler never called!" crash exits with status 0 — the
+# exit handler that would set a non-zero code never runs. So npm "succeeds" but
+# leaves node_modules incomplete. That's why earlier the real failure was the
+# `test -x` guard, not npm. Therefore we print npm's exit code AND dump its debug
+# log UNCONDITIONALLY (whatever the status), then check the bins last so the layer
+# still fails loudly if the install was incomplete.
 RUN sh -c 'npm ci --include=dev --foreground-scripts; \
     status=$?; \
-    if [ "$status" -ne 0 ]; then \
-      echo "===== npm install FAILED (exit $status) — dumping npm debug log ====="; \
-      cat /root/.npm/_logs/*-debug-*.log 2>/dev/null || echo "(no npm debug log found)"; \
-      echo "===== end npm debug log ====="; \
-      echo "=== resources AFTER failure ==="; (free -m || true); (df -h / /tmp 2>/dev/null || true); \
-      exit "$status"; \
-    fi' \
-    && test -x node_modules/.bin/vite \
-    && test -x node_modules/.bin/esbuild
+    echo "===== npm ci exit status: $status ====="; \
+    echo "===== npm debug log (tail) ====="; \
+    tail -n 250 /root/.npm/_logs/*-debug-*.log 2>/dev/null || echo "(no npm debug log found)"; \
+    echo "===== end npm debug log ====="; \
+    echo "=== resources after install ==="; (free -m || true); (df -h / /tmp 2>/dev/null || true); \
+    echo "=== build tool bins ==="; ls -la node_modules/.bin/vite node_modules/.bin/esbuild 2>&1 || true; \
+    echo "===== verifying build tools are linked ====="; \
+    test -x node_modules/.bin/vite && test -x node_modules/.bin/esbuild'
 
 COPY . .
 
