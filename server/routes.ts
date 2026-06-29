@@ -45,6 +45,7 @@ import {
   getImportState,
   isImportRunning,
 } from "./services/json-importer";
+import { loadOrAnalyzeImportGaps } from "./services/import-gap-analysis";
 import { getNightlyScrapeLog } from "./services/nightly-scrape-log";
 import * as notificationService from "./services/notifications";
 import {
@@ -4209,6 +4210,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res
         .status(500)
         .json({ error: error?.message || "Failed to read nightly scrape log" });
+    }
+  });
+
+  // Read-only gap analysis over the scraped files: what data is in the files
+  // that the importer is NOT putting into the database. Reuses the cached
+  // `_gap_analysis.json` when fresh (pass ?refresh=1 to force a recompute).
+  // NEVER writes to the database and never mutates the import files.
+  app.get("/api/import/gap-analysis", requireAdmin, async (req, res) => {
+    try {
+      const forceRefresh =
+        req.query.refresh === "1" || req.query.refresh === "true";
+      const { result, cached, cacheAgeMs } = await loadOrAnalyzeImportGaps({
+        forceRefresh,
+      });
+      res.json({ ...result, cached, cacheAgeMs });
+    } catch (error: any) {
+      console.error("Failed to run import gap analysis:", error);
+      res
+        .status(500)
+        .json({ error: error?.message || "Failed to run gap analysis" });
     }
   });
 

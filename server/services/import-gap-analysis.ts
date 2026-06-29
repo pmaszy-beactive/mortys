@@ -740,6 +740,86 @@ export async function analyzeImportGaps(
   };
 }
 
+/** Filename of the cached report written alongside the import data. */
+export const GAP_ANALYSIS_CACHE_FILE = "_gap_analysis.json";
+
+export interface CachedGapAnalysis {
+  result: GapAnalysisResult;
+  /** True when the result was served from the on-disk cache, false when freshly computed. */
+  cached: boolean;
+  /** Age of the cached report in ms (based on its file mtime), null when freshly computed. */
+  cacheAgeMs: number | null;
+}
+
+/**
+ * Resolve the gap-analysis report, preferring a fresh on-disk cache over an
+ * (expensive) recompute. The cache is `<dataDir>/_gap_analysis.json` — the same
+ * file the CLI script writes — so the admin tool and the CLI share one cache.
+ *
+ * The cache is considered FRESH when its mtime is at least as new as the import
+ * data's source-of-truth (`_manifest.json` when present, otherwise the data dir
+ * mtime). A newer scrape therefore invalidates the cache automatically. Pass
+ * `forceRefresh` to always recompute. Computing always rewrites the cache.
+ *
+ * NEVER writes to the database and only writes the cache JSON (never the import
+ * files themselves).
+ */
+export async function loadOrAnalyzeImportGaps(
+  opts: AnalyzeOptions & { forceRefresh?: boolean } = {},
+): Promise<CachedGapAnalysis> {
+  const dataDir = opts.dataDir || getImportDataDir();
+  const cachePath = path.join(dataDir, GAP_ANALYSIS_CACHE_FILE);
+
+  if (!opts.forceRefresh && fs.existsSync(cachePath)) {
+    try {
+      const cacheStat = fs.statSync(cachePath);
+      const sourceMtime = importDataSourceMtime(dataDir);
+      const fresh = sourceMtime === null || cacheStat.mtimeMs >= sourceMtime;
+      if (fresh) {
+        const result = JSON.parse(
+          fs.readFileSync(cachePath, "utf8"),
+        ) as GapAnalysisResult;
+        return {
+          result,
+          cached: true,
+          cacheAgeMs: Date.now() - cacheStat.mtimeMs,
+        };
+      }
+    } catch {
+      // Corrupt/unreadable cache — fall through to a fresh compute.
+    }
+  }
+
+  const result = await analyzeImportGaps({
+    dataDir,
+    sampleLimit: opts.sampleLimit,
+    onProgress: opts.onProgress,
+    progressEvery: opts.progressEvery,
+  });
+  try {
+    fs.writeFileSync(cachePath, JSON.stringify(result, null, 2), "utf8");
+  } catch {
+    // Read-only data dir is fine — the report is still returned in-memory.
+  }
+  return { result, cached: false, cacheAgeMs: null };
+}
+
+/**
+ * Newest modification time (ms) representing the import data's current state:
+ * the `_manifest.json` mtime when present (the scraper rewrites it after each
+ * run), otherwise the data dir's own mtime. Returns null when neither exists.
+ */
+function importDataSourceMtime(dataDir: string): number | null {
+  const manifestPath = path.join(dataDir, "_manifest.json");
+  try {
+    if (fs.existsSync(manifestPath)) return fs.statSync(manifestPath).mtimeMs;
+    if (fs.existsSync(dataDir)) return fs.statSync(dataDir).mtimeMs;
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 const EMPTY_REASON: Record<Exclude<PageType, "other">, string> = {
   studentfile: "no money table (decription/description or amount+total) with a dated, totalled row",
   printcontracts: "no 'Coût' cost table with a parseable $ amount",

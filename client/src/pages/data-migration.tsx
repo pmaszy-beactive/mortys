@@ -10,6 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
@@ -29,7 +35,13 @@ import {
   Loader2,
   FolderOpen,
   XCircle,
-  HelpCircle
+  HelpCircle,
+  ScanSearch,
+  Layers,
+  Link2Off,
+  FileX,
+  ListChecks,
+  AlertTriangle
 } from "lucide-react";
 
 interface MigrationProgress {
@@ -99,6 +111,77 @@ interface NightlyScrapeLog {
   lastRun: NightlyRunInfo | null;
 }
 
+interface GapKeyCoverage {
+  unconsumed: { key: string; fileCount: number }[];
+  consumedButUnseen: string[];
+}
+
+interface GapFieldCoverageForType {
+  filesScanned: number;
+  label_values: GapKeyCoverage;
+  field_data: GapKeyCoverage;
+  field_names: GapKeyCoverage;
+  table_headers: GapKeyCoverage;
+  parserNotes?: string;
+}
+
+interface GapOtherGroup {
+  pathPattern: string;
+  fileCount: number;
+  sampleUrls: string[];
+}
+
+interface GapOrphanReport {
+  pageType: string;
+  orphanStudentIds: number;
+  totalWithStudentId: number;
+  sampleOrphanIds: string[];
+}
+
+interface GapEmptyExtractionReport {
+  pageType: string;
+  filesScanned: number;
+  emptyFiles: number;
+  missingStudentId: number;
+  reason: string;
+  sampleFiles: string[];
+}
+
+interface GapValueDistribution {
+  field: string;
+  description: string;
+  values: { value: string; count: number; matched: boolean }[];
+  fellToDefault: number;
+  defaultValue: string;
+}
+
+interface GapAnalysisResult {
+  generatedAt: string;
+  dataDir: string;
+  source: "manifest" | "scan";
+  totalFiles: number;
+  pageTypeCoverage: {
+    byType: Record<string, number>;
+    recognizedTotal: number;
+    otherTotal: number;
+    otherGroups: GapOtherGroup[];
+  };
+  fieldCoverage: Record<string, GapFieldCoverageForType>;
+  referentialGaps: {
+    studentFilePages: number;
+    distinctStudentFileIds: number;
+    orphansByType: GapOrphanReport[];
+    studentsWithoutContractSource: {
+      total: number;
+      sampleIds: string[];
+    };
+  };
+  emptyExtraction: GapEmptyExtractionReport[];
+  valueMismatches: GapValueDistribution[];
+  cached: boolean;
+  cacheAgeMs: number | null;
+}
+
 const PAGE_TYPE_LABELS: Record<string, string> = {
   studentfile: "Student Files",
   printcontracts: "Contracts (print)",
@@ -162,6 +245,38 @@ export default function DataMigration() {
     isFetching: nightlyLogFetching,
   } = useQuery<NightlyScrapeLog>({
     queryKey: ["/api/import/nightly-log"],
+  });
+
+  // ---- Validate / Gap analysis (read-only) ----
+  const {
+    data: gapAnalysis,
+    isFetching: gapFetching,
+    isError: gapIsError,
+    error: gapError,
+    refetch: refetchGapAnalysis,
+  } = useQuery<GapAnalysisResult>({
+    queryKey: ["/api/import/gap-analysis"],
+    enabled: false,
+  });
+
+  const recomputeGapMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("GET", "/api/import/gap-analysis?refresh=1");
+    },
+    onSuccess: (data: GapAnalysisResult) => {
+      queryClient.setQueryData(["/api/import/gap-analysis"], data);
+      toast({
+        title: "Analysis Recomputed",
+        description: `Scanned ${data.totalFiles.toLocaleString()} file${data.totalFiles === 1 ? "" : "s"}.`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Analysis Failed",
+        description: error?.message || "Could not run the gap analysis",
+        variant: "destructive",
+      });
+    },
   });
 
   const importRunning = importStatus?.status === "running";
@@ -326,6 +441,10 @@ export default function DataMigration() {
           <TabsTrigger value="nightly-log" data-testid="tab-nightly-log">
             <FileText className="mr-2 h-4 w-4" />
             Nightly Scrape Log
+          </TabsTrigger>
+          <TabsTrigger value="gap-analysis" data-testid="tab-gap-analysis">
+            <ScanSearch className="mr-2 h-4 w-4" />
+            Validate / Gap Analysis
           </TabsTrigger>
         </TabsList>
 
@@ -597,7 +716,581 @@ export default function DataMigration() {
             isFetching={nightlyLogFetching}
           />
         </TabsContent>
+
+        <TabsContent value="gap-analysis" className="space-y-6 mt-0">
+          <GapAnalysisTab
+            result={gapAnalysis}
+            isFetching={gapFetching || recomputeGapMutation.isPending}
+            isError={gapIsError}
+            errorMessage={(gapError as any)?.message}
+            onRun={() => refetchGapAnalysis()}
+            onRecompute={() => recomputeGapMutation.mutate()}
+          />
+        </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function GapSummaryCard({
+  label,
+  value,
+  hint,
+  icon,
+  emphasis,
+  testId,
+}: {
+  label: string;
+  value: number | string;
+  hint?: string;
+  icon: JSX.Element;
+  emphasis?: boolean;
+  testId: string;
+}) {
+  return (
+    <Card className={emphasis ? "border-amber-400" : undefined}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{label}</CardTitle>
+        {icon}
+      </CardHeader>
+      <CardContent>
+        <div
+          className={`text-2xl font-bold ${emphasis ? "text-amber-600" : ""}`}
+          data-testid={testId}
+        >
+          {value}
+        </div>
+        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      </CardContent>
+    </Card>
+  );
+}
+
+function formatAge(ms: number | null | undefined): string {
+  if (ms == null) return "just now";
+  const mins = Math.round(ms / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs} hr ago`;
+  const days = Math.round(hrs / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+function GapAnalysisTab({
+  result,
+  isFetching,
+  isError,
+  errorMessage,
+  onRun,
+  onRecompute,
+}: {
+  result?: GapAnalysisResult;
+  isFetching: boolean;
+  isError: boolean;
+  errorMessage?: string;
+  onRun: () => void;
+  onRecompute: () => void;
+}) {
+  // Dimension totals for the summary row.
+  const unconsumedFieldTotal = result
+    ? Object.values(result.fieldCoverage).reduce(
+        (sum, c) =>
+          sum +
+          c.label_values.unconsumed.length +
+          c.field_data.unconsumed.length +
+          c.field_names.unconsumed.length +
+          c.table_headers.unconsumed.length,
+        0,
+      )
+    : 0;
+  const orphanTotal = result
+    ? result.referentialGaps.orphansByType.reduce(
+        (sum, o) => sum + o.orphanStudentIds,
+        0,
+      )
+    : 0;
+  const emptyTotal = result
+    ? result.emptyExtraction.reduce((sum, e) => sum + e.emptyFiles, 0)
+    : 0;
+  const defaultedTotal = result
+    ? result.valueMismatches.reduce((sum, v) => sum + v.fellToDefault, 0)
+    : 0;
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <ScanSearch className="h-5 w-5" />
+              Validate / Gap Analysis
+            </CardTitle>
+            <CardDescription>
+              Read-only check of what the scraped files contain that the importer
+              is NOT putting into the database. Never writes to the database or
+              changes the scraped files.
+            </CardDescription>
+          </div>
+          <div className="flex gap-2">
+            {result && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRecompute}
+                disabled={isFetching}
+                data-testid="button-recompute-gap-analysis"
+              >
+                <RefreshCw
+                  className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
+                />
+                Recompute
+              </Button>
+            )}
+            <Button
+              size="sm"
+              onClick={onRun}
+              disabled={isFetching}
+              className="bg-gradient-to-r from-[#ECC462] to-amber-500 hover:from-[#d4ad4f] hover:to-amber-600 text-[#111111] font-medium shadow"
+              data-testid="button-run-gap-analysis"
+            >
+              {isFetching ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Analyzing…
+                </>
+              ) : (
+                <>
+                  <ScanSearch className="mr-2 h-4 w-4" />
+                  {result ? "Run Again" : "Run Analysis"}
+                </>
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {isError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription data-testid="text-gap-error">
+                {errorMessage || "The gap analysis could not be run."}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {!result && !isFetching && !isError && (
+            <Alert>
+              <ScanSearch className="h-4 w-4" />
+              <AlertDescription data-testid="text-gap-empty">
+                Click <strong>Run Analysis</strong> to scan the scraped files and
+                see what data the importer is dropping. This may take a while for
+                large data sets.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {isFetching && !result && (
+            <div
+              className="flex items-center gap-3 text-sm text-muted-foreground py-8 justify-center"
+              data-testid="loading-gap-analysis"
+            >
+              <Loader2 className="h-5 w-5 animate-spin" />
+              Scanning scraped files…
+            </div>
+          )}
+
+          {result && (
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Folder:</span>
+                <code
+                  className="text-xs bg-muted px-2 py-1 rounded"
+                  data-testid="text-gap-data-dir"
+                >
+                  {result.dataDir}
+                </code>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Source: </span>
+                <strong>{result.source}</strong>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Report age: </span>
+                <strong data-testid="text-gap-age">
+                  {result.cached ? formatAge(result.cacheAgeMs) : "just now"}
+                </strong>
+                {result.cached && (
+                  <Badge variant="secondary" className="ml-2">
+                    cached
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {result && (
+        <>
+          {/* Summary counts */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <GapSummaryCard
+              label="Total Files"
+              value={result.totalFiles.toLocaleString()}
+              hint={`${result.pageTypeCoverage.recognizedTotal.toLocaleString()} with a parser`}
+              icon={<FileJson className="h-4 w-4 text-muted-foreground" />}
+              testId="stat-gap-total-files"
+            />
+            <GapSummaryCard
+              label="Dropped Pages"
+              value={result.pageTypeCoverage.otherTotal.toLocaleString()}
+              hint="no parser ('other')"
+              icon={<Layers className="h-4 w-4 text-muted-foreground" />}
+              emphasis={result.pageTypeCoverage.otherTotal > 0}
+              testId="stat-gap-other"
+            />
+            <GapSummaryCard
+              label="Unread Fields"
+              value={unconsumedFieldTotal.toLocaleString()}
+              hint="present but never imported"
+              icon={<ListChecks className="h-4 w-4 text-muted-foreground" />}
+              emphasis={unconsumedFieldTotal > 0}
+              testId="stat-gap-unread-fields"
+            />
+            <GapSummaryCard
+              label="Orphan Links"
+              value={orphanTotal.toLocaleString()}
+              hint="no matching student file"
+              icon={<Link2Off className="h-4 w-4 text-muted-foreground" />}
+              emphasis={orphanTotal > 0}
+              testId="stat-gap-orphans"
+            />
+            <GapSummaryCard
+              label="Empty Files"
+              value={emptyTotal.toLocaleString()}
+              hint="parser extracts nothing"
+              icon={<FileX className="h-4 w-4 text-muted-foreground" />}
+              emphasis={emptyTotal > 0}
+              testId="stat-gap-empty"
+            />
+            <GapSummaryCard
+              label="Silent Defaults"
+              value={defaultedTotal.toLocaleString()}
+              hint="values fell to a default"
+              icon={<AlertTriangle className="h-4 w-4 text-muted-foreground" />}
+              emphasis={defaultedTotal > 0}
+              testId="stat-gap-defaults"
+            />
+          </div>
+
+          {/* Expandable dimension sections */}
+          <Card>
+            <CardContent className="pt-6">
+              <Accordion
+                type="multiple"
+                className="w-full"
+                data-testid="accordion-gap-dimensions"
+              >
+                {/* Dimension 1: page-type coverage */}
+                <AccordionItem value="page-types">
+                  <AccordionTrigger data-testid="accordion-page-types">
+                    <span className="flex items-center gap-2">
+                      <Layers className="h-4 w-4" />
+                      Page-type coverage
+                      <Badge variant="secondary">
+                        {result.pageTypeCoverage.otherTotal} dropped
+                      </Badge>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {Object.entries(result.pageTypeCoverage.byType)
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([type, count]) => (
+                          <div
+                            key={type}
+                            className="flex items-center justify-between rounded border p-2 text-sm"
+                            data-testid={`gap-pagetype-${type}`}
+                          >
+                            <span>{PAGE_TYPE_LABELS[type] || type}</span>
+                            <Badge
+                              variant={type === "other" ? "destructive" : "secondary"}
+                            >
+                              {count.toLocaleString()}
+                            </Badge>
+                          </div>
+                        ))}
+                    </div>
+                    {result.pageTypeCoverage.otherGroups.length > 0 ? (
+                      <div>
+                        <p className="text-sm font-medium mb-2">
+                          Skipped URL patterns (no parser):
+                        </p>
+                        <div className="space-y-1">
+                          {result.pageTypeCoverage.otherGroups.map((g) => (
+                            <div
+                              key={g.pathPattern}
+                              className="flex items-start justify-between gap-3 text-xs border-b py-1"
+                              data-testid={`gap-other-group-${g.pathPattern}`}
+                            >
+                              <div className="min-w-0">
+                                <code className="font-mono break-all">
+                                  {g.pathPattern}
+                                </code>
+                                {g.sampleUrls[0] && (
+                                  <div className="text-muted-foreground truncate">
+                                    e.g. {g.sampleUrls[0]}
+                                  </div>
+                                )}
+                              </div>
+                              <Badge variant="outline">{g.fileCount}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Every scraped page maps to a known type — nothing dropped.
+                      </p>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Dimension 2: field-level coverage */}
+                <AccordionItem value="field-coverage">
+                  <AccordionTrigger data-testid="accordion-field-coverage">
+                    <span className="flex items-center gap-2">
+                      <ListChecks className="h-4 w-4" />
+                      Field-level coverage
+                      <Badge variant="secondary">
+                        {unconsumedFieldTotal} unread
+                      </Badge>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-4">
+                    {Object.entries(result.fieldCoverage).map(([type, cov]) => {
+                      const groups: [string, GapKeyCoverage][] = [
+                        ["label values", cov.label_values],
+                        ["form fields", cov.field_data],
+                        ["field names", cov.field_names],
+                        ["table columns", cov.table_headers],
+                      ];
+                      const hasGaps = groups.some(
+                        ([, g]) => g.unconsumed.length > 0,
+                      );
+                      const drift = groups.some(
+                        ([, g]) => g.consumedButUnseen.length > 0,
+                      );
+                      if (!hasGaps && !drift) return null;
+                      return (
+                        <div
+                          key={type}
+                          className="rounded border p-3 space-y-2"
+                          data-testid={`gap-field-${type}`}
+                        >
+                          <div className="text-sm font-medium">
+                            {PAGE_TYPE_LABELS[type] || type}{" "}
+                            <span className="text-muted-foreground font-normal">
+                              ({cov.filesScanned.toLocaleString()} files)
+                            </span>
+                          </div>
+                          {groups.map(([label, g]) =>
+                            g.unconsumed.length === 0 ? null : (
+                              <div key={label} className="text-xs">
+                                <span className="text-muted-foreground">
+                                  unread {label}:{" "}
+                                </span>
+                                <span className="flex flex-wrap gap-1 mt-1">
+                                  {g.unconsumed.slice(0, 15).map((u) => (
+                                    <Badge
+                                      key={u.key}
+                                      variant="outline"
+                                      className="font-mono"
+                                    >
+                                      {u.key} ({u.fileCount})
+                                    </Badge>
+                                  ))}
+                                  {g.unconsumed.length > 15 && (
+                                    <span className="text-muted-foreground">
+                                      +{g.unconsumed.length - 15} more
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                            ),
+                          )}
+                          {groups.map(([label, g]) =>
+                            g.consumedButUnseen.length === 0 ? null : (
+                              <div
+                                key={`${label}-drift`}
+                                className="text-xs text-amber-600"
+                              >
+                                ⚠ parser reads but never seen in {label}:{" "}
+                                {g.consumedButUnseen.join(", ")}
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      );
+                    })}
+                    {unconsumedFieldTotal === 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        Every observed field is read by a parser.
+                      </p>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Dimension 3: referential gaps */}
+                <AccordionItem value="referential">
+                  <AccordionTrigger data-testid="accordion-referential">
+                    <span className="flex items-center gap-2">
+                      <Link2Off className="h-4 w-4" />
+                      Referential gaps (orphans)
+                      <Badge variant="secondary">{orphanTotal} orphans</Badge>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      {result.referentialGaps.studentFilePages.toLocaleString()}{" "}
+                      student-file pages (
+                      {result.referentialGaps.distinctStudentFileIds.toLocaleString()}{" "}
+                      distinct student IDs). Child pages below reference a student
+                      with no student-file page.
+                    </p>
+                    <div className="space-y-1">
+                      {result.referentialGaps.orphansByType.map((o) => (
+                        <div
+                          key={o.pageType}
+                          className="flex items-center justify-between gap-3 text-sm border-b py-1"
+                          data-testid={`gap-orphan-${o.pageType}`}
+                        >
+                          <span>{PAGE_TYPE_LABELS[o.pageType] || o.pageType}</span>
+                          <span className="text-muted-foreground text-xs">
+                            {o.sampleOrphanIds.length > 0 &&
+                              `e.g. ${o.sampleOrphanIds.slice(0, 5).join(", ")}`}
+                          </span>
+                          <Badge
+                            variant={o.orphanStudentIds > 0 ? "destructive" : "secondary"}
+                          >
+                            {o.orphanStudentIds} / {o.totalWithStudentId}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-sm pt-1">
+                      Student files with no contract source:{" "}
+                      <strong data-testid="gap-no-contract-source">
+                        {result.referentialGaps.studentsWithoutContractSource.total.toLocaleString()}
+                      </strong>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Dimension 4: empty extraction */}
+                <AccordionItem value="empty">
+                  <AccordionTrigger data-testid="accordion-empty">
+                    <span className="flex items-center gap-2">
+                      <FileX className="h-4 w-4" />
+                      Empty-extraction files
+                      <Badge variant="secondary">{emptyTotal} empty</Badge>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-1">
+                    {result.emptyExtraction
+                      .filter((e) => e.filesScanned > 0)
+                      .map((e) => (
+                        <div
+                          key={e.pageType}
+                          className="text-sm border-b py-2"
+                          data-testid={`gap-empty-${e.pageType}`}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <span>
+                              {PAGE_TYPE_LABELS[e.pageType] || e.pageType}
+                            </span>
+                            <Badge
+                              variant={e.emptyFiles > 0 ? "destructive" : "secondary"}
+                            >
+                              {e.emptyFiles} / {e.filesScanned} empty
+                            </Badge>
+                          </div>
+                          {e.emptyFiles > 0 && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {e.reason}
+                              {e.missingStudentId > 0 &&
+                                ` (${e.missingStudentId} missing student ID)`}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Dimension 5: value/enum mismatches */}
+                <AccordionItem value="values">
+                  <AccordionTrigger data-testid="accordion-values">
+                    <span className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4" />
+                      Value / enum mismatches
+                      <Badge variant="secondary">{defaultedTotal} defaulted</Badge>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-4">
+                    {result.valueMismatches.map((v) => (
+                      <div
+                        key={v.field}
+                        className="rounded border p-3 space-y-2"
+                        data-testid={`gap-value-${v.field}`}
+                      >
+                        <div className="text-sm font-medium font-mono">
+                          {v.field}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {v.description}
+                        </p>
+                        {v.defaultValue && (
+                          <p className="text-xs">
+                            Fell to default{" "}
+                            <code className="font-mono">{v.defaultValue}</code>:{" "}
+                            <strong>{v.fellToDefault.toLocaleString()}</strong>
+                          </p>
+                        )}
+                        <div className="space-y-0.5">
+                          {v.values.slice(0, 20).map((item) => (
+                            <div
+                              key={item.value}
+                              className="flex items-center justify-between gap-3 text-xs"
+                            >
+                              <span className="flex items-center gap-2 min-w-0">
+                                {item.matched ? (
+                                  <CheckCircle className="h-3 w-3 text-green-600 shrink-0" />
+                                ) : (
+                                  <XCircle className="h-3 w-3 text-destructive shrink-0" />
+                                )}
+                                <span className="truncate">{item.value}</span>
+                              </span>
+                              <span className="text-muted-foreground">
+                                {item.count.toLocaleString()}
+                              </span>
+                            </div>
+                          ))}
+                          {v.values.length > 20 && (
+                            <p className="text-xs text-muted-foreground">
+                              +{v.values.length - 20} more
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 }
