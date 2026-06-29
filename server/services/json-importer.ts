@@ -131,6 +131,24 @@ function emptySummary(): ImportSummary {
   };
 }
 
+/** Sum the per-entity created/updated/skipped counters into one running total. */
+function totalCounts(s: ImportSummary): EntityCounts {
+  const groups = [
+    s.students,
+    s.contracts,
+    s.transactions,
+    s.evaluations,
+    s.lessons,
+    s.notes,
+    s.documents,
+  ];
+  return {
+    created: groups.reduce((a, g) => a + g.created, 0),
+    updated: groups.reduce((a, g) => a + g.updated, 0),
+    skipped: groups.reduce((a, g) => a + g.skipped, 0),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Singleton run state
 // ---------------------------------------------------------------------------
@@ -1055,6 +1073,10 @@ async function importStudentFile(
 
   // Payment / charge ledger + contract from the money table.
   let courseAmount: number | null = null;
+  // Stable, order-independent dedup keys for this page's transaction rows.
+  // (Row index is unstable: inserting/reordering a row would re-import every
+  // unchanged row below it. Keying on the row's own content is idempotent.)
+  const txOcc = new Map<string, number>();
   for (const t of page.tables || []) {
     const headers = (t.headers || []).map((h) => h.toLowerCase());
     const isMoney =
@@ -1062,9 +1084,7 @@ async function importStudentFile(
       headers.includes("description") ||
       (headers.includes("amount") && headers.includes("total"));
     if (isMoney) {
-      let idx = 0;
       for (const rec of t.records || []) {
-        idx++;
         const date = toISODate(rec.date);
         const desc = (rec.decription || rec.description || "").trim();
         const total = parseMoney(rec.total);
@@ -1073,7 +1093,14 @@ async function importStudentFile(
         if (courseAmount === null && desc.toLowerCase().includes("course")) {
           courseAmount = total;
         }
-        const ref = `${legacyId}_${courseId}_tx_${rec._row_index ?? idx}`;
+        // Deterministic key from the row's own values; a per-page occurrence
+        // suffix keeps genuinely-identical rows distinct without depending on
+        // row order.
+        const normDesc = (desc || "transaction").toLowerCase().replace(/\s+/g, " ");
+        const baseRef = `${legacyId}_${courseId}_tx_${date}_${money(total)}_${normDesc}`;
+        const occ = (txOcc.get(baseRef) ?? 0) + 1;
+        txOcc.set(baseRef, occ);
+        const ref = occ > 1 ? `${baseRef}#${occ}` : baseRef;
         if (ctx.txRefs.has(ref)) {
           summary.transactions.skipped++;
           continue;
@@ -1719,6 +1746,7 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
       log.debug(`processing ${pageType} ${rel} (url_hash=${urlHash})`);
 
       try {
+        const before = totalCounts(state.summary);
         let legacyId: string | null = null;
         switch (pageType) {
           case "studentfile":
@@ -1756,6 +1784,7 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
             break;
         }
 
+        const after = totalCounts(state.summary);
         await recordPage({
           urlHash,
           contentHash,
@@ -1763,6 +1792,9 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
           url: page.final_url || page.url || rel,
           studentLegacyId: legacyId,
           status: "imported",
+          createdCount: after.created - before.created,
+          updatedCount: after.updated - before.updated,
+          skippedCount: after.skipped - before.skipped,
         });
         state.summary.pages.processed++;
       } catch (e: any) {
@@ -1820,6 +1852,9 @@ async function recordPage(p: {
   studentLegacyId: string | null;
   status: string;
   message?: string;
+  createdCount?: number;
+  updatedCount?: number;
+  skippedCount?: number;
 }) {
   await storage.upsertImportedPage({
     urlHash: p.urlHash,
@@ -1829,5 +1864,8 @@ async function recordPage(p: {
     studentLegacyId: p.studentLegacyId,
     status: p.status,
     message: p.message,
+    createdCount: p.createdCount ?? 0,
+    updatedCount: p.updatedCount ?? 0,
+    skippedCount: p.skippedCount ?? 0,
   });
 }

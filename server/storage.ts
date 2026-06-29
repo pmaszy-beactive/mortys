@@ -3906,6 +3906,9 @@ export class DatabaseStorage implements IStorage {
           status: page.status,
           studentLegacyId: page.studentLegacyId,
           message: page.message,
+          createdCount: page.createdCount ?? 0,
+          updatedCount: page.updatedCount ?? 0,
+          skippedCount: page.skippedCount ?? 0,
           importedAt: new Date(),
         },
       })
