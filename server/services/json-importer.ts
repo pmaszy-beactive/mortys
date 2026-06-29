@@ -157,12 +157,68 @@ export function isImportRunning(): boolean {
   return state.status === "running";
 }
 
-function log(msg: string) {
-  const line = `[${new Date().toISOString()}] ${msg}`;
-  state.logs.push(line);
-  if (state.logs.length > MAX_LOGS) state.logs.splice(0, state.logs.length - MAX_LOGS);
-  console.log(`[import] ${msg}`);
+// ---------------------------------------------------------------------------
+// Leveled, timestamped logging
+//
+// Mirrors the scraper's logger (see scripts/migrate-site/spider.js) so the whole
+// migration pipeline produces consistent, greppable output. Every line is an
+// ISO timestamp + severity tag + `[import]` prefix. The verbosity is controlled
+// by the IMPORT_LOG_LEVEL env var (error|warn|info|debug|trace, default info) —
+// the same naming convention as SCRAPE_LOG_LEVEL. Per-page/per-record detail is
+// emitted at debug; errors are always shown and carry the file/url_hash.
+// ---------------------------------------------------------------------------
+const LOG_LEVELS = { error: 0, warn: 1, info: 2, debug: 3, trace: 4 } as const;
+type LogLevel = keyof typeof LOG_LEVELS;
+let LOG_LEVEL: LogLevel = "info";
+
+function resolveLogLevel(value: string | undefined | null): LogLevel | null {
+  if (value === undefined || value === null) return null;
+  const v = String(value).trim().toLowerCase();
+  return Object.prototype.hasOwnProperty.call(LOG_LEVELS, v) ? (v as LogLevel) : null;
 }
+
+const log = {
+  setLevel(value: string | undefined | null): boolean {
+    const resolved = resolveLogLevel(value);
+    if (resolved) {
+      LOG_LEVEL = resolved;
+      return true;
+    }
+    return false;
+  },
+  getLevel(): LogLevel {
+    return LOG_LEVEL;
+  },
+  enabled(level: LogLevel): boolean {
+    return LOG_LEVELS[level] <= LOG_LEVELS[LOG_LEVEL];
+  },
+  _emit(level: LogLevel, msg: string) {
+    if (LOG_LEVELS[level] > LOG_LEVELS[LOG_LEVEL]) return;
+    const line = `${new Date().toISOString()} [${level.toUpperCase()}] [import] ${msg}`;
+    state.logs.push(line);
+    if (state.logs.length > MAX_LOGS) state.logs.splice(0, state.logs.length - MAX_LOGS);
+    const stream = level === "error" || level === "warn" ? console.error : console.log;
+    stream(line);
+  },
+  error(msg: string) {
+    this._emit("error", msg);
+  },
+  warn(msg: string) {
+    this._emit("warn", msg);
+  },
+  info(msg: string) {
+    this._emit("info", msg);
+  },
+  debug(msg: string) {
+    this._emit("debug", msg);
+  },
+  trace(msg: string) {
+    this._emit("trace", msg);
+  },
+};
+
+// Pick up the level from the environment at load time.
+log.setLevel(process.env.IMPORT_LOG_LEVEL);
 
 // ---------------------------------------------------------------------------
 // File discovery + classification
@@ -724,7 +780,7 @@ async function importImageAsDocument(
     summary.documents.created++;
   } catch (err) {
     // One bad image must never abort the whole page/import.
-    console.error(`[import] image document ${key} failed:`, err);
+    log.error(`image document ${key} failed: ${(err as any)?.message ?? err}`);
     summary.documents.skipped++;
   }
 }
@@ -1442,18 +1498,18 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
   state.summary = emptySummary();
 
   const dataDir = getImportDataDir();
-  log(`Import starting. Data dir: ${dataDir}`);
+  log.info(`Import starting. Data dir: ${dataDir} (log level: ${log.getLevel()})`);
 
   try {
     const { files, source } = enumerateImportFiles(dataDir);
     state.total = files.length;
     if (files.length === 0) {
-      log("No scraped JSON files found. Run the scraper first.");
+      log.warn("No scraped JSON files found. Run the scraper first.");
       state.status = "completed";
       state.finishedAt = new Date().toISOString();
       return;
     }
-    log(
+    log.info(
       source === "manifest"
         ? `Found ${files.length} JSON files via _manifest.json.`
         : `Found ${files.length} JSON files (no _manifest.json — scanned data dir).`,
@@ -1467,7 +1523,7 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
     });
 
     const ctx = await buildContext();
-    log(
+    log.info(
       `Loaded existing keys: ${ctx.studentByLegacy.size} students, ${ctx.contractByLegacy.size} contracts.`,
     );
 
@@ -1505,8 +1561,11 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
       // Skip unchanged unless a full re-import is requested.
       if (!opts.reimportAll && seen.get(urlHash) === contentHash) {
         state.summary.pages.skipped++;
+        log.trace(`skip unchanged ${pageType} ${rel} (url_hash=${urlHash})`);
         continue;
       }
+
+      log.debug(`processing ${pageType} ${rel} (url_hash=${urlHash})`);
 
       try {
         let legacyId: string | null = null;
@@ -1556,7 +1615,7 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
         });
         state.summary.pages.processed++;
       } catch (e: any) {
-        summaryError(`${pageType} ${rel}: ${e.message}`);
+        summaryError(`${pageType} ${rel} (url_hash=${urlHash}): ${e.message}`);
         await recordPage({
           urlHash,
           contentHash,
@@ -1569,13 +1628,13 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
       }
 
       if (state.processed % 250 === 0) {
-        log(
+        log.info(
           `Progress ${state.processed}/${state.total} — students +${state.summary.students.created}, tx +${state.summary.transactions.created}, evals +${state.summary.evaluations.created}, lessons +${state.summary.lessons.created}`,
         );
       }
     }
 
-    log(
+    log.info(
       `Import complete. Students ${fmt(state.summary.students)}, contracts ${fmt(state.summary.contracts)}, ` +
         `transactions ${fmt(state.summary.transactions)}, evaluations ${fmt(state.summary.evaluations)}, ` +
         `lessons ${fmt(state.summary.lessons)}, notes ${fmt(state.summary.notes)}. ` +
@@ -1587,7 +1646,7 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
     state.error = e.message;
     state.status = "error";
     state.finishedAt = new Date().toISOString();
-    log(`Import failed: ${e.message}`);
+    log.error(`Import failed: ${e.message}`);
   } finally {
     state.currentFile = null;
   }
@@ -1599,7 +1658,7 @@ function fmt(c: EntityCounts): string {
 
 function summaryError(msg: string) {
   state.summary.pages.errors++;
-  log(`ERROR ${msg}`);
+  log.error(msg);
 }
 
 async function recordPage(p: {
