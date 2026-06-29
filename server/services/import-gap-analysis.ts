@@ -151,6 +151,7 @@ interface RawPage {
   images?: { src?: string }[];
   links?: { href?: string; text?: string }[];
   label_values?: Record<string, any>;
+  text_content?: string;
 }
 
 const RECOGNIZED_TYPES = Object.keys(PARSER_CONSUMED_KEYS) as Exclude<
@@ -213,10 +214,8 @@ function looksLikeDate(raw?: string | null): boolean {
   if (!raw) return false;
   const s = String(raw).trim();
   if (!s) return false;
-  if (/([A-Za-z]{3})[a-z]*\s+\d{1,2},?\s+\d{4}/.test(s)) {
-    const m = s.match(/([A-Za-z]{3})/);
-    if (m && MONTHS.has(m[1].toLowerCase())) return true;
-  }
+  const m = s.match(/([A-Za-z]{3})[a-z]*\s+\d{1,2},?\s+\d{4}/);
+  if (m && MONTHS.has(m[1].toLowerCase())) return true;
   if (/\d{4}-\d{2}-\d{2}/.test(s)) return true;
   if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(s)) return true;
   return false;
@@ -349,7 +348,12 @@ function registrationsHasStudentLinks(page: RawPage): boolean {
 
 function attestationHasNumber(page: RawPage): boolean {
   const lv = page.label_values || {};
-  return !!(lv["Attestation No"] || lv["Attestation Number"] || lv["No. d'attestation"]);
+  if (lv["Attestation No"] || lv["Attestation Number"] || lv["No. d'attestation"]) {
+    return true;
+  }
+  // SAAQ attestation pages render as flat text; the attestation number is the
+  // leading numeric token, e.g. "03203701 A-106 Denis, Elizabeth ...".
+  return /^\s*\d{6,9}\b/.test(page.text_content || "");
 }
 
 // ---------------------------------------------------------------------------

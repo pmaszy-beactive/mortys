@@ -1480,8 +1480,15 @@ async function importAttestation(
   const url = page.final_url || page.url || "";
   const courseType = courseTypeFromUrl(url);
   const lv = page.label_values || {};
-  const attestationNumber =
+  let attestationNumber =
     lv["Attestation No"] || lv["Attestation Number"] || lv["No. d'attestation"];
+  if (!attestationNumber) {
+    // SAAQ attestation pages render as flat text with no label/value pairs; the
+    // attestation number is the leading numeric token, e.g.
+    // "03203701 A-106 Denis, Elizabeth 293 rue Maurice-Richard ...".
+    const m = (page.text_content || "").trim().match(/^(\d{6,9})\b/);
+    if (m) attestationNumber = m[1];
+  }
   const studentId = await getOrCreateStudent(ctx, legacyId, { courseType }, summary);
   if (attestationNumber) {
     await enrichStudent(studentId, { attestationNumber }, summary);
