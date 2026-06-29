@@ -45,7 +45,8 @@ CRON_ENV_FILE="/etc/nightly-scrape.env"
 chmod 600 "$CRON_ENV_FILE"
 for var in INTERNAL_ALERT_TOKEN SCRAPE_ALERT_URL SCRAPE_ALERT_EMAIL APP_INTERNAL_PORT \
            IMPORT_DATA_DIR MIGRATE_OUTPUT_DIR MIGRATE_COOKIE_FILE \
-           PUPPETEER_SKIP_DOWNLOAD PUPPETEER_EXECUTABLE_PATH; do
+           PUPPETEER_SKIP_DOWNLOAD PUPPETEER_EXECUTABLE_PATH \
+           SCRAPE_LOG_LEVEL SCRAPE_MAX_RETRIES; do
   eval "val=\${$var}"
   if [ -n "$val" ]; then
     printf 'export %s=%s\n' "$var" "$(printf '%s' "$val" | sed "s/'/'\\\\''/g; s/^/'/; s/$/'/")" >> "$CRON_ENV_FILE"

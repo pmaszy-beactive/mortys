@@ -29,6 +29,15 @@ export MIGRATE_COOKIE_FILE="${MIGRATE_COOKIE_FILE:-/data/cookie.txt}"
 export PUPPETEER_SKIP_DOWNLOAD="${PUPPETEER_SKIP_DOWNLOAD:-true}"
 export PUPPETEER_EXECUTABLE_PATH="${PUPPETEER_EXECUTABLE_PATH:-/usr/bin/chromium-browser}"
 
+# Scraper log verbosity / resilience. Leaving SCRAPE_LOG_LEVEL unset keeps the
+# spider at its default `info` level so the nightly log stays readable; an
+# operator can temporarily raise detail for nightly by setting SCRAPE_LOG_LEVEL
+# (e.g. debug) in the container/cron environment without code edits. spider.js
+# reads both directly. We only export them when set so the spider's own defaults
+# apply otherwise.
+[ -n "${SCRAPE_LOG_LEVEL:-}" ] && export SCRAPE_LOG_LEVEL
+[ -n "${SCRAPE_MAX_RETRIES:-}" ] && export SCRAPE_MAX_RETRIES
+
 # --- Log rotation ----------------------------------------------------------
 # Cron invokes this script with no stdout redirect; we own our own logging so
 # we can rotate before writing. Logs live on the /data volume and would

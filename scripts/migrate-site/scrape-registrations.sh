@@ -19,12 +19,26 @@ NUM_DAYS="$2"
 BASE_URL="https://mortys.drivetraqr.ca/admin/reports/registrations/"
 SLEEP_SECONDS=30
 
+# Log verbosity for the spider. Honors SCRAPE_LOG_LEVEL from the environment so
+# operators can run a manual debug scrape without editing code:
+#   SCRAPE_LOG_LEVEL=debug ./scrape-registrations.sh 10/02/2026 7
+# spider.js reads this env var directly (inherited by the child process); we also
+# pass it as --log-level so it survives even if the env is stripped. Defaults to
+# the spider's own default (info) when unset.
+SCRAPE_LOG_LEVEL="${SCRAPE_LOG_LEVEL:-}"
+LOG_LEVEL_ARGS=()
+if [ -n "$SCRAPE_LOG_LEVEL" ]; then
+    export SCRAPE_LOG_LEVEL
+    LOG_LEVEL_ARGS=(--log-level "$SCRAPE_LOG_LEVEL")
+fi
+
 echo "============================================================"
 echo "Registration Report Scraper"
 echo "============================================================"
 echo "Start date: $START_DATE (DD/MM/YYYY)"
 echo "Days back:  $NUM_DAYS"
 echo "Sleep:      ${SLEEP_SECONDS}s between requests"
+echo "Log level:  ${SCRAPE_LOG_LEVEL:-info (default)}"
 echo "============================================================"
 echo ""
 
@@ -42,7 +56,7 @@ for ((i=0; i<NUM_DAYS; i++)); do
     echo "[$(($i + 1))/$NUM_DAYS] Date: $CURRENT_DATE"
     echo "  URL: $URL"
 
-    node "$(dirname "$0")/spider.js" "$URL" --max-pages 256 --delay 5000
+    node "$(dirname "$0")/spider.js" "$URL" --max-pages 256 --delay 5000 "${LOG_LEVEL_ARGS[@]}"
 
     if [ $? -ne 0 ]; then
         echo "ERROR: Spider failed on $CURRENT_DATE. Stopping."

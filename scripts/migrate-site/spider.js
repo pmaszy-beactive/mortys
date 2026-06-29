@@ -38,6 +38,59 @@ const VISITED_FILE = path.join(OUTPUT_DIR, '_visited_urls.txt');
 
 let DELAY_MS = 2000;
 let MAX_PAGES = 1000;
+// Number of extra navigation attempts on failure (0 = original behavior: a
+// single attempt). Configurable via env or --max-retries so a flaky run can be
+// made more resilient without code edits. Retry attempts are logged at debug.
+let MAX_RETRIES = parseInt(process.env.SCRAPE_MAX_RETRIES || '0', 10);
+if (!Number.isFinite(MAX_RETRIES) || MAX_RETRIES < 0) MAX_RETRIES = 0;
+
+// --- Leveled logger --------------------------------------------------------
+// A tiny internal logger so operators can crank up scraper detail on demand
+// (SCRAPE_LOG_LEVEL env var or --log-level/--debug/--trace CLI flags) while the
+// nightly run stays readable at the default `info` level. Every line is
+// prefixed with an ISO timestamp + severity tag so /data/logs/nightly-scrape.log
+// is greppable and time-ordered. Never log secret values (e.g. cookie contents).
+const LOG_LEVELS = { error: 0, warn: 1, info: 2, debug: 3, trace: 4 };
+let LOG_LEVEL = 'info';
+
+function resolveLogLevel(value) {
+    if (value === undefined || value === null) return null;
+    const v = String(value).trim().toLowerCase();
+    return Object.prototype.hasOwnProperty.call(LOG_LEVELS, v) ? v : null;
+}
+
+const log = {
+    setLevel(value) {
+        const resolved = resolveLogLevel(value);
+        if (resolved) {
+            LOG_LEVEL = resolved;
+            return true;
+        }
+        return false;
+    },
+    getLevel() {
+        return LOG_LEVEL;
+    },
+    enabled(level) {
+        return LOG_LEVELS[level] <= LOG_LEVELS[LOG_LEVEL];
+    },
+    _emit(level, args) {
+        if (LOG_LEVELS[level] > LOG_LEVELS[LOG_LEVEL]) return;
+        const prefix = `${new Date().toISOString()} [${level.toUpperCase()}]`;
+        const stream = level === 'error' || level === 'warn' ? console.error : console.log;
+        stream(prefix, ...args);
+    },
+    error(...args) { this._emit('error', args); },
+    warn(...args) { this._emit('warn', args); },
+    info(...args) { this._emit('info', args); },
+    debug(...args) { this._emit('debug', args); },
+    trace(...args) { this._emit('trace', args); },
+};
+
+// Pick up the level from the environment at load time. CLI flags (parsed in
+// main()) override this afterwards.
+log.setLevel(process.env.SCRAPE_LOG_LEVEL);
+// ---------------------------------------------------------------------------
 
 class SiteMigrationSpider {
     constructor(seedUrl, cookies) {
@@ -69,7 +122,7 @@ class SiteMigrationSpider {
         const jsonFiles = entries.filter(f => f.endsWith('.json') && !f.startsWith('_'));
         if (jsonFiles.length === 0) return;
 
-        console.log(`Checking ${jsonFiles.length} existing files for reorganization...`);
+        log.debug(`Checking ${jsonFiles.length} existing files for reorganization...`);
         let moved = 0;
 
         for (const file of jsonFiles) {
@@ -99,7 +152,7 @@ class SiteMigrationSpider {
         }
 
         if (moved > 0) {
-            console.log(`Reorganized ${moved} file(s) into path-based directories.`);
+            log.info(`Reorganized ${moved} file(s) into path-based directories.`);
         }
     }
 
@@ -151,7 +204,7 @@ class SiteMigrationSpider {
         if (fs.existsSync(VISITED_FILE)) {
             const lines = fs.readFileSync(VISITED_FILE, 'utf8').split('\n').filter(l => l.trim());
             lines.forEach(url => this.visitedUrls.add(url.trim()));
-            console.log(`Loaded ${this.visitedUrls.size} visited URLs from _visited_urls.txt`);
+            log.info(`Loaded ${this.visitedUrls.size} visited URLs from _visited_urls.txt`);
         }
     }
     
@@ -168,10 +221,10 @@ class SiteMigrationSpider {
                     this.visitedHashes = new Set(state.visitedHashes || []);
                     this.queue = state.queue || [];
                     this.pagesScraped = state.pagesScraped || 0;
-                    console.log(`Resumed state: ${this.visitedHashes.size} pages visited, ${this.queue.length} in queue`);
+                    log.info(`Resumed state: ${this.visitedHashes.size} pages visited, ${this.queue.length} in queue`);
                 }
             } catch (e) {
-                console.log('Could not load state:', e.message);
+                log.warn('Could not load state:', e.message);
             }
         }
     }
@@ -426,7 +479,7 @@ class SiteMigrationSpider {
             pageData.raw_html_length = (await this.page.content()).length;
             
         } catch (e) {
-            console.log('    Extract error:', e.message);
+            log.warn(`Extract error for ${url}: ${e.message}`);
         }
         
         return pageData;
@@ -453,31 +506,66 @@ class SiteMigrationSpider {
             return null;
         }
         
-        console.log(`\n[${this.pagesScraped + 1}] Scraping:`);
-        console.log(`    URL: ${url}`);
-        console.log(`    Hash: ${urlHash}`);
+        log.info(`[${this.pagesScraped + 1}] Scraping: ${url}`);
+        log.debug(`    Hash: ${urlHash} | queue depth: ${this.queue.length}`);
         
         try {
-            console.log('    Navigating...');
-            const response = await this.page.goto(url, { 
-                waitUntil: 'networkidle2',
-                timeout: 60000 
-            });
+            // Navigate with optional retries. The default (MAX_RETRIES=0) keeps
+            // the original single-attempt behavior; each attempt and any backoff
+            // is logged at debug/warn so flaky pages are diagnosable.
+            let response = null;
+            const navStart = Date.now();
+            for (let attempt = 1; attempt <= MAX_RETRIES + 1; attempt++) {
+                try {
+                    log.debug(`    Navigating (attempt ${attempt}/${MAX_RETRIES + 1})...`);
+                    response = await this.page.goto(url, {
+                        waitUntil: 'networkidle2',
+                        timeout: 60000
+                    });
+                    break;
+                } catch (navErr) {
+                    if (attempt > MAX_RETRIES) throw navErr;
+                    const backoff = 2000 * attempt;
+                    log.warn(`    Navigation attempt ${attempt} failed for ${url}: ${navErr.message} — retrying in ${backoff}ms`);
+                    await new Promise(r => setTimeout(r, backoff));
+                }
+            }
+            const navMs = Date.now() - navStart;
             
             const status = response ? response.status() : 'unknown';
-            console.log(`    Status: ${status}`);
+            const finalUrlRaw = this.page.url();
+            log.debug(`    Navigation finished in ${navMs}ms | status: ${status} | final URL: ${finalUrlRaw}`);
+            if (finalUrlRaw !== url) {
+                log.debug(`    Requested URL differs from final URL (redirect occurred)`);
+            }
             
-            const finalUrl = this.page.url().toLowerCase();
+            // Redirect chain (each entry is a request that was redirected).
+            if (log.enabled('debug') && response) {
+                try {
+                    const chain = response.request().redirectChain();
+                    if (chain && chain.length > 0) {
+                        log.debug(`    Redirect chain (${chain.length}): ${chain.map(r => r.url()).join(' -> ')}`);
+                    } else {
+                        log.trace(`    No redirects`);
+                    }
+                } catch (chainErr) {
+                    log.trace(`    Could not read redirect chain: ${chainErr.message}`);
+                }
+            }
+            
+            const finalUrl = finalUrlRaw.toLowerCase();
             if (finalUrl.includes('/login') || finalUrl.includes('/requestpasswordreset') || finalUrl.includes('/signin')) {
-                console.log('\n' + '!'.repeat(60));
-                console.log('ERROR: Redirected to login/password reset page!');
-                console.log(`Final URL: ${this.page.url()}`);
-                console.log('Your session cookie has expired. Please:');
-                console.log('  1. Log in again in your browser');
-                console.log('  2. Copy the new cookie to scripts/cookie.txt');
-                console.log('  3. Delete migrate/_spider_state.json to start fresh');
-                console.log('  4. Re-run the spider');
-                console.log('!'.repeat(60) + '\n');
+                // Always-on, clearly identifiable marker — the nightly wrapper
+                // greps for "Redirected to login" / "session cookie has expired".
+                log.error('!'.repeat(60));
+                log.error('ERROR: Redirected to login/password reset page!');
+                log.error(`Final URL: ${finalUrlRaw}`);
+                log.error('Your session cookie has expired. Please:');
+                log.error('  1. Log in again in your browser');
+                log.error('  2. Copy the new cookie to scripts/cookie.txt');
+                log.error('  3. Delete migrate/_spider_state.json to start fresh');
+                log.error('  4. Re-run the spider');
+                log.error('!'.repeat(60));
                 this.saveState();
                 await this.browser.close();
                 process.exit(1);
@@ -489,9 +577,11 @@ class SiteMigrationSpider {
             const html = await this.page.content();
             const pageData = await this.extractPageData(url);
             pageData.status_code = status;
-            pageData.final_url = this.page.url();
+            pageData.final_url = finalUrlRaw;
             
-            const { dir, base } = this.outputPathFromUrl(this.page.url());
+            log.debug(`    Extracted: ${pageData.forms.length} form(s), ${pageData.tables.length} table(s), ${pageData.headings.length} heading(s), ${pageData.raw_html_length} html bytes`);
+            
+            const { dir, base } = this.outputPathFromUrl(finalUrlRaw);
             fs.mkdirSync(dir, { recursive: true });
             const outputFile = path.join(dir, `${base}_${urlHash}.json`);
             const htmlFile = path.join(dir, `${base}_${urlHash}.html`);
@@ -503,13 +593,18 @@ class SiteMigrationSpider {
             });
             
             let newLinks = 0;
+            let skippedLinks = 0;
             for (const link of links) {
                 if (this.isValidUrl(link)) {
                     const linkHash = this.urlHash(link);
                     if (!this.visitedHashes.has(linkHash) && !this.queue.includes(link)) {
                         this.queue.push(link);
                         newLinks++;
+                    } else {
+                        skippedLinks++;
                     }
+                } else {
+                    skippedLinks++;
                 }
             }
             
@@ -517,28 +612,31 @@ class SiteMigrationSpider {
             fs.writeFileSync(htmlFile, html);
             this.saveVisitedUrl(url);
             
-            console.log(`    Output: ${path.relative(OUTPUT_DIR, outputFile)}`);
-            console.log(`    Found ${newLinks} new links`);
+            log.debug(`    Output: ${path.relative(OUTPUT_DIR, outputFile)}`);
+            log.debug(`    Links: ${links.length} found, ${newLinks} queued, ${skippedLinks} skipped | queue depth: ${this.queue.length}`);
+            log.info(`    Done (status ${status}, ${navMs}ms, ${newLinks} new links)`);
             
             return pageData;
             
         } catch (e) {
-            console.log(`    ERROR: ${e.message}`);
+            // Errors always log with full context regardless of level.
+            log.error(`Failed to scrape ${url} (hash ${urlHash}): ${e.message}`);
+            if (e.stack) log.debug(e.stack);
             this.visitedHashes.add(urlHash);
             return { url, error: e.message };
         }
     }
     
     async run() {
-        console.log('\n' + '='.repeat(60));
-        console.log('Site Migration Spider (Puppeteer)');
-        console.log('='.repeat(60));
-        console.log(`Seed URL: ${this.seedUrl}`);
-        console.log(`Domain: ${this.baseDomain}`);
-        console.log(`Cookies: ${this.cookies.length} cookies loaded`);
-        console.log(`Output: ${OUTPUT_DIR}`);
-        console.log(`Delay: ${DELAY_MS}ms between requests`);
-        console.log('='.repeat(60) + '\n');
+        log.info('='.repeat(60));
+        log.info('Site Migration Spider (Puppeteer)');
+        log.info('='.repeat(60));
+        log.info(`Seed URL: ${this.seedUrl}`);
+        log.info(`Domain: ${this.baseDomain}`);
+        log.info(`Cookies: ${this.cookies.length} cookies loaded`);
+        log.info(`Output: ${OUTPUT_DIR}`);
+        log.info(`Delay: ${DELAY_MS}ms between requests | max pages: ${MAX_PAGES} | retries: ${MAX_RETRIES} | log level: ${log.getLevel()}`);
+        log.info('='.repeat(60));
         
         this.browser = await puppeteer.launch({
             headless: 'new',
@@ -573,16 +671,17 @@ class SiteMigrationSpider {
                 }
             }
         } catch (e) {
-            console.log('\nError:', e.message);
+            log.error(`Spider run aborted: ${e.message}`);
+            if (e.stack) log.debug(e.stack);
         } finally {
             await this.browser.close();
         }
         
-        console.log('\n' + '='.repeat(60));
-        console.log('Spider Complete!');
-        console.log(`Pages scraped: ${this.pagesScraped}`);
-        console.log(`Output directory: ${OUTPUT_DIR}`);
-        console.log('='.repeat(60));
+        log.info('='.repeat(60));
+        log.info('Spider Complete!');
+        log.info(`Pages scraped: ${this.pagesScraped}`);
+        log.info(`Output directory: ${OUTPUT_DIR}`);
+        log.info('='.repeat(60));
         
         this.generateManifest();
     }
@@ -625,7 +724,7 @@ class SiteMigrationSpider {
         
         const manifestFile = path.join(OUTPUT_DIR, '_manifest.json');
         fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 2));
-        console.log(`Manifest generated: ${manifestFile}`);
+        log.info(`Manifest generated: ${manifestFile} (${manifest.pages.length} page(s) indexed)`);
     }
 }
 
@@ -659,11 +758,13 @@ function loadCookies(domain) {
     if (fs.existsSync(COOKIE_FILE)) {
         const cookieStr = fs.readFileSync(COOKIE_FILE, 'utf8').trim();
         if (cookieStr) {
-            console.log(`Loaded cookie from: ${COOKIE_FILE}`);
+            // Never log the cookie contents — only that one was found.
+            log.info(`Loaded cookie from: ${COOKIE_FILE}`);
+            log.debug(`Cookie file present (${cookieStr.length} chars, values not logged)`);
             return parseCookieString(cookieStr, domain);
         }
     }
-    console.log('No cookie file found');
+    log.warn(`No cookie file found at ${COOKIE_FILE} — scraping unauthenticated`);
     return [];
 }
 
@@ -671,8 +772,9 @@ async function main() {
     const args = process.argv.slice(2);
     
     if (args.length === 0) {
-        console.log('Usage: node spider.js <seed_url> [--delay <ms>] [--max-pages <n>]');
-        console.log('Example: node spider.js https://example.com/admin --delay 2000 --max-pages 100');
+        console.log('Usage: node spider.js <seed_url> [--delay <ms>] [--max-pages <n>] [--max-retries <n>] [--log-level <error|warn|info|debug|trace>] [--debug] [--trace]');
+        console.log('Example: node spider.js https://example.com/admin --delay 2000 --max-pages 100 --log-level debug');
+        console.log('Log level can also be set via the SCRAPE_LOG_LEVEL env var (CLI flag overrides it).');
         process.exit(1);
     }
     
@@ -685,6 +787,19 @@ async function main() {
         } else if (args[i] === '--max-pages' && args[i + 1]) {
             MAX_PAGES = parseInt(args[i + 1]);
             i++;
+        } else if (args[i] === '--max-retries' && args[i + 1]) {
+            const n = parseInt(args[i + 1], 10);
+            if (Number.isFinite(n) && n >= 0) MAX_RETRIES = n;
+            i++;
+        } else if (args[i] === '--log-level' && args[i + 1]) {
+            if (!log.setLevel(args[i + 1])) {
+                log.warn(`Unknown --log-level "${args[i + 1]}" — keeping "${log.getLevel()}"`);
+            }
+            i++;
+        } else if (args[i] === '--debug') {
+            log.setLevel('debug');
+        } else if (args[i] === '--trace') {
+            log.setLevel('trace');
         }
     }
     
@@ -699,4 +814,8 @@ async function main() {
     await spider.run();
 }
 
-main().catch(console.error);
+main().catch(e => {
+    log.error(`Fatal: ${e.message}`);
+    if (e.stack) log.debug(e.stack);
+    process.exit(1);
+});

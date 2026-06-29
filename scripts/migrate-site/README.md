@@ -69,6 +69,70 @@ production Docker container:
 | `IMPORT_DATA_DIR` / `MIGRATE_OUTPUT_DIR` | Where scraped JSON/HTML is written | `./migrate` |
 | `MIGRATE_COOKIE_FILE` | Path to the auth cookie file | `../cookie.txt` |
 | `PUPPETEER_EXECUTABLE_PATH` | Chromium binary (set in the container) | bundled Chromium |
+| `SCRAPE_LOG_LEVEL` | Log verbosity: `error`, `warn`, `info`, `debug`, or `trace` | `info` |
+| `SCRAPE_MAX_RETRIES` | Extra navigation attempts on failure (0 = single attempt) | `0` |
+
+## Logging
+
+`spider.js` has a small leveled logger. Every line is prefixed with an ISO
+timestamp and a severity tag, e.g.:
+
+```
+2026-06-29T22:00:03.142Z [INFO] [1] Scraping: https://mortys.drivetraqr.ca/admin/reports/registrations/?date=29%2F06%2F2026
+2026-06-29T22:00:08.901Z [INFO]     Done (status 200, 5621ms, 37 new links)
+```
+
+This makes `/data/logs/nightly-scrape.log` greppable and time-ordered.
+
+### Levels
+
+| Level | What you get |
+| --- | --- |
+| `error` | Failures only (scrape errors, login-redirect / expired-cookie marker). Always shown. |
+| `warn` | The above plus recoverable problems (state load failure, extract errors, navigation retries, missing cookie). |
+| `info` (default) | The above plus per-page start/finish (URL, status, timing, new link count) and run summary. Roughly matches the previous output volume. |
+| `debug` | The above plus per-page diagnostics: hash, queue depth, navigation timing, requested-vs-final URL, redirect chain, links found/queued/skipped, extraction counts (forms/tables/headings), retry attempts, output path. |
+| `trace` | The above plus the most verbose details (e.g. "no redirects"). |
+
+Cookie **contents are never logged** at any level — only whether a cookie file
+was found.
+
+### Setting the level
+
+Use the env var or a CLI flag (the flag overrides the env var):
+
+```bash
+# Env var
+SCRAPE_LOG_LEVEL=debug node spider.js https://mortys.drivetraqr.ca/admin
+
+# CLI flags
+node spider.js https://mortys.drivetraqr.ca/admin --log-level debug
+node spider.js https://mortys.drivetraqr.ca/admin --debug    # shortcut for --log-level debug
+node spider.js https://mortys.drivetraqr.ca/admin --trace    # shortcut for --log-level trace
+```
+
+`scrape-registrations.sh` honors `SCRAPE_LOG_LEVEL` from the environment and
+passes it through to the spider:
+
+```bash
+SCRAPE_LOG_LEVEL=debug ./scrape-registrations.sh 29/06/2026 7
+```
+
+### Debug scrape inside the production container (Docker)
+
+The nightly run stays at `info`. To run a one-off debug scrape inside the
+container (output still lands on the `/data` volume):
+
+```bash
+docker exec -it <container> \
+  env SCRAPE_LOG_LEVEL=debug \
+  node scripts/migrate-site/spider.js https://mortys.drivetraqr.ca/admin
+```
+
+To temporarily raise the **nightly** verbosity without code changes, set
+`SCRAPE_LOG_LEVEL` (and optionally `SCRAPE_MAX_RETRIES`) in the container's
+environment — `docker-entrypoint.sh` forwards both into the cron environment
+and `nightly-scrape.sh` exports them for the scraper.
 
 ## Running inside the production container (Docker)
 
