@@ -38,11 +38,20 @@ const VISITED_FILE = path.join(OUTPUT_DIR, '_visited_urls.txt');
 
 let DELAY_MS = 2000;
 let MAX_PAGES = 1000;
-// Number of extra navigation attempts on failure (0 = original behavior: a
-// single attempt). Configurable via env or --max-retries so a flaky run can be
-// made more resilient without code edits. Retry attempts are logged at debug.
-let MAX_RETRIES = parseInt(process.env.SCRAPE_MAX_RETRIES || '0', 10);
-if (!Number.isFinite(MAX_RETRIES) || MAX_RETRIES < 0) MAX_RETRIES = 0;
+// Number of extra navigation attempts on failure. Defaults to 2 (so a page is
+// tried up to 3 times with backoff) so transient timeouts don't silently leave
+// gaps in the imported data — retries only fire on failure, so a healthy run is
+// unaffected. Set to 0 for the original single-attempt behavior. Configurable
+// via env (SCRAPE_MAX_RETRIES) or --max-retries. Retry attempts are logged at
+// warn so flaky pages are visible in the nightly log.
+let MAX_RETRIES = parseInt(process.env.SCRAPE_MAX_RETRIES || '2', 10);
+if (!Number.isFinite(MAX_RETRIES) || MAX_RETRIES < 0) MAX_RETRIES = 2;
+// How many times a page that fails every navigation attempt is pushed back onto
+// the queue for a fresh try later in the run (after other pages and a delay),
+// instead of being marked visited and skipped forever. Capped to avoid an
+// infinite loop on a genuinely dead URL. Configurable via SCRAPE_MAX_REQUEUES.
+let MAX_REQUEUES = parseInt(process.env.SCRAPE_MAX_REQUEUES || '1', 10);
+if (!Number.isFinite(MAX_REQUEUES) || MAX_REQUEUES < 0) MAX_REQUEUES = 1;
 
 // --- Leveled logger --------------------------------------------------------
 // A tiny internal logger so operators can crank up scraper detail on demand
@@ -104,7 +113,15 @@ class SiteMigrationSpider {
         this.visitedHashes = new Set();
         this.visitedUrls = new Set();
         this.queue = [];
+        // Per-page re-queue counter (urlHash -> times re-queued after a total
+        // navigation failure). In-memory only; the queue itself is persisted, so
+        // a re-queued page survives a restart while the counter resets to give a
+        // fresh run another chance.
+        this.failedAttempts = new Map();
         this.pagesScraped = 0;
+        // Pages permanently given up on (every navigation attempt + every
+        // re-queue failed). Surfaced in the run summary so gaps are obvious.
+        this.skippedPages = 0;
         this.browser = null;
         this.page = null;
         
@@ -620,9 +637,23 @@ class SiteMigrationSpider {
             
         } catch (e) {
             // Errors always log with full context regardless of level.
-            log.error(`Failed to scrape ${url} (hash ${urlHash}): ${e.message}`);
+            log.error(`Failed to scrape ${url} (hash ${urlHash}) after ${MAX_RETRIES + 1} navigation attempt(s): ${e.message}`);
             if (e.stack) log.debug(e.stack);
-            this.visitedHashes.add(urlHash);
+
+            // Re-queue transient failures rather than marking them visited, so a
+            // flaky page gets a fresh try later in the run (after other pages and
+            // a delay) instead of silently leaving a gap in the imported data.
+            // Cap the re-queues per page so a genuinely dead URL can't loop.
+            const priorRequeues = this.failedAttempts.get(urlHash) || 0;
+            if (priorRequeues < MAX_REQUEUES) {
+                this.failedAttempts.set(urlHash, priorRequeues + 1);
+                this.queue.push(url);
+                log.warn(`    Re-queued ${url} for a later retry (re-queue ${priorRequeues + 1}/${MAX_REQUEUES}, queue depth now ${this.queue.length})`);
+            } else {
+                this.visitedHashes.add(urlHash);
+                this.skippedPages++;
+                log.error(`    SKIPPING ${url} — gave up after ${MAX_RETRIES + 1} attempt(s) x ${MAX_REQUEUES + 1} pass(es). This page is MISSING from the scrape.`);
+            }
             return { url, error: e.message };
         }
     }
@@ -635,7 +666,7 @@ class SiteMigrationSpider {
         log.info(`Domain: ${this.baseDomain}`);
         log.info(`Cookies: ${this.cookies.length} cookies loaded`);
         log.info(`Output: ${OUTPUT_DIR}`);
-        log.info(`Delay: ${DELAY_MS}ms between requests | max pages: ${MAX_PAGES} | retries: ${MAX_RETRIES} | log level: ${log.getLevel()}`);
+        log.info(`Delay: ${DELAY_MS}ms between requests | max pages: ${MAX_PAGES} | retries: ${MAX_RETRIES} | re-queues: ${MAX_REQUEUES} | log level: ${log.getLevel()}`);
         log.info('='.repeat(60));
         
         this.browser = await puppeteer.launch({
@@ -680,6 +711,11 @@ class SiteMigrationSpider {
         log.info('='.repeat(60));
         log.info('Spider Complete!');
         log.info(`Pages scraped: ${this.pagesScraped}`);
+        if (this.skippedPages > 0) {
+            log.error(`Pages SKIPPED after exhausting retries/re-queues: ${this.skippedPages} (these are MISSING from the scrape — search the log for "SKIPPING")`);
+        } else {
+            log.info(`Pages skipped: 0`);
+        }
         log.info(`Output directory: ${OUTPUT_DIR}`);
         log.info('='.repeat(60));
         
@@ -772,7 +808,7 @@ async function main() {
     const args = process.argv.slice(2);
     
     if (args.length === 0) {
-        console.log('Usage: node spider.js <seed_url> [--delay <ms>] [--max-pages <n>] [--max-retries <n>] [--log-level <error|warn|info|debug|trace>] [--debug] [--trace]');
+        console.log('Usage: node spider.js <seed_url> [--delay <ms>] [--max-pages <n>] [--max-retries <n>] [--max-requeues <n>] [--log-level <error|warn|info|debug|trace>] [--debug] [--trace]');
         console.log('Example: node spider.js https://example.com/admin --delay 2000 --max-pages 100 --log-level debug');
         console.log('Log level can also be set via the SCRAPE_LOG_LEVEL env var (CLI flag overrides it).');
         process.exit(1);
@@ -790,6 +826,10 @@ async function main() {
         } else if (args[i] === '--max-retries' && args[i + 1]) {
             const n = parseInt(args[i + 1], 10);
             if (Number.isFinite(n) && n >= 0) MAX_RETRIES = n;
+            i++;
+        } else if (args[i] === '--max-requeues' && args[i + 1]) {
+            const n = parseInt(args[i + 1], 10);
+            if (Number.isFinite(n) && n >= 0) MAX_REQUEUES = n;
             i++;
         } else if (args[i] === '--log-level' && args[i + 1]) {
             if (!log.setLevel(args[i + 1])) {

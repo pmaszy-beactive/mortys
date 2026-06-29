@@ -33,10 +33,17 @@ export PUPPETEER_EXECUTABLE_PATH="${PUPPETEER_EXECUTABLE_PATH:-/usr/bin/chromium
 # spider at its default `info` level so the nightly log stays readable; an
 # operator can temporarily raise detail for nightly by setting SCRAPE_LOG_LEVEL
 # (e.g. debug) in the container/cron environment without code edits. spider.js
-# reads both directly. We only export them when set so the spider's own defaults
-# apply otherwise.
+# reads both directly. SCRAPE_LOG_LEVEL is only exported when set so the spider's
+# own default applies otherwise.
 [ -n "${SCRAPE_LOG_LEVEL:-}" ] && export SCRAPE_LOG_LEVEL
-[ -n "${SCRAPE_MAX_RETRIES:-}" ] && export SCRAPE_MAX_RETRIES
+
+# Navigation resilience: default the nightly run to 2 retries (3 attempts per
+# page, with backoff) so a transient timeout doesn't silently drop a page from
+# the import. Retries only fire on failure, so a healthy run isn't slowed. An
+# operator can override (e.g. SCRAPE_MAX_RETRIES=0 to restore single-attempt
+# behavior). spider.js also defaults to 2, but we set it explicitly here so the
+# nightly policy is visible and independent of the code default.
+export SCRAPE_MAX_RETRIES="${SCRAPE_MAX_RETRIES:-2}"
 
 # --- Log rotation ----------------------------------------------------------
 # Cron invokes this script with no stdout redirect; we own our own logging so
