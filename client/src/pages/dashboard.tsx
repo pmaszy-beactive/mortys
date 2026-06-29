@@ -100,7 +100,6 @@ function StudentSearchWidget() {
             placeholder="Search students by name or email..."
             value={query}
             onChange={e => setQuery(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && handleFullSearch()}
           />
           {query && (
             <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
