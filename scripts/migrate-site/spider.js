@@ -35,6 +35,13 @@ const COOKIE_FILE = process.env.MIGRATE_COOKIE_FILE
         ? path.join(path.resolve(process.env.IMPORT_DATA_DIR), 'cookie.txt')
         : path.join(SCRIPT_DIR, '..', 'cookie.txt'));
 const VISITED_FILE = path.join(OUTPUT_DIR, '_visited_urls.txt');
+// Targeted-student priority queue (filled by server/scripts/build-scrape-queue.ts).
+// One seed URL per line. Lives on the persistent data volume alongside the
+// spider state so it survives container restarts. Overridable via
+// SCRAPE_QUEUE_FILE; defaults next to the scrape output/state.
+const QUEUE_FILE = process.env.SCRAPE_QUEUE_FILE
+    ? path.resolve(process.env.SCRAPE_QUEUE_FILE)
+    : path.join(OUTPUT_DIR, 'scrape-queue.txt');
 
 let DELAY_MS = 2000;
 let MAX_PAGES = 1000;
@@ -124,6 +131,16 @@ class SiteMigrationSpider {
         this.skippedPages = 0;
         this.browser = null;
         this.page = null;
+
+        // Queue mode (optional, enabled via setQueue()): holds the targeted
+        // student seed URLs to scrape first and lets us drop each from the
+        // persistent queue file as it succeeds. Off by default so the normal
+        // single-seed crawl is completely unchanged.
+        this.queueMode = false;
+        this.queueFile = null;
+        this.queueSeedUrls = [];
+        this.pendingQueue = new Set();
+        this.explicitSeed = true;
         
         if (!fs.existsSync(OUTPUT_DIR)) {
             fs.mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -206,7 +223,61 @@ class SiteMigrationSpider {
         }
     }
     
+    // Enable queue mode: scrape `urls` first (each crawled as a full record by
+    // the normal BFS), removing each from `queueFile` on disk as it succeeds.
+    setQueue(queueFile, urls) {
+        this.queueMode = true;
+        this.queueFile = queueFile;
+        this.queueSeedUrls = urls.slice();
+        this.pendingQueue = new Set(urls.map(u => this.normalizeUrl(u)));
+
+        // Isolate queue runs from the shared resume state (_spider_state.json /
+        // _visited_urls.txt) loaded by the constructor. Otherwise a queued URL
+        // that hard-failed on a PRIOR run would already be in visitedHashes, so
+        // scrapePage() would short-circuit it as "already visited" and it would
+        // never actually be retried — defeating the whole point of keeping
+        // failed entries queued. Starting each queue drain with empty visited
+        // sets guarantees every queued URL is genuinely scraped this run.
+        // Re-scraping a page we already have is harmless (the DB import is
+        // idempotent); a silently-skipped targeted student is not.
+        this.visitedHashes = new Set();
+        this.visitedUrls = new Set();
+    }
+
+    // Drop a finished queue-file entry and persist the smaller queue. No-op for
+    // discovered child links (only original queue seeds live in pendingQueue).
+    removeQueueEntry(url) {
+        const norm = this.normalizeUrl(url);
+        if (!this.pendingQueue.has(norm)) return;
+        this.pendingQueue.delete(norm);
+        this.rewriteQueueFile();
+        log.debug(`    Removed from queue file: ${url} (${this.pendingQueue.size} still queued)`);
+    }
+
+    // Rewrite the queue file with only the still-pending entries. Crash-safe:
+    // write to a temp file then atomically rename so an interrupted run never
+    // truncates or double-processes the queue.
+    rewriteQueueFile() {
+        if (!this.queueFile) return;
+        try {
+            const remaining = this.queueSeedUrls.filter(
+                u => this.pendingQueue.has(this.normalizeUrl(u))
+            );
+            const tmp = `${this.queueFile}.tmp`;
+            fs.writeFileSync(tmp, remaining.length ? remaining.join('\n') + '\n' : '');
+            fs.renameSync(tmp, this.queueFile);
+        } catch (e) {
+            log.warn(`Could not update queue file ${this.queueFile}: ${e.message}`);
+        }
+    }
+
     saveState() {
+        // In queue mode we deliberately don't touch the shared resume state:
+        // persisting a queued page's hash (especially a hard-failed one) would
+        // suppress its retry on the next run, and we don't want a targeted drain
+        // to interfere with the registration scrape's resume state either. In-
+        // memory dedup for this run is unaffected (visitedHashes still grows).
+        if (this.queueMode) return;
         const state = {
             visitedHashes: Array.from(this.visitedHashes),
             queue: this.queue,
@@ -226,7 +297,11 @@ class SiteMigrationSpider {
     }
     
     saveVisitedUrl(url) {
-        fs.appendFileSync(VISITED_FILE, url + '\n');
+        // Keep the in-memory set (intra-run dedup) but don't persist to the
+        // shared _visited_urls.txt during a queue drain — see saveState().
+        if (!this.queueMode) {
+            fs.appendFileSync(VISITED_FILE, url + '\n');
+        }
         this.visitedUrls.add(url);
     }
     
@@ -711,13 +786,34 @@ class SiteMigrationSpider {
             await this.page.setCookie(...this.cookies);
         }
         
-        this.queue.push(this.seedUrl);
+        if (this.queueMode) {
+            log.info(`Queue mode: draining ${this.queueSeedUrls.length} targeted URL(s) from ${this.queueFile} first`);
+            for (const u of this.queueSeedUrls) this.queue.push(u);
+            if (this.explicitSeed) this.queue.push(this.seedUrl);
+        } else {
+            this.queue.push(this.seedUrl);
+        }
         
         try {
             while (this.queue.length > 0 && this.pagesScraped < MAX_PAGES) {
                 const url = this.queue.shift();
+                const isQueueEntry = this.queueMode && this.pendingQueue.has(this.normalizeUrl(url));
                 const result = await this.scrapePage(url);
-                
+
+                // Only drop a queue-file seed when it was ACTUALLY scraped
+                // successfully this run (scrapePage returns the page data with no
+                // `error`). A hard failure (`{ error }`) or an already-visited
+                // skip (`null`) is NOT a success, so we leave the entry in the
+                // queue file for the next run to retry. Combined with the state
+                // isolation in setQueue(), this guarantees a failed student stays
+                // queued and is genuinely re-attempted next time, never silently
+                // dropped. (A `null` here can only happen if the same URL was
+                // already scraped earlier in THIS run — harmless to leave queued;
+                // it gets removed once it is freshly scraped.)
+                if (isQueueEntry && result && !result.error) {
+                    this.removeQueueEntry(url);
+                }
+
                 if (result) {
                     this.saveState();
                     await new Promise(r => setTimeout(r, DELAY_MS));
@@ -826,58 +922,121 @@ function loadCookies(domain) {
     return [];
 }
 
+// Read the targeted-student queue file: one seed URL per line, blanks ignored,
+// deduped while preserving order. Missing/unreadable file → empty list.
+function loadQueueFile(file) {
+    try {
+        if (!fs.existsSync(file)) return [];
+        const lines = fs.readFileSync(file, 'utf8').split('\n').map(l => l.trim()).filter(Boolean);
+        const seen = new Set();
+        const out = [];
+        for (const l of lines) {
+            if (!seen.has(l)) { seen.add(l); out.push(l); }
+        }
+        return out;
+    } catch (e) {
+        log.warn(`Could not read queue file ${file}: ${e.message}`);
+        return [];
+    }
+}
+
+function printUsage() {
+    console.log('Usage: node spider.js <seed_url> [options]');
+    console.log('   or: node spider.js --queue-file [path] [options]   (drain targeted-student queue first)');
+    console.log('Options: [--delay <ms>] [--max-pages <n>] [--max-retries <n>] [--max-requeues <n>] [--queue-file [path]] [--log-level <error|warn|info|debug|trace>] [--debug] [--trace]');
+    console.log('Example: node spider.js https://example.com/admin --delay 2000 --max-pages 100 --log-level debug');
+    console.log('Example: node spider.js --queue-file /data/migrate/scrape-queue.txt --max-pages 2000');
+    console.log('Queue file defaults to SCRAPE_QUEUE_FILE or <output_dir>/scrape-queue.txt.');
+    console.log('Log level can also be set via the SCRAPE_LOG_LEVEL env var (CLI flag overrides it).');
+}
+
 async function main() {
     const args = process.argv.slice(2);
-    
-    if (args.length === 0) {
-        console.log('Usage: node spider.js <seed_url> [--delay <ms>] [--max-pages <n>] [--max-retries <n>] [--max-requeues <n>] [--log-level <error|warn|info|debug|trace>] [--debug] [--trace]');
-        console.log('Example: node spider.js https://example.com/admin --delay 2000 --max-pages 100 --log-level debug');
-        console.log('Log level can also be set via the SCRAPE_LOG_LEVEL env var (CLI flag overrides it).');
-        process.exit(1);
-    }
-    
-    let seedUrl = args[0];
-    
-    for (let i = 1; i < args.length; i++) {
-        if (args[i] === '--delay' && args[i + 1]) {
+
+    let seedUrl = null;
+    let queueFile = null;
+
+    for (let i = 0; i < args.length; i++) {
+        const a = args[i];
+        if (a === '--queue-file') {
+            // Optional path; bare --queue-file uses the default QUEUE_FILE.
+            if (args[i + 1] && !args[i + 1].startsWith('--')) {
+                queueFile = args[i + 1];
+                i++;
+            } else {
+                queueFile = QUEUE_FILE;
+            }
+        } else if (a === '--delay' && args[i + 1]) {
             DELAY_MS = parseInt(args[i + 1]);
             i++;
-        } else if (args[i] === '--max-pages' && args[i + 1]) {
+        } else if (a === '--max-pages' && args[i + 1]) {
             MAX_PAGES = parseInt(args[i + 1]);
             i++;
-        } else if (args[i] === '--max-retries' && args[i + 1]) {
+        } else if (a === '--max-retries' && args[i + 1]) {
             const n = parseInt(args[i + 1], 10);
             if (Number.isFinite(n) && n >= 0) MAX_RETRIES = n;
             i++;
-        } else if (args[i] === '--max-requeues' && args[i + 1]) {
+        } else if (a === '--max-requeues' && args[i + 1]) {
             const n = parseInt(args[i + 1], 10);
             if (Number.isFinite(n) && n >= 0) MAX_REQUEUES = n;
             i++;
-        } else if (args[i] === '--log-level' && args[i + 1]) {
+        } else if (a === '--log-level' && args[i + 1]) {
             if (!log.setLevel(args[i + 1])) {
                 log.warn(`Unknown --log-level "${args[i + 1]}" — keeping "${log.getLevel()}"`);
             }
             i++;
-        } else if (args[i] === '--debug') {
+        } else if (a === '--debug') {
             log.setLevel('debug');
-        } else if (args[i] === '--trace') {
+        } else if (a === '--trace') {
             log.setLevel('trace');
+        } else if (!a.startsWith('--') && seedUrl === null) {
+            seedUrl = a;
         }
     }
-    
-    if (!seedUrl.startsWith('http')) {
-        seedUrl = 'https://' + seedUrl;
+
+    if (!seedUrl && !queueFile) {
+        printUsage();
+        process.exit(1);
     }
-    
-    const domain = new URL(seedUrl).hostname;
+
+    let queueUrls = [];
+    if (queueFile) {
+        queueUrls = loadQueueFile(queueFile);
+        log.info(`Queue file ${queueFile}: ${queueUrls.length} targeted URL(s)`);
+    }
+
+    // The domain/cookies come from the explicit seed when given, else the first
+    // queued URL.
+    let domainSource = seedUrl || queueUrls[0];
+    if (!domainSource) {
+        log.info(`Queue file ${queueFile} is empty — nothing to scrape. Exiting.`);
+        process.exit(0);
+    }
+    if (!domainSource.startsWith('http')) {
+        domainSource = 'https://' + domainSource;
+        if (seedUrl) seedUrl = domainSource;
+    }
+
+    const domain = new URL(domainSource).hostname;
     const cookies = loadCookies(domain);
-    
-    const spider = new SiteMigrationSpider(seedUrl, cookies);
+
+    const spider = new SiteMigrationSpider(domainSource, cookies);
+    spider.explicitSeed = !!seedUrl;
+    if (queueFile) {
+        spider.setQueue(queueFile, queueUrls);
+    }
     await spider.run();
 }
 
-main().catch(e => {
-    log.error(`Fatal: ${e.message}`);
-    if (e.stack) log.debug(e.stack);
-    process.exit(1);
-});
+// Only auto-run when invoked directly (node spider.js ...), not when require()d
+// (e.g. by a test). Keeps the CLI behavior identical while making the class
+// reusable.
+if (require.main === module) {
+    main().catch(e => {
+        log.error(`Fatal: ${e.message}`);
+        if (e.stack) log.debug(e.stack);
+        process.exit(1);
+    });
+}
+
+module.exports = { SiteMigrationSpider };

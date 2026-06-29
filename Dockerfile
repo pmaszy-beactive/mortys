@@ -58,6 +58,16 @@ RUN node_modules/.bin/esbuild server/scripts/seed-legacy-data.ts \
     --format=esm \
     --outfile=dist/seed-legacy.js
 
+# Build the targeted-student queue builder (operator tool).
+# Run in the container: docker exec <container> node dist/build-scrape-queue.js <term> [term...]
+# Fills /data/migrate/scrape-queue.txt, which the nightly scrape drains first.
+RUN node_modules/.bin/esbuild server/scripts/build-scrape-queue.ts \
+    --platform=node \
+    --packages=external \
+    --bundle \
+    --format=esm \
+    --outfile=dist/build-scrape-queue.js
+
 FROM node:20-alpine AS production
 
 WORKDIR /app

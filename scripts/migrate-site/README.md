@@ -59,6 +59,61 @@ node spider.js https://mortys.drivetraqr.ca/admin --delay 2000 --max-pages 500
 python screenshot.py https://example.com/app/page
 ```
 
+## Targeted-student queue (priority re-scrape)
+
+Sometimes you need a *specific* legacy student re-scraped now rather than waiting
+for them to show up in the last-7-days registration scan. The queue builder lets
+you search the legacy site by name and queue the matching students for the next
+scrape run.
+
+It is a two-piece, **purely additive** flow:
+
+1. **Build the queue** — `server/scripts/build-scrape-queue.ts` searches the
+   legacy site's student-search endpoint for one or more terms, turns each match
+   into a `studentfile` seed URL, skips students already imported into the
+   database and URLs already queued, and **appends** the survivors to a queue
+   file (one URL per line).
+2. **Drain the queue** — `spider.js --queue-file <path>` scrapes every queued
+   URL *first* (before any normal crawl), then removes each one from the queue
+   file as it succeeds. Failed entries stay queued for the next run. The nightly
+   scrape does this automatically before its registration scan.
+
+### Building the queue
+
+```bash
+# Dev (tsx). Terms can be partial names; pass as many as you like.
+tsx server/scripts/build-scrape-queue.ts pa john "smith"
+
+# From a file (one term per line), optionally combined with inline terms:
+tsx server/scripts/build-scrape-queue.ts --file terms.txt
+tsx server/scripts/build-scrape-queue.ts pa --file terms.txt
+
+# Production container (compiled to dist by the Docker build):
+docker exec -it <container> node dist/build-scrape-queue.js pa john
+```
+
+It prints a summary: students found, skipped (already imported), skipped
+(duplicate), and added to the queue. It **fails loudly** (non-zero exit, no queue
+written) if the session cookie is missing or expired, so you never get a silent
+empty queue.
+
+### Draining the queue manually
+
+```bash
+# Uses the default queue file (SCRAPE_QUEUE_FILE or <output_dir>/scrape-queue.txt)
+node spider.js --queue-file --max-pages 2000
+
+# Or an explicit path
+node spider.js --queue-file /data/migrate/scrape-queue.txt --max-pages 2000
+```
+
+The nightly run (`nightly-scrape.sh`) drains the queue automatically **before**
+the registration scrape. If the queue drain hits an expired session it skips the
+registration scrape and the existing failure alert fires.
+
+After draining, load the freshly scraped JSON the usual way: admin **Data
+Migration → Import to Database → Run Import**.
+
 ## Environment variables
 
 `spider.js` honors these so it can run the same way locally and inside the
@@ -68,6 +123,9 @@ production Docker container:
 | --- | --- | --- |
 | `IMPORT_DATA_DIR` / `MIGRATE_OUTPUT_DIR` | Where scraped JSON/HTML is written | `./migrate` |
 | `MIGRATE_COOKIE_FILE` | Path to the auth cookie file | `../cookie.txt` |
+| `MIGRATE_BASE_URL` | Legacy site origin used by the queue builder for search/seed URLs | `https://mortys.drivetraqr.ca` |
+| `SCRAPE_QUEUE_FILE` | Targeted-student queue file (builder appends, spider drains) | `<output_dir>/scrape-queue.txt` |
+| `SCRAPE_QUEUE_MAX_PAGES` | Max pages the nightly queue drain will scrape | `2000` |
 | `PUPPETEER_EXECUTABLE_PATH` | Chromium binary (set in the container) | bundled Chromium |
 | `SCRAPE_LOG_LEVEL` | Log verbosity: `error`, `warn`, `info`, `debug`, or `trace` | `info` |
 | `SCRAPE_MAX_RETRIES` | Extra navigation attempts on failure (0 = single attempt) | `0` |

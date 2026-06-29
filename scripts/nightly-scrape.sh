@@ -37,6 +37,13 @@ export PUPPETEER_EXECUTABLE_PATH="${PUPPETEER_EXECUTABLE_PATH:-/usr/bin/chromium
 # own default applies otherwise.
 [ -n "${SCRAPE_LOG_LEVEL:-}" ] && export SCRAPE_LOG_LEVEL
 
+# Same --log-level passthrough the registration scrape uses, so the queue drain
+# (which we invoke directly here, not via scrape-registrations.sh) honors it too.
+LOG_LEVEL_ARGS=()
+if [ -n "${SCRAPE_LOG_LEVEL:-}" ]; then
+    LOG_LEVEL_ARGS=(--log-level "$SCRAPE_LOG_LEVEL")
+fi
+
 # Navigation resilience: default the nightly run to 2 retries (3 attempts per
 # page, with backoff) so a transient timeout doesn't silently drop a page from
 # the import. Retries only fire on failure, so a healthy run isn't slowed. An
@@ -126,29 +133,74 @@ post_alert() {
 DAYS_BACK=7
 TODAY="$(date '+%d/%m/%Y')"
 
+# Targeted-student priority queue. Filled on demand by
+# server/scripts/build-scrape-queue.ts; drained here (via the spider) BEFORE the
+# usual registration scrape so on-request students land first. Path defaults to
+# the persistent volume and is overridable via SCRAPE_QUEUE_FILE, consistent
+# with the other scraper paths.
+QUEUE_FILE="${SCRAPE_QUEUE_FILE:-$MIGRATE_OUTPUT_DIR/scrape-queue.txt}"
+QUEUE_MAX_PAGES="${SCRAPE_QUEUE_MAX_PAGES:-2000}"
+
 echo ""
 echo "############################################################"
 echo "# Nightly registration scrape"
 echo "# Started:   $(date)"
 echo "# Start date: $TODAY (DD/MM/YYYY), days back: $DAYS_BACK"
 echo "# Output:    $MIGRATE_OUTPUT_DIR"
+echo "# Queue file: $QUEUE_FILE"
 echo "############################################################"
 
-# Capture combined output so we can detect a login redirect and quote a tail of
-# it in the failure alert, while still streaming everything to the cron log.
-SCRAPE_OUTPUT="$(bash "$SCRIPT_DIR/migrate-site/scrape-registrations.sh" "$TODAY" "$DAYS_BACK" 2>&1)"
-STATUS=$?
-echo "$SCRAPE_OUTPUT"
+# --- Step 1: drain the targeted-student queue first (if non-empty) ----------
+# The spider crawls each queued student as a full record and removes successful
+# entries from the queue file; failures stay queued for the next run.
+QUEUE_OUTPUT=""
+QUEUE_STATUS=0
+QUEUE_COOKIE_EXPIRED=0
+if [ -s "$QUEUE_FILE" ]; then
+    echo "# Draining targeted-student queue ($(grep -c . "$QUEUE_FILE" 2>/dev/null) entr(ies))..."
+    QUEUE_OUTPUT="$(node "$SCRIPT_DIR/migrate-site/spider.js" --queue-file "$QUEUE_FILE" --max-pages "$QUEUE_MAX_PAGES" --delay 5000 "${LOG_LEVEL_ARGS[@]}" 2>&1)"
+    QUEUE_STATUS=$?
+    echo "$QUEUE_OUTPUT"
+    if echo "$QUEUE_OUTPUT" | grep -qiE "Redirected to login|session cookie has expired"; then
+        QUEUE_COOKIE_EXPIRED=1
+    fi
+else
+    echo "# Targeted-student queue is empty — skipping queue drain."
+fi
+
+# --- Step 2: the usual last-7-days registration scrape ----------------------
+# If the queue drain already proved the cookie is expired, skip the registration
+# scrape (it would only fail the same way) and report the expiry below.
+if [ "$QUEUE_COOKIE_EXPIRED" -eq 1 ]; then
+    SCRAPE_OUTPUT="(skipped registration scrape — the queue drain hit an expired session)"
+    STATUS=1
+else
+    # Capture combined output so we can detect a login redirect and quote a tail
+    # of it in the failure alert, while still streaming everything to the cron log.
+    SCRAPE_OUTPUT="$(bash "$SCRIPT_DIR/migrate-site/scrape-registrations.sh" "$TODAY" "$DAYS_BACK" 2>&1)"
+    STATUS=$?
+    echo "$SCRAPE_OUTPUT"
+fi
+
+# A failed queue drain counts as a failed run even if it didn't expire the cookie.
+if [ "$QUEUE_STATUS" -ne 0 ] && [ "$STATUS" -eq 0 ]; then
+    STATUS="$QUEUE_STATUS"
+fi
 
 echo "# Finished:  $(date) (exit $STATUS)"
 echo "############################################################"
+
+# Combined output (queue drain + registration scrape) for reason detection and
+# the alert log tail.
+COMBINED_OUTPUT="$QUEUE_OUTPUT
+$SCRAPE_OUTPUT"
 
 # Determine whether this run failed and why.
 REASON=""
 if [ $STATUS -ne 0 ]; then
     REASON="Scraper exited with status $STATUS"
 fi
-if echo "$SCRAPE_OUTPUT" | grep -qiE "Redirected to login|session cookie has expired"; then
+if echo "$COMBINED_OUTPUT" | grep -qiE "Redirected to login|session cookie has expired"; then
     REASON="Session cookie expired (scraper was redirected to the login page). Refresh the cookie."
 fi
 
@@ -161,8 +213,9 @@ if [ -n "$REASON" ]; then
     write_failure_count "$CONSECUTIVE"
     echo "# Consecutive failure count: $CONSECUTIVE"
 
-    # Quote the last 40 lines of output so the alert has actionable context.
-    LOG_TAIL="$(echo "$SCRAPE_OUTPUT" | tail -n 40)"
+    # Quote the last 40 lines of output (queue drain + registration scrape) so
+    # the alert has actionable context.
+    LOG_TAIL="$(echo "$COMBINED_OUTPUT" | tail -n 40)"
 
     # Build a JSON payload safely (use python for proper escaping; fall back to
     # a minimal payload if python is unavailable).
