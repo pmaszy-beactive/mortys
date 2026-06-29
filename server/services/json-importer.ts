@@ -237,7 +237,7 @@ export type PageType =
   | "attestation"
   | "other";
 
-function classify(relPath: string, page?: ScrapedPage): PageType {
+export function classify(relPath: string, page?: ScrapedPage): PageType {
   const u = (page?.final_url || page?.url || relPath).toLowerCase();
   if (u.includes("/admin/studentfile") || relPath.toLowerCase().includes("admin/studentfile"))
     return "studentfile";
@@ -269,6 +269,135 @@ const TYPE_PRIORITY: Record<PageType, number> = {
   other: 9,
 };
 
+/**
+ * Per-page-type record of which keys each parser actually *reads*, grouped by
+ * the rich source structure they live in. This is the single source of truth
+ * the read-only gap-analysis tool (server/services/import-gap-analysis.ts)
+ * diffs the observed keys against — it documents, alongside the parsers below,
+ * exactly what is consumed so unconsumed keys can be surfaced.
+ *
+ * Keep this in sync with the parser functions further down this file. It does
+ * NOT affect import behavior; it is descriptive metadata only.
+ *
+ *  - label_values:  keys read from `page.label_values`
+ *  - field_data:    keys read from `page.forms[0].field_data`
+ *  - field_names:   `page.forms[].fields[].name` values read (or matched)
+ *  - table_headers: lower-cased header / record-key tokens the parser keys off
+ *  - notes:         extra free-text describing non-key extraction (headings,
+ *                   links, images, generic row scans) for context
+ */
+export interface ParserConsumedKeys {
+  label_values: string[];
+  field_data: string[];
+  field_names: string[];
+  table_headers: string[];
+  notes?: string;
+}
+
+export const PARSER_CONSUMED_KEYS: Record<
+  Exclude<PageType, "other">,
+  ParserConsumedKeys
+> = {
+  studentfile: {
+    label_values: [
+      "Course",
+      "Attestation No",
+      "Contract No",
+      "Start Date",
+      "Class 5 Learner's License",
+      "Class 5/6R Learner's Licence",
+      "Passed SAAQ Knowledge Test?",
+    ],
+    field_data: [],
+    field_names: [],
+    table_headers: [
+      "decription",
+      "description",
+      "amount",
+      "total",
+      "date",
+      "gst",
+      "pst",
+    ],
+    notes:
+      "headings[0] (name); url studentUserId/courseId; any textarea field value (notes); a money table (decription/description or amount+total) with date+total rows; a 'date:' header table (online test grade); zoom-screenshot image links.",
+  },
+  printcontracts: {
+    label_values: [],
+    field_data: [],
+    field_names: [],
+    table_headers: ["coût", "cout"],
+    notes:
+      "url studentUserId/courseId; the 'Coût' cost table — dollar amounts parsed out of the header string only.",
+  },
+  registrations: {
+    label_values: [],
+    field_data: [],
+    field_names: [],
+    table_headers: [],
+    notes:
+      "links[] with a studentUserId (creates student stubs from link href + text). No per-student entity data read.",
+  },
+  reservations: {
+    label_values: [],
+    field_data: [],
+    field_names: [],
+    table_headers: [],
+    notes:
+      "url studentUserId; every table row is scanned generically for a parseable date + status/lesson-type keywords (no specific header/column is keyed).",
+  },
+  coursetransfer: {
+    label_values: [],
+    field_data: ["currentPhase"],
+    field_names: ["learnersPermitDate", "schoolName", "components.*"],
+    table_headers: [],
+    notes: "url studentUserId; checked checkboxes named components.* map to theory/in-car progress.",
+  },
+  onlinetest: {
+    label_values: [],
+    field_data: [],
+    field_names: [],
+    table_headers: [],
+    notes:
+      "url studentUserId; last heading (name + date); examensenlignes question images.",
+  },
+  practicalsignatures: {
+    label_values: [],
+    field_data: ["componentNo", "classDate", "instructorUserId"],
+    field_names: [],
+    table_headers: [],
+    notes: "url studentUserId/courseComponentId.",
+  },
+  practicaleval: {
+    label_values: [],
+    field_data: [
+      "courseComponentId",
+      "studentComments",
+      "instructorComments",
+      "instructorSignatureId",
+      "InstructorSignatureId",
+    ],
+    field_names: [],
+    table_headers: [],
+    notes: "url studentUserId/courseComponentId; headings (#N session number).",
+  },
+  zoomscreenshot: {
+    label_values: [],
+    field_data: [],
+    field_names: [],
+    table_headers: [],
+    notes:
+      "url studentUserId/courseComponentId/screenshotNo; headings[0] (name, Theory N, date).",
+  },
+  attestation: {
+    label_values: ["Attestation No", "Attestation Number", "No. d'attestation"],
+    field_data: [],
+    field_names: [],
+    table_headers: [],
+    notes: "url studentUserId.",
+  },
+};
+
 function listJsonFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
   const out: string[] = [];
@@ -293,7 +422,7 @@ function listJsonFiles(dir: string): string[] {
  * present. If it is missing or unreadable, we fall back to a recursive scan so
  * the importer still works on partial/manual data dumps.
  */
-interface ImportFileEntry {
+export interface ImportFileEntry {
   /** Absolute path to the page JSON file. */
   full: string;
   /** Path relative to the data dir (used for classification + hashing). */
@@ -309,7 +438,7 @@ interface ImportFileEntry {
  * carries each page's URL, so the lightweight manifest summary never needs to
  * read (and JSON-parse) the hundreds of MB of page bodies.
  */
-function enumerateImportEntries(dir: string): {
+export function enumerateImportEntries(dir: string): {
   entries: ImportFileEntry[];
   source: "manifest" | "scan";
 } {
