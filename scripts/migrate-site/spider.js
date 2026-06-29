@@ -587,6 +587,28 @@ class SiteMigrationSpider {
                 await this.browser.close();
                 process.exit(1);
             }
+
+            // A raw 401/403 (no login redirect — the site stayed on the same URL)
+            // is also an expired/invalid session. Emit the same always-on marker
+            // lines the nightly wrapper greps for ("Redirected to login" /
+            // "session cookie has expired") so the existing alert pipeline fires,
+            // and call out the HTTP status so the operator knows it was an
+            // auth/permission error, not only a redirect.
+            if (status === 401 || status === 403) {
+                log.error('!'.repeat(60));
+                log.error(`ERROR: Authentication failed — server returned HTTP ${status} (${status === 401 ? 'Unauthorized' : 'Forbidden'})!`);
+                log.error('Redirected to login (treated as): the request was rejected as unauthenticated.');
+                log.error(`Final URL: ${finalUrlRaw}`);
+                log.error('Your session cookie has expired or is invalid. Please:');
+                log.error('  1. Log in again in your browser');
+                log.error('  2. Copy the new cookie to scripts/cookie.txt');
+                log.error('  3. Delete migrate/_spider_state.json to start fresh');
+                log.error('  4. Re-run the spider');
+                log.error('!'.repeat(60));
+                this.saveState();
+                await this.browser.close();
+                process.exit(1);
+            }
             
             this.visitedHashes.add(urlHash);
             this.pagesScraped++;
