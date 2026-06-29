@@ -1400,6 +1400,17 @@ async function importReservations(
   const courseType = courseTypeFromUrl(url);
   const studentId = await getOrCreateStudent(ctx, legacyId, { courseType }, summary);
 
+  // The activity being reserved (Theory N vs Practical/Driving) lives in the
+  // page heading, e.g. "Martin MOREAU  -  reserve  Theory 3" — NOT in the table
+  // rows (rows only carry Location / Date / Time / "Reserve"). So the whole page
+  // is one activity type; derive it once from the heading.
+  const headingText = (page.headings || [])
+    .map((h) => h.text || "")
+    .join(" ")
+    .toLowerCase();
+  const lessonType = headingText.includes("theor") ? "theory" : "practical";
+  const duration = lessonType === "theory" ? 120 : 60;
+
   let rowIdx = 0;
   for (const table of page.tables || []) {
     for (const rec of table.records || []) {
@@ -1413,10 +1424,12 @@ async function importReservations(
       }
       rowIdx++;
       if (!isoDate) continue;
-      let status = "completed";
+      // Reservation rows are open, bookable time slots, not attended lessons, so
+      // they are recorded as upcoming/scheduled (unless a row is explicitly
+      // marked cancelled / no-show).
+      let status = "scheduled";
       if (joined.includes("cancel")) status = "cancelled";
       else if (joined.includes("no-show") || joined.includes("no show")) status = "no-show";
-      const lessonType = joined.includes("theor") ? "theory" : "practical";
 
       const key = `${legacyId}_resv_${isoDate}_${rowIdx}`;
       if (ctx.lessonKeys.has(key)) {
@@ -1427,9 +1440,9 @@ async function importReservations(
         studentId,
         lessonDate: isoDate,
         lessonType,
-        duration: 60,
+        duration,
         status,
-        notes: `Legacy reservation: ${values.filter(Boolean).join(" | ").slice(0, 400)}`,
+        notes: `Legacy reservation (${lessonType === "theory" ? "Theory" : "Driving"}): ${values.filter(Boolean).join(" | ").slice(0, 400)}`,
         legacyLessonId: key,
       });
       ctx.lessonKeys.add(key);
@@ -1483,11 +1496,13 @@ async function importAttestation(
   let attestationNumber =
     lv["Attestation No"] || lv["Attestation Number"] || lv["No. d'attestation"];
   if (!attestationNumber) {
-    // SAAQ attestation pages render as flat text with no label/value pairs; the
-    // attestation number is the leading numeric token, e.g.
-    // "03203701 A-106 Denis, Elizabeth 293 rue Maurice-Richard ...".
-    const m = (page.text_content || "").trim().match(/^(\d{6,9})\b/);
-    if (m) attestationNumber = m[1];
+    // SAAQ attestation pages render as flat text with no label/value pairs. The
+    // attestation number is the first pure-numeric 6–9 digit token near the
+    // front, e.g. "03203701 A-106 Denis, ..." or, when a permit code precedes
+    // it, "D200404040106 03304400 L-020 Dissou, ...".
+    const tokens = (page.text_content || "").trim().split(/\s+/).slice(0, 3);
+    const found = tokens.find((t) => /^\d{6,9}$/.test(t));
+    if (found) attestationNumber = found;
   }
   const studentId = await getOrCreateStudent(ctx, legacyId, { courseType }, summary);
   if (attestationNumber) {

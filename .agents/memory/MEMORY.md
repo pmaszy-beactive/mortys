@@ -5,3 +5,4 @@
 - [Docker builder devDeps](docker-builder-devdeps.md) — builder stage must force `npm ci --include=dev`; deploy env sets NODE_ENV=production which otherwise drops vite/esbuild.
 - [tsc downlevel iteration](tsc-downlevel-iteration.md) — new server TS can't for..of over Set/Map (TS2802); wrap in Array.from(). tsx runs fine, only tsc trips.
 - [Scrape queue file contract](scrape-queue-contract.md) — spider.js & build-scrape-queue.ts must agree on queue file path resolution + studentfile URL shape; mismatch silently drops targeted students.
+- [Legacy JSON importer & gap-analysis report](legacy-importer.md) — report mirror can drift from real parser (verify empties vs real data); attestation # is in text_content not label_values; reservations are future open slots → status 'scheduled', activity from heading.

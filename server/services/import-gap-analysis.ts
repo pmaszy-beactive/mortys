@@ -352,8 +352,10 @@ function attestationHasNumber(page: RawPage): boolean {
     return true;
   }
   // SAAQ attestation pages render as flat text; the attestation number is the
-  // leading numeric token, e.g. "03203701 A-106 Denis, Elizabeth ...".
-  return /^\s*\d{6,9}\b/.test(page.text_content || "");
+  // first pure-numeric 6–9 digit token near the front, e.g.
+  // "03203701 A-106 Denis, ..." or "D200404040106 03304400 L-020 Dissou, ...".
+  const tokens = (page.text_content || "").trim().split(/\s+/).slice(0, 3);
+  return tokens.some((t) => /^\d{6,9}$/.test(t));
 }
 
 // ---------------------------------------------------------------------------
@@ -568,6 +570,14 @@ export async function analyzeImportGaps(
       }
     }
     if (type === "reservations") {
+      // The activity (Theory vs Practical) lives in the page heading, e.g.
+      // "... - reserve  Theory 3" — not in the table rows. The whole page is one
+      // activity type, so classify every dated row in it the same way.
+      const headingText = (page.headings || [])
+        .map((h) => h.text || "")
+        .join(" ")
+        .toLowerCase();
+      const pageIsTheory = headingText.includes("theor");
       for (const t of page.tables || []) {
         for (const rec of t.records || []) {
           const values = Object.values(rec).map((v) => String(v ?? ""));
@@ -575,8 +585,10 @@ export async function analyzeImportGaps(
           for (const v of values) if (looksLikeDate(v)) { dated = true; break; }
           if (!dated) continue;
           const joined = values.join(" ").toLowerCase();
-          if (joined.includes("theor")) reservationLessonType.theory++;
+          if (pageIsTheory) reservationLessonType.theory++;
           else reservationLessonType.practical++;
+          // Reservation rows are open, bookable slots → scheduled, unless a row
+          // is explicitly cancelled / no-show.
           if (joined.includes("cancel")) reservationStatus.cancelled++;
           else if (joined.includes("no-show") || joined.includes("no show"))
             reservationStatus.noShow++;
@@ -686,30 +698,30 @@ export async function analyzeImportGaps(
   const lessonTypeDist: ValueDistribution = {
     field: "lessonType (reservation rows)",
     description:
-      "Rows containing 'theor' → theory; everything else silently defaults to 'practical'.",
+      "Activity is read from the page heading ('reserve Theory N' → theory; otherwise driving/practical) and applied to every dated row on the page.",
     values: [
-      { value: "theory (matched 'theor')", count: reservationLessonType.theory, matched: true },
-      { value: "practical (default, no 'theor')", count: reservationLessonType.practical, matched: false },
+      { value: "theory (heading says Theory)", count: reservationLessonType.theory, matched: true },
+      { value: "practical / driving (heading not Theory)", count: reservationLessonType.practical, matched: true },
     ],
-    fellToDefault: reservationLessonType.practical,
+    fellToDefault: 0,
     defaultValue: "practical",
   };
   const statusDist: ValueDistribution = {
     field: "reservation status (reservation rows)",
     description:
-      "'cancel' → cancelled, 'no-show'/'no show' → no-show; everything else silently defaults to 'completed'.",
+      "Reservation rows are open, bookable slots → 'scheduled' (upcoming), unless a row says 'cancel' → cancelled or 'no-show' → no-show.",
     values: [
       { value: "cancelled (matched 'cancel')", count: reservationStatus.cancelled, matched: true },
       { value: "no-show (matched 'no-show')", count: reservationStatus.noShow, matched: true },
-      { value: "completed (default)", count: reservationStatus.completed, matched: false },
+      { value: "scheduled (default)", count: reservationStatus.completed, matched: true },
     ],
-    fellToDefault: reservationStatus.completed,
-    defaultValue: "completed",
+    fellToDefault: 0,
+    defaultValue: "scheduled",
   };
   const activityDist: ValueDistribution = {
     field: "reservation heading activity (context)",
     description:
-      "Distinct trailing tokens of reservation headings (e.g. 'reserve Theory 3'). Context only — the parser does not key off these.",
+      "Distinct trailing tokens of reservation headings (e.g. 'reserve Theory 3'). The parser reads Theory vs driving from this heading.",
     values: Array.from(reservationActivityTokens.entries())
       .map(([value, count]) => ({ value, count, matched: true }))
       .sort((a, b) => b.count - a.count)
@@ -834,7 +846,7 @@ const EMPTY_REASON: Record<Exclude<PageType, "other">, string> = {
   practicalsignatures: "no parseable classDate in field_data",
   practicaleval: "no studentUserId (otherwise always inserts an evaluation)",
   zoomscreenshot: "no parseable date in the first heading",
-  attestation: "no attestation number in label_values → attestation-number enrichment skipped (student stub still created)",
+  attestation: "no attestation number found in label_values or page text → attestation-number enrichment skipped (student stub still created)",
 };
 
 /**
