@@ -21,6 +21,8 @@ const navigation: NavItem[] = [
   { name: "Students", href: "/students", icon: Users },
   { name: "Instructors", href: "/instructors", icon: Presentation },
   { name: "Scheduling", href: "/scheduling", icon: Calendar },
+  { name: "Exam Monitor", href: "/exam-monitor", icon: ClipboardCheck },
+  { name: "Start Dates", href: "/course-start-dates", icon: Calendar },
   { 
     name: "Finance", 
     icon: Wallet,

@@ -130,6 +130,13 @@ export const students = pgTable("students", {
   notifyScheduleChanges: boolean("notify_schedule_changes").default(true),
   notifyScheduleOpenings: boolean("notify_schedule_openings").default(true),
   notifyPaymentReceipts: boolean("notify_payment_receipts").default(true),
+
+  // Marketing attribution — "How did you hear about us?"
+  referralSource: text("referral_source"), // friends_family, facebook, instagram, tiktok, google, other
+  referralDetail: text("referral_detail"), // free-text detail (e.g. who referred, which page)
+
+  // Chosen Module 1 start date during registration (references course_start_dates)
+  selectedStartDateId: integer("selected_start_date_id"),
 });
 
 // Parents/Guardians table
@@ -1304,6 +1311,18 @@ export const studentRegistrations = pgTable("student_registrations", {
     emergencyContact?: string;
     emergencyPhone?: string;
     courseType?: string;
+    // Marketing attribution
+    referralSource?: string;
+    referralDetail?: string;
+    // Chosen Module 1 start date
+    selectedStartDateId?: number;
+    // Optional parent/guardian
+    parentFirstName?: string;
+    parentLastName?: string;
+    parentEmail?: string;
+    parentPhone?: string;
+    parentRelationship?: string;
+    parentPermissionLevel?: string; // view_only, view_book, view_book_pay
   }>(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -1326,6 +1345,67 @@ export type EmailVerificationToken = typeof emailVerificationTokens.$inferSelect
 export type InsertEmailVerificationToken = z.infer<typeof insertEmailVerificationTokenSchema>;
 export type StudentRegistration = typeof studentRegistrations.$inferSelect;
 export type InsertStudentRegistration = z.infer<typeof insertStudentRegistrationSchema>;
+
+// ============================================================
+// Module 1 start dates (admin-managed, chosen during registration)
+// ============================================================
+export const courseStartDates = pgTable("course_start_dates", {
+  id: serial("id").primaryKey(),
+  courseType: text("course_type").notNull(), // auto, moto, scooter
+  module: integer("module").notNull().default(1), // 1 = Module 1 (Theory 1) start
+  startDate: text("start_date").notNull(), // YYYY-MM-DD
+  startTime: text("start_time"), // optional HH:MM
+  capacity: integer("capacity"), // optional seat limit
+  status: text("status").notNull().default("active"), // active, cancelled
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertCourseStartDateSchema = createInsertSchema(courseStartDates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type CourseStartDate = typeof courseStartDates.$inferSelect;
+export type InsertCourseStartDate = z.infer<typeof insertCourseStartDateSchema>;
+
+// ============================================================
+// Module 5 online exam engine
+// ============================================================
+export const examAttempts = pgTable("exam_attempts", {
+  id: serial("id").primaryKey(),
+  studentId: integer("student_id").notNull().references(() => students.id, { onDelete: 'cascade' }),
+  classId: integer("class_id").references(() => classes.id), // Theory 5 class this attempt belongs to
+  testCode: text("test_code").notNull(), // A-240115-133030 (first) or A-240115-133143 (retake)
+  attemptNumber: integer("attempt_number").notNull().default(1),
+  status: text("status").notNull().default("in_progress"), // in_progress, submitted
+  answers: json("answers").$type<Record<string, string>>().default({}), // { "1": "A", "2": "C", ... }
+  flaggedQuestions: json("flagged_questions").$type<number[]>().default([]), // questions emailed for help
+  score: integer("score"), // percentage 0-100
+  correctCount: integer("correct_count"),
+  totalQuestions: integer("total_questions"),
+  passed: boolean("passed"),
+  // SAAQ integrity declaration
+  integrityAgreed: boolean("integrity_agreed").notNull().default(false),
+  integritySignature: text("integrity_signature"), // base64 signature
+  integrityName: text("integrity_name"), // full legal name declared
+  integrityDeclaredAt: timestamp("integrity_declared_at"),
+  // timing
+  startedAt: timestamp("started_at").defaultNow(),
+  submittedAt: timestamp("submitted_at"),
+  resultsVisibleAt: timestamp("results_visible_at"), // end of the 2nd hour of the class
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertExamAttemptSchema = createInsertSchema(examAttempts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type ExamAttempt = typeof examAttempts.$inferSelect;
+export type InsertExamAttempt = z.infer<typeof insertExamAttemptSchema>;
 
 // Auth types
 export type UpsertUser = typeof users.$inferInsert;

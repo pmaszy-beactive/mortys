@@ -28,7 +28,19 @@ import {
   paymentAllocations,
   paymentIntakes,
   studentTransactions,
+  courseStartDates,
+  examAttempts,
+  insertCourseStartDateSchema,
 } from "@shared/schema";
+import {
+  EXAM_TESTS,
+  EXAM_PASS_PERCENT,
+  FIRST_ATTEMPT_CODE,
+  RETAKE_CODE,
+  EXAM_OPTIONS,
+  testCodeForAttempt,
+  questionImagePath,
+} from "@shared/examData";
 import { PHASE_DEFINITIONS } from "@shared/phaseConfig";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
 import { validateClassBooking, buildCompletedClasses } from "@shared/bookingRules";
@@ -5327,7 +5339,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         accountStatus: 'active',
         status: 'active',
         progress: 0,
+        referralSource: data.referralSource || null,
+        referralDetail: data.referralDetail || null,
+        selectedStartDateId: data.selectedStartDateId || null,
       });
+
+      // Optionally create/link a parent or guardian if provided during onboarding
+      if (data.parentEmail && data.parentFirstName && data.parentLastName) {
+        try {
+          let parent = await storage.getParentByEmail(data.parentEmail);
+          if (!parent) {
+            parent = await storage.createParent({
+              firstName: data.parentFirstName,
+              lastName: data.parentLastName,
+              email: data.parentEmail,
+              phone: data.parentPhone || null,
+              relationship: data.parentRelationship || 'Parent',
+              accountStatus: 'pending_invite',
+            });
+          }
+          await storage.createStudentParent({
+            studentId: newStudent.id,
+            parentId: parent.id,
+            permissionLevel: data.parentPermissionLevel || 'view_only',
+          });
+        } catch (parentErr) {
+          console.error("[STUDENT-COMPLETE] Failed to link parent:", parentErr);
+        }
+      }
       
       // Update registration as completed
       await db.update(studentRegistrations)
@@ -5397,6 +5436,657 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("[STUDENT-UPLOAD] Error:", error);
       res.status(500).json({ message: "Failed to upload document" });
+    }
+  });
+
+  // ============================================================
+  // Module 1 Start Dates (admin-managed, chosen during registration)
+  // ============================================================
+
+  // Public: available upcoming start dates (used on the registration page)
+  app.get("/api/course-start-dates", async (req, res) => {
+    try {
+      const courseType = req.query.courseType as string | undefined;
+      const dates = await storage.getCourseStartDates({
+        courseType,
+        status: "active",
+        upcomingOnly: true,
+      });
+      res.json(dates);
+    } catch (error) {
+      console.error("[START-DATES] Error fetching public start dates:", error);
+      res.status(500).json({ message: "Failed to fetch start dates" });
+    }
+  });
+
+  // Admin: list all start dates (optionally filtered)
+  app.get("/api/admin/course-start-dates", requireAdmin, async (req, res) => {
+    try {
+      const courseType = req.query.courseType as string | undefined;
+      const status = req.query.status as string | undefined;
+      const dates = await storage.getCourseStartDates({ courseType, status });
+      res.json(dates);
+    } catch (error) {
+      console.error("[START-DATES] Error listing start dates:", error);
+      res.status(500).json({ message: "Failed to fetch start dates" });
+    }
+  });
+
+  // Admin: create a start date
+  app.post("/api/admin/course-start-dates", requireAdmin, async (req, res) => {
+    try {
+      const parsed = insertCourseStartDateSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid start date data", errors: parsed.error.flatten() });
+      }
+      const created = await storage.createCourseStartDate(parsed.data);
+      res.status(201).json(created);
+    } catch (error) {
+      console.error("[START-DATES] Error creating start date:", error);
+      res.status(500).json({ message: "Failed to create start date" });
+    }
+  });
+
+  // Admin: update a start date (change date/time, cancel, etc.)
+  app.patch("/api/admin/course-start-dates/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const parsed = insertCourseStartDateSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid start date data", errors: parsed.error.flatten() });
+      }
+      const updated = await storage.updateCourseStartDate(id, parsed.data);
+      if (!updated) return res.status(404).json({ message: "Start date not found" });
+      res.json(updated);
+    } catch (error) {
+      console.error("[START-DATES] Error updating start date:", error);
+      res.status(500).json({ message: "Failed to update start date" });
+    }
+  });
+
+  // Admin: delete a start date
+  app.delete("/api/admin/course-start-dates/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteCourseStartDate(id);
+      res.json({ message: "Start date deleted" });
+    } catch (error) {
+      console.error("[START-DATES] Error deleting start date:", error);
+      res.status(500).json({ message: "Failed to delete start date" });
+    }
+  });
+
+  // ============================================================
+  // Module 5 Online Exam Engine
+  // Camera/monitoring is handled via Zoom only (no in-app proctoring).
+  // ============================================================
+
+  // Parse a class date ("YYYY-MM-DD") + time ("HH:MM") into a Date (server local time).
+  const parseClassDateTime = (date: string, time: string): Date | null => {
+    if (!date) return null;
+    const t = time && /^\d{1,2}:\d{2}/.test(time) ? time.slice(0, 5) : "00:00";
+    const d = new Date(`${date}T${t}:00`);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  // Find the student's Theory 5 (Module 5) class enrollment.
+  const findTheory5Class = async (studentId: number) => {
+    const enrollments = await storage.getClassEnrollmentsByStudent(studentId);
+    const active = enrollments.filter((e: any) => !e.cancelledAt && e.classId);
+    const classRows = await Promise.all(active.map((e: any) => storage.getClass(e.classId as number)));
+    const matches = classRows.filter(
+      (c: any) => c && c.classType === "theory" && c.classNumber === 5 && c.status !== "cancelled",
+    ) as any[];
+    if (matches.length === 0) return null;
+    // Prefer the class whose scheduled start is soonest in the future, else the most recent.
+    matches.sort((a, b) => {
+      const da = parseClassDateTime(a.date, a.time)?.getTime() ?? 0;
+      const db2 = parseClassDateTime(b.date, b.time)?.getTime() ?? 0;
+      return da - db2;
+    });
+    const now = Date.now();
+    const upcoming = matches.find((c) => (parseClassDateTime(c.date, c.time)?.getTime() ?? 0) >= now);
+    return upcoming || matches[matches.length - 1];
+  };
+
+  // Build the client-safe question list for a test (image paths + option labels, NO answers).
+  const buildExamQuestions = (testCode: string) => {
+    const def = EXAM_TESTS[testCode];
+    if (!def) return [];
+    const questions = [];
+    for (let n = 1; n <= def.questionCount; n++) {
+      questions.push({
+        questionNumber: n,
+        imagePath: questionImagePath(testCode, n),
+        options: EXAM_OPTIONS,
+      });
+    }
+    return questions;
+  };
+
+  // Grade an attempt's answers against the server-authoritative key.
+  const gradeAttempt = (testCode: string, answers: Record<string, string>) => {
+    const def = EXAM_TESTS[testCode];
+    const total = def.questionCount;
+    let correct = 0;
+    for (let n = 1; n <= total; n++) {
+      if (answers && answers[String(n)] === def.answerKey[n]) correct++;
+    }
+    const score = Math.round((correct / total) * 100);
+    return { correctCount: correct, totalQuestions: total, score, passed: score >= EXAM_PASS_PERCENT };
+  };
+
+  // Student: current exam status for their Theory 5 class.
+  app.get("/api/student/exam/status", async (req: any, res) => {
+    try {
+      const studentId = req.session?.studentId;
+      if (!studentId) return res.status(401).json({ message: "Unauthorized" });
+
+      const theory5 = await findTheory5Class(studentId);
+      if (!theory5) {
+        return res.json({ hasClass: false });
+      }
+
+      const classStart = parseClassDateTime(theory5.date, theory5.time);
+      const now = new Date();
+      const unlockAt = classStart ? new Date(classStart.getTime() + 60 * 60 * 1000) : null; // start + 60 min
+      const duration = theory5.duration || 120;
+      const resultsVisibleAt = classStart ? new Date(classStart.getTime() + duration * 60 * 1000) : null;
+
+      const attempts = await storage.getExamAttemptsByStudent(studentId);
+      const classAttempts = attempts
+        .filter((a: any) => a.classId === theory5.id)
+        .sort((a: any, b: any) => a.attemptNumber - b.attemptNumber);
+      const latest = classAttempts[classAttempts.length - 1] || null;
+
+      const resultsVisible = !!resultsVisibleAt && now >= resultsVisibleAt;
+      const unlocked = !!unlockAt && now >= unlockAt;
+
+      // Determine whether a (free) retake is available: latest was graded, results visible, and failed.
+      const passedAny = classAttempts.some((a: any) => a.passed === true);
+      const canRetake =
+        !passedAny &&
+        resultsVisible &&
+        latest &&
+        latest.passed === false &&
+        classAttempts.length < 2;
+
+      res.json({
+        hasClass: true,
+        classId: theory5.id,
+        classDate: theory5.date,
+        classTime: theory5.time,
+        zoomLink: theory5.zoomLink || null,
+        unlockAt: unlockAt?.toISOString() || null,
+        resultsVisibleAt: resultsVisibleAt?.toISOString() || null,
+        unlocked,
+        resultsVisible,
+        passedAny,
+        canRetake,
+        attempt: latest
+          ? {
+              id: latest.id,
+              attemptNumber: latest.attemptNumber,
+              status: latest.status,
+              testCode: latest.testCode,
+              // Score/pass hidden until results are visible.
+              score: resultsVisible ? latest.score : null,
+              passed: resultsVisible ? latest.passed : null,
+              submittedAt: latest.submittedAt,
+            }
+          : null,
+      });
+    } catch (error) {
+      console.error("[EXAM] Error fetching status:", error);
+      res.status(500).json({ message: "Failed to fetch exam status" });
+    }
+  });
+
+  // Student: start (or resume) an exam attempt.
+  app.post("/api/student/exam/start", async (req: any, res) => {
+    try {
+      const studentId = req.session?.studentId;
+      if (!studentId) return res.status(401).json({ message: "Unauthorized" });
+
+      const { integrityAgreed, integritySignature, integrityName } = req.body || {};
+
+      const theory5 = await findTheory5Class(studentId);
+      if (!theory5) return res.status(404).json({ message: "No Module 5 class found for your account" });
+
+      const classStart = parseClassDateTime(theory5.date, theory5.time);
+      const now = new Date();
+      const unlockAt = classStart ? new Date(classStart.getTime() + 60 * 60 * 1000) : null;
+      if (!unlockAt || now < unlockAt) {
+        return res.status(403).json({
+          message: "The test is not open yet. It unlocks one hour after your class starts.",
+          unlockAt: unlockAt?.toISOString() || null,
+        });
+      }
+
+      const duration = theory5.duration || 120;
+      const resultsVisibleAt = classStart ? new Date(classStart.getTime() + duration * 60 * 1000) : null;
+
+      const attempts = await storage.getExamAttemptsByStudent(studentId);
+      const classAttempts = attempts
+        .filter((a: any) => a.classId === theory5.id)
+        .sort((a: any, b: any) => a.attemptNumber - b.attemptNumber);
+
+      // If already passed, nothing more to do.
+      if (classAttempts.some((a: any) => a.passed === true)) {
+        return res.status(400).json({ message: "You have already passed this exam." });
+      }
+
+      // Resume an existing in-progress attempt if present.
+      const resumable = classAttempts.find((a: any) => a.status === "in_progress");
+      if (resumable) {
+        return res.json({
+          attemptId: resumable.id,
+          testCode: resumable.testCode,
+          attemptNumber: resumable.attemptNumber,
+          answers: resumable.answers || {},
+          flaggedQuestions: resumable.flaggedQuestions || [],
+          resultsVisibleAt: resumable.resultsVisibleAt,
+          questions: buildExamQuestions(resumable.testCode),
+        });
+      }
+
+      // A retake requires the previous attempt to be graded (results visible) and failed.
+      if (classAttempts.length >= 1) {
+        if (classAttempts.length >= 2) {
+          return res.status(400).json({ message: "No further attempts are available." });
+        }
+        const prev = classAttempts[classAttempts.length - 1];
+        const resultsVisible = !!resultsVisibleAt && now >= resultsVisibleAt;
+        if (!(prev.passed === false && resultsVisible)) {
+          return res.status(400).json({ message: "A retake is not available yet." });
+        }
+      }
+
+      // Integrity declaration required to begin a fresh attempt.
+      if (!integrityAgreed || !integrityName) {
+        return res.status(400).json({ message: "You must complete the integrity declaration before starting." });
+      }
+
+      const attemptNumber = classAttempts.length + 1;
+      const testCode = testCodeForAttempt(attemptNumber);
+
+      const created = await storage.createExamAttempt({
+        studentId,
+        classId: theory5.id,
+        testCode,
+        attemptNumber,
+        status: "in_progress",
+        answers: {},
+        flaggedQuestions: [],
+        integrityAgreed: true,
+        integritySignature: integritySignature || null,
+        integrityName,
+        integrityDeclaredAt: new Date(),
+        startedAt: new Date(),
+        resultsVisibleAt: resultsVisibleAt || null,
+      } as any);
+
+      res.status(201).json({
+        attemptId: created.id,
+        testCode: created.testCode,
+        attemptNumber: created.attemptNumber,
+        answers: {},
+        flaggedQuestions: [],
+        resultsVisibleAt: created.resultsVisibleAt,
+        questions: buildExamQuestions(created.testCode),
+      });
+    } catch (error) {
+      console.error("[EXAM] Error starting attempt:", error);
+      res.status(500).json({ message: "Failed to start exam" });
+    }
+  });
+
+  // Helper: load an attempt and confirm it belongs to the logged-in student.
+  const loadOwnedAttempt = async (req: any, res: any) => {
+    const studentId = req.session?.studentId;
+    if (!studentId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return null;
+    }
+    const attempt = await storage.getExamAttempt(parseInt(req.params.id));
+    if (!attempt || attempt.studentId !== studentId) {
+      res.status(404).json({ message: "Attempt not found" });
+      return null;
+    }
+    return attempt;
+  };
+
+  // Student: fetch an attempt (with questions, without answer key).
+  app.get("/api/student/exam/attempt/:id", async (req: any, res) => {
+    try {
+      const attempt = await loadOwnedAttempt(req, res);
+      if (!attempt) return;
+      const now = new Date();
+      const resultsVisible = !!attempt.resultsVisibleAt && now >= new Date(attempt.resultsVisibleAt);
+      res.json({
+        attemptId: attempt.id,
+        testCode: attempt.testCode,
+        attemptNumber: attempt.attemptNumber,
+        status: attempt.status,
+        answers: attempt.answers || {},
+        flaggedQuestions: attempt.flaggedQuestions || [],
+        resultsVisibleAt: attempt.resultsVisibleAt,
+        resultsVisible,
+        score: resultsVisible ? attempt.score : null,
+        passed: resultsVisible ? attempt.passed : null,
+        questions: buildExamQuestions(attempt.testCode),
+      });
+    } catch (error) {
+      console.error("[EXAM] Error fetching attempt:", error);
+      res.status(500).json({ message: "Failed to fetch attempt" });
+    }
+  });
+
+  // Student: save a single answer.
+  app.patch("/api/student/exam/attempt/:id/answer", async (req: any, res) => {
+    try {
+      const attempt = await loadOwnedAttempt(req, res);
+      if (!attempt) return;
+      const now = new Date();
+      if (attempt.resultsVisibleAt && now >= new Date(attempt.resultsVisibleAt)) {
+        return res.status(403).json({ message: "The test window has closed." });
+      }
+      const { questionNumber, option } = req.body || {};
+      const qn = parseInt(questionNumber);
+      const def = EXAM_TESTS[attempt.testCode];
+      if (!def || qn < 1 || qn > def.questionCount) {
+        return res.status(400).json({ message: "Invalid question number" });
+      }
+      if (option !== null && !EXAM_OPTIONS.includes(option)) {
+        return res.status(400).json({ message: "Invalid option" });
+      }
+      const answers = { ...(attempt.answers || {}) } as Record<string, string>;
+      if (option === null) {
+        delete answers[String(qn)];
+      } else {
+        answers[String(qn)] = option;
+      }
+      const updated = await storage.updateExamAttempt(attempt.id, {
+        answers,
+        status: "in_progress",
+      } as any);
+      res.json({ answers: updated?.answers || answers });
+    } catch (error) {
+      console.error("[EXAM] Error saving answer:", error);
+      res.status(500).json({ message: "Failed to save answer" });
+    }
+  });
+
+  // Student: submit an attempt (grades server-side; results stay hidden until end of 2nd hour).
+  app.post("/api/student/exam/attempt/:id/submit", async (req: any, res) => {
+    try {
+      const attempt = await loadOwnedAttempt(req, res);
+      if (!attempt) return;
+      const now = new Date();
+      if (attempt.resultsVisibleAt && now >= new Date(attempt.resultsVisibleAt)) {
+        return res.status(403).json({ message: "The test window has closed." });
+      }
+      const graded = gradeAttempt(attempt.testCode, (attempt.answers || {}) as Record<string, string>);
+      await storage.updateExamAttempt(attempt.id, {
+        status: "submitted",
+        submittedAt: new Date(),
+        score: graded.score,
+        correctCount: graded.correctCount,
+        totalQuestions: graded.totalQuestions,
+        passed: graded.passed,
+      } as any);
+      const resultsVisible = !!attempt.resultsVisibleAt && now >= new Date(attempt.resultsVisibleAt);
+      res.json({
+        status: "submitted",
+        resultsVisible,
+        resultsVisibleAt: attempt.resultsVisibleAt,
+        // Hide the outcome until results become visible.
+        score: resultsVisible ? graded.score : null,
+        passed: resultsVisible ? graded.passed : null,
+      });
+    } catch (error) {
+      console.error("[EXAM] Error submitting attempt:", error);
+      res.status(500).json({ message: "Failed to submit exam" });
+    }
+  });
+
+  // Student: reopen a submitted attempt to change answers (allowed until the window closes).
+  app.post("/api/student/exam/attempt/:id/reopen", async (req: any, res) => {
+    try {
+      const attempt = await loadOwnedAttempt(req, res);
+      if (!attempt) return;
+      const now = new Date();
+      if (attempt.resultsVisibleAt && now >= new Date(attempt.resultsVisibleAt)) {
+        return res.status(403).json({ message: "The test window has closed." });
+      }
+      await storage.updateExamAttempt(attempt.id, { status: "in_progress" } as any);
+      res.json({ status: "in_progress" });
+    } catch (error) {
+      console.error("[EXAM] Error reopening attempt:", error);
+      res.status(500).json({ message: "Failed to reopen exam" });
+    }
+  });
+
+  // Student: flag a question for help (emails exam support at info@mortys.ca).
+  app.post("/api/student/exam/attempt/:id/flag", async (req: any, res) => {
+    try {
+      const attempt = await loadOwnedAttempt(req, res);
+      if (!attempt) return;
+      const { questionNumber } = req.body || {};
+      const qn = parseInt(questionNumber);
+      const def = EXAM_TESTS[attempt.testCode];
+      if (!def || qn < 1 || qn > def.questionCount) {
+        return res.status(400).json({ message: "Invalid question number" });
+      }
+      const flagged = Array.from(new Set([...(attempt.flaggedQuestions || []), qn]));
+      await storage.updateExamAttempt(attempt.id, { flaggedQuestions: flagged } as any);
+
+      // Email exam support.
+      try {
+        const student = await storage.getStudent(attempt.studentId);
+        const baseUrl =
+          process.env.APP_URL || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : "http://localhost:5000");
+        const imageUrl = `${baseUrl}${questionImagePath(attempt.testCode, qn)}`;
+        const sgMail = (await import("@sendgrid/mail")).default;
+        const fromEmail = process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca";
+        await sgMail.send({
+          to: "info@mortys.ca",
+          from: fromEmail,
+          subject: `Exam question flagged for review — Q${qn} (${attempt.testCode})`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: #111111; padding: 20px; text-align: center;">
+                <h1 style="color: #ECC462; margin: 0; font-size: 22px;">Morty's Driving School — Exam Support</h1>
+              </div>
+              <div style="background: #ffffff; padding: 24px; border-left: 4px solid #ECC462;">
+                <p style="color: #333;">A student flagged a question during the Module 5 online exam.</p>
+                <ul style="color: #333; line-height: 1.6;">
+                  <li><strong>Student:</strong> ${student ? `${student.firstName} ${student.lastName} (#${student.id})` : `#${attempt.studentId}`}</li>
+                  <li><strong>Test:</strong> ${attempt.testCode}</li>
+                  <li><strong>Question:</strong> ${qn}</li>
+                  <li><strong>Attempt:</strong> #${attempt.attemptNumber}</li>
+                </ul>
+                <p style="color: #333;">Question image: <a href="${imageUrl}">${imageUrl}</a></p>
+              </div>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.error("[EXAM] Flag email failed:", emailErr);
+      }
+
+      res.json({ flaggedQuestions: flagged });
+    } catch (error) {
+      console.error("[EXAM] Error flagging question:", error);
+      res.status(500).json({ message: "Failed to flag question" });
+    }
+  });
+
+  // Student: view results (only after results become visible).
+  app.get("/api/student/exam/attempt/:id/result", async (req: any, res) => {
+    try {
+      const attempt = await loadOwnedAttempt(req, res);
+      if (!attempt) return;
+      const now = new Date();
+      const resultsVisible = !!attempt.resultsVisibleAt && now >= new Date(attempt.resultsVisibleAt);
+      if (!resultsVisible) {
+        return res.status(403).json({
+          message: "Results are available at the end of the second hour of your class.",
+          resultsVisibleAt: attempt.resultsVisibleAt,
+        });
+      }
+      // Ensure the attempt has been graded (grade lazily if a student never pressed submit).
+      let score = attempt.score;
+      let passed = attempt.passed;
+      let correctCount = attempt.correctCount;
+      let totalQuestions = attempt.totalQuestions;
+      if (score === null || score === undefined) {
+        const graded = gradeAttempt(attempt.testCode, (attempt.answers || {}) as Record<string, string>);
+        score = graded.score;
+        passed = graded.passed;
+        correctCount = graded.correctCount;
+        totalQuestions = graded.totalQuestions;
+        await storage.updateExamAttempt(attempt.id, {
+          status: "submitted",
+          score,
+          passed,
+          correctCount,
+          totalQuestions,
+          submittedAt: attempt.submittedAt || new Date(),
+        } as any);
+      }
+      res.json({
+        attemptId: attempt.id,
+        attemptNumber: attempt.attemptNumber,
+        testCode: attempt.testCode,
+        score,
+        passed,
+        correctCount,
+        totalQuestions,
+        passPercent: EXAM_PASS_PERCENT,
+        canRetake: passed === false && attempt.attemptNumber < 2,
+        supportEmail: "info@mortys.ca",
+      });
+    } catch (error) {
+      console.error("[EXAM] Error fetching result:", error);
+      res.status(500).json({ message: "Failed to fetch result" });
+    }
+  });
+
+  // Instructor/Admin: list Theory 5 (Module 5) classes that have online exams.
+  // Instructors only see classes assigned to them; admins see all.
+  app.get("/api/exam/classes", isAdminOrInstructor, async (req: any, res) => {
+    try {
+      const all = await storage.getClasses();
+      let theory5 = all.filter(
+        (c: any) => c.classType === "theory" && c.classNumber === 5 && c.status !== "cancelled",
+      );
+      if (req.instructor && !req.user) {
+        theory5 = theory5.filter((c: any) => c.instructorId === req.instructor.id);
+      }
+      // Sort most recent first.
+      theory5.sort((a: any, b: any) => (b.date || "").localeCompare(a.date || ""));
+      res.json(theory5);
+    } catch (error) {
+      console.error("[EXAM] Error listing exam classes:", error);
+      res.status(500).json({ message: "Failed to fetch exam classes" });
+    }
+  });
+
+  // Instructor/Admin: live status of exam attempts for a class.
+  app.get("/api/exam/class/:classId/attempts", isAdminOrInstructor, async (req: any, res) => {
+    try {
+      const classId = parseInt(req.params.classId);
+      // Instructors may only view attempts for classes assigned to them.
+      if (req.instructor && !req.user) {
+        const cls = await storage.getClass(classId);
+        if (!cls || cls.instructorId !== req.instructor.id) {
+          return res.status(403).json({ message: "You can only view your own classes." });
+        }
+      }
+      const attempts = await storage.getExamAttemptsByClass(classId);
+      const enriched = await Promise.all(
+        attempts.map(async (a: any) => {
+          const student = await storage.getStudent(a.studentId);
+          const def = EXAM_TESTS[a.testCode];
+          const answered = a.answers ? Object.keys(a.answers).length : 0;
+          return {
+            id: a.id,
+            studentId: a.studentId,
+            studentName: student ? `${student.firstName} ${student.lastName}` : `#${a.studentId}`,
+            attemptNumber: a.attemptNumber,
+            testCode: a.testCode,
+            status: a.status,
+            answeredCount: answered,
+            totalQuestions: def ? def.questionCount : null,
+            flaggedCount: (a.flaggedQuestions || []).length,
+            score: a.score,
+            passed: a.passed,
+            startedAt: a.startedAt,
+            submittedAt: a.submittedAt,
+          };
+        }),
+      );
+      res.json(enriched);
+    } catch (error) {
+      console.error("[EXAM] Error fetching class attempts:", error);
+      res.status(500).json({ message: "Failed to fetch attempts" });
+    }
+  });
+
+  // Instructor/Admin: full attempt detail (includes per-question correctness + integrity declaration).
+  app.get("/api/exam/attempt/:id/review", isAdminOrInstructor, async (req: any, res) => {
+    try {
+      const attempt = await storage.getExamAttempt(parseInt(req.params.id));
+      if (!attempt) return res.status(404).json({ message: "Attempt not found" });
+      // Instructors may only review attempts belonging to their own classes.
+      if (req.instructor && !req.user) {
+        const cls = attempt.classId ? await storage.getClass(attempt.classId) : null;
+        if (!cls || cls.instructorId !== req.instructor.id) {
+          return res.status(403).json({ message: "You can only review your own classes." });
+        }
+      }
+      const student = await storage.getStudent(attempt.studentId);
+      const def = EXAM_TESTS[attempt.testCode];
+      const answers = (attempt.answers || {}) as Record<string, string>;
+      const questions = [];
+      for (let n = 1; n <= def.questionCount; n++) {
+        questions.push({
+          questionNumber: n,
+          imagePath: questionImagePath(attempt.testCode, n),
+          studentAnswer: answers[String(n)] || null,
+          correctAnswer: def.answerKey[n],
+          correct: answers[String(n)] === def.answerKey[n],
+          flagged: (attempt.flaggedQuestions || []).includes(n),
+        });
+      }
+      const graded = gradeAttempt(attempt.testCode, answers);
+      res.json({
+        id: attempt.id,
+        student: student ? { id: student.id, name: `${student.firstName} ${student.lastName}`, email: student.email } : null,
+        classId: attempt.classId,
+        testCode: attempt.testCode,
+        attemptNumber: attempt.attemptNumber,
+        status: attempt.status,
+        score: attempt.score ?? graded.score,
+        passed: attempt.passed ?? graded.passed,
+        correctCount: attempt.correctCount ?? graded.correctCount,
+        totalQuestions: attempt.totalQuestions ?? graded.totalQuestions,
+        passPercent: EXAM_PASS_PERCENT,
+        integrity: {
+          agreed: attempt.integrityAgreed,
+          name: attempt.integrityName,
+          signature: attempt.integritySignature,
+          declaredAt: attempt.integrityDeclaredAt,
+        },
+        startedAt: attempt.startedAt,
+        submittedAt: attempt.submittedAt,
+        resultsVisibleAt: attempt.resultsVisibleAt,
+        questions,
+      });
+    } catch (error) {
+      console.error("[EXAM] Error fetching attempt review:", error);
+      res.status(500).json({ message: "Failed to fetch attempt review" });
     }
   });
 

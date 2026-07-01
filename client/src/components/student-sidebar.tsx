@@ -14,7 +14,8 @@ import {
   Bike,
   ChevronDown,
   GraduationCap,
-  Sparkles
+  Sparkles,
+  ClipboardCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +32,7 @@ const version: string = versionData.version;
 
 const navigation = [
   { name: "My Classes", href: "/student/classes", icon: Calendar },
+  { name: "Module 5 Exam", href: "/student/exam", icon: ClipboardCheck },
   { name: "Extra Lessons", href: "/student/extra-lessons", icon: Sparkles },
   { name: "Evaluations", href: "/student/evaluations", icon: Award },
   { name: "Parents & Guardians", href: "/student/parents", icon: Users },

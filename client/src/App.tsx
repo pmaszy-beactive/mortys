@@ -32,6 +32,9 @@ import PaymentReconciliation from "@/pages/payment-reconciliation";
 import TransactionAudit from "@/pages/transaction-audit";
 import RefundRequests from "@/pages/refund-requests";
 import ChangeRequests from "@/pages/change-requests";
+import CourseStartDates from "@/pages/course-start-dates";
+import ExamMonitor from "@/pages/exam-monitor";
+import StudentExam from "@/pages/student/student-exam";
 import NotFound from "@/pages/not-found";
 import InstructorInvite from "@/pages/instructor-invite";
 import InstructorLogin from "@/pages/instructor/instructor-login";
@@ -126,6 +129,9 @@ function Router() {
       <Route path="/instructor/hours">
         <InstructorPortalLayout><InstructorHours /></InstructorPortalLayout>
       </Route>
+      <Route path="/instructor/exam-monitor">
+        <InstructorPortalLayout><ExamMonitor /></InstructorPortalLayout>
+      </Route>
       
       {/* Student Portal - Public routes */}
       <Route path="/student-login" component={StudentLogin} />
@@ -162,6 +168,9 @@ function Router() {
       </Route>
       <Route path="/student/extra-lessons">
         <StudentPortalLayout><ExtraLessons /></StudentPortalLayout>
+      </Route>
+      <Route path="/student/exam">
+        <StudentPortalLayout><StudentExam /></StudentPortalLayout>
       </Route>
       
       {/* Parent Portal - Public routes */}
@@ -206,6 +215,8 @@ function Router() {
           <Route path="/payment-reconciliation" component={PaymentReconciliation} />
           <Route path="/transaction-audit" component={TransactionAudit} />
           <Route path="/refund-requests" component={RefundRequests} />
+          <Route path="/course-start-dates" component={CourseStartDates} />
+          <Route path="/exam-monitor" component={ExamMonitor} />
         </Layout>
       )}
       <Route component={NotFound} />

@@ -1,8 +1,2 @@
-- [drizzle-kit push drift + post-merge](drizzle-push-drift.md) — repo has schema drift; hand-trim generated migrations, push prompts interactively and breaks stdin-closed post-merge.
-- [Legacy import dev testing](legacy-import-dev-testing.md) — import-seed/ auto-seeds only in Docker; in dev point IMPORT_DATA_DIR or symlink scripts/migrate-site/migrate.
-- [Stale-branch type collisions](merge-stale-branch-type-collisions.md) — merged old task branches can re-add a duplicate type name (PhaseProgress) and crash the server; "no scraped data" usually means server down, check /health + tsc first.
-- [Dev session cookie / trust proxy](dev-session-cookie-trust-proxy.md) — login 200 then instant 401 ("no scraped data") = missing app.set("trust proxy",1) in dev; secure cookie dropped behind Replit proxy.
-- [Docker builder devDeps](docker-builder-devdeps.md) — builder stage must force `npm ci --include=dev`; deploy env sets NODE_ENV=production which otherwise drops vite/esbuild.
-- [tsc downlevel iteration](tsc-downlevel-iteration.md) — new server TS can't for..of over Set/Map (TS2802); wrap in Array.from(). tsx runs fine, only tsc trips.
-- [Scrape queue file contract](scrape-queue-contract.md) — spider.js & build-scrape-queue.ts must agree on queue file path resolution + studentfile URL shape; mismatch silently drops targeted students.
-- [Legacy JSON importer & gap-analysis report](legacy-importer.md) — report mirror can drift from real parser (verify empties vs real data); attestation # is in text_content not label_values; reservations are future open slots → status 'scheduled', activity from heading.
+- [Module 5 exam engine](exam-engine.md) — Zoom-only proctoring, 75% pass, timed unlock/results windows, server-authoritative grading, instructor-scoped review endpoints.
+- [Frontend API conventions](frontend-api-conventions.md) — apiRequest returns parsed body (no .json()); default queryFn uses only queryKey[0], parameterized URLs need explicit queryFn.

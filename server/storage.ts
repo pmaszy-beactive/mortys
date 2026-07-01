@@ -7,6 +7,8 @@ import {
   lessonPackages, studentPaymentMethods, invoices, studentCredits, billingReceipts, policyFeePayments,
   bookingPolicies, bookingPolicyVersions, policyOverrideLogs, payerProfiles, paymentIntakes, paymentAllocations, paymentAuditLogs,
   payerProfileStudents, payrollAccessLogs, studentNotes, importedPages,
+  courseStartDates, examAttempts,
+  type CourseStartDate, type InsertCourseStartDate, type ExamAttempt, type InsertExamAttempt,
   type User, type UpsertUser, type Student, type InsertStudent,
   type Instructor, type InsertInstructor, type Class, type InsertClass,
   type ClassEnrollment, type InsertClassEnrollment, 
@@ -406,6 +408,20 @@ export interface IStorage {
   updateParentSelectedStudent(parentId: number, studentId: number | null): Promise<Parent>;
   
   searchStudents(query: string): Promise<Student[]>;
+
+  // Module 1 start dates (admin-managed)
+  getCourseStartDates(filters?: { courseType?: string; module?: number; status?: string; upcomingOnly?: boolean }): Promise<CourseStartDate[]>;
+  getCourseStartDate(id: number): Promise<CourseStartDate | undefined>;
+  createCourseStartDate(data: InsertCourseStartDate): Promise<CourseStartDate>;
+  updateCourseStartDate(id: number, data: Partial<InsertCourseStartDate>): Promise<CourseStartDate | undefined>;
+  deleteCourseStartDate(id: number): Promise<void>;
+
+  // Module 5 exam attempts
+  getExamAttempt(id: number): Promise<ExamAttempt | undefined>;
+  getExamAttemptsByStudent(studentId: number): Promise<ExamAttempt[]>;
+  getExamAttemptsByClass(classId: number): Promise<ExamAttempt[]>;
+  createExamAttempt(data: InsertExamAttempt): Promise<ExamAttempt>;
+  updateExamAttempt(id: number, data: Partial<InsertExamAttempt>): Promise<ExamAttempt | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -1519,6 +1535,20 @@ export class MemStorage implements IStorage {
   async updateLessonNote(id: number, note: any): Promise<any> {
     return { id, ...note };
   }
+
+  // Module 1 start dates (in-memory stubs)
+  async getCourseStartDates(): Promise<CourseStartDate[]> { return []; }
+  async getCourseStartDate(): Promise<CourseStartDate | undefined> { return undefined; }
+  async createCourseStartDate(data: InsertCourseStartDate): Promise<CourseStartDate> { return { id: 1, ...data } as CourseStartDate; }
+  async updateCourseStartDate(): Promise<CourseStartDate | undefined> { return undefined; }
+  async deleteCourseStartDate(): Promise<void> {}
+
+  // Module 5 exam attempts (in-memory stubs)
+  async getExamAttempt(): Promise<ExamAttempt | undefined> { return undefined; }
+  async getExamAttemptsByStudent(): Promise<ExamAttempt[]> { return []; }
+  async getExamAttemptsByClass(): Promise<ExamAttempt[]> { return []; }
+  async createExamAttempt(data: InsertExamAttempt): Promise<ExamAttempt> { return { id: 1, ...data } as ExamAttempt; }
+  async updateExamAttempt(): Promise<ExamAttempt | undefined> { return undefined; }
 }
 
 // Database Storage Implementation
@@ -3912,6 +3942,71 @@ export class DatabaseStorage implements IStorage {
           importedAt: new Date(),
         },
       })
+      .returning();
+    return row;
+  }
+
+  // Module 1 start dates (admin-managed)
+  async getCourseStartDates(filters?: { courseType?: string; module?: number; status?: string; upcomingOnly?: boolean }): Promise<CourseStartDate[]> {
+    const conditions = [] as any[];
+    if (filters?.courseType) conditions.push(eq(courseStartDates.courseType, filters.courseType));
+    if (filters?.module !== undefined) conditions.push(eq(courseStartDates.module, filters.module));
+    if (filters?.status) conditions.push(eq(courseStartDates.status, filters.status));
+    if (filters?.upcomingOnly) {
+      const today = new Date().toISOString().split("T")[0];
+      conditions.push(gte(courseStartDates.startDate, today));
+    }
+    const rows = conditions.length > 0
+      ? await db.select().from(courseStartDates).where(and(...conditions))
+      : await db.select().from(courseStartDates);
+    return rows.sort((a, b) => (a.startDate < b.startDate ? -1 : a.startDate > b.startDate ? 1 : 0));
+  }
+
+  async getCourseStartDate(id: number): Promise<CourseStartDate | undefined> {
+    const [row] = await db.select().from(courseStartDates).where(eq(courseStartDates.id, id)).limit(1);
+    return row;
+  }
+
+  async createCourseStartDate(data: InsertCourseStartDate): Promise<CourseStartDate> {
+    const [row] = await db.insert(courseStartDates).values(data).returning();
+    return row;
+  }
+
+  async updateCourseStartDate(id: number, data: Partial<InsertCourseStartDate>): Promise<CourseStartDate | undefined> {
+    const [row] = await db.update(courseStartDates)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(courseStartDates.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteCourseStartDate(id: number): Promise<void> {
+    await db.delete(courseStartDates).where(eq(courseStartDates.id, id));
+  }
+
+  // Module 5 exam attempts
+  async getExamAttempt(id: number): Promise<ExamAttempt | undefined> {
+    const [row] = await db.select().from(examAttempts).where(eq(examAttempts.id, id)).limit(1);
+    return row;
+  }
+
+  async getExamAttemptsByStudent(studentId: number): Promise<ExamAttempt[]> {
+    return await db.select().from(examAttempts).where(eq(examAttempts.studentId, studentId));
+  }
+
+  async getExamAttemptsByClass(classId: number): Promise<ExamAttempt[]> {
+    return await db.select().from(examAttempts).where(eq(examAttempts.classId, classId));
+  }
+
+  async createExamAttempt(data: InsertExamAttempt): Promise<ExamAttempt> {
+    const [row] = await db.insert(examAttempts).values(data).returning();
+    return row;
+  }
+
+  async updateExamAttempt(id: number, data: Partial<InsertExamAttempt>): Promise<ExamAttempt | undefined> {
+    const [row] = await db.update(examAttempts)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(examAttempts.id, id))
       .returning();
     return row;
   }

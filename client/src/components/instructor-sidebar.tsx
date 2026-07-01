@@ -11,7 +11,8 @@ import {
   Menu,
   X,
   GraduationCap,
-  Clock
+  Clock,
+  ClipboardCheck
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { GlobalSearchBar } from "@/components/global-search-bar";
@@ -67,6 +68,7 @@ export default function InstructorSidebar() {
     { path: "/instructor/students", label: "My Students", icon: Users },
     { path: "/instructor/evaluations", label: "Evaluations", icon: FileText },
     { path: "/instructor/hours", label: "Hours & Payroll", icon: Clock },
+    { path: "/instructor/exam-monitor", label: "Exam Monitor", icon: ClipboardCheck },
     { path: "/instructor/profile", label: "My Profile", icon: User },
   ];
 

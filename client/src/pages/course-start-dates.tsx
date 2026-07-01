@@ -1,0 +1,333 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
+} from "@/components/ui/form";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { CalendarPlus, Loader2, Pencil, Trash2, CalendarDays } from "lucide-react";
+
+type CourseStartDate = {
+  id: number;
+  courseType: string;
+  module: number;
+  startDate: string;
+  startTime?: string | null;
+  capacity?: number | null;
+  status: string;
+  notes?: string | null;
+};
+
+const formSchema = z.object({
+  courseType: z.string().min(1, "Course type is required"),
+  startDate: z.string().min(1, "Start date is required"),
+  startTime: z.string().optional(),
+  capacity: z.string().optional(),
+  status: z.string().default("active"),
+  notes: z.string().optional(),
+});
+
+const COURSE_LABELS: Record<string, string> = {
+  auto: "Automobile (Class 5)",
+  moto: "Motorcycle (Class 6)",
+  scooter: "Scooter (Class 6D)",
+};
+
+export default function CourseStartDates() {
+  const { toast } = useToast();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<CourseStartDate | null>(null);
+
+  const { data: dates = [], isLoading } = useQuery<CourseStartDate[]>({
+    queryKey: ["/api/admin/course-start-dates"],
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      courseType: "auto",
+      startDate: "",
+      startTime: "",
+      capacity: "",
+      status: "active",
+      notes: "",
+    },
+  });
+
+  const openCreate = () => {
+    setEditing(null);
+    form.reset({ courseType: "auto", startDate: "", startTime: "", capacity: "", status: "active", notes: "" });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (d: CourseStartDate) => {
+    setEditing(d);
+    form.reset({
+      courseType: d.courseType,
+      startDate: d.startDate,
+      startTime: d.startTime || "",
+      capacity: d.capacity != null ? String(d.capacity) : "",
+      status: d.status,
+      notes: d.notes || "",
+    });
+    setDialogOpen(true);
+  };
+
+  const saveMutation = useMutation({
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+      const payload = {
+        courseType: values.courseType,
+        module: 1,
+        startDate: values.startDate,
+        startTime: values.startTime || null,
+        capacity: values.capacity ? parseInt(values.capacity) : null,
+        status: values.status,
+        notes: values.notes || null,
+      };
+      if (editing) {
+        return apiRequest("PATCH", `/api/admin/course-start-dates/${editing.id}`, payload);
+      }
+      return apiRequest("POST", "/api/admin/course-start-dates", payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-start-dates"] });
+      setDialogOpen(false);
+      toast({ title: editing ? "Start date updated" : "Start date added" });
+    },
+    onError: (e: any) => {
+      toast({ title: "Something went wrong", description: e.message, variant: "destructive" });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => apiRequest("DELETE", `/api/admin/course-start-dates/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-start-dates"] });
+      toast({ title: "Start date deleted" });
+    },
+    onError: (e: any) => {
+      toast({ title: "Could not delete", description: e.message, variant: "destructive" });
+    },
+  });
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-[#111111] flex items-center gap-2">
+            <CalendarDays className="h-6 w-6 text-[#ECC462]" />
+            Module 1 Start Dates
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            These are the course start dates students can choose from when they register.
+          </p>
+        </div>
+        <Button onClick={openCreate} className="bg-[#ECC462] hover:bg-[#d4b058] text-[#111111]" data-testid="button-add-start-date">
+          <CalendarPlus className="mr-2 h-4 w-4" /> Add Start Date
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Scheduled Start Dates</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-[#ECC462]" />
+            </div>
+          ) : dates.length === 0 ? (
+            <p className="text-center text-gray-500 py-8" data-testid="text-no-start-dates">
+              No start dates yet. Add one so students can pick it during registration.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Course</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Time</TableHead>
+                  <TableHead>Capacity</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {dates.map((d) => (
+                  <TableRow key={d.id} data-testid={`row-start-date-${d.id}`}>
+                    <TableCell>{COURSE_LABELS[d.courseType] || d.courseType}</TableCell>
+                    <TableCell>
+                      {new Date(`${d.startDate}T00:00:00`).toLocaleDateString(undefined, {
+                        weekday: "short", year: "numeric", month: "short", day: "numeric",
+                      })}
+                    </TableCell>
+                    <TableCell>{d.startTime || "—"}</TableCell>
+                    <TableCell>{d.capacity != null ? d.capacity : "—"}</TableCell>
+                    <TableCell>
+                      <Badge variant={d.status === "active" ? "default" : "secondary"}>
+                        {d.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button size="sm" variant="ghost" onClick={() => openEdit(d)} data-testid={`button-edit-${d.id}`}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          if (confirm("Delete this start date?")) deleteMutation.mutate(d.id);
+                        }}
+                        data-testid={`button-delete-${d.id}`}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit Start Date" : "Add Start Date"}</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="courseType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Course Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-course-type">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="auto">Automobile (Class 5)</SelectItem>
+                        <SelectItem value="moto">Motorcycle (Class 6)</SelectItem>
+                        <SelectItem value="scooter">Scooter (Class 6D)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Date</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="date" data-testid="input-start-date" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="startTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Time (optional)</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="time" data-testid="input-start-time" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="capacity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Capacity (optional)</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="number" min="0" placeholder="e.g. 15" data-testid="input-capacity" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-status">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notes (optional)</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Internal notes" data-testid="input-notes" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  disabled={saveMutation.isPending}
+                  className="bg-[#ECC462] hover:bg-[#d4b058] text-[#111111]"
+                  data-testid="button-save-start-date"
+                >
+                  {saveMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {editing ? "Save Changes" : "Add Start Date"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

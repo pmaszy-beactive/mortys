@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, User, MapPin, FileText, Phone, Car, Upload, CheckCircle, ChevronRight, ChevronLeft } from "lucide-react";
+import { Loader2, User, MapPin, FileText, Phone, Car, Upload, CheckCircle, ChevronRight, ChevronLeft, Video, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -45,6 +45,15 @@ const step4Schema = z.object({
 
 const step5Schema = z.object({
   courseType: z.string().min(1, "Please select a course type"),
+  referralSource: z.string().optional(),
+  referralDetail: z.string().optional(),
+  selectedStartDateId: z.string().optional(),
+  parentFirstName: z.string().optional(),
+  parentLastName: z.string().optional(),
+  parentEmail: z.string().email("Please enter a valid email").optional().or(z.literal("")),
+  parentPhone: z.string().optional(),
+  parentRelationship: z.string().optional(),
+  parentPermissionLevel: z.string().optional(),
 });
 
 type OnboardingData = {
@@ -66,6 +75,23 @@ type OnboardingData = {
   emergencyContact?: string;
   emergencyPhone?: string;
   courseType?: string;
+  referralSource?: string;
+  referralDetail?: string;
+  selectedStartDateId?: number | string;
+  parentFirstName?: string;
+  parentLastName?: string;
+  parentEmail?: string;
+  parentPhone?: string;
+  parentRelationship?: string;
+  parentPermissionLevel?: string;
+};
+
+type CourseStartDate = {
+  id: number;
+  courseType: string;
+  startDate: string;
+  startTime?: string | null;
+  status: string;
 };
 
 const TOTAL_STEPS = 5;
@@ -80,6 +106,7 @@ export default function StudentOnboarding() {
   const [formData, setFormData] = useState<OnboardingData>({});
   const [uploadedDocuments, setUploadedDocuments] = useState<{ type: string; name: string }[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [showParentFields, setShowParentFields] = useState(false);
 
   const { data: registration, isLoading } = useQuery({
     queryKey: ["/api/student/onboarding", registrationId],
@@ -151,6 +178,30 @@ export default function StudentOnboarding() {
     resolver: zodResolver(step5Schema),
     defaultValues: {
       courseType: formData.courseType || "",
+      referralSource: formData.referralSource || "",
+      referralDetail: formData.referralDetail || "",
+      selectedStartDateId: formData.selectedStartDateId ? String(formData.selectedStartDateId) : "",
+      parentFirstName: formData.parentFirstName || "",
+      parentLastName: formData.parentLastName || "",
+      parentEmail: formData.parentEmail || "",
+      parentPhone: formData.parentPhone || "",
+      parentRelationship: formData.parentRelationship || "",
+      parentPermissionLevel: formData.parentPermissionLevel || "view_only",
+    },
+  });
+
+  const selectedCourseType = step5Form.watch("courseType");
+  const selectedReferralSource = step5Form.watch("referralSource");
+
+  const { data: startDates = [] } = useQuery<CourseStartDate[]>({
+    queryKey: ["/api/course-start-dates", selectedCourseType],
+    queryFn: async () => {
+      const url = selectedCourseType
+        ? `/api/course-start-dates?courseType=${encodeURIComponent(selectedCourseType)}`
+        : "/api/course-start-dates";
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      return res.json();
     },
   });
 
@@ -183,7 +234,17 @@ export default function StudentOnboarding() {
       });
       step5Form.reset({
         courseType: formData.courseType || "",
+        referralSource: formData.referralSource || "",
+        referralDetail: formData.referralDetail || "",
+        selectedStartDateId: formData.selectedStartDateId ? String(formData.selectedStartDateId) : "",
+        parentFirstName: formData.parentFirstName || "",
+        parentLastName: formData.parentLastName || "",
+        parentEmail: formData.parentEmail || "",
+        parentPhone: formData.parentPhone || "",
+        parentRelationship: formData.parentRelationship || "",
+        parentPermissionLevel: formData.parentPermissionLevel || "view_only",
       });
+      if (formData.parentEmail) setShowParentFields(true);
     }
   }, [formData]);
 
@@ -237,11 +298,26 @@ export default function StudentOnboarding() {
   };
 
   const handleComplete = async (stepData: any) => {
-    const finalData = { ...formData, ...stepData };
+    const cleaned: any = { ...stepData };
+    if (cleaned.selectedStartDateId) {
+      cleaned.selectedStartDateId = parseInt(cleaned.selectedStartDateId);
+    } else {
+      delete cleaned.selectedStartDateId;
+    }
+    // Drop empty parent fields so we only link a guardian when details were provided.
+    if (!cleaned.parentEmail || !cleaned.parentFirstName || !cleaned.parentLastName) {
+      delete cleaned.parentFirstName;
+      delete cleaned.parentLastName;
+      delete cleaned.parentEmail;
+      delete cleaned.parentPhone;
+      delete cleaned.parentRelationship;
+      delete cleaned.parentPermissionLevel;
+    }
+    const finalData = { ...formData, ...cleaned };
     setFormData(finalData);
     
     try {
-      await saveMutation.mutateAsync({ step: TOTAL_STEPS, data: stepData });
+      await saveMutation.mutateAsync({ step: TOTAL_STEPS, data: cleaned });
       await completeMutation.mutateAsync();
     } catch (error) {
       console.error("Failed to complete:", error);
@@ -720,6 +796,206 @@ export default function StudentOnboarding() {
                       </FormItem>
                     )}
                   />
+
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 flex gap-2">
+                    <Video className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-blue-800">
+                      <strong>Theory Classes are held online via Zoom.</strong> You'll receive a Zoom link for each theory session.
+                      Driving Classes (in the car) take place in person with your instructor.
+                    </p>
+                  </div>
+
+                  {startDates.length > 0 && (
+                    <FormField
+                      control={step5Form.control}
+                      name="selectedStartDateId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Preferred Module 1 Start Date</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-start-date">
+                                <SelectValue placeholder="Choose a start date" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {startDates.map((sd) => (
+                                <SelectItem key={sd.id} value={String(sd.id)}>
+                                  {new Date(`${sd.startDate}T${sd.startTime || "00:00"}:00`).toLocaleDateString(undefined, {
+                                    weekday: "short", year: "numeric", month: "long", day: "numeric",
+                                  })}
+                                  {sd.startTime ? ` at ${sd.startTime}` : ""}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  <FormField
+                    control={step5Form.control}
+                    name="referralSource"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>How did you hear about us?</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-referral">
+                              <SelectValue placeholder="Select an option" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="google">Google Search</SelectItem>
+                            <SelectItem value="social_media">Social Media</SelectItem>
+                            <SelectItem value="friend_family">Friend or Family</SelectItem>
+                            <SelectItem value="school">School</SelectItem>
+                            <SelectItem value="advertisement">Advertisement</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {(selectedReferralSource === "other" || selectedReferralSource === "friend_family" || selectedReferralSource === "social_media") && (
+                    <FormField
+                      control={step5Form.control}
+                      name="referralDetail"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Please tell us more (optional)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="e.g., name of the person, platform, etc." data-testid="input-referral-detail" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  <div className="border-t pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowParentFields((v) => !v)}
+                      className="flex items-center gap-2 text-sm font-medium text-[#111111] hover:text-[#ECC462]"
+                      data-testid="button-toggle-parent"
+                    >
+                      <Users className="h-4 w-4" />
+                      {showParentFields ? "Remove parent / guardian" : "Add a parent or guardian (optional)"}
+                    </button>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Recommended for students under 18. A parent or guardian can view progress and, if you allow, book classes.
+                    </p>
+                  </div>
+
+                  {showParentFields && (
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-lg border">
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={step5Form.control}
+                          name="parentFirstName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Parent First Name</FormLabel>
+                              <FormControl>
+                                <Input {...field} data-testid="input-parent-first-name" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={step5Form.control}
+                          name="parentLastName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Parent Last Name</FormLabel>
+                              <FormControl>
+                                <Input {...field} data-testid="input-parent-last-name" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormField
+                        control={step5Form.control}
+                        name="parentEmail"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Parent Email</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="email" placeholder="parent@example.com" data-testid="input-parent-email" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={step5Form.control}
+                          name="parentPhone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Parent Phone</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="tel" data-testid="input-parent-phone" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={step5Form.control}
+                          name="parentRelationship"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Relationship</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger data-testid="select-parent-relationship">
+                                    <SelectValue placeholder="Select" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Parent">Parent</SelectItem>
+                                  <SelectItem value="Guardian">Guardian</SelectItem>
+                                  <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormField
+                        control={step5Form.control}
+                        name="parentPermissionLevel"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>What can they do?</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger data-testid="select-parent-permission">
+                                  <SelectValue placeholder="Select access level" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="view_only">View progress only</SelectItem>
+                                <SelectItem value="view_book">View & book classes</SelectItem>
+                                <SelectItem value="view_book_pay">View, book & make payments</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
 
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                     <h4 className="font-medium text-green-800 mb-2">You're almost done!</h4>
