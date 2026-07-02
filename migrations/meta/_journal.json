@@ -29,6 +29,13 @@
       "when": 1782307655718,
       "tag": "0003_imported_pages",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783002837081,
+      "tag": "0004_registration_and_exam",
+      "breakpoints": true
     }
   ]
 }
