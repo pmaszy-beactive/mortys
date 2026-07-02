@@ -58,6 +58,14 @@ RUN node_modules/.bin/esbuild server/scripts/seed-legacy-data.ts \
     --format=esm \
     --outfile=dist/seed-legacy.js
 
+# Build demo-account seed script (runs on every startup via docker-entrypoint.sh)
+RUN node_modules/.bin/esbuild server/scripts/seed-demo.ts \
+    --platform=node \
+    --packages=external \
+    --bundle \
+    --format=esm \
+    --outfile=dist/seed-demo.js
+
 # Build the targeted-student queue builder (operator tool).
 # Run in the container: docker exec <container> node dist/build-scrape-queue.js <term> [term...]
 # Fills /data/migrate/scrape-queue.txt, which the nightly scrape drains first.

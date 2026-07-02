@@ -1,8 +1,9 @@
 import { storage } from "./storage";
 import { db } from "./db";
-import { users, schoolPermits, permitNumbers, instructors, students, classes, contractTemplates, vehicles } from "@shared/schema";
+import { users, schoolPermits, permitNumbers, instructors, classes, contractTemplates, vehicles } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+import { seedDemoAccounts } from "./seed-demo-accounts";
 
 export async function initializeDatabase() {
   try {
@@ -207,68 +208,9 @@ export async function initializeDatabase() {
       console.log("School permits already exist");
     }
 
-    // Create demo instructor if it doesn't exist
-    try {
-      const [existingDemoInstructor] = await db.select().from(instructors).where(eq(instructors.email, "demo.instructor@example.com"));
-      
-      if (!existingDemoInstructor) {
-        console.log("Creating demo instructor account...");
-        const hashedPassword = await bcrypt.hash("instructor123", 10);
-        
-        await db.insert(instructors).values({
-          firstName: "Demo",
-          lastName: "Instructor",
-          email: "demo.instructor@example.com",
-          phone: "(514) 555-1234",
-          instructorLicenseNumber: "DEMO-INST-001",
-          permitNumber: "L-020-DEMO",
-          hireDate: new Date().toISOString(),
-          certificationExpiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "active",
-          accountStatus: "active",
-          password: hashedPassword,
-          emergencyContact: "Demo Emergency Contact",
-          emergencyPhone: "(514) 555-5678",
-          specializations: JSON.stringify(["auto", "moto"]),
-        });
-        console.log("Demo instructor account created successfully");
-      } else {
-        console.log("Demo instructor account already exists");
-      }
-    } catch (error) {
-      console.error("Error creating demo instructor:", error);
-    }
-
-    // Create demo student if it doesn't exist
-    try {
-      const [existingDemoStudent] = await db.select().from(students).where(eq(students.email, "demo.student@example.com"));
-      
-      if (!existingDemoStudent) {
-        console.log("Creating demo student account...");
-        const hashedPassword = await bcrypt.hash("demo123", 10);
-        
-        await db.insert(students).values({
-          firstName: "Demo",
-          lastName: "Student",
-          email: "demo.student@example.com",
-          phone: "(514) 555-9999",
-          dateOfBirth: "2000-01-01",
-          address: "123 Demo Street, Montreal, QC H1H 1H1",
-          emergencyContact: "Demo Parent",
-          emergencyPhone: "(514) 555-0000",
-          courseType: "auto",
-          status: "active",
-          accountStatus: "active",
-          password: hashedPassword,
-          enrollmentDate: new Date().toISOString(),
-        });
-        console.log("Demo student account created successfully");
-      } else {
-        console.log("Demo student account already exists");
-      }
-    } catch (error) {
-      console.error("Error creating demo student:", error);
-    }
+    // Create demo instructor + demo student (idempotent, shared with the
+    // dedicated docker deploy seed step in dist/seed-demo.js).
+    await seedDemoAccounts();
 
     // Create demo classes with future dates if they don't exist
     try {

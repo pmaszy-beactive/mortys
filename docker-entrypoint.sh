@@ -28,6 +28,11 @@ fi
 echo "[1/3] Running database migrations..."
 node dist/migrate.js
 
+# Seed demo accounts (idempotent). Runs after migrations so the tables exist.
+# Guarantees the demo instructor + demo student logins are present in production.
+echo "[1b/3] Seeding demo accounts..."
+node dist/seed-demo.js
+
 # Nightly registration scrape cron. crond runs jobs with a minimal env, so the
 # wrapper (scripts/nightly-scrape.sh) exports what the scraper needs. Logs persist
 # on the /data volume; each nightly run rotates BOTH nightly-scrape.log and the
