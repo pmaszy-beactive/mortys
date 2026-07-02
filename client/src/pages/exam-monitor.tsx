@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -11,7 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Loader2, ClipboardCheck, Flag, CheckCircle2, XCircle, Clock, ArrowLeft,
+  Loader2, ClipboardCheck, Flag, CheckCircle2, XCircle, Clock, ArrowLeft, Eye,
 } from "lucide-react";
 
 type ExamClass = {
@@ -63,6 +64,7 @@ function statusBadge(a: AttemptRow) {
 }
 
 export default function ExamMonitor() {
+  const [, navigate] = useLocation();
   const [selectedClass, setSelectedClass] = useState<ExamClass | null>(null);
   const [reviewId, setReviewId] = useState<number | null>(null);
 
@@ -86,13 +88,23 @@ export default function ExamMonitor() {
   if (!selectedClass) {
     return (
       <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-[#111111] flex items-center gap-2">
-            <ClipboardCheck className="h-6 w-6 text-[#ECC462]" /> Module 5 Exam Monitor
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Select a Theory 5 class to see who is taking the online exam and their results.
-          </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold text-[#111111] flex items-center gap-2">
+              <ClipboardCheck className="h-6 w-6 text-[#ECC462]" /> Module 5 Exam Monitor
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Select a Theory 5 class to see who is taking the online exam and their results.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/exam-preview")}
+            className="flex items-center gap-2 shrink-0"
+            data-testid="button-preview-exam"
+          >
+            <Eye className="h-4 w-4" /> Preview Exam
+          </Button>
         </div>
         <Card>
           <CardHeader>

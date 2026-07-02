@@ -34,6 +34,7 @@ import RefundRequests from "@/pages/refund-requests";
 import ChangeRequests from "@/pages/change-requests";
 import CourseStartDates from "@/pages/course-start-dates";
 import ExamMonitor from "@/pages/exam-monitor";
+import ExamPreview from "@/pages/exam-preview";
 import StudentExam from "@/pages/student/student-exam";
 import NotFound from "@/pages/not-found";
 import InstructorInvite from "@/pages/instructor-invite";
@@ -217,6 +218,7 @@ function Router() {
           <Route path="/refund-requests" component={RefundRequests} />
           <Route path="/course-start-dates" component={CourseStartDates} />
           <Route path="/exam-monitor" component={ExamMonitor} />
+          <Route path="/exam-preview" component={ExamPreview} />
         </Layout>
       )}
       <Route component={NotFound} />
