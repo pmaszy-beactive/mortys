@@ -54,7 +54,7 @@ export async function sendAdminPasswordResetEmail(
   firstName: string,
   resetToken: string
 ): Promise<boolean> {
-  const baseUrl = process.env.APP_BASE_URL || `https://${process.env.REPLIT_DOMAINS?.split(",")[0] || "localhost:5000"}`;
+  const baseUrl = process.env.APP_URL || process.env.APP_BASE_URL || `https://${process.env.REPLIT_DEV_DOMAIN || "localhost:5000"}`;
   const resetUrl = `${baseUrl}/admin/reset-password/${resetToken}`;
 
   const html = `

@@ -32,7 +32,10 @@ export function getInviteExpiry(): Date {
 }
 
 function getBaseUrl(): string {
-  return "https://morty.empowerdemos.com";
+  return (
+    process.env.APP_URL ||
+    (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : "http://localhost:5000")
+  );
 }
 
 export async function sendInstructorInviteEmail(
