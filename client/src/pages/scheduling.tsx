@@ -100,7 +100,7 @@ export default function Scheduling() {
     mutationFn: async (payload: typeof genForm) => {
       return apiRequest('POST', '/api/admin/classes/bulk', {
         ...payload,
-        instructorId: payload.instructorId ? parseInt(payload.instructorId) : null,
+        instructorId: payload.instructorId && payload.instructorId !== 'none' ? parseInt(payload.instructorId) : null,
       });
     },
     onSuccess: (data: any) => {
@@ -1032,7 +1032,7 @@ export default function Scheduling() {
                   <Select value={genForm.instructorId} onValueChange={v => setGenForm(p => ({ ...p, instructorId: v }))}>
                     <SelectTrigger><SelectValue placeholder="Assign later" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Assign later</SelectItem>
+                      <SelectItem value="none">Assign later</SelectItem>
                       {instructors.map(inst => (
                         <SelectItem key={inst.id} value={String(inst.id)}>
                           {inst.firstName} {inst.lastName}
