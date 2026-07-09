@@ -4981,15 +4981,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .where(eq(studentRegistrations.id, existingRegistration[0].id));
           
           // Send verification email
-          const sgMail = (await import("@sendgrid/mail")).default;
-          const fromEmail = process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca";
-          
-          try {
-            await sgMail.send({
-              to: email,
-              from: fromEmail,
-              subject: "Verify your email - Morty's Driving School",
-              html: `
+          const { sendEmail: sendVerifyEmail1 } = await import("./services/sendgrid");
+          await sendVerifyEmail1({
+            to: [email],
+            from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+            subject: "Verify your email - Morty's Driving School",
+            html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                   <div style="background: linear-gradient(135deg, #111111 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
                     <h1 style="color: #ECC462; margin: 0; font-size: 28px;">Morty's Driving School</h1>
@@ -5008,10 +5005,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   </div>
                 </div>
               `,
-            });
-          } catch (emailError) {
-            console.error("SendGrid email error:", emailError);
-          }
+          });
           
           return res.json({
             message: "Verification code sent to your email",
@@ -5046,15 +5040,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }).returning();
       
       // Send verification email
-      const sgMail = (await import("@sendgrid/mail")).default;
-      const fromEmail = process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca";
-      
-      try {
-        await sgMail.send({
-          to: email,
-          from: fromEmail,
-          subject: "Verify your email - Morty's Driving School",
-          html: `
+      const { sendEmail: sendVerifyEmail2 } = await import("./services/sendgrid");
+      await sendVerifyEmail2({
+        to: [email],
+        from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+        subject: "Verify your email - Morty's Driving School",
+        html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #111111 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
                 <h1 style="color: #ECC462; margin: 0; font-size: 28px;">Morty's Driving School</h1>
@@ -5073,10 +5064,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               </div>
             </div>
           `,
-        });
-      } catch (emailError) {
-        console.error("SendGrid email error:", emailError);
-      }
+      });
       
       res.json({
         message: "Verification code sent to your email",
@@ -5179,15 +5167,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await db.update(studentRegistrations).set({ verificationTokenId: token.id }).where(eq(studentRegistrations.id, registrationId));
       
       // Send verification email
-      const sgMail = (await import("@sendgrid/mail")).default;
-      const fromEmail = process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca";
-      
-      try {
-        await sgMail.send({
-          to: registration.email,
-          from: fromEmail,
-          subject: "Your new verification code - Morty's Driving School",
-          html: `
+      const { sendEmail: sendVerifyEmail3 } = await import("./services/sendgrid");
+      await sendVerifyEmail3({
+        to: [registration.email],
+        from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+        subject: "Your new verification code - Morty's Driving School",
+        html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #111111 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
                 <h1 style="color: #ECC462; margin: 0; font-size: 28px;">Morty's Driving School</h1>
@@ -5206,10 +5191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               </div>
             </div>
           `,
-        });
-      } catch (emailError) {
-        console.error("SendGrid email error:", emailError);
-      }
+      });
       
       res.json({ message: "New verification code sent to your email", expiresAt: expiresAt.toISOString() });
     } catch (error) {
@@ -5887,11 +5869,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const baseUrl =
           process.env.APP_URL || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : "http://localhost:5000");
         const imageUrl = `${baseUrl}${questionImagePath(attempt.testCode, qn)}`;
-        const sgMail = (await import("@sendgrid/mail")).default;
-        const fromEmail = process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca";
-        await sgMail.send({
-          to: "info@mortys.ca",
-          from: fromEmail,
+        const { sendEmail: sendFlagEmail } = await import("./services/sendgrid");
+        await sendFlagEmail({
+          to: ["info@mortys.ca"],
+          from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
           subject: `Exam question flagged for review — Q${qn} (${attempt.testCode})`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
