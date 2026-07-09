@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, User, MapPin, FileText, Phone, Car, Upload, CheckCircle, ChevronRight, ChevronLeft, Video, Users } from "lucide-react";
+import { Loader2, User, MapPin, Phone, Car, Upload, CheckCircle, ChevronRight, ChevronLeft, Video, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -29,13 +29,6 @@ const step2Schema = z.object({
   postalCode: z.string().min(1, "Postal code is required"),
   province: z.string().default("Quebec"),
   country: z.string().default("Canada"),
-});
-
-const step3Schema = z.object({
-  permitNumber: z.string().optional(),
-  permitExpiryDate: z.string().optional(),
-  driverLicenseNumber: z.string().optional(),
-  licenseExpiryDate: z.string().optional(),
 });
 
 const step4Schema = z.object({
@@ -94,7 +87,7 @@ type CourseStartDate = {
   status: string;
 };
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 4;
 
 export default function StudentOnboarding() {
   const [, params] = useRoute("/student/onboarding/:registrationId");
@@ -156,16 +149,6 @@ export default function StudentOnboarding() {
     },
   });
 
-  const step3Form = useForm({
-    resolver: zodResolver(step3Schema),
-    defaultValues: {
-      permitNumber: formData.permitNumber || "",
-      permitExpiryDate: formData.permitExpiryDate || "",
-      driverLicenseNumber: formData.driverLicenseNumber || "",
-      licenseExpiryDate: formData.licenseExpiryDate || "",
-    },
-  });
-
   const step4Form = useForm({
     resolver: zodResolver(step4Schema),
     defaultValues: {
@@ -221,12 +204,6 @@ export default function StudentOnboarding() {
         postalCode: formData.postalCode || "",
         province: formData.province || "Quebec",
         country: formData.country || "Canada",
-      });
-      step3Form.reset({
-        permitNumber: formData.permitNumber || "",
-        permitExpiryDate: formData.permitExpiryDate || "",
-        driverLicenseNumber: formData.driverLicenseNumber || "",
-        licenseExpiryDate: formData.licenseExpiryDate || "",
       });
       step4Form.reset({
         emergencyContact: formData.emergencyContact || "",
@@ -369,8 +346,8 @@ export default function StudentOnboarding() {
     );
   }
 
-  const stepIcons = [User, MapPin, FileText, Phone, Car];
-  const stepTitles = ["Personal Info", "Address", "Permit Details", "Emergency Contact", "Course Selection"];
+  const stepIcons = [User, MapPin, Phone, Car];
+  const stepTitles = ["Personal Info", "Address", "Emergency Contact", "Course Selection"];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 py-8 px-4">
@@ -408,9 +385,8 @@ export default function StudentOnboarding() {
             <CardDescription>
               {currentStep === 1 && "Tell us about yourself"}
               {currentStep === 2 && "Where should we send correspondence?"}
-              {currentStep === 3 && "Your permit and license information (if applicable)"}
-              {currentStep === 4 && "Who should we contact in case of emergency?"}
-              {currentStep === 5 && "Choose your driving course"}
+              {currentStep === 3 && "Who should we contact in case of emergency?"}
+              {currentStep === 4 && "Choose your driving course"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -612,105 +588,6 @@ export default function StudentOnboarding() {
             )}
 
             {currentStep === 3 && (
-              <Form {...step3Form}>
-                <form onSubmit={step3Form.handleSubmit(handleNext)} className="space-y-4">
-                  <div className="p-4 bg-amber-50 rounded-lg mb-4">
-                    <p className="text-sm text-amber-800">
-                      If you already have a learner's permit, please enter the details below. You can also upload a photo of your permit.
-                    </p>
-                  </div>
-                  <FormField
-                    control={step3Form.control}
-                    name="permitNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Permit Number / Nom de Dossier</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Enter your permit number" data-testid="input-permit-number" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={step3Form.control}
-                    name="permitExpiryDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Permit Expiry Date</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="date" data-testid="input-permit-expiry" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={step3Form.control}
-                    name="driverLicenseNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Driver's License Number (if any)</FormLabel>
-                        <FormControl>
-                          <Input {...field} data-testid="input-license-number" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={step3Form.control}
-                    name="licenseExpiryDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>License Expiry Date</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="date" data-testid="input-license-expiry" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center">
-                    <Upload className="mx-auto h-10 w-10 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600 mb-2">Upload a photo of your permit (optional)</p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileUpload(e, "permit_photo")}
-                      className="hidden"
-                      id="permit-upload"
-                      data-testid="input-permit-upload"
-                    />
-                    <label htmlFor="permit-upload">
-                      <Button type="button" variant="outline" asChild disabled={isUploading}>
-                        <span className="cursor-pointer">
-                          {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                          Choose File
-                        </span>
-                      </Button>
-                    </label>
-                    {uploadedDocuments.filter(d => d.type === "permit_photo").map((doc, i) => (
-                      <p key={i} className="text-sm text-green-600 mt-2">
-                        <CheckCircle className="inline h-4 w-4 mr-1" /> {doc.name}
-                      </p>
-                    ))}
-                  </div>
-                  
-                  <div className="flex justify-between pt-4">
-                    <Button type="button" variant="outline" onClick={handleBack} data-testid="button-back">
-                      <ChevronLeft className="mr-2 h-4 w-4" /> Back
-                    </Button>
-                    <Button type="submit" className="bg-[#ECC462] hover:bg-[#d4b058] text-[#111111]" data-testid="button-next">
-                      Next <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            )}
-
-            {currentStep === 4 && (
               <Form {...step4Form}>
                 <form onSubmit={step4Form.handleSubmit(handleNext)} className="space-y-4">
                   <div className="p-4 bg-amber-50 rounded-lg mb-4">
@@ -756,7 +633,7 @@ export default function StudentOnboarding() {
               </Form>
             )}
 
-            {currentStep === 5 && (
+            {currentStep === 4 && (
               <Form {...step5Form}>
                 <form onSubmit={step5Form.handleSubmit(handleComplete)} className="space-y-4">
                   <FormField

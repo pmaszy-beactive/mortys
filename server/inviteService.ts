@@ -18,7 +18,7 @@ async function deliverMail(msg: { to: string; subject: string; [key: string]: an
     console.log(`[MOCK EMAIL] To: ${msg.to}, Subject: ${msg.subject}`);
     return;
   }
-  await sgMail.send({ replyTo: process.env.SENDGRID_REPLY_TO || "info@mortys.ca", ...msg });
+  await sgMail.send({ replyTo: process.env.SENDGRID_REPLY_TO || "info@mortys.ca", trackingSettings: { clickTracking: { enable: false, enableText: false } }, ...msg });
 }
 
 export function generateInviteToken(): string {

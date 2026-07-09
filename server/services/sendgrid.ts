@@ -41,7 +41,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     if (params.text) emailData.text = params.text;
     if (params.html) emailData.html = params.html;
     
-    await mailService.send(emailData);
+    await mailService.send({ ...emailData, trackingSettings: { clickTracking: { enable: false, enableText: false } } });
     return true;
   } catch (error) {
     console.error("SendGrid email error:", error);
@@ -123,6 +123,7 @@ export async function sendBulkEmail(
         subject: subject,
         text: text,
         html: html,
+        trackingSettings: { clickTracking: { enable: false, enableText: false } },
       });
       results.sentCount++;
       console.log(`✓ Email ${i + 1}/${recipients.length} sent successfully to ${recipient}`);
