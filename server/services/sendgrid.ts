@@ -12,12 +12,15 @@ if (isConfigured) {
   console.warn("SendGrid API key not found - running in mock mode. Set SENDGRID_API_KEY to send real emails.");
 }
 
+const REPLY_TO = process.env.SENDGRID_REPLY_TO || "info@mortys.ca";
+
 interface EmailParams {
   to: string[];
   from: string;
   subject: string;
   text?: string;
   html?: string;
+  replyTo?: string;
 }
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
@@ -31,6 +34,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     const emailData: any = {
       to: params.to,
       from: params.from,
+      replyTo: params.replyTo || REPLY_TO,
       subject: params.subject,
     };
     
@@ -74,7 +78,8 @@ export async function sendAdminPasswordResetEmail(
 
   return sendEmail({
     to: [email],
-    from: "noreply@mortysdriving.com",
+    from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
+    replyTo: REPLY_TO,
     subject: "Admin Password Reset — Morty's Driving School",
     text: `Hi ${firstName},\n\nReset your admin password here (expires in 1 hour):\n${resetUrl}\n\nIf you didn't request this, ignore this email.`,
     html,
@@ -114,6 +119,7 @@ export async function sendBulkEmail(
       await mailService.send({
         to: recipient,
         from: from,
+        replyTo: REPLY_TO,
         subject: subject,
         text: text,
         html: html,

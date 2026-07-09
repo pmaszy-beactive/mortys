@@ -18,7 +18,7 @@ async function deliverMail(msg: { to: string; subject: string; [key: string]: an
     console.log(`[MOCK EMAIL] To: ${msg.to}, Subject: ${msg.subject}`);
     return;
   }
-  await deliverMail(msg);
+  await sgMail.send({ replyTo: process.env.SENDGRID_REPLY_TO || "info@mortys.ca", ...msg });
 }
 
 export function generateInviteToken(): string {

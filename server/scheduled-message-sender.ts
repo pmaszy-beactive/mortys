@@ -51,6 +51,7 @@ async function processScheduledMessages() {
         await sgMail.send({
           to: recipientEmails,
           from: fromEmail,
+          replyTo: process.env.SENDGRID_REPLY_TO || "info@mortys.ca",
           subject: message.subject,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
