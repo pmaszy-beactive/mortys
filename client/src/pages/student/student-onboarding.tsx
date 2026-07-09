@@ -37,7 +37,7 @@ const step4Schema = z.object({
 });
 
 const step5Schema = z.object({
-  courseType: z.string().min(1, "Please select a course type"),
+  courseType: z.string().optional(),
   referralSource: z.string().optional(),
   referralDetail: z.string().optional(),
   selectedStartDateId: z.string().optional(),
@@ -636,43 +636,63 @@ export default function StudentOnboarding() {
             {currentStep === 4 && (
               <Form {...step5Form}>
                 <form onSubmit={step5Form.handleSubmit(handleComplete)} className="space-y-4">
-                  <FormField
-                    control={step5Form.control}
-                    name="courseType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Your Course *</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-course">
-                              <SelectValue placeholder="Choose a course type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="auto">
-                              <div className="flex items-center gap-2">
-                                <Car className="h-4 w-4" />
-                                <span>Automobile (Class 5)</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="moto">
-                              <div className="flex items-center gap-2">
-                                <span>🏍️</span>
-                                <span>Motorcycle (Class 6)</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="scooter">
-                              <div className="flex items-center gap-2">
-                                <span>🛵</span>
-                                <span>Scooter (Class 6D)</span>
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {/* Show locked summary when course was selected before account creation */}
+                  {formData.courseType ? (
+                    <div className="p-4 bg-[#111111] rounded-xl flex items-center gap-3">
+                      <span className="text-2xl flex-shrink-0">
+                        {formData.courseType === "auto" ? "🚗" : formData.courseType === "moto" ? "🏍️" : "🛵"}
+                      </span>
+                      <div>
+                        <div className="text-xs text-[#ECC462] font-medium uppercase tracking-wide">Your selected course</div>
+                        <div className="text-sm text-white font-semibold">
+                          {formData.courseType === "auto"
+                            ? "Automobile (Class 5)"
+                            : formData.courseType === "moto"
+                            ? "Motorcycle (Class 6)"
+                            : "Scooter (Class 6D)"}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-0.5">Selected during registration</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <FormField
+                      control={step5Form.control}
+                      name="courseType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select Your Course *</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-course">
+                                <SelectValue placeholder="Choose a course type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="auto">
+                                <div className="flex items-center gap-2">
+                                  <Car className="h-4 w-4" />
+                                  <span>Automobile (Class 5)</span>
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="moto">
+                                <div className="flex items-center gap-2">
+                                  <span>🏍️</span>
+                                  <span>Motorcycle (Class 6)</span>
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="scooter">
+                                <div className="flex items-center gap-2">
+                                  <span>🛵</span>
+                                  <span>Scooter (Class 6D)</span>
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
 
                   <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 flex gap-2">
                     <Video className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />

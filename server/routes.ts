@@ -4936,7 +4936,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Student Self-Registration Routes
   app.post("/api/student/register", async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { email, password, courseType, selectedStartDateId } = req.body;
       
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required" });
@@ -5032,11 +5032,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         expiresAt,
       }).returning();
       
-      // Create registration
+      // Create registration (seed course selection made before account creation)
+      const seedData: Record<string, any> = {};
+      if (courseType) seedData.courseType = courseType;
+      if (selectedStartDateId) seedData.selectedStartDateId = String(selectedStartDateId);
+
       const [registration] = await db.insert(studentRegistrations).values({
         email,
         passwordHash: hashedPassword,
         verificationTokenId: token.id,
+        onboardingData: seedData,
       }).returning();
       
       // Send verification email

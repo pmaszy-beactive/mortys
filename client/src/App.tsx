@@ -51,6 +51,7 @@ import StudentInvite from "@/pages/student-invite";
 import ParentInvite from "@/pages/parent/parent-invite";
 import StudentLogin from "@/pages/student/student-login";
 import StudentSignup from "@/pages/student/student-signup";
+import StudentRegister from "@/pages/student/student-register";
 import StudentOnboarding from "@/pages/student/student-onboarding";
 import StudentForgotPassword from "@/pages/student/student-forgot-password";
 import StudentResetPassword from "@/pages/student/student-reset-password";
@@ -138,6 +139,7 @@ function Router() {
       <Route path="/student-login" component={StudentLogin} />
       <Route path="/student/login" component={StudentLogin} />
       <Route path="/student/signup" component={StudentSignup} />
+      <Route path="/student/register" component={StudentRegister} />
       <Route path="/student/onboarding/:registrationId" component={StudentOnboarding} />
       <Route path="/student/forgot-password" component={StudentForgotPassword} />
       <Route path="/student/reset-password/:token" component={StudentResetPassword} />

@@ -253,7 +253,7 @@ export default function StudentLogin() {
         <div className="text-center">
           <p className="text-gray-600">
             Don't have an account?{" "}
-            <Link href="/student/signup">
+            <Link href="/student/register">
               <span className="text-[#ECC462] hover:text-[#d4b058] font-semibold cursor-pointer" data-testid="link-signup">
                 Sign up
               </span>
