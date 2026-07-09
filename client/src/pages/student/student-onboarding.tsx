@@ -125,7 +125,7 @@ export default function StudentOnboarding() {
         return;
       }
       if (registration.onboardingCompleted) {
-        setLocation("/student/login");
+        setLocation("/student/dashboard");
         return;
       }
       setCurrentStep(registration.onboardingStep || 1);
@@ -261,9 +261,9 @@ export default function StudentOnboarding() {
     onSuccess: () => {
       toast({
         title: "Welcome to Morty's Driving School!",
-        description: "Your account is ready. You can now log in and book classes.",
+        description: "Your account is ready. Taking you to your dashboard now.",
       });
-      setLocation("/student/login");
+      setLocation("/student/dashboard");
     },
     onError: (error: any) => {
       toast({

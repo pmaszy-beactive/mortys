@@ -5362,7 +5362,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await db.update(studentDocuments)
         .set({ studentId: newStudent.id })
         .where(eq(studentDocuments.registrationId, registrationId));
-      
+
+      // Auto-login the student so they land on the dashboard directly
+      (req.session as any).studentId = newStudent.id;
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err) => { if (err) reject(err); else resolve(); });
+      });
+
       res.json({
         message: "Welcome to Morty's Driving School!",
         studentId: newStudent.id,
