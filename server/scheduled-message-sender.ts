@@ -46,7 +46,7 @@ async function processScheduledMessages() {
         }
         
         // Send the email using SendGrid
-        const fromEmail = process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca";
+        const fromEmail = process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com";
         
         await sgMail.send({
           to: recipientEmails,

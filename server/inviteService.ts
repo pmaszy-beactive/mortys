@@ -44,7 +44,7 @@ export async function sendInstructorInviteEmail(
   const inviteLink = `${baseUrl}/instructor-invite/${inviteToken}`;
   const msg = {
     to: email,
-    from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+    from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
     subject: "You've Been Invited to Join Morty's Driving School",
     html: `
       <!DOCTYPE html>
@@ -134,7 +134,7 @@ export async function sendPasswordResetEmail(
 
   const msg = {
     to: email,
-    from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+    from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
     subject: "Reset Your Password - Morty's Driving School",
     html: `
       <!DOCTYPE html>
@@ -227,7 +227,7 @@ export async function sendStudentInviteEmail(
 
   const msg = {
     to: email,
-    from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+    from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
     subject: "Welcome to Morty's Driving School - Set Up Your Account",
     html: `
       <!DOCTYPE html>
@@ -333,7 +333,7 @@ export async function sendParentInviteEmail(
   
   const msg = {
     to: email,
-    from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+    from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
     subject: `${studentFirstName} ${studentLastName} Has Added You as a Parent/Guardian`,
     html: `
       <!DOCTYPE html>
@@ -487,7 +487,7 @@ export async function sendPolicyOverrideNotification(
   for (const email of recipientEmails) {
     const msg = {
       to: email,
-      from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+      from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
       subject: `Policy Override Alert - ${actionTypeLabels[actionType] || actionType}`,
       html: `
         <!DOCTYPE html>

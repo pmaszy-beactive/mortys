@@ -275,7 +275,7 @@ export default function StudentExam() {
         </div>
 
         <p className="text-xs text-center text-gray-400 flex items-center justify-center gap-1">
-          <HelpCircle className="h-3 w-3" /> Your camera stays on in Zoom for the whole exam. Need help? Flag a question or email info@mortys.ca
+          <HelpCircle className="h-3 w-3" /> Your camera stays on in Zoom for the whole exam. Need help? Flag a question or email info@mortysdrivingschool.com
         </p>
 
         <AlertDialog open={confirmSubmit} onOpenChange={setConfirmSubmit}>
@@ -344,7 +344,7 @@ export default function StudentExam() {
             )}
             {!passed && !status.canRetake && (
               <p className="text-gray-700">
-                Please contact the school at <a className="text-[#ECC462] underline" href="mailto:info@mortys.ca">info@mortys.ca</a> about next steps.
+                Please contact the school at <a className="text-[#ECC462] underline" href="mailto:info@mortysdrivingschool.com">info@mortysdrivingschool.com</a> about next steps.
               </p>
             )}
           </CardContent>

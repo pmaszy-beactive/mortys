@@ -1076,7 +1076,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .json({ message: "Subject and message are required" });
       }
 
-      const from = "info@mortys.ca";
+      const from = process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com";
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -4984,7 +4984,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const { sendEmail: sendVerifyEmail1 } = await import("./services/sendgrid");
           await sendVerifyEmail1({
             to: [email],
-            from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+            from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
             subject: "Verify your email - Morty's Driving School",
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -5043,7 +5043,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { sendEmail: sendVerifyEmail2 } = await import("./services/sendgrid");
       await sendVerifyEmail2({
         to: [email],
-        from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+        from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
         subject: "Verify your email - Morty's Driving School",
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -5170,7 +5170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { sendEmail: sendVerifyEmail3 } = await import("./services/sendgrid");
       await sendVerifyEmail3({
         to: [registration.email],
-        from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+        from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
         subject: "Your new verification code - Morty's Driving School",
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -5849,7 +5849,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Student: flag a question for help (emails exam support at info@mortys.ca).
+  // Student: flag a question for help (emails exam support at info@mortysdrivingschool.com).
   app.post("/api/student/exam/attempt/:id/flag", async (req: any, res) => {
     try {
       const attempt = await loadOwnedAttempt(req, res);
@@ -5871,8 +5871,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const imageUrl = `${baseUrl}${questionImagePath(attempt.testCode, qn)}`;
         const { sendEmail: sendFlagEmail } = await import("./services/sendgrid");
         await sendFlagEmail({
-          to: ["info@mortys.ca"],
-          from: process.env.SENDGRID_FROM_EMAIL || "info@mortys.ca",
+          to: ["info@mortysdrivingschool.com"],
+          from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
           subject: `Exam question flagged for review — Q${qn} (${attempt.testCode})`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -5946,7 +5946,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalQuestions,
         passPercent: EXAM_PASS_PERCENT,
         canRetake: passed === false && attempt.attemptNumber < 2,
-        supportEmail: "info@mortys.ca",
+        supportEmail: "info@mortysdrivingschool.com",
       });
     } catch (error) {
       console.error("[EXAM] Error fetching result:", error);
