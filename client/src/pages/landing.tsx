@@ -516,6 +516,7 @@ export default function Landing() {
               size="lg" 
               className="btn-primary text-xl px-12 py-8 shadow-2xl hover:shadow-primary/40"
               data-testid="button-enroll-now"
+              onClick={() => window.location.href = '/student/register'}
             >
               <Calendar className="mr-2 h-6 w-6" />
               Enroll Now

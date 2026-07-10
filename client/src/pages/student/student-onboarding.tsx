@@ -114,7 +114,7 @@ export default function StudentOnboarding() {
   useEffect(() => {
     if (registration) {
       if (!registration.emailVerified) {
-        setLocation("/student/signup");
+        setLocation("/student/register");
         return;
       }
       if (registration.onboardingCompleted) {
