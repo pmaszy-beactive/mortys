@@ -5528,7 +5528,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const targetStatus = parsed.data.status ?? before.status;
       const dateOrCourseChanged =
         targetDate !== before.startDate || targetCourseType !== before.courseType;
-      if (dateOrCourseChanged && targetStatus === "active" && req.body?.confirmMerge !== true) {
+      const reactivating = before.status !== "active" && targetStatus === "active";
+      if (
+        (dateOrCourseChanged || reactivating) &&
+        targetStatus === "active" &&
+        req.body?.confirmMerge !== true
+      ) {
         const sameDay = (await storage.getCourseStartDates({
           courseType: targetCourseType,
           status: "active",
