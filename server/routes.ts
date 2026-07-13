@@ -5477,6 +5477,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid start date data", errors: parsed.error.flatten() });
       }
+
+      // Guard: warn before creating a duplicate cohort. If an ACTIVE start
+      // date already exists for the same course type on the same day, the new
+      // row would create a second cohort matching the same Theory 1 class.
+      // Require explicit confirmation (confirmDuplicate: true), mirroring the
+      // merge guard on the PATCH route below.
+      const newStatus = parsed.data.status ?? "active";
+      if (newStatus === "active" && req.body?.confirmDuplicate !== true) {
+        const sameDay = (await storage.getCourseStartDates({
+          courseType: parsed.data.courseType,
+          status: "active",
+        })).filter((d) => d.startDate === parsed.data.startDate);
+        if (sameDay.length > 0) {
+          return res.status(409).json({
+            conflict: "start_date_duplicate",
+            message:
+              "An active start date already exists for this course type on the selected date. " +
+              "Adding another will create two cohorts that both match the same Theory 1 class.",
+            conflictingStartDates: sameDay,
+          });
+        }
+      }
+
       const created = await storage.createCourseStartDate(parsed.data);
       res.status(201).json(created);
     } catch (error) {

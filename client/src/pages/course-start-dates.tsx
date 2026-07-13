@@ -141,7 +141,27 @@ export default function CourseStartDates() {
           throw e;
         }
       }
-      return apiRequest("POST", "/api/admin/course-start-dates", payload);
+      try {
+        return await apiRequest("POST", "/api/admin/course-start-dates", payload);
+      } catch (e: any) {
+        if (e?.status === 409 && e?.data?.conflict === "start_date_duplicate") {
+          const proceed = confirm(
+            "Heads up: an active start date for this course type already exists on that day.\n\n" +
+              "Adding another will create two groups that both match the same Theory 1 class.\n\n" +
+              "Do you want to add it anyway?",
+          );
+          if (!proceed) {
+            const cancelled = new Error("cancelled");
+            (cancelled as any).cancelled = true;
+            throw cancelled;
+          }
+          return await apiRequest("POST", "/api/admin/course-start-dates", {
+            ...payload,
+            confirmDuplicate: true,
+          });
+        }
+        throw e;
+      }
     },
     onSuccess: (result: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/course-start-dates"] });
