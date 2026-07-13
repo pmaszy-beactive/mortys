@@ -52,3 +52,6 @@ SENDGRID_FROM_EMAIL = "info@mortysdrivingschool.com"
 
 [userenv.production]
 APP_URL = "https://mortys.activeaidemo.com"
+
+[userenv.development]
+OFFICE_NOTIFICATION_EMAILS = "paul@beactive.ai"

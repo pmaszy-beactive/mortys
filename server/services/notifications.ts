@@ -271,6 +271,23 @@ export async function getAdminRecipients(): Promise<NotificationRecipient[]> {
 
 // Office staff who should hear about operational/system alerts (owners, admins, managers).
 export async function getOfficeRecipients(): Promise<NotificationRecipient[]> {
+  // OFFICE_NOTIFICATION_EMAILS (comma-delimited) overrides the recipient list
+  // entirely — useful in dev/test so office alerts don't go to real staff.
+  // When unset, all owner/admin/manager users receive office notifications.
+  const override = process.env.OFFICE_NOTIFICATION_EMAILS;
+  if (override && override.trim()) {
+    return override
+      .split(',')
+      .map(e => e.trim())
+      .filter(e => e.includes('@'))
+      .map(email => ({
+        type: 'staff' as RecipientType,
+        id: `email:${email}`,
+        email,
+        name: 'Office',
+      }));
+  }
+
   const officeUsers = await db.select()
     .from(users)
     .where(inArray(users.role, ['owner', 'admin', 'manager']));
