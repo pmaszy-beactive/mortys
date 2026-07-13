@@ -345,6 +345,35 @@ export async function handleStartDateChange(
   }
 }
 
+/**
+ * Bulk check: return the IDs of active students who selected a start date
+ * during registration but have zero active class enrollments (i.e. they still
+ * need manual enrollment). Same candidate logic as the backfill, but read-only
+ * and cheap — two queries total regardless of student count.
+ */
+export async function getStudentIdsNeedingManualEnrollment(): Promise<number[]> {
+  const candidates = await db
+    .select({ id: students.id })
+    .from(students)
+    .where(and(isNotNull(students.selectedStartDateId), eq(students.status, "active")));
+
+  if (candidates.length === 0) return [];
+
+  const candidateIds = candidates.map((s) => s.id);
+  const existing = await db
+    .select({ studentId: classEnrollments.studentId })
+    .from(classEnrollments)
+    .where(
+      and(
+        inArray(classEnrollments.studentId, candidateIds),
+        isNull(classEnrollments.cancelledAt),
+      ),
+    );
+  const hasEnrollment = new Set(existing.map((e) => e.studentId));
+
+  return candidateIds.filter((id) => !hasEnrollment.has(id));
+}
+
 export interface BackfillReport {
   scanned: number;
   enrolled: { studentId: number; studentName: string; classId: number }[];

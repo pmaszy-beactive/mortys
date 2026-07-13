@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Eye, Edit, Trash2, User, RefreshCw, ChevronDown, ChevronUp, Users, Sparkles, ArrowRightLeft } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, User, RefreshCw, ChevronDown, ChevronUp, Users, Sparkles, ArrowRightLeft, AlertTriangle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -97,6 +97,13 @@ export default function Students() {
   const { data: locations = [] } = useQuery<Location[]>({
     queryKey: ["/api/locations"],
   });
+
+  // One bulk request: IDs of active students who picked a start date during
+  // registration but have no active enrollments (auto-enrollment failed).
+  const { data: needsEnrollmentData } = useQuery<{ studentIds: number[] }>({
+    queryKey: ["/api/admin/students-needing-enrollment"],
+  });
+  const needsEnrollmentIds = new Set(needsEnrollmentData?.studentIds || []);
 
   const deleteStudentMutation = useMutation({
     mutationFn: (id: number) => apiRequest("DELETE", `/api/students/${id}`),
@@ -525,9 +532,21 @@ export default function Students() {
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              <Badge className={`text-xs font-medium capitalize ${getStatusColor(student.status)}`}>
-                                {student.status}
-                              </Badge>
+                              <div className="flex flex-wrap items-center gap-1">
+                                <Badge className={`text-xs font-medium capitalize ${getStatusColor(student.status)}`}>
+                                  {student.status}
+                                </Badge>
+                                {needsEnrollmentIds.has(student.id) && (
+                                  <Badge
+                                    className="text-xs font-medium bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-100"
+                                    title="Active student with a selected start date but no class enrollments — open their profile to enroll them in Theory 1."
+                                    data-testid={`badge-needs-enrollment-${student.id}`}
+                                  >
+                                    <AlertTriangle className="mr-1 h-3 w-3" />
+                                    Needs enrollment
+                                  </Badge>
+                                )}
+                              </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">

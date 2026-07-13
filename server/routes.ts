@@ -5554,6 +5554,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: bulk list of student IDs that still need manual enrollment (active
+  // students with a registration-selected start date but zero active class
+  // enrollments). Lets the students list flag every affected student in one
+  // request instead of one per row.
+  app.get("/api/admin/students-needing-enrollment", requireAdmin, async (req, res) => {
+    try {
+      const { getStudentIdsNeedingManualEnrollment } = await import("./services/auto-enroll");
+      const studentIds = await getStudentIdsNeedingManualEnrollment();
+      res.json({ studentIds });
+    } catch (error) {
+      console.error("[START-DATES] Error listing students needing enrollment:", error);
+      res.status(500).json({ message: "Failed to list students needing enrollment" });
+    }
+  });
+
   // Admin: does this student still need to be manually enrolled? True when an
   // active student picked a start date during registration but has zero active
   // class enrollments (i.e. auto-enrollment failed). Also suggests the matching

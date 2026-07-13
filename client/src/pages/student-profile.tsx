@@ -130,6 +130,7 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
       queryClient.invalidateQueries({ queryKey: ["/api/class-enrollments", "student", studentId] });
       queryClient.invalidateQueries({ queryKey: ["/api/students", studentId, "enrollment-suggestion"] });
       queryClient.invalidateQueries({ queryKey: ["/api/students", studentId, "phase-progress"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/students-needing-enrollment"] });
     },
     onError: (err: any) => {
       toast({
