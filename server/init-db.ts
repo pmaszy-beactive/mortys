@@ -38,6 +38,7 @@ export async function initializeDatabase() {
       { id: "admin-default",  email: "admin@mortys.com",               firstName: "Admin",    lastName: "User",     role: "owner" },
       { id: "admin-morty",    email: "morty@mortysdriving.com",         firstName: "Morty",    lastName: "Owner",    role: "owner" },
       { id: "admin-paul",     email: "paul@beactive.ai",                firstName: "Paul",     lastName: "Maszewski", role: "owner" },
+      { id: "admin-alice",    email: "alice@beactive.ai",               firstName: "Alice",    lastName: "Beactive",  role: "owner" },
       { id: "admin-daniel",   email: "daniel@beactive.ai",              firstName: "Daniel",   lastName: "Beactive", role: "admin" },
       { id: "admin-manju",    email: "manju@beactive.ai",               firstName: "Manju",    lastName: "Beactive", role: "admin" },
       { id: "admin-pasindu",  email: "pasindu@empowerdigitaldata.com",  firstName: "Pasindu",  lastName: "Empowered", role: "admin" },

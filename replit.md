@@ -29,7 +29,7 @@ Class terminology: Use "Theory Classes" and "Driving Classes" (not "Practical Cl
 - **API Design**: RESTful API with JSON responses
 - **Data Storage**: Full CRUD operations with DatabaseStorage implementation.
 - **Security**: Automatic session expiration after 1 hour of inactivity; frontend interceptor redirects expired sessions to login with user-friendly message. Passwords hashed with bcrypt. Password hashes are never returned in API responses (`/api/auth/user`, `/api/admin/users`).
-- **Admin Authentication**: Email-based login (no hardcoded credentials). Passwords stored as bcrypt hashes in `users.password` column. Accounts: paul@beactive.ai, daniel@beactive.ai, morty@mortysdriving.com, demo@mortysdriving.com, admin@mortys.com, pasindu@empowerdigitaldata.com.
+- **Admin Authentication**: Email-based login (no hardcoded credentials). Passwords stored as bcrypt hashes in `users.password` column. Accounts: paul@beactive.ai, alice@beactive.ai, daniel@beactive.ai, morty@mortysdriving.com, demo@mortysdriving.com, admin@mortys.com, pasindu@empowerdigitaldata.com.
 
 ### Database Design
 - **ORM**: Drizzle ORM for PostgreSQL.
