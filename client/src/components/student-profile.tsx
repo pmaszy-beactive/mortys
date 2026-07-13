@@ -71,7 +71,8 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
     }
   };
 
-  const getEvaluationIcon = (rating: number) => {
+  const getEvaluationIcon = (rating: number | null) => {
+    if (rating === null) return <AlertCircle className="h-4 w-4 text-gray-400" />;
     if (rating >= 4) return <CheckCircle className="h-4 w-4 text-green-600" />;
     if (rating >= 3) return <AlertCircle className="h-4 w-4 text-yellow-600" />;
     return <XCircle className="h-4 w-4 text-red-600" />;
@@ -189,12 +190,12 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
               </div>
             </div>
 
-            {student.notes && (
+            {student.specialNeeds && (
               <>
                 <Separator />
                 <div>
-                  <h4 className="font-medium mb-2">Notes</h4>
-                  <p className="text-sm text-gray-600">{student.notes}</p>
+                  <h4 className="font-medium mb-2">Special Needs</h4>
+                  <p className="text-sm text-gray-600">{student.specialNeeds}</p>
                 </div>
               </>
             )}
@@ -225,12 +226,12 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Enrollment Date</span>
-                  <span>{formatDate(student.enrollmentDate)}</span>
+                  <span>{student.enrollmentDate ? formatDate(student.enrollmentDate) : "Not specified"}</span>
                 </div>
                 {student.status === "completed" && (
                   <div className="flex justify-between text-sm">
                     <span>Completion Date</span>
-                    <span>{formatDate(student.expectedGraduation)}</span>
+                    <span>{student.completionDate ? formatDate(student.completionDate) : "Not specified"}</span>
                   </div>
                 )}
               </div>
@@ -332,17 +333,14 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
                       <div>
                         <h4 className="font-medium">Contract #{contract.id}</h4>
                         <p className="text-sm text-gray-600">
-                          Started: {formatDate(contract.startDate)}
+                          Started: {formatDate(contract.contractDate)}
                         </p>
                         <p className="text-sm text-gray-600">
                           Type: {contract.courseType.toUpperCase()}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold">${contract.totalAmount}</p>
-                        <p className="text-sm text-gray-600">
-                          Paid: ${contract.amountPaid}
-                        </p>
+                        <p className="text-lg font-bold">${contract.amount}</p>
                         <Badge className={
                           contract.status === "active" ? "bg-green-100 text-green-800" :
                           contract.status === "completed" ? "bg-blue-100 text-blue-800" :
@@ -352,9 +350,9 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
                         </Badge>
                       </div>
                     </div>
-                    {contract.notes && (
+                    {contract.specialNotes && (
                       <div className="mt-3 pt-3 border-t">
-                        <p className="text-sm text-gray-600">{contract.notes}</p>
+                        <p className="text-sm text-gray-600">{contract.specialNotes}</p>
                       </div>
                     )}
                   </div>
@@ -392,7 +390,7 @@ export default function StudentProfile({ student, onClose }: StudentProfileProps
                     {enrollments.map((enrollment) => (
                       <TableRow key={enrollment.id}>
                         <TableCell>Class #{enrollment.classId}</TableCell>
-                        <TableCell>{formatDate(enrollment.enrollmentDate)}</TableCell>
+                        <TableCell>{enrollment.checkInAt ? formatDate(enrollment.checkInAt.toString()) : "—"}</TableCell>
                         <TableCell>—</TableCell>
                         <TableCell>
                           <Badge className="bg-blue-100 text-blue-800">

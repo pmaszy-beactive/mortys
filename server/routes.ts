@@ -451,7 +451,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     let event: any;
     try {
-      const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-04-30.basil' });
+      const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-10-29.clover' });
       event = stripeInstance.webhooks.constructEvent(req.body, sig, webhookSecret);
     } catch (err: any) {
       console.error('[webhook] Signature verification failed:', err.message);
@@ -459,7 +459,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-04-30.basil' });
+      const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-10-29.clover' });
 
       if (event.type === 'payment_intent.succeeded') {
         const pi = event.data.object as any;
@@ -8113,7 +8113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (price > 0) {
           // Create a payment intent for the extra lesson
-          const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-04-30.basil' });
+          const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-10-29.clover' });
           
           const paymentIntent = await stripe.paymentIntents.create({
             amount: price,
@@ -8197,7 +8197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         // Verify payment with Stripe
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-04-30.basil' });
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-10-29.clover' });
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
         
         if (paymentIntent.status !== 'succeeded') {

@@ -286,7 +286,8 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
     }
   };
 
-  const getEvaluationIcon = (rating: number) => {
+  const getEvaluationIcon = (rating: number | null) => {
+    if (rating === null) return <AlertCircle className="h-4 w-4 text-gray-400" />;
     if (rating >= 4) return <CheckCircle className="h-4 w-4 text-green-600" />;
     if (rating >= 3) return <AlertCircle className="h-4 w-4 text-yellow-600" />;
     return <XCircle className="h-4 w-4 text-red-600" />;
@@ -1083,17 +1084,14 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                       <div>
                         <h4 className="font-medium">Contract #{contract.id}</h4>
                         <p className="text-sm text-gray-600">
-                          Started: {formatDate(contract.startDate)}
+                          Started: {formatDate(contract.contractDate)}
                         </p>
                         <p className="text-sm text-gray-600">
                           Type: {contract.courseType.toUpperCase()}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold">${contract.totalAmount}</p>
-                        <p className="text-sm text-gray-600">
-                          Paid: ${contract.amountPaid}
-                        </p>
+                        <p className="text-lg font-bold">${contract.amount}</p>
                         <Badge className={
                           contract.status === "active" ? "bg-green-100 text-green-800" :
                           contract.status === "completed" ? "bg-gradient-to-r from-[#ECC462] to-amber-500 text-[#111111] shadow-md" :
@@ -1103,9 +1101,9 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                         </Badge>
                       </div>
                     </div>
-                    {contract.notes && (
+                    {contract.specialNotes && (
                       <div className="mt-3 pt-3 border-t">
-                        <p className="text-sm text-gray-600">{contract.notes}</p>
+                        <p className="text-sm text-gray-600">{contract.specialNotes}</p>
                       </div>
                     )}
                   </div>
@@ -1147,7 +1145,7 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                     {enrollments.map((enrollment) => (
                       <TableRow key={enrollment.id}>
                         <TableCell>Class #{enrollment.classId}</TableCell>
-                        <TableCell>{formatDate(enrollment.enrollmentDate)}</TableCell>
+                        <TableCell>{enrollment.checkInAt ? formatDate(enrollment.checkInAt.toString()) : "—"}</TableCell>
                         <TableCell>—</TableCell>
                         <TableCell>
                           <Badge className="bg-gradient-to-r from-[#ECC462] to-amber-500 text-[#111111] shadow-md">
