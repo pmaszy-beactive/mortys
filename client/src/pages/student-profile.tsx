@@ -109,6 +109,38 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
     enabled: !!student,
   });
 
+  // Flag students who picked a start date at registration but were never
+  // enrolled (auto-enrollment failed) so they don't slip through the cracks.
+  interface EnrollmentSuggestion {
+    needsManualEnrollment: boolean;
+    startDate: { id: number; courseType: string; startDate: string; startTime?: string | null; status: string } | null;
+    suggestedClass: Class | null;
+    reason: string | null;
+  }
+  const { data: enrollmentSuggestion } = useQuery<EnrollmentSuggestion>({
+    queryKey: ["/api/students", studentId, "enrollment-suggestion"],
+    queryFn: () => apiRequest("GET", `/api/students/${studentId}/enrollment-suggestion`),
+    enabled: !!student,
+  });
+
+  const autoEnrollMutation = useMutation({
+    mutationFn: () => apiRequest("POST", `/api/students/${studentId}/auto-enroll`),
+    onSuccess: () => {
+      toast({ title: "Student enrolled", description: "The student was booked into their Theory 1 class." });
+      queryClient.invalidateQueries({ queryKey: ["/api/class-enrollments", "student", studentId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/students", studentId, "enrollment-suggestion"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/students", studentId, "phase-progress"] });
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Could not enroll student",
+        description: err?.message || "Enrollment failed.",
+        variant: "destructive",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/students", studentId, "enrollment-suggestion"] });
+    },
+  });
+
   const { data: locations = [] } = useQuery<Location[]>({
     queryKey: ["/api/locations"],
   });
@@ -349,6 +381,50 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
           </div>
         </CardHeader>
       </Card>
+
+      {/* Needs manual enrollment flag */}
+      {enrollmentSuggestion?.needsManualEnrollment && (
+        <Card className="border-amber-300 bg-amber-50" data-testid="banner-needs-manual-enrollment">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-semibold text-amber-900">Needs manual enrollment</p>
+                  <p className="text-sm text-amber-800">
+                    This student picked a course start date during registration
+                    {enrollmentSuggestion.startDate
+                      ? ` (${enrollmentSuggestion.startDate.courseType.toUpperCase()} starting ${formatDate(enrollmentSuggestion.startDate.startDate)}${enrollmentSuggestion.startDate.startTime ? ` at ${enrollmentSuggestion.startDate.startTime.slice(0, 5)}` : ""})`
+                      : ""}
+                    {" "}but has no class enrollments yet.
+                  </p>
+                  {enrollmentSuggestion.suggestedClass ? (
+                    <p className="text-sm text-amber-800 mt-1" data-testid="text-suggested-class">
+                      Matching class found: Theory 1 on {formatDate(enrollmentSuggestion.suggestedClass.date)} at {enrollmentSuggestion.suggestedClass.time?.slice(0, 5)}.
+                    </p>
+                  ) : enrollmentSuggestion.reason ? (
+                    <p className="text-sm text-amber-800 mt-1" data-testid="text-enrollment-reason">
+                      {enrollmentSuggestion.reason} Enroll the student manually from the Classes page.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+              {enrollmentSuggestion.suggestedClass && (
+                <Button
+                  size="sm"
+                  className="bg-[#ECC462] text-[#111111] hover:bg-[#e0b54f] shrink-0 touch-target"
+                  onClick={() => autoEnrollMutation.mutate()}
+                  disabled={autoEnrollMutation.isPending}
+                  data-testid="button-enroll-theory1"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {autoEnrollMutation.isPending ? "Enrolling..." : "Enroll in Theory 1"}
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Personal Information and Progress */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

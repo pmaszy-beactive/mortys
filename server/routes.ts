@@ -5528,6 +5528,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: does this student still need to be manually enrolled? True when an
+  // active student picked a start date during registration but has zero active
+  // class enrollments (i.e. auto-enrollment failed). Also suggests the matching
+  // Theory 1 class when one exists so the office can enroll in one click.
+  app.get("/api/students/:id/enrollment-suggestion", requireAdmin, async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      const student = await storage.getStudent(studentId);
+      if (!student) return res.status(404).json({ message: "Student not found" });
+
+      const none = { needsManualEnrollment: false, startDate: null, suggestedClass: null, reason: null };
+      if (!student.selectedStartDateId || student.status !== "active") {
+        return res.json(none);
+      }
+
+      const enrollments = await storage.getClassEnrollmentsByStudent(studentId);
+      if (enrollments.length > 0) return res.json(none);
+
+      const startDate = await storage.getCourseStartDate(student.selectedStartDateId);
+      if (!startDate) {
+        return res.json({
+          needsManualEnrollment: true,
+          startDate: null,
+          suggestedClass: null,
+          reason: "The start date selected during registration no longer exists.",
+        });
+      }
+
+      const { findMatchingTheory1Class } = await import("./services/auto-enroll");
+      const suggestedClass =
+        startDate.status === "active" ? await findMatchingTheory1Class(startDate) : undefined;
+
+      res.json({
+        needsManualEnrollment: true,
+        startDate,
+        suggestedClass: suggestedClass ?? null,
+        reason: suggestedClass
+          ? null
+          : startDate.status !== "active"
+            ? `The selected start date (${startDate.startDate}) is ${startDate.status}.`
+            : `No scheduled Theory 1 class matches ${startDate.courseType} on ${startDate.startDate}${startDate.startTime ? ` at ${startDate.startTime}` : ""}.`,
+      });
+    } catch (error) {
+      console.error("[START-DATES] Error building enrollment suggestion:", error);
+      res.status(500).json({ message: "Failed to check enrollment status" });
+    }
+  });
+
+  // Admin: one-click enroll a student into the Theory 1 class matching their
+  // registration-selected start date (same logic as registration auto-enroll,
+  // capacity/duplicate checks included). No office notification on failure —
+  // the admin sees the reason directly.
+  app.post("/api/students/:id/auto-enroll", requireAdmin, async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      const student = await storage.getStudent(studentId);
+      if (!student) return res.status(404).json({ message: "Student not found" });
+      if (!student.selectedStartDateId) {
+        return res.status(400).json({ message: "This student did not select a course start date during registration." });
+      }
+
+      const { autoEnrollStudentFromStartDate } = await import("./services/auto-enroll");
+      const result = await autoEnrollStudentFromStartDate(studentId, student.selectedStartDateId, {
+        notifyOfficeOnFailure: false,
+      });
+
+      if (!result.enrolled) {
+        return res.status(409).json({ message: result.reason || "Enrollment failed" });
+      }
+      res.json({ message: "Student enrolled in Theory 1", classId: result.classId });
+    } catch (error) {
+      console.error("[START-DATES] Error auto-enrolling student:", error);
+      res.status(500).json({ message: "Failed to enroll student" });
+    }
+  });
+
   // ============================================================
   // Module 5 Online Exam Engine
   // Camera/monitoring is handled via Zoom only (no in-app proctoring).

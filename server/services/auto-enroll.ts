@@ -18,7 +18,9 @@ function timesMatch(startTime: string | null | undefined, classTime: string): bo
 }
 
 // Find the scheduled Theory 1 class that corresponds to a course start date.
-async function findMatchingTheory1Class(startDate: {
+// Exported so the admin student profile can suggest the right class when a
+// student still needs manual enrollment.
+export async function findMatchingTheory1Class(startDate: {
   courseType: string;
   startDate: string;
   startTime?: string | null;
