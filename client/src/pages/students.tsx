@@ -57,15 +57,18 @@ export default function Students() {
     const hasAnySearch = searchTerm.trim() || courseFilter !== 'all' || statusFilter !== 'all' ||
       locationFilter !== 'all' || phoneNumber.trim() || attestationNumber.trim() ||
       contractNumber.trim() || dateOfBirth || enrollmentDate;
-    params.append('limit', (!hasSearched && !hasAnySearch) ? '10' : '50');
+    params.append('limit', hasAnySearch ? '50' : '10');
     params.append('offset', '0');
     return params.toString();
   };
 
+  // Only updated when the user clicks Search (or Reset) — typing does NOT trigger a fetch
+  const [appliedParams, setAppliedParams] = useState("limit=10&offset=0");
+
   const { data: studentsData, isLoading, refetch } = useQuery<{ students: Student[]; total: number }>({
-    queryKey: ["/api/students", buildSearchParams()],
+    queryKey: ["/api/students", appliedParams],
     queryFn: async () => {
-      const response = await fetch(`/api/students?${buildSearchParams()}`, {
+      const response = await fetch(`/api/students?${appliedParams}`, {
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -125,7 +128,7 @@ export default function Students() {
   const transferStudents = transferData?.students || [];
   const totalTransfers = transferData?.total || 0;
 
-  const handleSearch = () => { setHasSearched(true); refetch(); };
+  const handleSearch = () => { setHasSearched(true); setAppliedParams(buildSearchParams()); };
 
   const handleDeleteStudent = (id: number) => {
     if (confirm("Are you sure you want to delete this student?")) deleteStudentMutation.mutate(id);
@@ -135,7 +138,7 @@ export default function Students() {
     setSearchTerm(""); setCourseFilter("all"); setStatusFilter("all"); setLocationFilter("all");
     setPhoneNumber(""); setAttestationNumber(""); setDateOfBirth(""); setEnrollmentDate("");
     setHasSearched(false); setSelectedStudents(new Set());
-    setTimeout(() => refetch(), 0);
+    setAppliedParams("limit=10&offset=0");
   };
 
   const toggleStudentSelection = (id: number) => {
