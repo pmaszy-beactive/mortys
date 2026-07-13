@@ -1,6 +1,12 @@
 -- Seed the 23 vehicles from the demo fleet into production
 -- ON CONFLICT (license_plate) DO NOTHING makes this safe to re-run
 
+-- vehicle_number was added to shared/schema.ts via db:push in dev but never
+-- got its own migration, so production's vehicles table lacks it. Add it here
+-- (guarded) before the seed below references it.
+ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS vehicle_number integer;--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "vehicles_type_number_unique" ON vehicles (vehicle_type, vehicle_number);--> statement-breakpoint
+
 INSERT INTO vehicles (vehicle_number, license_plate, make, model, year, vehicle_type, color, vin, status, registration_expiry, insurance_expiry, last_maintenance_date, maintenance_notes, fuel_type, transmission, notes)
 VALUES
   (NULL, 'FSV9293',  'Toyota',    'Prius',           2019, 'auto', NULL, 'JTDKDTB39K1628397', 'active', '2026-06-30', NULL, NULL, NULL, 'hybrid',   'automatic', 'Assigned: Erik'),
