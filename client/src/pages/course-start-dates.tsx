@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -239,7 +240,13 @@ export default function CourseStartDates() {
                 <ul className="list-disc pl-5 space-y-0.5">
                   {backfillReport.enrolled.map((s) => (
                     <li key={s.studentId} data-testid={`text-backfill-enrolled-${s.studentId}`}>
-                      {s.studentName}
+                      <Link
+                        href={`/students/${s.studentId}`}
+                        className="text-[#111111] underline underline-offset-2 hover:text-[#d4b058]"
+                        data-testid={`link-backfill-enrolled-${s.studentId}`}
+                      >
+                        {s.studentName}
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -251,7 +258,14 @@ export default function CourseStartDates() {
                 <ul className="list-disc pl-5 space-y-0.5">
                   {backfillReport.failed.map((s) => (
                     <li key={s.studentId} data-testid={`text-backfill-failed-${s.studentId}`}>
-                      {s.studentName} — {s.reason}
+                      <Link
+                        href={`/students/${s.studentId}`}
+                        className="text-[#111111] underline underline-offset-2 hover:text-[#d4b058]"
+                        data-testid={`link-backfill-failed-${s.studentId}`}
+                      >
+                        {s.studentName}
+                      </Link>{" "}
+                      — {s.reason}
                     </li>
                   ))}
                 </ul>
@@ -484,7 +498,13 @@ export default function CourseStartDates() {
                   <ul className="list-disc pl-5 space-y-0.5">
                     {changeReport.moved.map((s) => (
                       <li key={s.studentId} data-testid={`text-report-moved-${s.studentId}`}>
-                        {s.studentName}
+                        <Link
+                          href={`/students/${s.studentId}`}
+                          className="text-[#111111] underline underline-offset-2 hover:text-[#d4b058]"
+                          data-testid={`link-report-moved-${s.studentId}`}
+                        >
+                          {s.studentName}
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -496,7 +516,13 @@ export default function CourseStartDates() {
                   <ul className="list-disc pl-5 space-y-0.5">
                     {changeReport.needsAttention.map((s) => (
                       <li key={s.studentId} data-testid={`text-report-attention-${s.studentId}`}>
-                        {s.studentName}
+                        <Link
+                          href={`/students/${s.studentId}`}
+                          className="text-[#111111] underline underline-offset-2 hover:text-[#d4b058]"
+                          data-testid={`link-report-attention-${s.studentId}`}
+                        >
+                          {s.studentName}
+                        </Link>
                         {s.note ? ` — ${s.note}` : ""}
                       </li>
                     ))}
