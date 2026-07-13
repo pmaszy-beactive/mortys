@@ -22,7 +22,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarPlus, Loader2, Pencil, Trash2, CalendarDays, UserPlus } from "lucide-react";
+import { CalendarPlus, Loader2, Pencil, Trash2, CalendarDays, UserPlus, X } from "lucide-react";
 
 type CourseStartDate = {
   id: number;
@@ -65,12 +65,50 @@ type EnrollmentReport = {
   officeNotified: boolean;
 };
 
+const BACKFILL_REPORT_KEY = "start-dates:backfill-report";
+const CHANGE_REPORT_KEY = "start-dates:change-report";
+
+function readStoredReport<T>(key: string): T | null {
+  try {
+    const raw = sessionStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredReport(key: string, value: unknown | null) {
+  try {
+    if (value == null) {
+      sessionStorage.removeItem(key);
+    } else {
+      sessionStorage.setItem(key, JSON.stringify(value));
+    }
+  } catch {
+    // sessionStorage unavailable — reports just won't survive navigation
+  }
+}
+
 export default function CourseStartDates() {
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<CourseStartDate | null>(null);
-  const [backfillReport, setBackfillReport] = useState<BackfillReport | null>(null);
-  const [changeReport, setChangeReport] = useState<EnrollmentReport | null>(null);
+  const [backfillReport, setBackfillReportState] = useState<BackfillReport | null>(() =>
+    readStoredReport<BackfillReport>(BACKFILL_REPORT_KEY),
+  );
+  const [changeReport, setChangeReportState] = useState<EnrollmentReport | null>(() =>
+    readStoredReport<EnrollmentReport>(CHANGE_REPORT_KEY),
+  );
+
+  const setBackfillReport = (report: BackfillReport | null) => {
+    setBackfillReportState(report);
+    writeStoredReport(BACKFILL_REPORT_KEY, report);
+  };
+
+  const setChangeReport = (report: EnrollmentReport | null) => {
+    setChangeReportState(report);
+    writeStoredReport(CHANGE_REPORT_KEY, report);
+  };
 
   const { data: dates = [], isLoading } = useQuery<CourseStartDate[]>({
     queryKey: ["/api/admin/course-start-dates"],
@@ -244,8 +282,17 @@ export default function CourseStartDates() {
 
       {backfillReport && (
         <Card data-testid="card-backfill-report">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">Backfill Results</CardTitle>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setBackfillReport(null)}
+              aria-label="Dismiss backfill results"
+              data-testid="button-dismiss-backfill-report"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <p className="text-gray-600" data-testid="text-backfill-summary">
