@@ -56,11 +56,20 @@ type BackfillReport = {
   skipped: { studentId: number; studentName: string; reason: string }[];
 };
 
+type EnrollmentReport = {
+  action: "none" | "rescheduled" | "cancelled";
+  affected: number;
+  moved: { studentId: number; studentName: string }[];
+  needsAttention: { studentId: number; studentName: string; note?: string }[];
+  officeNotified: boolean;
+};
+
 export default function CourseStartDates() {
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<CourseStartDate | null>(null);
   const [backfillReport, setBackfillReport] = useState<BackfillReport | null>(null);
+  const [changeReport, setChangeReport] = useState<EnrollmentReport | null>(null);
 
   const { data: dates = [], isLoading } = useQuery<CourseStartDate[]>({
     queryKey: ["/api/admin/course-start-dates"],
@@ -133,10 +142,16 @@ export default function CourseStartDates() {
       }
       return apiRequest("POST", "/api/admin/course-start-dates", payload);
     },
-    onSuccess: () => {
+    onSuccess: (result: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/course-start-dates"] });
       setDialogOpen(false);
-      toast({ title: editing ? "Start date updated" : "Start date added" });
+      const report: EnrollmentReport | null | undefined = result?.enrollmentReport;
+      if (report && report.action !== "none" && report.affected > 0) {
+        setChangeReport(report);
+        toast({ title: "Start date updated" });
+      } else {
+        toast({ title: editing ? "Start date updated" : "Start date added" });
+      }
     },
     onError: (e: any) => {
       if (e?.cancelled) return;
@@ -161,8 +176,12 @@ export default function CourseStartDates() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => apiRequest("DELETE", `/api/admin/course-start-dates/${id}`),
-    onSuccess: () => {
+    onSuccess: (result: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/course-start-dates"] });
+      const report: EnrollmentReport | null | undefined = result?.enrollmentReport;
+      if (report && report.action !== "none" && report.affected > 0) {
+        setChangeReport(report);
+      }
       toast({ title: "Start date deleted" });
     },
     onError: (e: any) => {
@@ -425,6 +444,79 @@ export default function CourseStartDates() {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!changeReport} onOpenChange={(open) => { if (!open) setChangeReport(null); }}>
+        <DialogContent data-testid="dialog-enrollment-report">
+          <DialogHeader>
+            <DialogTitle>
+              {changeReport?.action === "rescheduled" ? "Students Moved" : "Enrolled Students Affected"}
+            </DialogTitle>
+          </DialogHeader>
+          {changeReport && (
+            <div className="space-y-3 text-sm">
+              <p className="text-gray-600" data-testid="text-enrollment-report-summary">
+                {changeReport.action === "rescheduled" ? (
+                  <>
+                    This change affected {changeReport.affected} enrolled student(s):{" "}
+                    <span className="font-semibold text-green-700">{changeReport.moved.length} moved to the new class</span>
+                    {changeReport.needsAttention.length > 0 && (
+                      <>
+                        ,{" "}
+                        <span className="font-semibold text-red-600">
+                          {changeReport.needsAttention.length} need manual attention
+                        </span>
+                      </>
+                    )}
+                    .
+                  </>
+                ) : (
+                  <>
+                    This start date had {changeReport.affected} enrolled student(s). They have been notified of the
+                    cancellation{changeReport.officeNotified ? " and the office has been alerted to follow up with them" : ""}.
+                  </>
+                )}
+              </p>
+              {changeReport.moved.length > 0 && (
+                <div>
+                  <p className="font-medium text-green-700 mb-1">Moved to the new class</p>
+                  <ul className="list-disc pl-5 space-y-0.5">
+                    {changeReport.moved.map((s) => (
+                      <li key={s.studentId} data-testid={`text-report-moved-${s.studentId}`}>
+                        {s.studentName}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {changeReport.needsAttention.length > 0 && (
+                <div>
+                  <p className="font-medium text-red-600 mb-1">Needs manual attention</p>
+                  <ul className="list-disc pl-5 space-y-0.5">
+                    {changeReport.needsAttention.map((s) => (
+                      <li key={s.studentId} data-testid={`text-report-attention-${s.studentId}`}>
+                        {s.studentName}
+                        {s.note ? ` — ${s.note}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {changeReport.action === "rescheduled" && changeReport.needsAttention.length > 0 && changeReport.officeNotified && (
+                <p className="text-gray-500">The office has been notified about the students needing attention.</p>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              onClick={() => setChangeReport(null)}
+              className="bg-[#ECC462] hover:bg-[#d4b058] text-[#111111]"
+              data-testid="button-close-enrollment-report"
+            >
+              Got it
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
