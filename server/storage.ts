@@ -2602,6 +2602,7 @@ export class DatabaseStorage implements IStorage {
       .select({
         id: classes.id,
         courseType: classes.courseType,
+        classType: classes.classType,
         classNumber: classes.classNumber,
         date: classes.date,
         time: classes.time,
@@ -2644,6 +2645,7 @@ export class DatabaseStorage implements IStorage {
       .groupBy(
         classes.id,
         classes.courseType,
+        classes.classType,
         classes.classNumber,
         classes.date,
         classes.time,
