@@ -109,7 +109,27 @@ export default function CourseStartDates() {
         notes: values.notes || null,
       };
       if (editing) {
-        return apiRequest("PATCH", `/api/admin/course-start-dates/${editing.id}`, payload);
+        try {
+          return await apiRequest("PATCH", `/api/admin/course-start-dates/${editing.id}`, payload);
+        } catch (e: any) {
+          if (e?.status === 409 && e?.data?.conflict === "start_date_merge") {
+            const proceed = confirm(
+              "Heads up: another active start date for this course type already exists on that day.\n\n" +
+                "Saving will merge the two groups into the same Theory 1 class, which may fill up its capacity.\n\n" +
+                "Do you want to continue?",
+            );
+            if (!proceed) {
+              const cancelled = new Error("cancelled");
+              (cancelled as any).cancelled = true;
+              throw cancelled;
+            }
+            return await apiRequest("PATCH", `/api/admin/course-start-dates/${editing.id}`, {
+              ...payload,
+              confirmMerge: true,
+            });
+          }
+          throw e;
+        }
       }
       return apiRequest("POST", "/api/admin/course-start-dates", payload);
     },
@@ -119,6 +139,7 @@ export default function CourseStartDates() {
       toast({ title: editing ? "Start date updated" : "Start date added" });
     },
     onError: (e: any) => {
+      if (e?.cancelled) return;
       toast({ title: "Something went wrong", description: e.message, variant: "destructive" });
     },
   });

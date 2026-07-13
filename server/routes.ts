@@ -5495,6 +5495,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const before = await storage.getCourseStartDate(id);
       if (!before) return res.status(404).json({ message: "Start date not found" });
+
+      // Guard: warn before merging two cohorts. If the edit moves this start
+      // date onto a date that already has another ACTIVE start date for the
+      // same course type, enrolled students would be moved into that other
+      // cohort's class. Require explicit confirmation (confirmMerge: true).
+      const targetDate = parsed.data.startDate ?? before.startDate;
+      const targetCourseType = parsed.data.courseType ?? before.courseType;
+      const targetStatus = parsed.data.status ?? before.status;
+      const dateOrCourseChanged =
+        targetDate !== before.startDate || targetCourseType !== before.courseType;
+      if (dateOrCourseChanged && targetStatus === "active" && req.body?.confirmMerge !== true) {
+        const sameDay = (await storage.getCourseStartDates({
+          courseType: targetCourseType,
+          status: "active",
+        })).filter((d) => d.id !== id && d.startDate === targetDate);
+        if (sameDay.length > 0) {
+          return res.status(409).json({
+            conflict: "start_date_merge",
+            message:
+              "Another active start date already exists for this course type on the selected date. " +
+              "Saving will merge the two cohorts into the same Theory 1 class and may fill its capacity.",
+            conflictingStartDates: sameDay,
+          });
+        }
+      }
+
       const updated = await storage.updateCourseStartDate(id, parsed.data);
       if (!updated) return res.status(404).json({ message: "Start date not found" });
 
