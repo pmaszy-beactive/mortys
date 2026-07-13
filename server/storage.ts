@@ -411,6 +411,7 @@ export interface IStorage {
 
   // Module 1 start dates (admin-managed)
   getCourseStartDates(filters?: { courseType?: string; module?: number; status?: string; upcomingOnly?: boolean }): Promise<CourseStartDate[]>;
+  syncCourseStartDatesFromClasses(courseType?: string): Promise<void>;
   getCourseStartDate(id: number): Promise<CourseStartDate | undefined>;
   createCourseStartDate(data: InsertCourseStartDate): Promise<CourseStartDate>;
   updateCourseStartDate(id: number, data: Partial<InsertCourseStartDate>): Promise<CourseStartDate | undefined>;
@@ -1538,6 +1539,7 @@ export class MemStorage implements IStorage {
 
   // Module 1 start dates (in-memory stubs)
   async getCourseStartDates(): Promise<CourseStartDate[]> { return []; }
+  async syncCourseStartDatesFromClasses(): Promise<void> {}
   async getCourseStartDate(): Promise<CourseStartDate | undefined> { return undefined; }
   async createCourseStartDate(data: InsertCourseStartDate): Promise<CourseStartDate> { return { id: 1, ...data } as CourseStartDate; }
   async updateCourseStartDate(): Promise<CourseStartDate | undefined> { return undefined; }
@@ -3967,6 +3969,51 @@ export class DatabaseStorage implements IStorage {
   async getCourseStartDate(id: number): Promise<CourseStartDate | undefined> {
     const [row] = await db.select().from(courseStartDates).where(eq(courseStartDates.id, id)).limit(1);
     return row;
+  }
+
+  // Auto-create start-date entries from scheduled Theory Class 1 sessions so
+  // admins only need to schedule classes once. A class marks the start of a
+  // course when it is theory, class number 1, not an extra lesson, and in the
+  // future. Existing rows (any status, incl. cancelled) are never re-created.
+  async syncCourseStartDatesFromClasses(courseType?: string): Promise<void> {
+    const today = new Date().toISOString().split("T")[0];
+
+    const classConditions = [
+      eq(classes.classType, "theory"),
+      eq(classes.classNumber, 1),
+      eq(classes.status, "scheduled"),
+      sql`COALESCE(${classes.isExtra}, false) = false`,
+      gte(classes.date, today),
+    ] as any[];
+    if (courseType) classConditions.push(eq(classes.courseType, courseType));
+
+    const t1Classes = await db.select().from(classes).where(and(...classConditions));
+    if (t1Classes.length === 0) return;
+
+    const existingConditions = [gte(courseStartDates.startDate, today)] as any[];
+    if (courseType) existingConditions.push(eq(courseStartDates.courseType, courseType));
+    const existing = await db.select().from(courseStartDates).where(and(...existingConditions));
+    const existingKeys = new Set(existing.map(r => `${r.courseType}|${r.startDate}`));
+
+    const seen = new Set<string>();
+    const toInsert = [] as InsertCourseStartDate[];
+    for (const cls of t1Classes) {
+      const key = `${cls.courseType}|${cls.date}`;
+      if (existingKeys.has(key) || seen.has(key)) continue;
+      seen.add(key);
+      toInsert.push({
+        courseType: cls.courseType,
+        module: 1,
+        startDate: cls.date,
+        startTime: cls.time,
+        capacity: cls.maxStudents,
+        status: "active",
+        notes: "Auto-created from scheduled Theory Class 1",
+      });
+    }
+    if (toInsert.length > 0) {
+      await db.insert(courseStartDates).values(toInsert);
+    }
   }
 
   async createCourseStartDate(data: InsertCourseStartDate): Promise<CourseStartDate> {

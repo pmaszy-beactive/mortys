@@ -5440,6 +5440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/course-start-dates", async (req, res) => {
     try {
       const courseType = req.query.courseType as string | undefined;
+      await storage.syncCourseStartDatesFromClasses(courseType);
       const dates = await storage.getCourseStartDates({
         courseType,
         status: "active",
@@ -5457,6 +5458,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const courseType = req.query.courseType as string | undefined;
       const status = req.query.status as string | undefined;
+      await storage.syncCourseStartDatesFromClasses(courseType);
       const dates = await storage.getCourseStartDates({ courseType, status });
       res.json(dates);
     } catch (error) {
