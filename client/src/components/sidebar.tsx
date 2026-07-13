@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Car, Users, Presentation, Calendar, ClipboardCheck, Mail, BarChart3, Menu, X, Video, FileText, CreditCard, MapPin, TrendingUp, Settings, LogOut, Shield, Receipt, DollarSign, ChevronDown, ChevronRight, Wallet, RotateCcw, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { NotificationCenter } from "@/components/notification-center";
 import { GlobalSearchBar } from "@/components/global-search-bar";
 import versionData from "../../../version.json";
@@ -57,6 +58,16 @@ export default function Sidebar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const { toast } = useToast();
+  const { user } = useAuth() as { user?: { firstName?: string | null; lastName?: string | null; email?: string | null; role?: string | null } };
+
+  const displayName = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.email || "Admin User";
+  const roleLabels: Record<string, string> = {
+    owner: "Owner",
+    admin: "Administrator",
+    manager: "Office Manager",
+    staff: "Staff",
+  };
+  const displayRole = (user?.role && roleLabels[user.role]) || user?.role || "";
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
@@ -226,8 +237,8 @@ export default function Sidebar() {
                   <Users className="text-gray-600 h-4 w-4" />
                 </div>
                 <div className="ml-3 min-w-0">
-                  <p className="text-sm font-medium text-gray-700 truncate">Admin User</p>
-                  <p className="text-xs text-gray-500 truncate">Office Manager</p>
+                  <p className="text-sm font-medium text-gray-700 truncate" data-testid="text-sidebar-user-name">{displayName}</p>
+                  <p className="text-xs text-gray-500 truncate" data-testid="text-sidebar-user-role">{displayRole}</p>
                 </div>
               </div>
               <Button
