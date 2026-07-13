@@ -1,8 +1,13 @@
 import { db } from "../db";
-import { classes, students, classEnrollments } from "@shared/schema";
+import { classes, students, classEnrollments, type CourseStartDate } from "@shared/schema";
 import { and, eq, gte, isNull, sql, isNotNull, inArray } from "drizzle-orm";
 import { storage } from "../storage";
-import { notifyAutoEnrollFailure } from "./notifications";
+import {
+  notifyAutoEnrollFailure,
+  notifyStartDateReschedule,
+  notifyStartDateCancelled,
+  notifyStartDateActionNeeded,
+} from "./notifications";
 
 export interface AutoEnrollResult {
   enrolled: boolean;
@@ -124,6 +129,219 @@ export async function autoEnrollStudentFromStartDate(
     return { enrolled: true, classId: matchingClass.id };
   } catch (err: any) {
     return await fail(`Unexpected error during auto-enrollment: ${err?.message || err}`);
+  }
+}
+
+export interface StartDateChangeReport {
+  action: "none" | "rescheduled" | "cancelled";
+  affected: number;
+  moved: { studentId: number; studentName: string }[];
+  needsAttention: { studentId: number; studentName: string; note?: string }[];
+  officeNotified: boolean;
+}
+
+// Fetch the active (non-cancelled) enrollments of a class along with the
+// students' names so we can move/notify/report them.
+async function getActiveEnrollmentsWithNames(classId: number) {
+  return db
+    .select({
+      enrollmentId: classEnrollments.id,
+      studentId: classEnrollments.studentId,
+      firstName: students.firstName,
+      lastName: students.lastName,
+    })
+    .from(classEnrollments)
+    .innerJoin(students, eq(classEnrollments.studentId, students.id))
+    .where(and(eq(classEnrollments.classId, classId), isNull(classEnrollments.cancelledAt)));
+}
+
+function classTitle(cls: { courseType: string; classNumber: number | null }): string {
+  return `${cls.courseType} — Theory ${cls.classNumber ?? 1}`;
+}
+
+/**
+ * Keep students' calendars correct when the office edits or cancels a course
+ * start date (Admin → Module 1 Start Dates).
+ *
+ * - Rescheduled (date/time changed, still active): enrolled students in the
+ *   old Theory 1 class are moved to the Theory 1 class matching the new
+ *   date/time (using storage.bookClass so capacity/duplicate/conflict checks
+ *   apply) and receive a schedule-change notification. Students who cannot be
+ *   moved (class full, conflict, no matching class) are reported to the office.
+ * - Cancelled or deleted: enrollments are left untouched (the class itself may
+ *   still run), but enrolled students are told the start date was cancelled and
+ *   the office is prompted to handle them.
+ *
+ * Never throws — failures are logged and, where possible, escalated to the
+ * office via notifications instead of blocking the admin's edit.
+ */
+export async function handleStartDateChange(
+  before: CourseStartDate,
+  after: CourseStartDate | null,
+  triggeredBy?: string,
+): Promise<StartDateChangeReport> {
+  const report: StartDateChangeReport = {
+    action: "none",
+    affected: 0,
+    moved: [],
+    needsAttention: [],
+    officeNotified: false,
+  };
+
+  try {
+    const wasActive = before.status === "active";
+    const isCancelledOrDeleted = !after || after.status !== "active";
+    // Normalize "HH:MM" vs "HH:MM:SS" but keep null distinct so null↔value
+    // transitions count as a time change.
+    const normTime = (t: string | null | undefined) => (t ? t.slice(0, 5) : null);
+    const isRescheduled =
+      !!after &&
+      after.status === "active" &&
+      wasActive &&
+      (before.startDate !== after.startDate || normTime(before.startTime) !== normTime(after.startTime));
+
+    // Only act when an active start date is cancelled/deleted or its date/time
+    // actually changes. Capacity/notes edits and already-cancelled rows are no-ops.
+    if (!wasActive || (!isCancelledOrDeleted && !isRescheduled)) {
+      return report;
+    }
+
+    const oldClass = await findMatchingTheory1Class(before);
+    if (!oldClass) return report;
+
+    const enrollments = await getActiveEnrollmentsWithNames(oldClass.id);
+    if (enrollments.length === 0) return report;
+    report.affected = enrollments.length;
+
+    if (isCancelledOrDeleted) {
+      report.action = "cancelled";
+      report.needsAttention = enrollments.map((e) => ({
+        studentId: e.studentId!,
+        studentName: `${e.firstName} ${e.lastName}`,
+        note: "Enrolled in the Theory 1 class for the cancelled start date",
+      }));
+
+      await notifyStartDateCancelled(
+        {
+          studentIds: enrollments.map((e) => e.studentId!),
+          classTitle: classTitle(oldClass),
+          date: before.startDate,
+          time: before.startTime,
+          classId: oldClass.id,
+        },
+        triggeredBy,
+      );
+
+      const notifId = await notifyStartDateActionNeeded({
+        courseType: before.courseType,
+        oldDate: before.startDate,
+        newDate: null,
+        reason: "The course start date was cancelled/removed while students were still enrolled in its Theory 1 class.",
+        students: report.needsAttention,
+      });
+      report.officeNotified = notifId !== null;
+
+      console.log(
+        `[start-dates] Start date #${before.id} (${before.courseType} ${before.startDate}) cancelled with ${enrollments.length} enrolled student(s) — students + office notified`,
+      );
+      return report;
+    }
+
+    // Rescheduled: try to move everyone to the class matching the new date/time.
+    report.action = "rescheduled";
+    let newClass = await findMatchingTheory1Class(after!);
+
+    // Hard guard: never "move" students into the class they are already in.
+    // This happens when only the start time changed and the single-class
+    // fallback in findMatchingTheory1Class resolves back to the old class —
+    // cancelling + rebooking there would silently drop their enrollment.
+    // Treat it as "no matching class" so the office handles it manually.
+    if (newClass && newClass.id === oldClass.id) {
+      newClass = undefined;
+    }
+
+    if (!newClass) {
+      report.needsAttention = enrollments.map((e) => ({
+        studentId: e.studentId!,
+        studentName: `${e.firstName} ${e.lastName}`,
+        note: "Still enrolled in the old Theory 1 class — no matching class on the new date",
+      }));
+      const notifId = await notifyStartDateActionNeeded({
+        courseType: before.courseType,
+        oldDate: before.startDate,
+        newDate: after!.startDate,
+        reason: `No scheduled Theory 1 class was found for ${after!.courseType} on ${after!.startDate}${after!.startTime ? ` at ${after!.startTime}` : ""}, so students could not be moved automatically.`,
+        students: report.needsAttention,
+      });
+      report.officeNotified = notifId !== null;
+      console.log(
+        `[start-dates] Start date #${before.id} moved to ${after!.startDate} but no matching Theory 1 class exists — office notified about ${enrollments.length} student(s)`,
+      );
+      return report;
+    }
+
+    for (const e of enrollments) {
+      const name = `${e.firstName} ${e.lastName}`;
+      try {
+        const result = await storage.bookClass(e.studentId!, newClass.id);
+        const alreadyEnrolled = !result.success && result.message?.includes("already enrolled");
+        if (result.success || alreadyEnrolled) {
+          await db
+            .update(classEnrollments)
+            .set({ cancelledAt: new Date() })
+            .where(eq(classEnrollments.id, e.enrollmentId));
+          report.moved.push({ studentId: e.studentId!, studentName: name });
+        } else {
+          report.needsAttention.push({
+            studentId: e.studentId!,
+            studentName: name,
+            note: `Could not be moved to the new class: ${result.message || "unknown error"}`,
+          });
+        }
+      } catch (err: any) {
+        report.needsAttention.push({
+          studentId: e.studentId!,
+          studentName: name,
+          note: `Could not be moved to the new class: ${err?.message || err}`,
+        });
+      }
+    }
+
+    if (report.moved.length > 0) {
+      await notifyStartDateReschedule(
+        {
+          studentIds: report.moved.map((m) => m.studentId),
+          classTitle: classTitle(newClass),
+          oldDate: oldClass.date,
+          newDate: newClass.date,
+          oldTime: oldClass.time,
+          newTime: newClass.time,
+          newClassId: newClass.id,
+        },
+        triggeredBy,
+      );
+    }
+
+    if (report.needsAttention.length > 0) {
+      const notifId = await notifyStartDateActionNeeded({
+        courseType: before.courseType,
+        oldDate: before.startDate,
+        newDate: after!.startDate,
+        reason: "Some students could not be moved automatically to the Theory 1 class on the new start date.",
+        students: report.needsAttention,
+      });
+      report.officeNotified = notifId !== null;
+    }
+
+    console.log(
+      `[start-dates] Start date #${before.id} rescheduled ${before.startDate} → ${after!.startDate}: ${report.moved.length} student(s) moved, ${report.needsAttention.length} need attention`,
+    );
+    return report;
+  } catch (err: any) {
+    console.error(
+      `[start-dates] Failed to reconcile enrollments after start date #${before.id} change: ${err?.message || err}`,
+    );
+    return report;
   }
 }
 

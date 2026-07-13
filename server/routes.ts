@@ -5493,9 +5493,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid start date data", errors: parsed.error.flatten() });
       }
+      const before = await storage.getCourseStartDate(id);
+      if (!before) return res.status(404).json({ message: "Start date not found" });
       const updated = await storage.updateCourseStartDate(id, parsed.data);
       if (!updated) return res.status(404).json({ message: "Start date not found" });
-      res.json(updated);
+
+      // Reconcile enrolled students' calendars (move to the new class or alert
+      // the office). Never blocks or fails the admin's edit.
+      const { handleStartDateChange } = await import("./services/auto-enroll");
+      const enrollmentReport = await handleStartDateChange(
+        before,
+        updated,
+        (req.session as any)?.username || String((req.session as any)?.userId || "admin"),
+      );
+
+      res.json({ ...updated, enrollmentReport });
     } catch (error) {
       console.error("[START-DATES] Error updating start date:", error);
       res.status(500).json({ message: "Failed to update start date" });
@@ -5506,8 +5518,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/course-start-dates/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      const before = await storage.getCourseStartDate(id);
       await storage.deleteCourseStartDate(id);
-      res.json({ message: "Start date deleted" });
+
+      // Alert enrolled students + office that the start date is gone. Never
+      // blocks or fails the delete.
+      let enrollmentReport = null;
+      if (before) {
+        const { handleStartDateChange } = await import("./services/auto-enroll");
+        enrollmentReport = await handleStartDateChange(
+          before,
+          null,
+          (req.session as any)?.username || String((req.session as any)?.userId || "admin"),
+        );
+      }
+
+      res.json({ message: "Start date deleted", enrollmentReport });
     } catch (error) {
       console.error("[START-DATES] Error deleting start date:", error);
       res.status(500).json({ message: "Failed to delete start date" });

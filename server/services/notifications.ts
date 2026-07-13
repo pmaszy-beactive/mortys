@@ -26,11 +26,12 @@ export type NotificationType =
   | 'availability_reminder'
   | 'scrape_failure'
   | 'scrape_recovered'
-  | 'auto_enroll_failed';
+  | 'auto_enroll_failed'
+  | 'start_date_change';
 
 export type RecipientType = 'student' | 'parent' | 'staff';
 
-interface NotificationRecipient {
+export interface NotificationRecipient {
   type: RecipientType;
   id: string;
   email: string;
@@ -555,6 +556,133 @@ export async function notifyScheduleChange(classData: {
     payload: { classId: classData.id, ...changes },
     recipients,
     triggeredBy,
+  });
+}
+
+// Notify a specific set of students (and their linked parents) that their
+// Theory 1 class was moved because the office rescheduled the course start
+// date. Uses the same schedule_change flow as notifyScheduleChange, but scoped
+// to the moved students only (other students already in the destination class
+// were not affected and should not be emailed).
+export async function notifyStartDateReschedule(details: {
+  studentIds: number[];
+  classTitle: string;
+  oldDate: string;
+  newDate: string;
+  oldTime?: string | null;
+  newTime?: string | null;
+  newClassId: number;
+}, triggeredBy?: string): Promise<void> {
+  const recipients: NotificationRecipient[] = [];
+  for (const studentId of details.studentIds) {
+    recipients.push(...(await getStudentRecipients(studentId)));
+  }
+  if (recipients.length === 0) return;
+
+  let changeDetails = `Date: ${details.oldDate} → ${details.newDate}\n`;
+  if (details.oldTime && details.newTime && details.oldTime !== details.newTime) {
+    changeDetails += `Time: ${details.oldTime} → ${details.newTime}\n`;
+  }
+
+  const message =
+    `The start date for your course has been changed, and your class "${details.classTitle}" has been moved:\n\n` +
+    changeDetails +
+    `\nYour calendar has been updated automatically — no action is needed.`;
+
+  await enqueueNotification({
+    type: 'schedule_change',
+    title: `Schedule Change: ${details.classTitle}`,
+    message,
+    payload: {
+      classId: details.newClassId,
+      oldDate: details.oldDate,
+      newDate: details.newDate,
+      oldTime: details.oldTime ?? undefined,
+      newTime: details.newTime ?? undefined,
+    },
+    recipients,
+    triggeredBy,
+  });
+}
+
+// Notify a specific set of students (and their linked parents) that the course
+// start date behind their Theory 1 class was cancelled and the office will
+// follow up with them.
+export async function notifyStartDateCancelled(details: {
+  studentIds: number[];
+  classTitle: string;
+  date: string;
+  time?: string | null;
+  classId: number;
+}, triggeredBy?: string): Promise<void> {
+  const recipients: NotificationRecipient[] = [];
+  for (const studentId of details.studentIds) {
+    recipients.push(...(await getStudentRecipients(studentId)));
+  }
+  if (recipients.length === 0) return;
+
+  const message =
+    `The course start date for your class "${details.classTitle}" on ${details.date}${details.time ? ` at ${details.time}` : ''} has been cancelled.\n\n` +
+    `Our office will contact you shortly to reschedule you onto a new start date. ` +
+    `If you have any questions in the meantime, please reach out to the office.`;
+
+  await enqueueNotification({
+    type: 'schedule_change',
+    title: `Course Start Date Cancelled: ${details.classTitle}`,
+    message,
+    payload: {
+      classId: details.classId,
+      oldDate: details.date,
+      oldTime: details.time ?? undefined,
+    },
+    recipients,
+    triggeredBy,
+  });
+}
+
+// Alert the office when a start-date change/cancellation leaves enrolled
+// students needing manual attention (start date cancelled/deleted, no matching
+// class on the new date, or individual moves failed).
+export async function notifyStartDateActionNeeded(details: {
+  courseType: string;
+  oldDate: string;
+  newDate?: string | null;
+  reason: string;
+  students: { studentId: number; studentName: string; note?: string }[];
+}): Promise<number | null> {
+  const recipients = await getOfficeRecipients();
+
+  if (recipients.length === 0) {
+    console.error(
+      `[start-dates] Start date change for ${details.courseType} on ${details.oldDate} needs manual handling but there are no office recipients to notify. Reason: ${details.reason}`,
+    );
+    return null;
+  }
+
+  const studentLines = details.students
+    .map((s) => `- ${s.studentName} (#${s.studentId})${s.note ? ` — ${s.note}` : ''}`)
+    .join('\n');
+
+  const message =
+    `A course start date was ${details.newDate ? `changed (${details.oldDate} → ${details.newDate})` : `cancelled/removed (${details.oldDate})`} ` +
+    `for the ${details.courseType} course, and the following enrolled student${details.students.length === 1 ? '' : 's'} need${details.students.length === 1 ? 's' : ''} manual attention:\n\n` +
+    `${studentLines}\n\n` +
+    `Reason: ${details.reason}\n\n` +
+    `Please review these students' enrollments and move or contact them as needed.`;
+
+  return enqueueNotification({
+    type: 'start_date_change',
+    title: `Start Date Change — ${details.students.length} student${details.students.length === 1 ? '' : 's'} need attention`,
+    message,
+    payload: {
+      courseType: details.courseType,
+      oldDate: details.oldDate,
+      newDate: details.newDate ?? undefined,
+      reason: details.reason,
+      studentIds: details.students.map((s) => s.studentId),
+    },
+    recipients,
+    channels: ['email', 'in_app'],
   });
 }
 
