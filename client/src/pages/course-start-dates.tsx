@@ -21,7 +21,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarPlus, Loader2, Pencil, Trash2, CalendarDays } from "lucide-react";
+import { CalendarPlus, Loader2, Pencil, Trash2, CalendarDays, UserPlus } from "lucide-react";
 
 type CourseStartDate = {
   id: number;
@@ -49,10 +49,18 @@ const COURSE_LABELS: Record<string, string> = {
   scooter: "Scooter (Class 6D)",
 };
 
+type BackfillReport = {
+  scanned: number;
+  enrolled: { studentId: number; studentName: string; classId: number }[];
+  failed: { studentId: number; studentName: string; reason: string }[];
+  skipped: { studentId: number; studentName: string; reason: string }[];
+};
+
 export default function CourseStartDates() {
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<CourseStartDate | null>(null);
+  const [backfillReport, setBackfillReport] = useState<BackfillReport | null>(null);
 
   const { data: dates = [], isLoading } = useQuery<CourseStartDate[]>({
     queryKey: ["/api/admin/course-start-dates"],
@@ -115,6 +123,21 @@ export default function CourseStartDates() {
     },
   });
 
+  const backfillMutation = useMutation({
+    mutationFn: async (): Promise<BackfillReport> =>
+      apiRequest("POST", "/api/admin/backfill-start-date-enrollments"),
+    onSuccess: (report) => {
+      setBackfillReport(report);
+      toast({
+        title: "Backfill finished",
+        description: `${report.enrolled.length} student(s) enrolled, ${report.failed.length} could not be matched, ${report.skipped.length} skipped.`,
+      });
+    },
+    onError: (e: any) => {
+      toast({ title: "Backfill failed", description: e.message, variant: "destructive" });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => apiRequest("DELETE", `/api/admin/course-start-dates/${id}`),
     onSuccess: () => {
@@ -138,10 +161,65 @@ export default function CourseStartDates() {
             These are the course start dates students can choose from when they register.
           </p>
         </div>
-        <Button onClick={openCreate} className="bg-[#ECC462] hover:bg-[#d4b058] text-[#111111]" data-testid="button-add-start-date">
-          <CalendarPlus className="mr-2 h-4 w-4" /> Add Start Date
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => backfillMutation.mutate()}
+            disabled={backfillMutation.isPending}
+            data-testid="button-backfill-enrollments"
+          >
+            {backfillMutation.isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <UserPlus className="mr-2 h-4 w-4" />
+            )}
+            Backfill Enrollments
+          </Button>
+          <Button onClick={openCreate} className="bg-[#ECC462] hover:bg-[#d4b058] text-[#111111]" data-testid="button-add-start-date">
+            <CalendarPlus className="mr-2 h-4 w-4" /> Add Start Date
+          </Button>
+        </div>
       </div>
+
+      {backfillReport && (
+        <Card data-testid="card-backfill-report">
+          <CardHeader>
+            <CardTitle className="text-base">Backfill Results</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <p className="text-gray-600" data-testid="text-backfill-summary">
+              Checked {backfillReport.scanned} student(s) with a selected start date:{" "}
+              <span className="font-semibold text-green-700">{backfillReport.enrolled.length} enrolled</span>,{" "}
+              <span className="font-semibold text-red-600">{backfillReport.failed.length} could not be matched</span>,{" "}
+              <span className="font-semibold text-gray-500">{backfillReport.skipped.length} already had bookings</span>.
+            </p>
+            {backfillReport.enrolled.length > 0 && (
+              <div>
+                <p className="font-medium text-green-700 mb-1">Enrolled</p>
+                <ul className="list-disc pl-5 space-y-0.5">
+                  {backfillReport.enrolled.map((s) => (
+                    <li key={s.studentId} data-testid={`text-backfill-enrolled-${s.studentId}`}>
+                      {s.studentName}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {backfillReport.failed.length > 0 && (
+              <div>
+                <p className="font-medium text-red-600 mb-1">Needs manual enrollment</p>
+                <ul className="list-disc pl-5 space-y-0.5">
+                  {backfillReport.failed.map((s) => (
+                    <li key={s.studentId} data-testid={`text-backfill-failed-${s.studentId}`}>
+                      {s.studentName} — {s.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

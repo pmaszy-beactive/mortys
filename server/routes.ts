@@ -5366,6 +5366,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .set({ studentId: newStudent.id })
         .where(eq(studentDocuments.registrationId, registrationId));
 
+      // Enroll the student in the Theory 1 class matching the start date they
+      // picked during registration so it shows on their calendar right away.
+      // Never blocks registration — failures notify the office instead.
+      if (newStudent.selectedStartDateId) {
+        const { autoEnrollStudentFromStartDate } = await import("./services/auto-enroll");
+        await autoEnrollStudentFromStartDate(newStudent.id, newStudent.selectedStartDateId);
+      }
+
       // Account starts as pending_invite — the student sets their password
       // via the activation email before they can log in.
       res.json({
@@ -5503,6 +5511,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("[START-DATES] Error deleting start date:", error);
       res.status(500).json({ message: "Failed to delete start date" });
+    }
+  });
+
+  // Admin: one-time backfill — enroll active students who picked a start date
+  // during registration but have no class enrollments into their matching
+  // Theory 1 class. Returns a report of who was enrolled/failed/skipped.
+  app.post("/api/admin/backfill-start-date-enrollments", requireAdmin, async (req, res) => {
+    try {
+      const { backfillStartDateEnrollments } = await import("./services/auto-enroll");
+      const report = await backfillStartDateEnrollments();
+      res.json(report);
+    } catch (error) {
+      console.error("[START-DATES] Error running enrollment backfill:", error);
+      res.status(500).json({ message: "Failed to run enrollment backfill" });
     }
   });
 

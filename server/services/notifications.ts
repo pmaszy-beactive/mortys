@@ -25,7 +25,8 @@ export type NotificationType =
   | 'class_reminder'
   | 'availability_reminder'
   | 'scrape_failure'
-  | 'scrape_recovered';
+  | 'scrape_recovered'
+  | 'auto_enroll_failed';
 
 export type RecipientType = 'student' | 'parent' | 'staff';
 
@@ -423,6 +424,52 @@ export async function getLatestScrapeFailure(): Promise<{
     reason: payload.reason ?? null,
     createdAt: latest.createdAt ?? null,
   };
+}
+
+// Alert the office when a student finished registration with a selected course
+// start date but could not be automatically enrolled in the matching Theory 1
+// class (no matching class scheduled, class full, etc.). Registration still
+// completes — this makes sure staff know to enroll the student manually.
+export async function notifyAutoEnrollFailure(details: {
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  courseType: string;
+  startDate: string;
+  startTime?: string | null;
+  reason: string;
+}): Promise<number | null> {
+  const recipients = await getOfficeRecipients();
+
+  if (recipients.length === 0) {
+    console.error(
+      `[auto-enroll] Could not auto-enroll student #${details.studentId} (${details.studentName}) and there are no office recipients to notify. Reason: ${details.reason}`,
+    );
+    return null;
+  }
+
+  const message =
+    `A new student completed registration but could not be automatically enrolled in their first Theory 1 class.\n\n` +
+    `Student: ${details.studentName} (${details.studentEmail})\n` +
+    `Course: ${details.courseType}\n` +
+    `Selected start date: ${details.startDate}${details.startTime ? ` at ${details.startTime}` : ''}\n` +
+    `Reason: ${details.reason}\n\n` +
+    `Please enroll this student in the correct class manually so their calendar shows their first class.`;
+
+  return enqueueNotification({
+    type: 'auto_enroll_failed',
+    title: `Manual Enrollment Needed — ${details.studentName}`,
+    message,
+    payload: {
+      studentId: details.studentId,
+      courseType: details.courseType,
+      startDate: details.startDate,
+      startTime: details.startTime ?? null,
+      reason: details.reason,
+    },
+    recipients,
+    channels: ['email', 'in_app'],
+  });
 }
 
 export async function notifyUpcomingClass(classData: {
