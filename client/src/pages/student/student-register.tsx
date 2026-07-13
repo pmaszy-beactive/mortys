@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  Loader2, GraduationCap, AlertCircle, Eye, EyeOff,
+  Loader2, GraduationCap, AlertCircle,
   CheckCircle, Clock, RefreshCw, ChevronRight, ChevronLeft, Calendar, Mail,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -44,16 +44,9 @@ const COURSE_TYPES = [
   },
 ];
 
-const accountSchema = z
-  .object({
-    email: z.string().email("Please enter a valid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-  })
-  .refine((d) => d.password === d.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
+const accountSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
 
 type AccountFormData = z.infer<typeof accountSchema>;
 
@@ -64,8 +57,6 @@ export default function StudentRegister() {
   const [registrationId, setRegistrationId] = useState<number | null>(null);
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [expiresAt, setExpiresAt] = useState<Date | null>(null);
   const [secondsRemaining, setSecondsRemaining] = useState(0);
   const { toast } = useToast();
@@ -108,11 +99,11 @@ export default function StudentRegister() {
 
   const form = useForm<AccountFormData>({
     resolver: zodResolver(accountSchema),
-    defaultValues: { email: "", password: "", confirmPassword: "" },
+    defaultValues: { email: "" },
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (data: { email: string; password: string }) => {
+    mutationFn: async (data: { email: string }) => {
       return await apiRequest("POST", "/api/student/register", {
         ...data,
         courseType: selectedCourseType,
@@ -179,7 +170,7 @@ export default function StudentRegister() {
   });
 
   const onSubmitAccount = (data: AccountFormData) => {
-    registerMutation.mutate({ email: data.email, password: data.password });
+    registerMutation.mutate({ email: data.email });
   };
 
   const handleVerify = () => {
@@ -463,60 +454,9 @@ export default function StudentRegister() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                {...field}
-                                type={showPassword ? "text" : "password"}
-                                placeholder="At least 8 characters"
-                                data-testid="input-password"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword((v) => !v)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                              >
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                              </button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="confirmPassword"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Confirm Password</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                {...field}
-                                type={showConfirmPassword ? "text" : "password"}
-                                placeholder="Repeat your password"
-                                data-testid="input-confirm-password"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowConfirmPassword((v) => !v)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                              >
-                                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                              </button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <p className="text-xs text-gray-500">
+                      You'll create your password from the activation email we send after you finish signing up.
+                    </p>
 
                     {registerMutation.isError && (
                       <Alert variant="destructive">

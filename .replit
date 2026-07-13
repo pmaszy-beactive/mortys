@@ -49,4 +49,6 @@ timeoutMs = 20000
 
 [userenv.shared]
 SENDGRID_FROM_EMAIL = "info@mortysdrivingschool.com"
+
+[userenv.production]
 APP_URL = "https://mortys.activeaidemo.com"

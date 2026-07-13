@@ -4936,14 +4936,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Student Self-Registration Routes
   app.post("/api/student/register", async (req, res) => {
     try {
-      const { email, password, courseType, selectedStartDateId } = req.body;
+      const { email, courseType, selectedStartDateId } = req.body;
       
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
-      }
-      
-      if (password.length < 8) {
-        return res.status(400).json({ message: "Password must be at least 8 characters" });
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
       }
       
       // Check if email already exists in students table
@@ -5017,9 +5013,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "An account with this email already exists" });
       }
       
-      // Hash password
+      // The real password is set later via the activation email link.
+      // Store a random placeholder hash to satisfy the not-null column.
       const bcrypt = await import("bcryptjs");
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const crypto = await import("crypto");
+      const hashedPassword = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 10);
       
       // Generate verification code
       const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -5368,16 +5366,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .set({ studentId: newStudent.id })
         .where(eq(studentDocuments.registrationId, registrationId));
 
-      // Auto-login the student so they land on the dashboard directly
-      (req.session as any).studentId = newStudent.id;
-      await new Promise<void>((resolve, reject) => {
-        req.session.save((err) => { if (err) reject(err); else resolve(); });
-      });
-
+      // Account starts as pending_invite — the student sets their password
+      // via the activation email before they can log in.
       res.json({
-        message: "Welcome to Morty's Driving School!",
+        message: "Profile complete! Check your email for an activation link to set your password.",
         studentId: newStudent.id,
         email: newStudent.email,
+        activationRequired: true,
       });
     } catch (error) {
       console.error("[STUDENT-COMPLETE] Error:", error);
