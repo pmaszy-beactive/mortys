@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { randomUUID } from "crypto";
 import Stripe from "stripe";
 import {
   isS3Configured,
@@ -2030,6 +2031,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (dates.length === 0) return res.status(400).json({ message: "No dates match the selected days of week in this range" });
 
+      const seriesId = randomUUID();
       const created = [];
       for (const date of dates) {
         const cls = await storage.createClass({
@@ -2045,14 +2047,251 @@ export async function registerRoutes(app: Express): Promise<Server> {
           hasTest: hasTest || false,
           zoomLink: zoomLink || null,
           status: 'scheduled',
+          seriesId,
         });
         created.push(cls);
       }
 
-      res.status(201).json({ created: created.length, dates });
+      res.status(201).json({ created: created.length, dates, seriesId });
     } catch (error) {
       console.error("Bulk class creation error:", error);
       res.status(500).json({ message: "Failed to create classes bulk" });
+    }
+  });
+
+  // ----- Recurring class series management -----
+
+  // Helper: fetch a series' classes with enrollment info
+  async function getSeriesClassesWithEnrollments(seriesId: string) {
+    const seriesClasses = await db.select().from(classes)
+      .where(eq(classes.seriesId, seriesId));
+    seriesClasses.sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
+    const result = [];
+    for (const cls of seriesClasses) {
+      const enrollments = await storage.getClassEnrollmentsByClass(cls.id);
+      const enrolledStudents = [];
+      for (const enr of enrollments) {
+        if (!enr.studentId) continue;
+        const student = await storage.getStudent(enr.studentId);
+        if (student) enrolledStudents.push({ id: student.id, name: `${student.firstName} ${student.lastName}` });
+      }
+      result.push({ ...cls, enrolledCount: enrolledStudents.length, enrolledStudents });
+    }
+    return result;
+  }
+
+  const todayLocal = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
+  // Fetch all classes in a series (with enrolled student info for confirmations)
+  app.get("/api/class-series/:seriesId", authMiddleware, async (req, res) => {
+    try {
+      const seriesClasses = await getSeriesClassesWithEnrollments(req.params.seriesId);
+      if (seriesClasses.length === 0) return res.status(404).json({ message: "Series not found" });
+      res.json({ seriesId: req.params.seriesId, today: todayLocal(), classes: seriesClasses });
+    } catch (error) {
+      console.error("Fetch class series error:", error);
+      res.status(500).json({ message: "Failed to fetch class series" });
+    }
+  });
+
+  // Update a series (scope: 'all' or 'future'). Past classes are never modified.
+  // Detached classes (individually edited) are skipped and reported.
+  app.patch("/api/class-series/:seriesId", authMiddleware, async (req, res) => {
+    try {
+      const { seriesId } = req.params;
+      const { scope, fromDate, updates } = req.body || {};
+      if (scope !== 'all' && scope !== 'future') {
+        return res.status(400).json({ message: "scope must be 'all' or 'future'" });
+      }
+      const allowed = ['time', 'duration', 'instructorId', 'maxStudents', 'room', 'zoomLink'] as const;
+      const updateData: Record<string, any> = {};
+      for (const key of allowed) {
+        if (updates && updates[key] !== undefined) updateData[key] = updates[key];
+      }
+      if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({ message: "No valid fields to update" });
+      }
+      if (updateData.duration !== undefined) updateData.duration = parseInt(updateData.duration) || 120;
+      if (updateData.maxStudents !== undefined) updateData.maxStudents = parseInt(updateData.maxStudents) || 15;
+      if (updateData.instructorId !== undefined && updateData.instructorId !== null) {
+        updateData.instructorId = parseInt(updateData.instructorId);
+      }
+
+      const seriesClasses = await getSeriesClassesWithEnrollments(seriesId);
+      if (seriesClasses.length === 0) return res.status(404).json({ message: "Series not found" });
+
+      const today = todayLocal();
+      const cutoff = scope === 'future' && fromDate ? fromDate : today;
+      // Never touch past classes; 'future' scope additionally respects fromDate.
+      const effectiveCutoff = cutoff < today ? today : cutoff;
+
+      const triggeredBy = (req as any).user?.id || (req.session as any)?.userId || 'system';
+      let skippedPast = 0, skippedDetached = 0, skippedCancelled = 0;
+      const targets: typeof seriesClasses = [];
+      for (const cls of seriesClasses) {
+        if (cls.date < effectiveCutoff) { skippedPast++; continue; }
+        if (cls.detachedFromSeries) { skippedDetached++; continue; }
+        if (cls.status === 'cancelled') { skippedCancelled++; continue; }
+        targets.push(cls);
+      }
+
+      // Pre-validate ALL target classes for instructor/room double-bookings
+      // before mutating anything, so a conflict never leaves the series
+      // partially updated.
+      const parseTime = (t: unknown): number | null => {
+        if (typeof t !== 'string') return null;
+        const [h, m] = t.split(':').map(Number);
+        return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null;
+      };
+      const conflictErrors: string[] = [];
+      const seriesClassIds = new Set(seriesClasses.map(c => c.id));
+      for (const cls of targets) {
+        const newTime = updateData.time !== undefined ? updateData.time : cls.time;
+        const newDuration = updateData.duration !== undefined ? updateData.duration : cls.duration;
+        const newInstructorId = updateData.instructorId !== undefined ? updateData.instructorId : cls.instructorId;
+        const newRoom = updateData.room !== undefined ? updateData.room : cls.room;
+        const startMin = parseTime(newTime);
+        if (startMin === null) continue;
+        const endMin = startMin + (newDuration || 120);
+
+        const sameDay = await db.select().from(classes).where(and(
+          eq(classes.date, cls.date),
+          eq(classes.status, 'scheduled'),
+          ne(classes.id, cls.id),
+        ));
+        for (const other of sameDay) {
+          // Other classes in this same series that are also being updated
+          // will carry the same new values, but they're on other dates —
+          // sameDay only matches this date, so any same-series match here is
+          // a detached/cancelled-scope sibling and still a real conflict.
+          if (seriesClassIds.has(other.id) && targets.some(t => t.id === other.id)) continue;
+          const otherStart = parseTime(other.time);
+          if (otherStart === null) continue;
+          const otherEnd = otherStart + (other.duration || 120);
+          const overlaps = !(endMin <= otherStart || otherEnd <= startMin);
+          if (!overlaps) continue;
+          if (newInstructorId && other.instructorId === newInstructorId) {
+            conflictErrors.push(`${cls.date}: instructor is already booked at ${other.time} (class #${other.id})`);
+          }
+          if (newRoom && other.room === newRoom) {
+            conflictErrors.push(`${cls.date}: room "${newRoom}" is already booked at ${other.time} (class #${other.id})`);
+          }
+        }
+      }
+      if (conflictErrors.length > 0) {
+        return res.status(409).json({
+          message: `Series update would create ${conflictErrors.length} scheduling conflict${conflictErrors.length !== 1 ? 's' : ''}. No classes were changed.`,
+          conflicts: conflictErrors,
+        });
+      }
+
+      let updated = 0;
+      const affectedStudents = new Map<number, string>();
+
+      for (const cls of targets) {
+        const before = cls;
+        await storage.updateClass(cls.id, updateData);
+        updated++;
+        for (const s of cls.enrolledStudents) affectedStudents.set(s.id, s.name);
+
+        // Reuse existing schedule-change notification for enrolled students
+        if (cls.enrolledCount > 0) {
+          const changes: any = {};
+          let hasChanges = false;
+          if (updateData.time !== undefined && updateData.time !== before.time) {
+            changes.oldTime = before.time;
+            changes.newTime = updateData.time;
+            hasChanges = true;
+          }
+          if (updateData.instructorId !== undefined && updateData.instructorId !== before.instructorId) {
+            const oldInstructor = before.instructorId ? await storage.getInstructor(before.instructorId) : null;
+            const newInstructor = updateData.instructorId ? await storage.getInstructor(updateData.instructorId) : null;
+            changes.oldInstructor = oldInstructor ? `${oldInstructor.firstName} ${oldInstructor.lastName}` : 'Unassigned';
+            changes.newInstructor = newInstructor ? `${newInstructor.firstName} ${newInstructor.lastName}` : 'Unassigned';
+            hasChanges = true;
+          }
+          if (hasChanges) {
+            try {
+              await notificationService.notifyScheduleChange({
+                id: cls.id,
+                title: `${before.courseType.toUpperCase()} ${before.classType === 'driving' ? 'Driving' : 'Theory'} Class #${before.classNumber} (${before.date})`,
+                changes,
+              }, String(triggeredBy));
+            } catch (notifyError) {
+              console.error("Failed to send series schedule change notification:", notifyError);
+            }
+          }
+        }
+      }
+
+      res.json({
+        updated,
+        skippedPast,
+        skippedDetached,
+        skippedCancelled,
+        affectedStudents: Array.from(affectedStudents, ([id, name]) => ({ id, name })),
+      });
+    } catch (error) {
+      console.error("Update class series error:", error);
+      res.status(500).json({ message: "Failed to update class series" });
+    }
+  });
+
+  // Delete a series (scope: 'all' or 'future'). Past classes are never deleted.
+  app.delete("/api/class-series/:seriesId", authMiddleware, async (req, res) => {
+    try {
+      const { seriesId } = req.params;
+      const scope = (req.query.scope as string) || 'all';
+      const fromDate = req.query.fromDate as string | undefined;
+      if (scope !== 'all' && scope !== 'future') {
+        return res.status(400).json({ message: "scope must be 'all' or 'future'" });
+      }
+
+      const seriesClasses = await getSeriesClassesWithEnrollments(seriesId);
+      if (seriesClasses.length === 0) return res.status(404).json({ message: "Series not found" });
+
+      const today = todayLocal();
+      const cutoff = scope === 'future' && fromDate ? fromDate : today;
+      const effectiveCutoff = cutoff < today ? today : cutoff;
+
+      const triggeredBy = (req as any).user?.id || (req.session as any)?.userId || 'system';
+      let deleted = 0, skippedPast = 0;
+      const affectedStudents = new Map<number, string>();
+
+      for (const cls of seriesClasses) {
+        if (cls.date < effectiveCutoff) { skippedPast++; continue; }
+
+        // Notify enrolled students before removing the class
+        if (cls.enrolledCount > 0) {
+          for (const s of cls.enrolledStudents) affectedStudents.set(s.id, s.name);
+          try {
+            await notificationService.notifyClassCancelled({
+              id: cls.id,
+              title: `${cls.courseType.toUpperCase()} ${cls.classType === 'driving' ? 'Driving' : 'Theory'} Class #${cls.classNumber}`,
+              date: cls.date,
+              time: cls.time,
+              reason: 'The recurring schedule was cancelled by the office.',
+            }, String(triggeredBy));
+          } catch (notifyError) {
+            console.error("Failed to send series cancellation notification:", notifyError);
+          }
+        }
+
+        await storage.deleteClass(cls.id);
+        deleted++;
+      }
+
+      res.json({
+        deleted,
+        skippedPast,
+        affectedStudents: Array.from(affectedStudents, ([id, name]) => ({ id, name })),
+      });
+    } catch (error) {
+      console.error("Delete class series error:", error);
+      res.status(500).json({ message: "Failed to delete class series" });
     }
   });
 
@@ -2063,7 +2302,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get existing class data to compare for changes
       const existingClass = await storage.getClass(id);
-      
+
+      // If this class belongs to a recurring series and a schedule-relevant
+      // field is being changed individually, flag it as detached so later
+      // series-wide edits don't silently overwrite it.
+      if (existingClass?.seriesId && !existingClass.detachedFromSeries) {
+        const detachFields = ['date', 'time', 'duration', 'instructorId', 'maxStudents', 'room', 'zoomLink'] as const;
+        const changedIndividually = detachFields.some(
+          f => updateData[f] !== undefined && updateData[f] !== (existingClass as any)[f]
+        );
+        if (changedIndividually) {
+          updateData.detachedFromSeries = true;
+        }
+      }
+
       const classData = await storage.updateClass(id, updateData);
       
       // Send schedule change notifications if relevant fields changed

@@ -281,6 +281,8 @@ export const classes = pgTable("classes", {
   attendanceSignature: text("attendance_signature"), // Instructor's signature for bulk attendance
   attendanceSignedAt: text("attendance_signed_at"), // When attendance was signed
   attendanceSignedBy: integer("attendance_signed_by").references(() => instructors.id), // Instructor who signed
+  seriesId: text("series_id"), // Links classes generated together as one recurring series (null = standalone)
+  detachedFromSeries: boolean("detached_from_series").notNull().default(false), // Individually edited; series-wide edits skip this class
 });
 
 export const classEnrollments = pgTable("class_enrollments", {

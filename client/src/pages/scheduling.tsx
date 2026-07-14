@@ -12,6 +12,8 @@ import { Plus, Calendar, ChevronLeft, ChevronRight, Car, Bike, Users, Edit, Eye,
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import ClassForm from "@/components/class-form";
+import SeriesManager from "@/components/series-manager";
+import { Repeat } from "lucide-react";
 import type { Class, Instructor } from "@shared/schema";
 import { startOfWeek, endOfWeek, parse, format, addDays } from "date-fns";
 
@@ -30,6 +32,7 @@ export default function Scheduling() {
   });
   const [draggedClass, setDraggedClass] = useState<Class | null>(null);
   const [dragOverDate, setDragOverDate] = useState<Date | null>(null);
+  const [seriesAction, setSeriesAction] = useState<{ mode: "edit" | "delete"; anchorClass: Class } | null>(null);
   const { toast } = useToast();
 
   // Generate Schedule dialog state
@@ -927,12 +930,62 @@ export default function Scheduling() {
                   Update class details, timing, and instructor assignment.
                 </DialogDescription>
               </DialogHeader>
+              {editingClass.seriesId && (
+                <div className="rounded-md border border-[#ECC462] bg-amber-50 p-3 flex items-center justify-between gap-3 flex-wrap" data-testid="banner-series-membership">
+                  <div className="flex items-center gap-2 text-sm text-gray-800">
+                    <Repeat className="h-4 w-4 text-[#ECC462] flex-shrink-0" />
+                    <span className="font-medium">Part of a recurring schedule</span>
+                    {editingClass.detachedFromSeries && (
+                      <Badge variant="outline" className="text-xs border-amber-400 text-amber-700" data-testid="badge-detached">
+                        Edited individually — series edits skip this class
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-[#ECC462] text-[#111111] hover:bg-amber-100"
+                      onClick={() => {
+                        setSeriesAction({ mode: "edit", anchorClass: editingClass });
+                        setEditingClass(null);
+                      }}
+                      data-testid="button-edit-series"
+                    >
+                      Edit Series
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-300 text-red-600 hover:bg-red-50"
+                      onClick={() => {
+                        setSeriesAction({ mode: "delete", anchorClass: editingClass });
+                        setEditingClass(null);
+                      }}
+                      data-testid="button-delete-series"
+                    >
+                      Delete Series
+                    </Button>
+                  </div>
+                </div>
+              )}
               <ClassForm 
                 classData={editingClass} 
                 onSuccess={() => setEditingClass(null)} 
               />
             </DialogContent>
           </Dialog>
+        )}
+
+        {/* Series Edit/Delete Dialog */}
+        {seriesAction && seriesAction.anchorClass.seriesId && (
+          <SeriesManager
+            seriesId={seriesAction.anchorClass.seriesId}
+            anchorClass={seriesAction.anchorClass}
+            mode={seriesAction.mode}
+            instructors={instructors}
+            onClose={() => setSeriesAction(null)}
+          />
         )}
 
         {/* Generate Schedule Dialog */}

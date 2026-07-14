@@ -576,6 +576,31 @@ export async function notifyScheduleChange(classData: {
   });
 }
 
+// Notify enrolled students (and linked parents) that a class was cancelled.
+export async function notifyClassCancelled(classData: {
+  id: number;
+  title: string;
+  date: string;
+  time: string;
+  reason?: string;
+}, triggeredBy?: string): Promise<void> {
+  const recipients = await getClassRecipients(classData.id);
+  if (recipients.length === 0) return;
+
+  const message = `Your class "${classData.title}" scheduled for ${classData.date} at ${classData.time} has been cancelled.` +
+    (classData.reason ? `\n\nReason: ${classData.reason}` : '') +
+    `\n\nPlease check the schedule or contact the office to rebook.`;
+
+  await enqueueNotification({
+    type: 'class_cancelled',
+    title: `Class Cancelled: ${classData.title}`,
+    message,
+    payload: { classId: classData.id, date: classData.date, time: classData.time },
+    recipients,
+    triggeredBy,
+  });
+}
+
 // Notify a specific set of students (and their linked parents) that their
 // Theory 1 class was moved because the office rescheduled the course start
 // date. Uses the same schedule_change flow as notifyScheduleChange, but scoped
