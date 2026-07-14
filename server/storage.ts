@@ -2022,112 +2022,6 @@ export class DatabaseStorage implements IStorage {
     return updatedLog;
   }
 
-  async searchStudents(params: {
-    searchTerm?: string;
-    courseType?: string;
-    status?: string;
-    locationId?: number;
-    phoneNumber?: string;
-    attestationNumber?: string;
-    contractNumber?: string;
-    dateOfBirth?: string;
-    enrollmentDate?: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<{ students: Student[]; total: number }> {
-    const { searchTerm, courseType, status, locationId, phoneNumber, attestationNumber, dateOfBirth, enrollmentDate, limit = 10, offset = 0 } = params;
-    
-    let query = db.select().from(students);
-    let countQuery = db.select({ count: sql`count(*)`.as('count') }).from(students);
-    
-    // Apply filters if provided
-    const whereConditions = [];
-    
-    if (searchTerm) {
-      const searchPattern = `%${searchTerm}%`;
-      whereConditions.push(
-        sql`(
-          LOWER(${students.firstName}) LIKE LOWER(${searchPattern}) OR 
-          LOWER(${students.lastName}) LIKE LOWER(${searchPattern}) OR 
-          LOWER(${students.email}) LIKE LOWER(${searchPattern}) OR
-          LOWER(CONCAT(${students.firstName}, ' ', ${students.lastName})) LIKE LOWER(${searchPattern}) OR
-          ${students.phone} LIKE ${searchPattern} OR
-          LOWER(${students.attestationNumber}) LIKE LOWER(${searchPattern})
-        )`
-      );
-    }
-    
-    if (courseType && courseType !== 'all') {
-      whereConditions.push(eq(students.courseType, courseType));
-    }
-    
-    if (status && status !== 'all') {
-      whereConditions.push(eq(students.status, status));
-    }
-    
-    if (locationId) {
-      whereConditions.push(eq(students.locationId, locationId));
-    }
-    
-    if (phoneNumber) {
-      const phonePattern = `%${phoneNumber}%`;
-      whereConditions.push(
-        sql`${students.phone} LIKE ${phonePattern}`
-      );
-    }
-    
-    if (attestationNumber) {
-      const attestationPattern = `%${attestationNumber}%`;
-      whereConditions.push(
-        sql`${students.attestationNumber} LIKE ${attestationPattern}`
-      );
-    }
-
-    if (params.contractNumber) {
-      const contractPattern = `%${params.contractNumber}%`;
-      whereConditions.push(
-        sql`EXISTS (
-          SELECT 1 FROM contracts 
-          WHERE contracts.student_id = ${students.id} 
-          AND LOWER(contracts.contract_number) LIKE LOWER(${contractPattern})
-        )`
-      );
-    }
-    
-    if (dateOfBirth) {
-      whereConditions.push(eq(students.dateOfBirth, dateOfBirth));
-    }
-    
-    if (enrollmentDate) {
-      whereConditions.push(eq(students.enrollmentDate, enrollmentDate));
-    }
-    
-    // Apply WHERE conditions
-    if (whereConditions.length > 0) {
-      const combinedConditions = whereConditions.reduce((acc, condition, index) => {
-        return index === 0 ? condition : and(acc, condition);
-      });
-      query = query.where(combinedConditions);
-      countQuery = countQuery.where(combinedConditions);
-    }
-    
-    // Get total count
-    const [{ count }] = await countQuery;
-    
-    // Apply pagination and ordering (most recent first)
-    query = query
-      .orderBy(sql`${students.id} DESC`)
-      .limit(limit)
-      .offset(offset);
-    
-    const results = await query;
-    
-    return {
-      students: results,
-      total: parseInt(count as string)
-    };
-  }
-
   // Analytics
   async getStudentCompletionAnalytics(enrollmentYear?: number, completionYear?: number): Promise<{
     enrollmentYear: number;
@@ -3773,10 +3667,12 @@ export class DatabaseStorage implements IStorage {
     const conditions: any[] = [];
 
     if (params.searchTerm) {
-      const searchTerm = '%' + params.searchTerm.toLowerCase() + '%';
+      const normalizedTerm = params.searchTerm.trim().replace(/\s+/g, ' ');
+      const searchTerm = '%' + normalizedTerm.toLowerCase() + '%';
       conditions.push(sql`(
         LOWER(${students.firstName}) LIKE ${searchTerm} OR
         LOWER(${students.lastName}) LIKE ${searchTerm} OR
+        LOWER(CONCAT(${students.firstName}, ' ', ${students.lastName})) LIKE ${searchTerm} OR
         LOWER(${students.email}) LIKE ${searchTerm} OR
         ${students.phone} LIKE ${searchTerm} OR
         LOWER(${students.attestationNumber}) LIKE ${searchTerm} OR
