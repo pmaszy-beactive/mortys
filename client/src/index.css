@@ -61,6 +61,25 @@
     @apply border-border;
   }
 
+  /* Native date/time inputs break their internal shadow-DOM layout when
+     rendered with display:flex (from the shared Input component), which can
+     make the picker icon and edit segments look like stray empty boxes.
+     Restore native block layout so each renders as one clean field. */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="week"] {
+    display: block;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    margin-left: auto;
+    cursor: pointer;
+  }
+
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-family: 'Inter', sans-serif;
