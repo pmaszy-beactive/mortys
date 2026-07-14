@@ -92,13 +92,13 @@ export default function StudentInvite() {
           <CardContent className="pt-6">
             <div className="flex flex-col items-center gap-4 text-center">
               <AlertCircle className="h-12 w-12 text-red-500" />
-              <h2 className="text-xl font-semibold text-secondary">Invalid Invitation</h2>
+              <h2 className="text-xl font-semibold text-foreground">Invalid Invitation</h2>
               <p className="text-muted-foreground">
                 This invitation link is invalid or has expired. Please contact the school for assistance.
               </p>
               <Button 
                 onClick={() => setLocation("/")} 
-                className="bg-primary hover:bg-primary/90 text-secondary"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 data-testid="button-go-home"
               >
                 Go to Homepage
@@ -113,16 +113,16 @@ export default function StudentInvite() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-secondary via-gray-900 to-secondary p-4">
       <Card className="w-full max-w-2xl border-2 border-primary shadow-2xl shadow-primary/20">
-        <CardHeader className="text-center border-b border-gray-200 bg-gradient-to-br from-primary/10 to-white">
+        <CardHeader className="text-center border-b border-border bg-card">
           <div className="flex justify-center mb-4">
             <img src={mortysLogo} alt="Morty's Driving School" className="h-20 w-auto" data-testid="img-logo" />
           </div>
           <div className="flex justify-center mb-4">
             <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg">
-              <GraduationCap className="h-10 w-10 text-secondary" />
+              <GraduationCap className="h-10 w-10 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-3xl text-secondary mb-2">Welcome to Morty's Driving School!</CardTitle>
+          <CardTitle className="text-3xl text-foreground mb-2">Welcome to Morty's Driving School!</CardTitle>
           <CardDescription className="text-base">
             Hi <span className="font-semibold text-primary">{inviteData.firstName}</span>, let's set up your student account
           </CardDescription>
@@ -130,7 +130,7 @@ export default function StudentInvite() {
         <CardContent className="pt-8 px-8 pb-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="bg-primary/5 border-2 border-primary/20 rounded-xl p-6 mb-6">
-              <h3 className="font-semibold text-secondary mb-2 flex items-center gap-2">
+              <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                 <CheckCircle className="h-5 w-5 text-primary" />
                 Your Account Details
               </h3>
@@ -142,10 +142,10 @@ export default function StudentInvite() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="font-semibold text-secondary text-lg mb-4">Create Your Password</h3>
+              <h3 className="font-semibold text-foreground text-lg mb-4">Create Your Password</h3>
               
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-secondary">Password</Label>
+                <Label htmlFor="password" className="text-foreground">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -171,7 +171,7 @@ export default function StudentInvite() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-secondary">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className="text-foreground">Confirm Password</Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
@@ -198,7 +198,7 @@ export default function StudentInvite() {
             </div>
 
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <h4 className="font-medium text-secondary text-sm mb-2">What happens next?</h4>
+              <h4 className="font-medium text-foreground text-sm mb-2">What happens next?</h4>
               <ul className="text-sm text-gray-600 space-y-1">
                 <li>✓ Your account will be activated immediately</li>
                 <li>✓ You'll get access to your student dashboard</li>
@@ -210,7 +210,7 @@ export default function StudentInvite() {
             <Button
               type="submit"
               disabled={acceptMutation.isPending}
-              className="w-full bg-primary hover:bg-primary/90 text-secondary font-semibold py-6 text-lg shadow-lg hover:shadow-primary/30"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6 text-lg shadow-lg hover:shadow-primary/30"
               data-testid="button-activate-account"
             >
               {acceptMutation.isPending ? (
