@@ -27,6 +27,10 @@ author = "agent"
 task = "workflow.run"
 args = "Start application"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "theme-alpha"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -35,6 +39,17 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "theme-alpha"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/check-theme-alpha.ts"
+
+[workflows.workflow.metadata]
+isValidation = true
 
 [agent]
 integrations = ["javascript_log_in_with_replit:1.0.0", "javascript_sendgrid:1.0.0", "javascript_database:1.0.0", "javascript_stripe:1.0.0"]

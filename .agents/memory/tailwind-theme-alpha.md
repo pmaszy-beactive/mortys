@@ -11,3 +11,5 @@ Theme colors in `tailwind.config.ts` are defined as `hsl(var(--x) / <alpha-value
 - Non-Tailwind vars (`--success`, `--warning`, `--error`, `--brand-*`) remain full `hsl(...)` values — don't reference them via Tailwind color utilities.
 - Danger (still true for non-compiling classes): an element with `bg-gradient-*` whose `from-*` class doesn't compile inherits `--tw-gradient-from/stops` from ancestors — near-invisible text bugs.
 - Also note `text-secondary` is near-black in light mode but dark gray in dark mode — prefer `text-foreground` / `text-primary-foreground` for readable text.
+- An automated guard exists: the `theme-alpha` validation command compiles Tailwind and fails if any used `/N` theme-color class emits no CSS or a theme var breaks the raw-channel rule. Keep it registered when changing theme colors.
+- Gotcha: classes only used behind variants (`hover:bg-primary/90`) compile to selectors like `.hover\:bg-primary\/90` — a bare `.class` selector match misses them.
