@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Eye, Edit, Trash2, User, RefreshCw, ChevronDown, ChevronUp, Users, Sparkles, ArrowRightLeft, AlertTriangle } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, User, RefreshCw, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Users, Sparkles, ArrowRightLeft, AlertTriangle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -58,12 +58,14 @@ export default function Students() {
       locationFilter !== 'all' || phoneNumber.trim() || attestationNumber.trim() ||
       contractNumber.trim() || dateOfBirth || enrollmentDate;
     params.append('limit', hasAnySearch ? '50' : '10');
-    params.append('offset', '0');
     return params.toString();
   };
 
   // Only updated when the user clicks Search (or Reset) — typing does NOT trigger a fetch
-  const [appliedParams, setAppliedParams] = useState("limit=10&offset=0");
+  const [appliedParams, setAppliedParams] = useState("limit=10");
+  const [page, setPage] = useState(0);
+
+  const pageSize = parseInt(new URLSearchParams(appliedParams).get('limit') || '10', 10);
 
   // Apply ?search=<term> from the URL (e.g. arriving from the nav search "view all" link)
   const urlSearch = useSearch();
@@ -75,15 +77,15 @@ export default function Students() {
       const params = new URLSearchParams();
       params.append("searchTerm", term.trim());
       params.append("limit", "50");
-      params.append("offset", "0");
       setAppliedParams(params.toString());
+      setPage(0);
     }
   }, [urlSearch]);
 
-  const { data: studentsData, isLoading, refetch } = useQuery<{ students: Student[]; total: number }>({
-    queryKey: ["/api/students", appliedParams],
+  const { data: studentsData, isLoading, isFetching, refetch } = useQuery<{ students: Student[]; total: number }>({
+    queryKey: ["/api/students", appliedParams, page],
     queryFn: async () => {
-      const response = await fetch(`/api/students?${appliedParams}`, {
+      const response = await fetch(`/api/students?${appliedParams}&offset=${page * pageSize}`, {
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -150,7 +152,14 @@ export default function Students() {
   const transferStudents = transferData?.students || [];
   const totalTransfers = transferData?.total || 0;
 
-  const handleSearch = () => { setHasSearched(true); setAppliedParams(buildSearchParams()); };
+  const handleSearch = () => { setHasSearched(true); setPage(0); setSelectedStudents(new Set()); setAppliedParams(buildSearchParams()); };
+
+  const totalPages = Math.max(1, Math.ceil(totalStudents / pageSize));
+
+  const goToPage = (nextPage: number) => {
+    setPage(nextPage);
+    setSelectedStudents(new Set());
+  };
 
   const handleDeleteStudent = (id: number) => {
     if (confirm("Are you sure you want to delete this student?")) deleteStudentMutation.mutate(id);
@@ -160,7 +169,8 @@ export default function Students() {
     setSearchTerm(""); setCourseFilter("all"); setStatusFilter("all"); setLocationFilter("all");
     setPhoneNumber(""); setAttestationNumber(""); setDateOfBirth(""); setEnrollmentDate("");
     setHasSearched(false); setSelectedStudents(new Set());
-    setAppliedParams("limit=10&offset=0");
+    setPage(0);
+    setAppliedParams("limit=10");
   };
 
   const toggleStudentSelection = (id: number) => {
@@ -476,7 +486,11 @@ export default function Students() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base font-semibold text-gray-900">
                     Search Results
-                    <span className="ml-2 text-sm font-normal text-gray-500">({students.length} of {totalStudents})</span>
+                    <span className="ml-2 text-sm font-normal text-gray-500" data-testid="text-results-count">
+                      {students.length === 0
+                        ? `(0 of ${totalStudents})`
+                        : `(${page * pageSize + 1}–${page * pageSize + students.length} of ${totalStudents})`}
+                    </span>
                   </CardTitle>
                   <div className="flex items-center gap-2">
                     {selectedStudents.size > 0 && (
@@ -588,6 +602,35 @@ export default function Students() {
                         ))}
                       </TableBody>
                     </Table>
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
+                        <p className="text-sm text-gray-500" data-testid="text-page-info">
+                          Page {page + 1} of {totalPages}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => goToPage(page - 1)}
+                            disabled={page === 0 || isFetching}
+                            className="border-gray-200"
+                            data-testid="button-prev-page"
+                          >
+                            <ChevronLeft className="mr-1 h-4 w-4" /> Previous
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => goToPage(page + 1)}
+                            disabled={page >= totalPages - 1 || isFetching}
+                            className="border-gray-200"
+                            data-testid="button-next-page"
+                          >
+                            Next <ChevronRight className="ml-1 h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
