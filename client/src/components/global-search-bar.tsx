@@ -38,7 +38,7 @@ export function GlobalSearchBar({ userType }: GlobalSearchBarProps) {
     queryKey: ["/api/students", searchTerm],
     queryFn: async () => {
       if (searchTerm.length < 2) return { students: [], total: 0 };
-      const response = await fetch(`/api/students?searchTerm=${encodeURIComponent(searchTerm)}&limit=10`, { credentials: "include" });
+      const response = await fetch(`/api/students?searchTerm=${encodeURIComponent(searchTerm)}&limit=50`, { credentials: "include" });
       if (!response.ok) return { students: [], total: 0 };
       return response.json();
     },
@@ -87,6 +87,15 @@ export function GlobalSearchBar({ userType }: GlobalSearchBarProps) {
     : [];
 
   const hasResults = students.length > 0 || matchedInstructors.length > 0;
+  const totalStudentMatches = userType === "admin" ? (adminData?.total || 0) : students.length;
+  const hasMoreStudents = totalStudentMatches > students.length;
+
+  const handleViewAll = () => {
+    const term = searchTerm;
+    setIsOpen(false);
+    setSearchTerm("");
+    setLocation(`/students?search=${encodeURIComponent(term)}`);
+  };
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -227,7 +236,7 @@ export function GlobalSearchBar({ userType }: GlobalSearchBarProps) {
                   <li className={`px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-50 border-b ${matchedInstructors.length > 0 ? 'border-t mt-1' : ''}`}>
                     Students
                   </li>
-                  {students.slice(0, 8).map((student) => (
+                  {students.map((student) => (
                     <li key={`student-${student.id}`}>
                       <button
                         onClick={() => handleStudentClick(student)}
@@ -247,6 +256,17 @@ export function GlobalSearchBar({ userType }: GlobalSearchBarProps) {
                       </button>
                     </li>
                   ))}
+                  {userType === "admin" && hasMoreStudents && (
+                    <li className="border-t">
+                      <button
+                        onClick={handleViewAll}
+                        data-testid="button-view-all-results"
+                        className="w-full px-4 py-2.5 text-sm font-medium text-[#111111] hover:bg-[#ECC462]/10 text-left"
+                      >
+                        {totalStudentMatches} matches — view all in Students
+                      </button>
+                    </li>
+                  )}
                 </>
               )}
             </ul>

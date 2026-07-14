@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,21 @@ export default function Students() {
 
   // Only updated when the user clicks Search (or Reset) — typing does NOT trigger a fetch
   const [appliedParams, setAppliedParams] = useState("limit=10&offset=0");
+
+  // Apply ?search=<term> from the URL (e.g. arriving from the nav search "view all" link)
+  const urlSearch = useSearch();
+  useEffect(() => {
+    const term = new URLSearchParams(urlSearch).get("search");
+    if (term && term.trim()) {
+      setSearchTerm(term.trim());
+      setHasSearched(true);
+      const params = new URLSearchParams();
+      params.append("searchTerm", term.trim());
+      params.append("limit", "50");
+      params.append("offset", "0");
+      setAppliedParams(params.toString());
+    }
+  }, [urlSearch]);
 
   const { data: studentsData, isLoading, refetch } = useQuery<{ students: Student[]; total: number }>({
     queryKey: ["/api/students", appliedParams],
