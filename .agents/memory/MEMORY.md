@@ -1,5 +1,5 @@
 - [Module 5 exam engine](exam-engine.md) — Zoom-only proctoring, 75% pass, timed unlock/results windows, server-authoritative grading, instructor-scoped review endpoints.
 - [Frontend API conventions](frontend-api-conventions.md) — apiRequest returns parsed body (no .json()); default queryFn uses only queryKey[0], parameterized URLs need explicit queryFn.
 - [Dev auth testing](dev-auth-testing.md) — session cookies are Secure even in dev; curl tests of admin endpoints must use https://$REPLIT_DEV_DOMAIN, not localhost.
-- [Tailwind theme alpha](tailwind-theme-alpha.md) — /N opacity variants of theme colors silently don't compile; missing from-* stops inherit ancestor gradient vars (invisible-text bugs).
+- [Tailwind theme alpha](tailwind-theme-alpha.md) — theme vars now raw HSL channels + `<alpha-value>`; new theme colors must follow that format or /N variants silently break.
 - [Migration baseline](migration-baseline.md) — post-merge "relation already exists" means dev DB got schema via push before tracking; baseline the migration hash, don't replay.
