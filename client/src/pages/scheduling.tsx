@@ -248,7 +248,20 @@ export default function Scheduling() {
     return instructor ? `${instructor.firstName} ${instructor.lastName}` : "Unknown Instructor";
   };
 
-  const upcomingClasses = classes.filter(c => c.status === "scheduled").slice(0, 5);
+  const now = new Date();
+  const weekEnd = endOfWeek(now, { weekStartsOn: 0 });
+  const upcomingClasses = classes
+    .filter(c => {
+      if (c.status !== "scheduled") return false;
+      const classDateTime = new Date(`${c.date}T${c.time || "00:00"}`);
+      if (isNaN(classDateTime.getTime())) return false;
+      return classDateTime >= now && classDateTime <= weekEnd;
+    })
+    .sort((a, b) =>
+      new Date(`${a.date}T${a.time || "00:00"}`).getTime() -
+      new Date(`${b.date}T${b.time || "00:00"}`).getTime()
+    )
+    .slice(0, 5);
 
   const getCourseIcon = (courseType: string) => {
     switch (courseType) {
