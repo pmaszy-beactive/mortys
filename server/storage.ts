@@ -2517,7 +2517,7 @@ export class DatabaseStorage implements IStorage {
         zoomLink: classes.zoomLink,
         hasTest: classes.hasTest,
         instructorName: sql<string>`CONCAT(${instructors.firstName}, ' ', ${instructors.lastName})`,
-        enrolledCount: sql<number>`CAST(COALESCE(COUNT(CASE WHEN ${classEnrollments.cancelledAt} IS NULL THEN 1 END), 0) AS INTEGER)`,
+        enrolledCount: sql<number>`CAST(COALESCE(COUNT(CASE WHEN ${classEnrollments.id} IS NOT NULL AND ${classEnrollments.cancelledAt} IS NULL THEN 1 END), 0) AS INTEGER)`,
       })
       .from(classes)
       .leftJoin(instructors, eq(classes.instructorId, instructors.id))
