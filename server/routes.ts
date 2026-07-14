@@ -8416,7 +8416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Get active booking policies for this class type
-        const policies = await storage.getActiveBookingPolicies(classData.courseType || undefined, classType);
+        const policies = await storage.getActiveBookingPolicies(classData.courseType || undefined, classData.classType || undefined);
 
         // Check max_duration policy
         const maxDurationPolicy = policies.find(p => p.policyType === 'max_duration');
