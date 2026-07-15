@@ -797,7 +797,8 @@ export class MemStorage implements IStorage {
         s.lastName.toLowerCase().includes(term) ||
         s.email.toLowerCase().includes(term) ||
         (s.phone && s.phone.includes(term)) ||
-        (s.attestationNumber && s.attestationNumber.toLowerCase().includes(term))
+        (s.attestationNumber && s.attestationNumber.toLowerCase().includes(term)) ||
+        (s.transferredFrom && s.transferredFrom.toLowerCase().includes(term))
       );
     }
     
@@ -3681,7 +3682,8 @@ export class DatabaseStorage implements IStorage {
         LOWER(${students.email}) LIKE ${searchTerm} OR
         ${students.phone} LIKE ${searchTerm} OR
         LOWER(${students.attestationNumber}) LIKE ${searchTerm} OR
-        ${students.legacyId} LIKE ${searchTerm}
+        ${students.legacyId} LIKE ${searchTerm} OR
+        LOWER(${students.transferredFrom}) LIKE ${searchTerm}
       )`);
     }
 

@@ -38,8 +38,10 @@ export default function Students() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
 
-  // Transfer Students tab search state
+  // Transfer Students tab search + pagination state
   const [transferSearch, setTransferSearch] = useState("");
+  const [transferPage, setTransferPage] = useState(0);
+  const TRANSFER_PAGE_SIZE = 50;
 
   const { toast } = useToast();
 
@@ -95,12 +97,12 @@ export default function Students() {
   });
 
   const { data: transferData, isLoading: isLoadingTransfers, refetch: refetchTransfers } = useQuery<{ students: Student[]; total: number }>({
-    queryKey: ["/api/students/transfers", transferSearch],
+    queryKey: ["/api/students/transfers", transferSearch, transferPage],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.append('isTransfer', 'true');
-      params.append('limit', '200');
-      params.append('offset', '0');
+      params.append('limit', String(TRANSFER_PAGE_SIZE));
+      params.append('offset', String(transferPage * TRANSFER_PAGE_SIZE));
       if (transferSearch.trim()) params.append('searchTerm', transferSearch.trim());
       const response = await fetch(`/api/students?${params.toString()}`, {
         credentials: 'include',
@@ -161,6 +163,7 @@ export default function Students() {
   const handleSearch = () => { setHasSearched(true); setPage(0); setSelectedStudents(new Set()); setAppliedParams(buildSearchParams()); };
 
   const totalPages = Math.max(1, Math.ceil(totalStudents / pageSize));
+  const totalTransferPages = Math.max(1, Math.ceil(totalTransfers / TRANSFER_PAGE_SIZE));
 
   const goToPage = (nextPage: number) => {
     setPage(nextPage);
@@ -217,16 +220,9 @@ export default function Students() {
     }
   };
 
-  const filteredTransferStudents = transferStudents.filter(s => {
-    if (!transferSearch.trim()) return true;
-    const term = transferSearch.toLowerCase();
-    return (
-      s.firstName.toLowerCase().includes(term) ||
-      s.lastName.toLowerCase().includes(term) ||
-      s.email.toLowerCase().includes(term) ||
-      (s.transferredFrom && s.transferredFrom.toLowerCase().includes(term))
-    );
-  });
+  // Search is handled server-side (name/email/phone/attestation/previous school),
+  // so the current page of results is shown as-is.
+  const filteredTransferStudents = transferStudents;
 
   if (isLoading) {
     return (
@@ -671,7 +667,8 @@ export default function Students() {
                   <Input
                     placeholder="Search transfer students by name, email, or previous school..."
                     value={transferSearch}
-                    onChange={(e) => setTransferSearch(e.target.value)}
+                    onChange={(e) => { setTransferSearch(e.target.value); setTransferPage(0); }}
+                    data-testid="input-transfer-search"
                     className="border-gray-200 max-w-md"
                   />
                 </div>
@@ -756,6 +753,35 @@ export default function Students() {
                         ))}
                       </TableBody>
                     </Table>
+                    {totalTransferPages > 1 && (
+                      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
+                        <p className="text-sm text-gray-500" data-testid="text-transfer-page-info">
+                          Page {transferPage + 1} of {totalTransferPages} · Showing {transferStudents.length} of {totalTransfers}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setTransferPage(transferPage - 1)}
+                            disabled={transferPage === 0 || isLoadingTransfers}
+                            className="border-gray-200"
+                            data-testid="button-transfer-prev-page"
+                          >
+                            <ChevronLeft className="mr-1 h-4 w-4" /> Previous
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setTransferPage(transferPage + 1)}
+                            disabled={transferPage >= totalTransferPages - 1 || isLoadingTransfers}
+                            className="border-gray-200"
+                            data-testid="button-transfer-next-page"
+                          >
+                            Next <ChevronRight className="ml-1 h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
