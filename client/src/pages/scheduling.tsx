@@ -893,7 +893,7 @@ export default function Scheduling() {
                           data-testid={`button-delete-class-${classItem.id}`}
                           disabled={deleteClassMutation.isPending}
                           onClick={() => {
-                            if (window.confirm(`Delete "${classItem.name}" on ${classItem.date}? This cannot be undone.`)) {
+                            if (window.confirm(`Delete ${classItem.courseType.charAt(0).toUpperCase() + classItem.courseType.slice(1)} Theory Class #${classItem.classNumber} on ${classItem.date} at ${classItem.time}? This cannot be undone.`)) {
                               deleteClassMutation.mutate(classItem.id);
                             }
                           }}
