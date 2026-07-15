@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationCenter } from "@/components/notification-center";
-import { GlobalSearchBar } from "@/components/global-search-bar";
 import versionData from "../../../version.json";
 
 const version: string = versionData.version;
@@ -105,7 +104,7 @@ export default function Sidebar() {
     <>
       {/* Mobile menu button */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 px-4 py-2">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-8 h-8 bg-[#ECC462] rounded-md flex items-center justify-center mr-2">
               <Car className="text-[#111111] h-5 w-5" />
@@ -128,7 +127,6 @@ export default function Sidebar() {
             </Button>
           </div>
         </div>
-        <GlobalSearchBar userType="admin" />
       </div>
 
       {/* Mobile menu overlay */}
@@ -160,11 +158,10 @@ export default function Sidebar() {
               </div>
               <NotificationCenter userType="admin" />
             </div>
-            <GlobalSearchBar userType="admin" />
           </div>
 
-          {/* Mobile top spacing - increased for search bar */}
-          <div className="md:hidden h-24"></div>
+          {/* Mobile top spacing */}
+          <div className="md:hidden h-16"></div>
 
           {/* Navigation Menu */}
           <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">

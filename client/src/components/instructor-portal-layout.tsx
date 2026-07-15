@@ -39,7 +39,7 @@ export default function InstructorPortalLayout({ children }: InstructorPortalLay
       <div className="flex">
         <InstructorSidebar />
         <div className="flex-1 min-h-screen md:ml-0">
-          <div className="md:hidden h-24"></div>
+          <div className="md:hidden h-16"></div>
           <main>
             {children}
           </main>

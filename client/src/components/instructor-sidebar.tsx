@@ -15,7 +15,6 @@ import {
   ClipboardCheck
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { GlobalSearchBar } from "@/components/global-search-bar";
 import versionData from "../../../version.json";
 
 const version: string = versionData.version;
@@ -78,7 +77,7 @@ export default function InstructorSidebar() {
     <>
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 px-4 py-2">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-8 h-8 bg-[#ECC462] rounded flex items-center justify-center">
               <GraduationCap className="text-[#111111] h-5 w-5" />
@@ -95,7 +94,6 @@ export default function InstructorSidebar() {
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
         </div>
-        <GlobalSearchBar userType="instructor" />
       </div>
 
       {/* Overlay for mobile */}
@@ -125,7 +123,6 @@ export default function InstructorSidebar() {
                 <p className="text-xs text-gray-500">Instructor Portal</p>
               </div>
             </div>
-            <GlobalSearchBar userType="instructor" />
           </div>
 
           {/* Mobile Header Inside Sidebar */}
