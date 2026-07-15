@@ -109,7 +109,7 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
     enabled: !!student,
   });
 
-  const { data: allClasses = [] } = useQuery<Class[]>({
+  const { data: allClasses = [], isLoading: classesLoading } = useQuery<Class[]>({
     queryKey: ["/api/classes"],
     enabled: !!student && enrollments.length > 0,
   });
@@ -216,7 +216,7 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
   const getClassName = (classId: number | null) => {
     if (!classId) return "No class linked";
     const cls = classes.find(c => c.id === classId);
-    if (!cls) return `Class #${classId}`;
+    if (!cls) return `Deleted class (ID ${classId})`;
     return `${cls.courseType.charAt(0).toUpperCase() + cls.courseType.slice(1)} - ${cls.date} @ ${cls.time}`;
   };
 
@@ -1153,7 +1153,9 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                       const cls = enrollment.classId ? classById.get(enrollment.classId) : undefined;
                       const className = cls
                         ? `${cls.classType === "theory" ? "Theory" : "Driving"} ${cls.classNumber ?? ""}`.trim()
-                        : `Class #${enrollment.classId}`;
+                        : classesLoading
+                          ? "Loading…"
+                          : `Deleted class (ID ${enrollment.classId})`;
                       return (
                         <TableRow key={enrollment.id} data-testid={`row-enrollment-${enrollment.id}`}>
                           <TableCell data-testid={`text-enrollment-class-${enrollment.id}`}>{className}</TableCell>
