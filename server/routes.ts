@@ -2250,6 +2250,254 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Change which days of the week a series runs on (scope: 'all' or 'future').
+  // Future classes on removed days are deleted and replacements are generated
+  // on the new days under the same seriesId. Enrolled students on removed
+  // dates are moved to the nearest new-schedule class where possible; students
+  // who can't be moved are escalated to the office. Past, detached, and
+  // cancelled classes are never touched.
+  app.post("/api/class-series/:seriesId/change-days", authMiddleware, async (req, res) => {
+    try {
+      const { seriesId } = req.params;
+      const { scope, fromDate, daysOfWeek } = req.body || {};
+      if (scope !== 'all' && scope !== 'future') {
+        return res.status(400).json({ message: "scope must be 'all' or 'future'" });
+      }
+      if (!Array.isArray(daysOfWeek) || daysOfWeek.length === 0 ||
+          daysOfWeek.some((d: any) => !Number.isInteger(d) || d < 0 || d > 6)) {
+        return res.status(400).json({ message: "daysOfWeek must be a non-empty array of integers 0-6" });
+      }
+      const daySet = new Set<number>(daysOfWeek);
+
+      const seriesClasses = await getSeriesClassesWithEnrollments(seriesId);
+      if (seriesClasses.length === 0) return res.status(404).json({ message: "Series not found" });
+
+      const today = todayLocal();
+      const cutoff = scope === 'future' && fromDate ? fromDate : today;
+      const effectiveCutoff = cutoff < today ? today : cutoff;
+
+      const triggeredBy = (req as any).user?.id || (req.session as any)?.userId || 'system';
+      let skippedPast = 0, skippedDetached = 0, skippedCancelled = 0;
+      const targets: typeof seriesClasses = [];
+      for (const cls of seriesClasses) {
+        if (cls.date < effectiveCutoff) { skippedPast++; continue; }
+        if (cls.detachedFromSeries) { skippedDetached++; continue; }
+        if (cls.status === 'cancelled') { skippedCancelled++; continue; }
+        targets.push(cls);
+      }
+      if (targets.length === 0) {
+        return res.status(400).json({ message: "No upcoming classes in this series can be changed" });
+      }
+
+      // Local-date helpers (avoid UTC shifting).
+      const dayOf = (dateStr: string) => new Date(dateStr + "T00:00:00").getDay();
+      const template = targets[0];
+      const firstDate = targets[0].date;
+      const lastDate = targets[targets.length - 1].date;
+      // Never extend the series earlier than its first upcoming class.
+      const rangeStart = firstDate > effectiveCutoff ? firstDate : effectiveCutoff;
+
+      // Build the new set of dates: every day in [rangeStart, lastDate]
+      // matching the new days of week.
+      const desiredDates: string[] = [];
+      {
+        const cur = new Date(rangeStart + "T00:00:00");
+        const end = new Date(lastDate + "T00:00:00");
+        while (cur <= end) {
+          if (daySet.has(cur.getDay())) {
+            desiredDates.push(`${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`);
+          }
+          cur.setDate(cur.getDate() + 1);
+        }
+      }
+      if (desiredDates.length === 0) {
+        return res.status(400).json({ message: "No dates match the selected days of week in this series' range" });
+      }
+
+      const existingDates = new Set(targets.map(c => c.date));
+      const kept = targets.filter(c => daySet.has(dayOf(c.date)));
+      const toRemove = targets.filter(c => !daySet.has(dayOf(c.date)));
+      const toCreate = desiredDates.filter(d => !existingDates.has(d));
+
+      // Pre-validate every new date for instructor/room double-bookings before
+      // creating or deleting anything (no partial updates).
+      const parseTime = (t: unknown): number | null => {
+        if (typeof t !== 'string') return null;
+        const [h, m] = t.split(':').map(Number);
+        return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null;
+      };
+      const startMin = parseTime(template.time);
+      const endMin = startMin !== null ? startMin + (template.duration || 120) : null;
+      const removedIds = new Set(toRemove.map(c => c.id));
+      const conflictErrors: string[] = [];
+      if (startMin !== null && endMin !== null) {
+        for (const date of toCreate) {
+          const sameDay = await db.select().from(classes).where(and(
+            eq(classes.date, date),
+            eq(classes.status, 'scheduled'),
+          ));
+          for (const other of sameDay) {
+            if (removedIds.has(other.id)) continue; // will be deleted
+            const otherStart = parseTime(other.time);
+            if (otherStart === null) continue;
+            const otherEnd = otherStart + (other.duration || 120);
+            const overlaps = !(endMin <= otherStart || otherEnd <= startMin);
+            if (!overlaps) continue;
+            if (template.instructorId && other.instructorId === template.instructorId) {
+              conflictErrors.push(`${date}: instructor is already booked at ${other.time} (class #${other.id})`);
+            }
+            if (template.room && other.room === template.room) {
+              conflictErrors.push(`${date}: room "${template.room}" is already booked at ${other.time} (class #${other.id})`);
+            }
+          }
+        }
+      }
+      if (conflictErrors.length > 0) {
+        return res.status(409).json({
+          message: `Changing the series days would create ${conflictErrors.length} scheduling conflict${conflictErrors.length !== 1 ? 's' : ''}. No classes were changed.`,
+          conflicts: conflictErrors,
+        });
+      }
+
+      // Create the replacement classes on the new days.
+      const createdClasses: (typeof template)[] = [] as any;
+      for (const date of toCreate) {
+        const cls = await storage.createClass({
+          courseType: template.courseType,
+          classType: template.classType,
+          classNumber: template.classNumber,
+          date,
+          time: template.time,
+          duration: template.duration || 120,
+          instructorId: template.instructorId ?? null,
+          maxStudents: template.maxStudents || 15,
+          lessonType: template.lessonType || 'regular',
+          hasTest: template.hasTest || false,
+          zoomLink: template.zoomLink || null,
+          room: template.room || null,
+          status: 'scheduled',
+          seriesId,
+        } as any);
+        createdClasses.push(cls as any);
+      }
+
+      // New schedule (kept + created), sorted by date, used to pick move targets.
+      const newSchedule = [
+        ...kept.map(c => ({ id: c.id, date: c.date, time: c.time })),
+        ...createdClasses.map((c: any) => ({ id: c.id, date: c.date, time: c.time })),
+      ].sort((a, b) => a.date.localeCompare(b.date));
+
+      const titleOf = (cls: typeof template) =>
+        `${cls.courseType.toUpperCase()} ${cls.classType === 'driving' ? 'Driving' : 'Theory'} Class #${cls.classNumber}`;
+
+      // Move enrolled students off removed-day classes, then delete them.
+      const moved: { studentId: number; studentName: string; fromDate: string; toDate: string }[] = [];
+      const needsAttention: { studentId: number; studentName: string; note?: string }[] = [];
+      let deleted = 0;
+
+      for (const cls of toRemove) {
+        const movedHere: number[] = [];
+        const stuckHere: { id: number; name: string }[] = [];
+        // Nearest new-schedule class on/after the removed date, else nearest before.
+        const dest =
+          newSchedule.find(n => n.date >= cls.date) ||
+          [...newSchedule].reverse().find(n => n.date < cls.date);
+
+        for (const s of cls.enrolledStudents) {
+          if (!dest) {
+            stuckHere.push(s);
+            needsAttention.push({ studentId: s.id, studentName: s.name, note: `Was enrolled on ${cls.date} — no replacement class available` });
+            continue;
+          }
+          try {
+            const result = await storage.bookClass(s.id, dest.id);
+            const alreadyEnrolled = !result.success && result.message?.includes("already enrolled");
+            if (result.success || alreadyEnrolled) {
+              movedHere.push(s.id);
+              moved.push({ studentId: s.id, studentName: s.name, fromDate: cls.date, toDate: dest.date });
+            } else {
+              stuckHere.push(s);
+              needsAttention.push({ studentId: s.id, studentName: s.name, note: `Was enrolled on ${cls.date} — could not be moved to ${dest.date}: ${result.message || 'unknown error'}` });
+            }
+          } catch (err: any) {
+            stuckHere.push(s);
+            needsAttention.push({ studentId: s.id, studentName: s.name, note: `Was enrolled on ${cls.date} — could not be moved to ${dest.date}: ${err?.message || err}` });
+          }
+        }
+
+        // Notify moved students (scoped to them only).
+        if (movedHere.length > 0 && dest) {
+          try {
+            await notificationService.notifySeriesDayMove({
+              studentIds: movedHere,
+              classTitle: titleOf(cls),
+              oldDate: cls.date,
+              newDate: dest.date,
+              time: cls.time,
+              newClassId: dest.id,
+            }, String(triggeredBy));
+          } catch (notifyError) {
+            console.error("Failed to send series day-move notification:", notifyError);
+          }
+        }
+        // Notify students who could not be moved that their class is gone.
+        if (stuckHere.length > 0) {
+          try {
+            await notificationService.notifySeriesDayRemoved({
+              studentIds: stuckHere.map(s => s.id),
+              classTitle: titleOf(cls),
+              date: cls.date,
+              time: cls.time,
+              classId: cls.id,
+            }, String(triggeredBy));
+          } catch (notifyError) {
+            console.error("Failed to send series day-removed notification:", notifyError);
+          }
+        }
+
+        // Deleting the class removes its enrollments (moved students already
+        // have their new booking; stuck students were notified + escalated).
+        await storage.deleteClass(cls.id);
+        deleted++;
+      }
+
+      // Escalate unmovable students to the office.
+      let officeNotified = false;
+      if (needsAttention.length > 0) {
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const oldDays = Array.from(new Set(targets.map(c => dayOf(c.date)))).sort().map(d => dayNames[d]).join('/');
+        const newDays = Array.from(daySet).sort().map(d => dayNames[d]).join('/');
+        try {
+          const notifId = await notificationService.notifySeriesDaysActionNeeded({
+            seriesTitle: titleOf(template),
+            oldDays,
+            newDays,
+            reason: "Some enrolled students could not be moved automatically to a class on the new days.",
+            students: needsAttention,
+          });
+          officeNotified = notifId !== null;
+        } catch (notifyError) {
+          console.error("Failed to send series days action-needed notification:", notifyError);
+        }
+      }
+
+      res.json({
+        created: createdClasses.length,
+        deleted,
+        kept: kept.length,
+        moved,
+        needsAttention,
+        officeNotified,
+        skippedPast,
+        skippedDetached,
+        skippedCancelled,
+      });
+    } catch (error) {
+      console.error("Change series days error:", error);
+      res.status(500).json({ message: "Failed to change series days" });
+    }
+  });
+
   // Delete a series (scope: 'all' or 'future'). Past classes are never deleted.
   app.delete("/api/class-series/:seriesId", authMiddleware, async (req, res) => {
     try {

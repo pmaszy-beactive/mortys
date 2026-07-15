@@ -33,7 +33,7 @@ export default function Scheduling() {
   const [draggedClass, setDraggedClass] = useState<Class | null>(null);
   const [expandedDay, setExpandedDay] = useState<Date | null>(null);
   const [dragOverDate, setDragOverDate] = useState<Date | null>(null);
-  const [seriesAction, setSeriesAction] = useState<{ mode: "edit" | "delete"; anchorClass: Class } | null>(null);
+  const [seriesAction, setSeriesAction] = useState<{ mode: "edit" | "delete" | "days"; anchorClass: Class } | null>(null);
   const { toast } = useToast();
 
   // Generate Schedule dialog state
@@ -1014,6 +1014,17 @@ export default function Scheduling() {
                       data-testid="button-edit-series"
                     >
                       Edit Series
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSeriesAction({ mode: "days", anchorClass: editingClass });
+                        setEditingClass(null);
+                      }}
+                      data-testid="button-change-series-days"
+                    >
+                      Change Days
                     </Button>
                     <Button
                       variant="outline"

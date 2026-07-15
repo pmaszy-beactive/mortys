@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Repeat, Trash2, Users, AlertTriangle } from "lucide-react";
+import { Loader2, Repeat, Trash2, Users, AlertTriangle, CalendarDays } from "lucide-react";
 import type { Class, Instructor } from "@shared/schema";
 
 type SeriesClass = Class & {
@@ -26,7 +26,7 @@ type SeriesData = {
 interface SeriesManagerProps {
   seriesId: string;
   anchorClass: Class; // the class the admin opened
-  mode: "edit" | "delete";
+  mode: "edit" | "delete" | "days";
   instructors: Instructor[];
   onClose: () => void;
 }
@@ -34,6 +34,7 @@ interface SeriesManagerProps {
 export default function SeriesManager({ seriesId, anchorClass, mode, instructors, onClose }: SeriesManagerProps) {
   const { toast } = useToast();
   const [scope, setScope] = useState<"all" | "future">("all");
+  const [selectedDays, setSelectedDays] = useState<number[] | null>(null);
   const [editForm, setEditForm] = useState({
     time: anchorClass.time || "",
     duration: anchorClass.duration || 120,
@@ -48,6 +49,22 @@ export default function SeriesManager({ seriesId, anchorClass, mode, instructors
     queryFn: () => apiRequest("GET", `/api/class-series/${seriesId}`),
   });
 
+  const dayOf = (dateStr: string) => new Date(dateStr + "T00:00:00").getDay();
+
+  // Current days of week the (upcoming, attached) series classes run on.
+  const currentDays = useMemo(() => {
+    if (!series) return [] as number[];
+    const days = new Set<number>();
+    for (const cls of series.classes) {
+      if (cls.date < series.today || cls.detachedFromSeries || cls.status === "cancelled") continue;
+      days.add(dayOf(cls.date));
+    }
+    return Array.from(days).sort();
+  }, [series]);
+
+  // Initialize the day picker with the series' current days once loaded.
+  const effectiveDays = selectedDays ?? currentDays;
+
   // Compute affected classes exactly like the server does
   const affected = useMemo(() => {
     if (!series) return { classes: [] as SeriesClass[], skippedPast: 0, skippedDetached: 0, students: [] as { id: number; name: string }[] };
@@ -57,10 +74,15 @@ export default function SeriesManager({ seriesId, anchorClass, mode, instructors
     let skippedPast = 0;
     let skippedDetached = 0;
     const studentMap = new Map<number, string>();
+    const daySet = new Set(effectiveDays);
     for (const cls of series.classes) {
       if (cls.date < cutoff) { skippedPast++; continue; }
-      if (mode === "edit" && cls.detachedFromSeries) { skippedDetached++; continue; }
-      if (mode === "edit" && cls.status === "cancelled") continue;
+      if ((mode === "edit" || mode === "days") && cls.detachedFromSeries) { skippedDetached++; continue; }
+      if ((mode === "edit" || mode === "days") && cls.status === "cancelled") continue;
+      if (mode === "days") {
+        // Only classes on removed days are affected (moved/removed).
+        if (daySet.has(dayOf(cls.date))) continue;
+      }
       affectedClasses.push(cls);
       cls.enrolledStudents.forEach(s => studentMap.set(s.id, s.name));
     }
@@ -70,7 +92,7 @@ export default function SeriesManager({ seriesId, anchorClass, mode, instructors
       skippedDetached,
       students: Array.from(studentMap, ([id, name]) => ({ id, name })),
     };
-  }, [series, scope, anchorClass.date, mode]);
+  }, [series, scope, anchorClass.date, mode, effectiveDays]);
 
   const editMutation = useMutation({
     mutationFn: () =>
@@ -108,6 +130,41 @@ export default function SeriesManager({ seriesId, anchorClass, mode, instructors
     },
   });
 
+  const daysMutation = useMutation({
+    mutationFn: () =>
+      apiRequest("POST", `/api/class-series/${seriesId}/change-days`, {
+        scope,
+        fromDate: scope === "future" ? anchorClass.date : undefined,
+        daysOfWeek: effectiveDays,
+      }),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/classes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/class-series", seriesId] });
+      const parts = [
+        `${data.created} class${data.created !== 1 ? "es" : ""} created`,
+        `${data.deleted} removed`,
+      ];
+      if (data.moved?.length) parts.push(`${data.moved.length} student${data.moved.length !== 1 ? "s" : ""} moved`);
+      if (data.needsAttention?.length) parts.push(`${data.needsAttention.length} student${data.needsAttention.length !== 1 ? "s" : ""} need${data.needsAttention.length === 1 ? "s" : ""} office follow-up`);
+      toast({
+        title: "Series Days Changed",
+        description: parts.join(", ") + ".",
+        className: "bg-gradient-to-r from-[#ECC462] to-amber-500 text-[#111111] border-0",
+      });
+      onClose();
+    },
+    onError: (err: any) => {
+      const conflicts = err?.data?.conflicts;
+      toast({
+        title: conflicts?.length ? "Scheduling Conflict" : "Error",
+        description: conflicts?.length
+          ? `${err.data.message} ${conflicts.slice(0, 3).join("; ")}${conflicts.length > 3 ? "…" : ""}`
+          : err?.data?.message || err?.message || "Failed to change series days.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: () =>
       apiRequest(
@@ -128,7 +185,17 @@ export default function SeriesManager({ seriesId, anchorClass, mode, instructors
     },
   });
 
-  const isPending = editMutation.isPending || deleteMutation.isPending;
+  const isPending = editMutation.isPending || deleteMutation.isPending || daysMutation.isPending;
+
+  const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const toggleDay = (d: number) => {
+    const base = effectiveDays;
+    const next = base.includes(d) ? base.filter(x => x !== d) : [...base, d].sort((a, b) => a - b);
+    setSelectedDays(next);
+  };
+  const daysChanged =
+    effectiveDays.length !== currentDays.length ||
+    effectiveDays.some(d => !currentDays.includes(d));
 
   return (
     <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -137,6 +204,8 @@ export default function SeriesManager({ seriesId, anchorClass, mode, instructors
           <DialogTitle className="flex items-center gap-2">
             {mode === "edit" ? (
               <><Repeat className="h-5 w-5 text-[#ECC462]" /> Edit Recurring Series</>
+            ) : mode === "days" ? (
+              <><CalendarDays className="h-5 w-5 text-[#ECC462]" /> Change Series Days</>
             ) : (
               <><Trash2 className="h-5 w-5 text-red-500" /> Delete Recurring Series</>
             )}
@@ -144,6 +213,8 @@ export default function SeriesManager({ seriesId, anchorClass, mode, instructors
           <DialogDescription>
             {mode === "edit"
               ? "Apply changes to every class in this recurring schedule. Past classes are never modified."
+              : mode === "days"
+              ? "Change which days of the week this series runs on. Upcoming classes on removed days are replaced with classes on the new days, and enrolled students are moved automatically where possible. Past classes are never modified."
               : "Remove classes in this recurring schedule. Past classes are never deleted."}
           </DialogDescription>
         </DialogHeader>
@@ -250,10 +321,43 @@ export default function SeriesManager({ seriesId, anchorClass, mode, instructors
               </div>
             )}
 
+            {/* Days-of-week picker */}
+            {mode === "days" && (
+              <div className="space-y-2">
+                <Label>Runs on</Label>
+                <div className="flex flex-wrap gap-2">
+                  {DAY_LABELS.map((label, d) => {
+                    const active = effectiveDays.includes(d);
+                    return (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => toggleDay(d)}
+                        className={`px-3 py-1.5 rounded-md border text-sm font-medium transition-colors ${
+                          active
+                            ? "bg-[#ECC462] border-[#ECC462] text-[#111111]"
+                            : "bg-white border-gray-200 text-gray-600 hover:border-[#ECC462]"
+                        }`}
+                        data-testid={`button-day-${d}`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-gray-500">
+                  Currently runs on: {currentDays.map(d => DAY_LABELS[d]).join(", ") || "—"}
+                </p>
+                {effectiveDays.length === 0 && (
+                  <p className="text-xs text-red-600">Select at least one day.</p>
+                )}
+              </div>
+            )}
+
             {/* Affected summary */}
             <div className={`rounded-lg border p-4 space-y-2 ${mode === "delete" ? "bg-red-50 border-red-200" : "bg-amber-50 border-[#ECC462]"}`}>
               <p className="text-sm font-semibold text-gray-900" data-testid="text-affected-summary">
-                {mode === "edit" ? "Will update" : "Will delete"} {affected.classes.length} class{affected.classes.length !== 1 ? "es" : ""}
+                {mode === "edit" ? "Will update" : mode === "days" ? "Will move/replace" : "Will delete"} {affected.classes.length} class{affected.classes.length !== 1 ? "es" : ""}
                 {affected.skippedPast > 0 && ` · ${affected.skippedPast} past class${affected.skippedPast !== 1 ? "es" : ""} untouched`}
                 {affected.skippedDetached > 0 && ` · ${affected.skippedDetached} individually edited class${affected.skippedDetached !== 1 ? "es" : ""} skipped`}
               </p>
@@ -304,6 +408,19 @@ export default function SeriesManager({ seriesId, anchorClass, mode, instructors
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...</>
               ) : (
                 <>Update {affected.classes.length} Class{affected.classes.length !== 1 ? "es" : ""}</>
+              )}
+            </Button>
+          ) : mode === "days" ? (
+            <Button
+              className="bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] font-medium"
+              disabled={isPending || isLoading || effectiveDays.length === 0 || !daysChanged}
+              onClick={() => daysMutation.mutate()}
+              data-testid="button-series-change-days"
+            >
+              {daysMutation.isPending ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Changing Days...</>
+              ) : (
+                <>Change Days</>
               )}
             </Button>
           ) : (

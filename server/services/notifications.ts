@@ -27,7 +27,8 @@ export type NotificationType =
   | 'scrape_failure'
   | 'scrape_recovered'
   | 'auto_enroll_failed'
-  | 'start_date_change';
+  | 'start_date_change'
+  | 'series_days_change';
 
 export type RecipientType = 'student' | 'parent' | 'staff';
 
@@ -720,6 +721,124 @@ export async function notifyStartDateActionNeeded(details: {
       courseType: details.courseType,
       oldDate: details.oldDate,
       newDate: details.newDate ?? undefined,
+      reason: details.reason,
+      studentIds: details.students.map((s) => s.studentId),
+    },
+    recipients,
+    channels: ['email', 'in_app'],
+  });
+}
+
+// Notify a specific set of students (and their linked parents) that their
+// class was moved to a different day because the office changed the days of
+// week a recurring series runs on. Scoped to moved students only.
+export async function notifySeriesDayMove(details: {
+  studentIds: number[];
+  classTitle: string;
+  oldDate: string;
+  newDate: string;
+  time?: string | null;
+  newClassId: number;
+}, triggeredBy?: string): Promise<void> {
+  const recipients: NotificationRecipient[] = [];
+  for (const studentId of details.studentIds) {
+    recipients.push(...(await getStudentRecipients(studentId)));
+  }
+  if (recipients.length === 0) return;
+
+  const message =
+    `The recurring schedule for your class "${details.classTitle}" has changed which days of the week it runs on, and your class has been moved:\n\n` +
+    `Date: ${details.oldDate} → ${details.newDate}\n` +
+    (details.time ? `Time: ${details.time}\n` : '') +
+    `\nYour calendar has been updated automatically — no action is needed.`;
+
+  await enqueueNotification({
+    type: 'schedule_change',
+    title: `Schedule Change: ${details.classTitle}`,
+    message,
+    payload: {
+      classId: details.newClassId,
+      oldDate: details.oldDate,
+      newDate: details.newDate,
+      newTime: details.time ?? undefined,
+    },
+    recipients,
+    triggeredBy,
+  });
+}
+
+// Notify a specific set of students (and their linked parents) that their
+// class was removed because the series' days changed and they could not be
+// moved automatically — the office will follow up.
+export async function notifySeriesDayRemoved(details: {
+  studentIds: number[];
+  classTitle: string;
+  date: string;
+  time?: string | null;
+  classId: number;
+}, triggeredBy?: string): Promise<void> {
+  const recipients: NotificationRecipient[] = [];
+  for (const studentId of details.studentIds) {
+    recipients.push(...(await getStudentRecipients(studentId)));
+  }
+  if (recipients.length === 0) return;
+
+  const message =
+    `Your class "${details.classTitle}" on ${details.date}${details.time ? ` at ${details.time}` : ''} has been removed because the recurring schedule changed which days of the week it runs on.\n\n` +
+    `Our office will contact you shortly to rebook you onto the new schedule. ` +
+    `If you have any questions in the meantime, please reach out to the office.`;
+
+  await enqueueNotification({
+    type: 'class_cancelled',
+    title: `Class Removed: ${details.classTitle}`,
+    message,
+    payload: {
+      classId: details.classId,
+      oldDate: details.date,
+      oldTime: details.time ?? undefined,
+    },
+    recipients,
+    triggeredBy,
+  });
+}
+
+// Alert the office when changing a series' days of week leaves enrolled
+// students needing manual attention (could not be moved to a new-day class).
+export async function notifySeriesDaysActionNeeded(details: {
+  seriesTitle: string;
+  oldDays: string;
+  newDays: string;
+  reason: string;
+  students: { studentId: number; studentName: string; note?: string }[];
+}): Promise<number | null> {
+  const recipients = await getOfficeRecipients();
+
+  if (recipients.length === 0) {
+    console.error(
+      `[series] Days-of-week change for "${details.seriesTitle}" needs manual handling but there are no office recipients to notify. Reason: ${details.reason}`,
+    );
+    return null;
+  }
+
+  const studentLines = details.students
+    .map((s) => `- ${s.studentName} (#${s.studentId})${s.note ? ` — ${s.note}` : ''}`)
+    .join('\n');
+
+  const message =
+    `The recurring series "${details.seriesTitle}" changed which days of the week it runs on (${details.oldDays} → ${details.newDays}), ` +
+    `and the following enrolled student${details.students.length === 1 ? '' : 's'} need${details.students.length === 1 ? 's' : ''} manual attention:\n\n` +
+    `${studentLines}\n\n` +
+    `Reason: ${details.reason}\n\n` +
+    `Please review these students' enrollments and rebook or contact them as needed.`;
+
+  return enqueueNotification({
+    type: 'series_days_change',
+    title: `Series Days Changed — ${details.students.length} student${details.students.length === 1 ? '' : 's'} need attention`,
+    message,
+    payload: {
+      seriesTitle: details.seriesTitle,
+      oldDays: details.oldDays,
+      newDays: details.newDays,
       reason: details.reason,
       studentIds: details.students.map((s) => s.studentId),
     },
