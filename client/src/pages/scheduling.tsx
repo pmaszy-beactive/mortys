@@ -31,6 +31,7 @@ export default function Scheduling() {
     driving: true,
   });
   const [draggedClass, setDraggedClass] = useState<Class | null>(null);
+  const [expandedDay, setExpandedDay] = useState<Date | null>(null);
   const [dragOverDate, setDragOverDate] = useState<Date | null>(null);
   const [seriesAction, setSeriesAction] = useState<{ mode: "edit" | "delete"; anchorClass: Class } | null>(null);
   const { toast } = useToast();
@@ -736,7 +737,7 @@ export default function Scheduling() {
                 return (
                   <div 
                     key={i} 
-                    className={`p-3 h-28 relative transition-all duration-200 ${
+                    className={`p-2 min-h-28 relative transition-all duration-200 ${
                       calendarDay.isCurrentMonth 
                         ? isTodayDate
                           ? 'bg-amber-50 ring-2 ring-[#ECC462] ring-inset'
@@ -784,9 +785,14 @@ export default function Scheduling() {
                         );
                       })}
                       {filteredClasses.length > 2 && (
-                        <div className="text-xs text-gray-600 font-medium bg-gray-100 rounded-md px-2 py-1">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedDay(calendarDay.date)}
+                          className="w-full text-left text-xs text-gray-700 font-medium bg-gray-100 hover:bg-gray-200 rounded-md px-2 py-1 cursor-pointer transition-colors"
+                          data-testid={`button-more-classes-${format(calendarDay.date, 'yyyy-MM-dd')}`}
+                        >
                           +{filteredClasses.length - 2} more
-                        </div>
+                        </button>
                       )}
                     </div>
                   </div>
@@ -919,6 +925,61 @@ export default function Scheduling() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Expanded Day Dialog */}
+        {expandedDay && (
+          <Dialog open={true} onOpenChange={() => setExpandedDay(null)}>
+            <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto" data-testid="dialog-day-classes">
+              <DialogHeader>
+                <DialogTitle>{format(expandedDay, 'EEEE, MMMM d, yyyy')}</DialogTitle>
+                <DialogDescription>
+                  All classes scheduled for this day. Click a class to edit it.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-2">
+                {classes
+                  .filter(cls => {
+                    if (!cls.date || typeof cls.date !== 'string') return false;
+                    const [year, month, day] = cls.date.split('-').map(Number);
+                    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return false;
+                    return year === expandedDay.getFullYear() &&
+                           (month - 1) === expandedDay.getMonth() &&
+                           day === expandedDay.getDate();
+                  })
+                  .filter(cls =>
+                    vehicleFilters[cls.courseType as keyof typeof vehicleFilters] &&
+                    classTypeFilters[(cls.classType || 'theory') as keyof typeof classTypeFilters]
+                  )
+                  .sort((a, b) => (a.time || '').localeCompare(b.time || ''))
+                  .map(cls => {
+                    const hasConflict = getClassConflicts(cls.id).length > 0;
+                    return (
+                      <button
+                        key={cls.id}
+                        type="button"
+                        onClick={() => {
+                          setExpandedDay(null);
+                          setEditingClass(cls);
+                        }}
+                        className={`w-full text-left text-sm px-3 py-2 rounded-md font-medium cursor-pointer ${getCourseColor(cls.courseType)} ${hasConflict ? 'ring-2 ring-red-500 ring-offset-1' : ''}`}
+                        data-testid={`button-day-class-${cls.id}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {hasConflict && <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />}
+                          <span>{cls.courseType.charAt(0).toUpperCase()}{cls.courseType.slice(1)} #{cls.classNumber}</span>
+                          <span className="ml-auto flex items-center gap-1 text-xs">
+                            <Clock className="h-3 w-3" />
+                            {cls.time}
+                          </span>
+                        </div>
+                        {hasConflict && <div className="text-xs text-red-600 mt-1">Scheduling conflict</div>}
+                      </button>
+                    );
+                  })}
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
 
         {/* Edit Dialog */}
         {editingClass && (
