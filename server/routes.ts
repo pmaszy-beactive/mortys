@@ -4820,6 +4820,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         reason,
         logTail,
         consecutiveFailures: parseCount(req.body?.consecutiveFailures),
+        skippedPages: parseCount(req.body?.skippedPages),
+        skippedOnly:
+          req.body?.skippedOnly === true || req.body?.skippedOnly === "true",
       });
       res.json({ ok: true, notificationId });
     } catch (error: any) {

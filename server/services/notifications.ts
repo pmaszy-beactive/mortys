@@ -331,6 +331,12 @@ export async function notifyScrapeFailure(failure: {
   reason: string;
   logTail?: string;
   consecutiveFailures?: number;
+  // Pages the spider gave up on after exhausting retries/re-queues (missing
+  // from the scraped data). When `skippedOnly` is true the run otherwise
+  // succeeded (exit 0) — the alert is reframed as "skipped pages" rather than
+  // a hard failure.
+  skippedPages?: number;
+  skippedOnly?: boolean;
 }): Promise<number | null> {
   const recipients = await getScrapeAlertRecipients();
 
@@ -351,19 +357,43 @@ export async function notifyScrapeFailure(failure: {
     streak > 1
       ? `This scrape has now failed ${streak} nights in a row.\n`
       : '';
-  const title =
-    streak > 1
-      ? `Nightly Scrape Still Failing (${streak} days) — ${failure.runDate}`
-      : `Nightly Scrape Failed — ${failure.runDate}`;
+
+  const skipped =
+    typeof failure.skippedPages === 'number' && failure.skippedPages > 0
+      ? failure.skippedPages
+      : undefined;
+  const skippedOnly = failure.skippedOnly === true && !!skipped;
 
   const tail = failure.logTail?.trim();
-  const message =
-    `The nightly registration scrape failed.\n\n` +
-    streakLine +
-    `Run date: ${failure.runDate}\n` +
-    `Reason: ${failure.reason}\n\n` +
-    `Registration data may now be stale until this is resolved.` +
-    (tail ? `\n\nRecent log output:\n${tail}` : '');
+
+  let title: string;
+  let message: string;
+  if (skippedOnly) {
+    // The run itself exited cleanly, but some pages were dropped after the
+    // spider exhausted its retries — frame it as a data gap, not a crash.
+    title = `Nightly Scrape Skipped ${skipped} Page${skipped === 1 ? '' : 's'} — ${failure.runDate}`;
+    message =
+      `The nightly registration scrape completed, but ${skipped} page${skipped === 1 ? '' : 's'} could not be fetched and ${skipped === 1 ? 'is' : 'are'} missing from tonight's data.\n\n` +
+      `Run date: ${failure.runDate}\n` +
+      `Reason: ${failure.reason}\n\n` +
+      `The affected records may be stale until a future run picks them up.` +
+      (tail ? `\n\nSkipped pages:\n${tail}` : '');
+  } else {
+    title =
+      streak > 1
+        ? `Nightly Scrape Still Failing (${streak} days) — ${failure.runDate}`
+        : `Nightly Scrape Failed — ${failure.runDate}`;
+    message =
+      `The nightly registration scrape failed.\n\n` +
+      streakLine +
+      `Run date: ${failure.runDate}\n` +
+      `Reason: ${failure.reason}\n` +
+      (skipped
+        ? `Skipped pages this run: ${skipped} (missing from the scraped data)\n`
+        : '') +
+      `\nRegistration data may now be stale until this is resolved.` +
+      (tail ? `\n\nRecent log output:\n${tail}` : '');
+  }
 
   return enqueueNotification({
     type: 'scrape_failure',
@@ -372,7 +402,8 @@ export async function notifyScrapeFailure(failure: {
     payload: {
       runDate: failure.runDate,
       reason: failure.reason,
-      consecutiveFailures: streak,
+      consecutiveFailures: skippedOnly ? undefined : streak,
+      ...(skipped ? { skippedPages: skipped, skippedOnly } : {}),
     },
     recipients,
     channels: ['email', 'in_app'],

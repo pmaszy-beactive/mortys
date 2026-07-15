@@ -204,6 +204,25 @@ if echo "$COMBINED_OUTPUT" | grep -qiE "Redirected to login|session cookie has e
     REASON="Session cookie expired (scraper was redirected to the login page). Refresh the cookie."
 fi
 
+# --- Skipped-page detection --------------------------------------------------
+# The spider retries + re-queues flaky pages, but if it still gives up it only
+# logs a "SKIPPING <url> ... MISSING from the scrape" line and a run-summary
+# count — the run can exit 0 with pages silently missing. Sum the summary
+# counts from every spider invocation (queue drain + registration scrape); if
+# no summary line is present (e.g. the run died early), fall back to counting
+# the individual SKIPPING lines.
+SKIPPED_PAGES="$(echo "$COMBINED_OUTPUT" \
+    | grep -oE "Pages SKIPPED after exhausting retries/re-queues: [0-9]+" \
+    | grep -oE "[0-9]+" \
+    | awk '{s+=$1} END {print s+0}')"
+if [ "${SKIPPED_PAGES:-0}" -eq 0 ]; then
+    SKIPPED_PAGES="$(echo "$COMBINED_OUTPUT" | grep -c "SKIPPING ")"
+fi
+[ -z "$SKIPPED_PAGES" ] && SKIPPED_PAGES=0
+if [ "$SKIPPED_PAGES" -gt 0 ]; then
+    echo "# Skipped pages detected in this run: $SKIPPED_PAGES"
+fi
+
 PREV_FAILURES="$(read_failure_count)"
 
 if [ -n "$REASON" ]; then
@@ -220,19 +239,68 @@ if [ -n "$REASON" ]; then
     # Build a JSON payload safely (use python for proper escaping; fall back to
     # a minimal payload if python is unavailable).
     if command -v python3 >/dev/null 2>&1; then
-        PAYLOAD="$(RUN_DATE="$TODAY" REASON="$REASON" LOG_TAIL="$LOG_TAIL" CONSECUTIVE="$CONSECUTIVE" python3 -c '
+        PAYLOAD="$(RUN_DATE="$TODAY" REASON="$REASON" LOG_TAIL="$LOG_TAIL" CONSECUTIVE="$CONSECUTIVE" SKIPPED="$SKIPPED_PAGES" python3 -c '
 import json, os
 print(json.dumps({
     "runDate": os.environ.get("RUN_DATE", ""),
     "reason": os.environ.get("REASON", ""),
     "logTail": os.environ.get("LOG_TAIL", ""),
     "consecutiveFailures": int(os.environ.get("CONSECUTIVE", "1") or "1"),
+    "skippedPages": int(os.environ.get("SKIPPED", "0") or "0"),
 }))')"
     else
-        PAYLOAD="{\"runDate\":\"$TODAY\",\"reason\":\"$REASON\",\"consecutiveFailures\":$CONSECUTIVE}"
+        PAYLOAD="{\"runDate\":\"$TODAY\",\"reason\":\"$REASON\",\"consecutiveFailures\":$CONSECUTIVE,\"skippedPages\":$SKIPPED_PAGES}"
     fi
 
     post_alert "$PAYLOAD" "failure"
+elif [ "$SKIPPED_PAGES" -gt 0 ]; then
+    # The run exited cleanly but the spider still gave up on one or more pages
+    # after exhausting retries/re-queues — those pages are missing from
+    # tonight's data. Alert the office (email + in-app) so the gap isn't
+    # silent. This does NOT count toward the failure streak: the streak (and
+    # its recovery notice) tracks hard failures like an expired cookie, while
+    # each night with skips sends its own fresh alert anyway.
+    REASON="Scrape completed but $SKIPPED_PAGES page(s) were skipped after exhausting retries — they are missing from tonight's data."
+    echo "# Run succeeded with $SKIPPED_PAGES skipped page(s) — sending skipped-pages alert."
+
+    # Quote the SKIPPING lines themselves (they name the missing URLs) so the
+    # alert is actionable; cap at 40 lines like the failure log tail.
+    LOG_TAIL="$(echo "$COMBINED_OUTPUT" | grep "SKIPPING " | tail -n 40)"
+
+    if command -v python3 >/dev/null 2>&1; then
+        PAYLOAD="$(RUN_DATE="$TODAY" REASON="$REASON" LOG_TAIL="$LOG_TAIL" SKIPPED="$SKIPPED_PAGES" python3 -c '
+import json, os
+print(json.dumps({
+    "runDate": os.environ.get("RUN_DATE", ""),
+    "reason": os.environ.get("REASON", ""),
+    "logTail": os.environ.get("LOG_TAIL", ""),
+    "skippedPages": int(os.environ.get("SKIPPED", "0") or "0"),
+    "skippedOnly": True,
+}))')"
+    else
+        PAYLOAD="{\"runDate\":\"$TODAY\",\"reason\":\"$REASON\",\"skippedPages\":$SKIPPED_PAGES,\"skippedOnly\":true}"
+    fi
+
+    post_alert "$PAYLOAD" "skipped-pages"
+
+    # A skip-only run still counts as a success for the hard-failure streak:
+    # send the recovery notice if we were failing, then reset the counter.
+    if [ "$PREV_FAILURES" -gt 0 ]; then
+        echo "# Scrape recovered after $PREV_FAILURES failed run(s) — sending recovery notice."
+        if command -v python3 >/dev/null 2>&1; then
+            RECOVERY_PAYLOAD="$(RUN_DATE="$TODAY" PREV="$PREV_FAILURES" python3 -c '
+import json, os
+print(json.dumps({
+    "runDate": os.environ.get("RUN_DATE", ""),
+    "recovered": True,
+    "consecutiveFailures": int(os.environ.get("PREV", "0") or "0"),
+}))')"
+        else
+            RECOVERY_PAYLOAD="{\"runDate\":\"$TODAY\",\"recovered\":true,\"consecutiveFailures\":$PREV_FAILURES}"
+        fi
+        post_alert "$RECOVERY_PAYLOAD" "recovery"
+    fi
+    write_failure_count 0
 else
     # This run succeeded. If we were in a failure streak, send a one-time
     # "recovered" notice, then reset the counter. Otherwise stay silent.
