@@ -31,6 +31,10 @@ args = "Start application"
 task = "workflow.run"
 args = "theme-alpha"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "enrollment-counts"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -47,6 +51,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx tsx scripts/check-theme-alpha.ts"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "enrollment-counts"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/check-enrollment-counts.ts"
 
 [workflows.workflow.metadata]
 isValidation = true
