@@ -223,6 +223,7 @@ export default function CourseStartDates() {
       apiRequest("POST", "/api/admin/backfill-start-date-enrollments"),
     onSuccess: (report) => {
       setBackfillReport(report);
+      queryClient.invalidateQueries({ queryKey: ["/api/classes"] });
       toast({
         title: "Backfill finished",
         description: `${report.enrolled.length} student(s) enrolled, ${report.failed.length} could not be matched, ${report.skipped.length} skipped.`,

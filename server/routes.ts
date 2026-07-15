@@ -1958,8 +1958,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Classes routes
   app.get("/api/classes", authMiddleware, async (req, res) => {
     try {
-      const classes = await storage.getClasses();
-      res.json(classes);
+      const allClasses = await storage.getClasses();
+      const counts = await db
+        .select({
+          classId: classEnrollments.classId,
+          enrolledCount: count(classEnrollments.id),
+        })
+        .from(classEnrollments)
+        .where(isNull(classEnrollments.cancelledAt))
+        .groupBy(classEnrollments.classId);
+      const countMap = new Map(counts.map(c => [c.classId, Number(c.enrolledCount)]));
+      res.json(allClasses.map(c => ({ ...c, enrolledCount: countMap.get(c.id) ?? 0 })));
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch classes" });
     }

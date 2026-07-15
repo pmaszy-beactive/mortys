@@ -238,7 +238,7 @@ export default function Scheduling() {
 
   const calendarDays = generateCalendarDays(currentMonth);
 
-  const { data: classes = [], isLoading: classesLoading } = useQuery<Class[]>({
+  const { data: classes = [], isLoading: classesLoading } = useQuery<(Class & { enrolledCount?: number })[]>({
     queryKey: ["/api/classes"],
   });
 
@@ -858,14 +858,14 @@ export default function Scheduling() {
                     </div>
                     <div className="flex items-center space-x-5">
                       <div className="text-right">
-                        <p className="text-sm font-bold text-gray-900 mb-0.5">
-                          0 / {classItem.maxStudents}
+                        <p className="text-sm font-bold text-gray-900 mb-0.5" data-testid={`text-enrolled-count-${classItem.id}`}>
+                          {classItem.enrolledCount ?? 0} / {classItem.maxStudents}
                         </p>
                         <p className="text-xs text-gray-500">
                           Students
                         </p>
-                        <Badge className="mt-2 bg-[#ECC462] text-[#111111]">
-                          {classItem.maxStudents} spots
+                        <Badge className="mt-2 bg-[#ECC462] text-[#111111]" data-testid={`badge-spots-remaining-${classItem.id}`}>
+                          {Math.max(0, classItem.maxStudents - (classItem.enrolledCount ?? 0))} spots
                         </Badge>
                       </div>
                       <div className="flex space-x-2">
