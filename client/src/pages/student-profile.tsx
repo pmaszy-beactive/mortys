@@ -109,6 +109,12 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
     enabled: !!student,
   });
 
+  const { data: allClasses = [] } = useQuery<Class[]>({
+    queryKey: ["/api/classes"],
+    enabled: !!student && enrollments.length > 0,
+  });
+  const classById = new Map(allClasses.map((c) => [c.id, c]));
+
   // Flag students who picked a start date at registration but were never
   // enrolled (auto-enrollment failed) so they don't slip through the cracks.
   interface EnrollmentSuggestion {
@@ -1143,18 +1149,28 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {enrollments.map((enrollment) => (
-                      <TableRow key={enrollment.id}>
-                        <TableCell>Class #{enrollment.classId}</TableCell>
-                        <TableCell>{enrollment.checkInAt ? formatDate(enrollment.checkInAt.toString()) : "—"}</TableCell>
-                        <TableCell>—</TableCell>
-                        <TableCell>
-                          <Badge className="bg-gradient-to-r from-[#ECC462] to-amber-500 text-[#111111] shadow-md">
-                            Enrolled
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {enrollments.map((enrollment) => {
+                      const cls = enrollment.classId ? classById.get(enrollment.classId) : undefined;
+                      const className = cls
+                        ? `${cls.classType === "theory" ? "Theory" : "Driving"} ${cls.classNumber ?? ""}`.trim()
+                        : `Class #${enrollment.classId}`;
+                      return (
+                        <TableRow key={enrollment.id} data-testid={`row-enrollment-${enrollment.id}`}>
+                          <TableCell data-testid={`text-enrollment-class-${enrollment.id}`}>{className}</TableCell>
+                          <TableCell data-testid={`text-enrollment-date-${enrollment.id}`}>{cls?.date ? formatDate(cls.date) : "—"}</TableCell>
+                          <TableCell data-testid={`text-enrollment-time-${enrollment.id}`}>{cls?.time || "—"}</TableCell>
+                          <TableCell>
+                            {enrollment.cancelledAt ? (
+                              <Badge variant="secondary" className="text-gray-600">Cancelled</Badge>
+                            ) : (
+                              <Badge className="bg-gradient-to-r from-[#ECC462] to-amber-500 text-[#111111] shadow-md">
+                                Enrolled
+                              </Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                     {enrollments.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={4} className="text-center py-8 text-gray-500">
