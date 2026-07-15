@@ -21,6 +21,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarPlus, Loader2, Pencil, Trash2, CalendarDays, UserPlus, X } from "lucide-react";
 
@@ -53,7 +54,7 @@ const COURSE_LABELS: Record<string, string> = {
 type BackfillReport = {
   scanned: number;
   enrolled: { studentId: number; studentName: string; classId: number }[];
-  failed: { studentId: number; studentName: string; reason: string }[];
+  failed: { studentId: number; studentName: string; reason: string; handled?: boolean }[];
   skipped: { studentId: number; studentName: string; reason: string }[];
 };
 
@@ -61,7 +62,7 @@ type EnrollmentReport = {
   action: "none" | "rescheduled" | "cancelled";
   affected: number;
   moved: { studentId: number; studentName: string }[];
-  needsAttention: { studentId: number; studentName: string; note?: string }[];
+  needsAttention: { studentId: number; studentName: string; note?: string; handled?: boolean }[];
   officeNotified: boolean;
 };
 
@@ -108,6 +109,34 @@ export default function CourseStartDates() {
   const setChangeReport = (report: EnrollmentReport | null) => {
     setChangeReportState(report);
     writeStoredReport(CHANGE_REPORT_KEY, report);
+  };
+
+  const toggleBackfillHandled = (studentId: number) => {
+    setBackfillReportState((prev) => {
+      if (!prev) return prev;
+      const next = {
+        ...prev,
+        failed: prev.failed.map((s) =>
+          s.studentId === studentId ? { ...s, handled: !s.handled } : s,
+        ),
+      };
+      writeStoredReport(BACKFILL_REPORT_KEY, next);
+      return next;
+    });
+  };
+
+  const toggleAttentionHandled = (studentId: number) => {
+    setChangeReportState((prev) => {
+      if (!prev) return prev;
+      const next = {
+        ...prev,
+        needsAttention: prev.needsAttention.map((s) =>
+          s.studentId === studentId ? { ...s, handled: !s.handled } : s,
+        ),
+      };
+      writeStoredReport(CHANGE_REPORT_KEY, next);
+      return next;
+    });
   };
 
   const { data: dates = [], isLoading } = useQuery<CourseStartDate[]>({
@@ -323,17 +352,34 @@ export default function CourseStartDates() {
             {backfillReport.failed.length > 0 && (
               <div>
                 <p className="font-medium text-red-600 mb-1">Needs manual enrollment</p>
-                <ul className="list-disc pl-5 space-y-0.5">
+                <ul className="space-y-1">
                   {backfillReport.failed.map((s) => (
-                    <li key={s.studentId} data-testid={`text-backfill-failed-${s.studentId}`}>
-                      <Link
-                        href={`/students/${s.studentId}`}
-                        className="text-[#111111] underline underline-offset-2 hover:text-[#d4b058]"
-                        data-testid={`link-backfill-failed-${s.studentId}`}
-                      >
-                        {s.studentName}
-                      </Link>{" "}
-                      — {s.reason}
+                    <li
+                      key={s.studentId}
+                      className="flex items-start gap-2"
+                      data-testid={`text-backfill-failed-${s.studentId}`}
+                    >
+                      <Checkbox
+                        checked={!!s.handled}
+                        onCheckedChange={() => toggleBackfillHandled(s.studentId)}
+                        aria-label={`Mark ${s.studentName} as handled`}
+                        className="mt-0.5"
+                        data-testid={`checkbox-backfill-handled-${s.studentId}`}
+                      />
+                      <span className={s.handled ? "line-through text-gray-400" : undefined}>
+                        <Link
+                          href={`/students/${s.studentId}`}
+                          className={
+                            s.handled
+                              ? "text-gray-400 underline underline-offset-2"
+                              : "text-[#111111] underline underline-offset-2 hover:text-[#d4b058]"
+                          }
+                          data-testid={`link-backfill-failed-${s.studentId}`}
+                        >
+                          {s.studentName}
+                        </Link>{" "}
+                        — {s.reason}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -581,17 +627,34 @@ export default function CourseStartDates() {
               {changeReport.needsAttention.length > 0 && (
                 <div>
                   <p className="font-medium text-red-600 mb-1">Needs manual attention</p>
-                  <ul className="list-disc pl-5 space-y-0.5">
+                  <ul className="space-y-1">
                     {changeReport.needsAttention.map((s) => (
-                      <li key={s.studentId} data-testid={`text-report-attention-${s.studentId}`}>
-                        <Link
-                          href={`/students/${s.studentId}`}
-                          className="text-[#111111] underline underline-offset-2 hover:text-[#d4b058]"
-                          data-testid={`link-report-attention-${s.studentId}`}
-                        >
-                          {s.studentName}
-                        </Link>
-                        {s.note ? ` — ${s.note}` : ""}
+                      <li
+                        key={s.studentId}
+                        className="flex items-start gap-2"
+                        data-testid={`text-report-attention-${s.studentId}`}
+                      >
+                        <Checkbox
+                          checked={!!s.handled}
+                          onCheckedChange={() => toggleAttentionHandled(s.studentId)}
+                          aria-label={`Mark ${s.studentName} as handled`}
+                          className="mt-0.5"
+                          data-testid={`checkbox-attention-handled-${s.studentId}`}
+                        />
+                        <span className={s.handled ? "line-through text-gray-400" : undefined}>
+                          <Link
+                            href={`/students/${s.studentId}`}
+                            className={
+                              s.handled
+                                ? "text-gray-400 underline underline-offset-2"
+                                : "text-[#111111] underline underline-offset-2 hover:text-[#d4b058]"
+                            }
+                            data-testid={`link-report-attention-${s.studentId}`}
+                          >
+                            {s.studentName}
+                          </Link>
+                          {s.note ? ` — ${s.note}` : ""}
+                        </span>
                       </li>
                     ))}
                   </ul>
