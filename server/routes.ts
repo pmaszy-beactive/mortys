@@ -1378,6 +1378,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/students/stats", authMiddleware, async (_req, res) => {
+    try {
+      const activeCount = await storage.getStudentCountByStatus("active");
+      res.json({ activeCount });
+    } catch (error) {
+      console.error("Error fetching student stats:", error);
+      res.status(500).json({ message: "Failed to fetch student stats" });
+    }
+  });
+
   app.get("/api/students/:id", authMiddleware, async (req, res) => {
     try {
       const id = parseInt(req.params.id);

@@ -69,6 +69,7 @@ export interface IStorage {
     limit?: number;
     offset?: number;
   }): Promise<{ students: Student[]; total: number }>;
+  getStudentCountByStatus(status: string): Promise<number>;
   getStudent(id: number): Promise<Student | undefined>;
   createStudent(student: InsertStudent): Promise<Student>;
   updateStudent(id: number, student: Partial<InsertStudent>): Promise<Student>;
@@ -853,6 +854,10 @@ export class MemStorage implements IStorage {
     const students = allStudents.slice(offset, offset + limit);
     
     return { students, total };
+  }
+
+  async getStudentCountByStatus(status: string): Promise<number> {
+    return Array.from(this.students.values()).filter(s => s.status === status).length;
   }
 
   async createStudent(insertStudent: InsertStudent): Promise<Student> {
@@ -3742,6 +3747,13 @@ export class DatabaseStorage implements IStorage {
       students: studentList,
       total: totalResult?.count || 0,
     };
+  }
+
+  async getStudentCountByStatus(status: string): Promise<number> {
+    const [result] = await db.select({ count: sql<number>`count(*)::int` })
+      .from(students)
+      .where(eq(students.status, status));
+    return result?.count || 0;
   }
 
   // Payer-Student linking methods

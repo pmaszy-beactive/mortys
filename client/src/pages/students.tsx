@@ -115,6 +115,10 @@ export default function Students() {
     queryKey: ["/api/locations"],
   });
 
+  const { data: studentStats } = useQuery<{ activeCount: number }>({
+    queryKey: ["/api/students/stats"],
+  });
+
   // One bulk request: IDs of active students who picked a start date during
   // registration but have no active enrollments (auto-enrollment failed).
   const { data: needsEnrollmentData } = useQuery<{ studentIds: number[] }>({
@@ -127,6 +131,7 @@ export default function Students() {
     onSuccess: () => {
       refetch();
       refetchTransfers();
+      queryClient.invalidateQueries({ queryKey: ["/api/students/stats"] });
       toast({ title: "Success", description: "Student deleted successfully" });
     },
     onError: () => {
@@ -140,6 +145,7 @@ export default function Students() {
       setSelectedStudents(new Set());
       refetch();
       refetchTransfers();
+      queryClient.invalidateQueries({ queryKey: ["/api/students/stats"] });
       toast({ title: "Success", description: `Deleted ${data.deletedCount} of ${data.totalRequested} students` });
     },
     onError: () => {
@@ -316,7 +322,7 @@ export default function Students() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">Active Students</p>
-                <p className="text-3xl font-bold text-gray-900">{students.filter(s => s.status === 'active').length}</p>
+                <p className="text-3xl font-bold text-gray-900" data-testid="text-active-students-count">{studentStats?.activeCount ?? 0}</p>
               </div>
               <div className="p-2 bg-gray-50 rounded-md border border-gray-100">
                 <Sparkles className="h-5 w-5 text-[#ECC462]" />

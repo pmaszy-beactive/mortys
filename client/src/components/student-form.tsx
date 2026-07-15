@@ -137,6 +137,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
     mutationFn: (data: StudentFormData) => apiRequest("POST", "/api/students", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/students"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/students/stats"] });
       toast({
         title: "✓ Success",
         description: "Student created successfully",
@@ -187,6 +188,7 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
     mutationFn: (data: StudentFormData) => apiRequest("PUT", `/api/students/${student!.id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/students"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/students/stats"] });
       toast({
         title: "✓ Success",
         description: "Student updated successfully",

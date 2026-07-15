@@ -142,6 +142,7 @@ export default function TransferStudentForm({ onSuccess }: TransferStudentFormPr
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/students"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/students/stats"] });
       toast({ title: "Success", description: "Transfer student added successfully" });
       form.reset();
       setCompletedTheoryClasses([]);
