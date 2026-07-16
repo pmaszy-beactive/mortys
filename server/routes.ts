@@ -2678,14 +2678,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const changes: any = {};
         let hasChanges = false;
         
-        if (existingClass.scheduledDate !== classData.scheduledDate) {
-          changes.oldDate = existingClass.scheduledDate;
-          changes.newDate = classData.scheduledDate;
+        if (existingClass.date !== classData.date) {
+          changes.oldDate = existingClass.date;
+          changes.newDate = classData.date;
           hasChanges = true;
         }
-        if (existingClass.startTime !== classData.startTime || existingClass.endTime !== classData.endTime) {
-          changes.oldTime = `${existingClass.startTime} - ${existingClass.endTime}`;
-          changes.newTime = `${classData.startTime} - ${classData.endTime}`;
+        if (existingClass.time !== classData.time || existingClass.duration !== classData.duration) {
+          changes.oldTime = `${existingClass.time} (${existingClass.duration} min)`;
+          changes.newTime = `${classData.time} (${classData.duration} min)`;
           hasChanges = true;
         }
         if (existingClass.instructorId !== classData.instructorId) {
@@ -2701,7 +2701,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const triggeredBy = (req as any).user?.id || (req.session as any)?.userId || 'system';
             await notificationService.notifyScheduleChange({
               id: classData.id,
-              title: classData.title,
+              title: `${classData.courseType.toUpperCase()} ${classData.classType === 'driving' ? 'Driving' : 'Theory'} Class #${classData.classNumber} (${classData.date})`,
               changes,
             }, triggeredBy);
           } catch (notifyError) {
