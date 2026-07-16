@@ -2218,7 +2218,26 @@ export class DatabaseStorage implements IStorage {
 
   // Instructor-specific methods
   async getInstructorStudents(instructorId: number): Promise<Student[]> {
-    return await db.select().from(students).where(eq(students.instructorId, instructorId));
+    const direct = await db.select().from(students).where(eq(students.instructorId, instructorId));
+
+    const enrolled = await db
+      .select({ student: students })
+      .from(classEnrollments)
+      .innerJoin(classes, eq(classEnrollments.classId, classes.id))
+      .innerJoin(students, eq(classEnrollments.studentId, students.id))
+      .where(
+        and(
+          eq(classes.instructorId, instructorId),
+          isNull(classEnrollments.cancelledAt)
+        )
+      );
+
+    const byId = new Map<number, Student>();
+    for (const s of direct) byId.set(s.id, s);
+    for (const row of enrolled) {
+      if (!byId.has(row.student.id)) byId.set(row.student.id, row.student);
+    }
+    return Array.from(byId.values());
   }
 
   async getInstructorClasses(instructorId: number): Promise<Class[]> {
