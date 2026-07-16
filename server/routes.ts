@@ -6243,15 +6243,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       (c: any) => c && c.classType === "theory" && c.classNumber === 5 && c.status !== "cancelled",
     ) as any[];
     if (matches.length === 0) return null;
-    // Prefer the class whose scheduled start is soonest in the future, else the most recent.
+    // Attach the enrollment's attendance status so we can prefer the class the
+    // student actually attended over a merely-upcoming enrollment.
+    const attendanceByClassId = new Map<number, string | null>(
+      active.map((e: any) => [e.classId as number, e.attendanceStatus ?? null]),
+    );
     matches.sort((a, b) => {
       const da = parseClassDateTime(a.date, a.time)?.getTime() ?? 0;
       const db2 = parseClassDateTime(b.date, b.time)?.getTime() ?? 0;
       return da - db2;
     });
     const now = Date.now();
+    const started = matches.filter((c) => (parseClassDateTime(c.date, c.time)?.getTime() ?? Infinity) <= now);
+    // 1) Most recent started class the student attended — its exam window governs.
+    const attendedStarted = started.filter((c) => attendanceByClassId.get(c.id) === "attended");
+    if (attendedStarted.length > 0) return attendedStarted[attendedStarted.length - 1];
+    // 2) Otherwise the soonest upcoming class (student is waiting for it).
     const upcoming = matches.find((c) => (parseClassDateTime(c.date, c.time)?.getTime() ?? 0) >= now);
-    return upcoming || matches[matches.length - 1];
+    if (upcoming) return upcoming;
+    // 3) Otherwise the most recent past class (even if attendance wasn't recorded).
+    return matches[matches.length - 1];
   };
 
   // Build the client-safe question list for a test (image paths + option labels, NO answers).
