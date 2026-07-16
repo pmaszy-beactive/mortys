@@ -376,7 +376,7 @@ export async function notifyScrapeFailure(failure: {
       `The nightly registration scrape completed, but ${skipped} page${skipped === 1 ? '' : 's'} could not be fetched and ${skipped === 1 ? 'is' : 'are'} missing from tonight's data.\n\n` +
       `Run date: ${failure.runDate}\n` +
       `Reason: ${failure.reason}\n\n` +
-      `The affected records may be stale until a future run picks them up.` +
+      `The skipped pages have been queued for automatic retry — the next nightly run will re-fetch them. No manual action is needed unless they keep failing.` +
       (tail ? `\n\nSkipped pages:\n${tail}` : '');
   } else {
     title =

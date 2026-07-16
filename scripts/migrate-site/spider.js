@@ -129,6 +129,9 @@ class SiteMigrationSpider {
         // Pages permanently given up on (every navigation attempt + every
         // re-queue failed). Surfaced in the run summary so gaps are obvious.
         this.skippedPages = 0;
+        // Of those, how many were appended to the persistent scrape queue file
+        // so the next nightly run's queue drain re-fetches them automatically.
+        this.skippedQueuedForRetry = 0;
         this.browser = null;
         this.page = null;
 
@@ -252,6 +255,58 @@ class SiteMigrationSpider {
         this.pendingQueue.delete(norm);
         this.rewriteQueueFile();
         log.debug(`    Removed from queue file: ${url} (${this.pendingQueue.size} still queued)`);
+    }
+
+    // A page the spider permanently gave up on (retries + re-queues exhausted)
+    // is appended to the persistent scrape queue file so the next nightly
+    // run's queue drain automatically re-fetches it — no manual work needed.
+    // De-duplicated against entries already in the file. In queue mode a
+    // failed queue seed already stays in the file (it is only removed on
+    // success), so this is a no-op for those; skipped DISCOVERED links found
+    // during a drain are folded into the in-memory seed list instead of a raw
+    // append, because rewriteQueueFile() rewrites the file from that list and
+    // would otherwise wipe a bare appended line.
+    queueSkippedPageForRetry(url) {
+        const norm = this.normalizeUrl(url);
+        try {
+            if (this.queueMode) {
+                if (this.pendingQueue.has(norm)) {
+                    // Failed queue seed: stays in the queue file by design.
+                    log.warn(`    ${url} remains in the scrape queue file for the next run.`);
+                    return;
+                }
+                if (this.queueSeedUrls.some(u => this.normalizeUrl(u) === norm)) return;
+                // Keep it in pendingQueue so later rewrites (as other seeds
+                // succeed) preserve the entry. It was marked visited on skip,
+                // so it won't be re-scraped (or removed on success) this run.
+                this.queueSeedUrls.push(url);
+                this.pendingQueue.add(norm);
+                this.rewriteQueueFile();
+                this.skippedQueuedForRetry++;
+                log.warn(`    Queued ${url} for automatic retry on the next run (${this.queueFile})`);
+                return;
+            }
+            const queueFile = QUEUE_FILE;
+            const existing = fs.existsSync(queueFile)
+                ? new Set(
+                      fs.readFileSync(queueFile, 'utf8')
+                          .split('\n')
+                          .map(l => l.trim())
+                          .filter(Boolean)
+                          .map(u => this.normalizeUrl(u))
+                  )
+                : new Set();
+            if (existing.has(norm)) {
+                log.debug(`    ${url} is already in the scrape queue file — not re-adding.`);
+                return;
+            }
+            fs.mkdirSync(path.dirname(queueFile), { recursive: true });
+            fs.appendFileSync(queueFile, url + '\n');
+            this.skippedQueuedForRetry++;
+            log.warn(`    Queued ${url} for automatic retry on the next run (${queueFile})`);
+        } catch (e) {
+            log.warn(`    Could not queue skipped page for retry (${url}): ${e.message}`);
+        }
     }
 
     // Rewrite the queue file with only the still-pending entries. Crash-safe:
@@ -750,6 +805,7 @@ class SiteMigrationSpider {
                 this.visitedHashes.add(urlHash);
                 this.skippedPages++;
                 log.error(`    SKIPPING ${url} — gave up after ${MAX_RETRIES + 1} attempt(s) x ${MAX_REQUEUES + 1} pass(es). This page is MISSING from the scrape.`);
+                this.queueSkippedPageForRetry(url);
             }
             return { url, error: e.message };
         }
@@ -831,6 +887,7 @@ class SiteMigrationSpider {
         log.info(`Pages scraped: ${this.pagesScraped}`);
         if (this.skippedPages > 0) {
             log.error(`Pages SKIPPED after exhausting retries/re-queues: ${this.skippedPages} (these are MISSING from the scrape — search the log for "SKIPPING")`);
+            log.error(`Skipped pages queued for automatic retry on the next run: ${this.skippedQueuedForRetry}${this.queueMode ? ` (plus any failed queue seeds left in ${this.queueFile})` : ` (${QUEUE_FILE})`}`);
         } else {
             log.info(`Pages skipped: 0`);
         }

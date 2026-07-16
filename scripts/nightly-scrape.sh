@@ -260,7 +260,7 @@ elif [ "$SKIPPED_PAGES" -gt 0 ]; then
     # silent. This does NOT count toward the failure streak: the streak (and
     # its recovery notice) tracks hard failures like an expired cookie, while
     # each night with skips sends its own fresh alert anyway.
-    REASON="Scrape completed but $SKIPPED_PAGES page(s) were skipped after exhausting retries — they are missing from tonight's data."
+    REASON="Scrape completed but $SKIPPED_PAGES page(s) were skipped after exhausting retries — they are missing from tonight's data. The skipped pages have been added to the scrape queue and will be re-fetched automatically on the next nightly run."
     echo "# Run succeeded with $SKIPPED_PAGES skipped page(s) — sending skipped-pages alert."
 
     # Quote the SKIPPING lines themselves (they name the missing URLs) so the
