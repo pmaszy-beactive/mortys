@@ -60,6 +60,7 @@ import {
 } from "./services/json-importer";
 import { loadOrAnalyzeImportGaps } from "./services/import-gap-analysis";
 import { getNightlyScrapeLog } from "./services/nightly-scrape-log";
+import { checkInstructorAvailability } from "./services/availability";
 import * as notificationService from "./services/notifications";
 import {
   generateInviteToken,
@@ -2005,6 +2006,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Class creation request body:", req.body);
       const classData = insertClassSchema.parse(req.body);
       console.log("Class data after validation:", classData);
+      const availabilityViolation = await checkInstructorAvailability(
+        classData.instructorId, classData.date, classData.time, classData.duration,
+      );
+      if (availabilityViolation) {
+        return res.status(409).json({
+          message: availabilityViolation.message,
+          availabilityViolations: [availabilityViolation.message],
+        });
+      }
       const newClass = await storage.createClass(classData);
       console.log("Class created successfully:", newClass);
       res.status(201).json(newClass);
@@ -2049,6 +2059,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (dates.length === 0) return res.status(400).json({ message: "No dates match the selected days of week in this range" });
+
+      // Pre-validate every date against the instructor's availability before
+      // creating anything (no partial creation).
+      if (instructorId) {
+        const instId = parseInt(instructorId);
+        const dur = parseInt(duration) || 120;
+        const availabilityViolations: string[] = [];
+        const checkedDays = new Set<number>();
+        for (const date of dates) {
+          const dow = new Date(date + "T00:00:00").getDay();
+          if (checkedDays.has(dow)) continue;
+          checkedDays.add(dow);
+          const violation = await checkInstructorAvailability(instId, date, time, dur);
+          if (violation) availabilityViolations.push(violation.message);
+        }
+        if (availabilityViolations.length > 0) {
+          return res.status(409).json({
+            message: `Schedule falls outside the instructor's availability. No classes were created.`,
+            availabilityViolations,
+            conflicts: availabilityViolations,
+          });
+        }
+      }
 
       const seriesId = randomUUID();
       const created = [];
@@ -2166,12 +2199,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null;
       };
       const conflictErrors: string[] = [];
+      const availabilityViolations: string[] = [];
       const seriesClassIds = new Set(seriesClasses.map(c => c.id));
+      const scheduleFieldsChanged =
+        updateData.time !== undefined || updateData.duration !== undefined || updateData.instructorId !== undefined;
       for (const cls of targets) {
         const newTime = updateData.time !== undefined ? updateData.time : cls.time;
         const newDuration = updateData.duration !== undefined ? updateData.duration : cls.duration;
         const newInstructorId = updateData.instructorId !== undefined ? updateData.instructorId : cls.instructorId;
         const newRoom = updateData.room !== undefined ? updateData.room : cls.room;
+
+        if (scheduleFieldsChanged) {
+          const violation = await checkInstructorAvailability(newInstructorId, cls.date, newTime, newDuration);
+          if (violation) availabilityViolations.push(`${cls.date}: ${violation.message}`);
+        }
+
         const startMin = parseTime(newTime);
         if (startMin === null) continue;
         const endMin = startMin + (newDuration || 120);
@@ -2199,6 +2241,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             conflictErrors.push(`${cls.date}: room "${newRoom}" is already booked at ${other.time} (class #${other.id})`);
           }
         }
+      }
+      if (availabilityViolations.length > 0) {
+        return res.status(409).json({
+          message: `Series update falls outside the instructor's availability on ${availabilityViolations.length} class${availabilityViolations.length !== 1 ? 'es' : ''}. No classes were changed.`,
+          availabilityViolations,
+          conflicts: availabilityViolations,
+        });
       }
       if (conflictErrors.length > 0) {
         return res.status(409).json({
@@ -2339,6 +2388,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const endMin = startMin !== null ? startMin + (template.duration || 120) : null;
       const removedIds = new Set(toRemove.map(c => c.id));
       const conflictErrors: string[] = [];
+      const availabilityViolations: string[] = [];
+      {
+        const checkedDays = new Set<number>();
+        for (const date of toCreate) {
+          const dow = dayOf(date);
+          if (checkedDays.has(dow)) continue;
+          checkedDays.add(dow);
+          const violation = await checkInstructorAvailability(
+            template.instructorId, date, template.time, template.duration,
+          );
+          if (violation) availabilityViolations.push(violation.message);
+        }
+      }
+      if (availabilityViolations.length > 0) {
+        return res.status(409).json({
+          message: `The new days fall outside the instructor's availability. No classes were changed.`,
+          availabilityViolations,
+          conflicts: availabilityViolations,
+        });
+      }
       if (startMin !== null && endMin !== null) {
         for (const date of toCreate) {
           const sameDay = await db.select().from(classes).where(and(
@@ -2569,6 +2638,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get existing class data to compare for changes
       const existingClass = await storage.getClass(id);
+
+      // Validate against instructor availability when schedule-relevant
+      // fields are changing.
+      const scheduleChanging =
+        updateData.date !== undefined || updateData.time !== undefined ||
+        updateData.duration !== undefined || updateData.instructorId !== undefined;
+      if (existingClass && scheduleChanging) {
+        const newDate = updateData.date !== undefined ? updateData.date : existingClass.date;
+        const newTime = updateData.time !== undefined ? updateData.time : existingClass.time;
+        const newDuration = updateData.duration !== undefined ? updateData.duration : existingClass.duration;
+        const newInstructorId = updateData.instructorId !== undefined ? updateData.instructorId : existingClass.instructorId;
+        const violation = await checkInstructorAvailability(newInstructorId, newDate, newTime, newDuration);
+        if (violation) {
+          return res.status(409).json({
+            message: violation.message,
+            availabilityViolations: [violation.message],
+          });
+        }
+      }
 
       // If this class belongs to a recurring series and a schedule-relevant
       // field is being changed individually, flag it as detached so later

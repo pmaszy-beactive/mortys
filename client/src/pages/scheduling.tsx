@@ -68,10 +68,10 @@ export default function Scheduling() {
         description: "The class has been moved to the new date.",
       });
     },
-    onError: () => {
+    onError: (err: any) => {
       toast({
         title: "Error",
-        description: "Failed to reschedule class.",
+        description: err?.data?.message || "Failed to reschedule class.",
         variant: "destructive",
       });
     },
@@ -117,7 +117,10 @@ export default function Scheduling() {
       });
     },
     onError: (err: any) => {
-      const msg = err?.message || "Failed to generate schedule.";
+      const violations = err?.data?.availabilityViolations;
+      const msg = violations?.length
+        ? `${err.data.message} ${violations.slice(0, 3).join("; ")}${violations.length > 3 ? "…" : ""}`
+        : err?.data?.message || err?.message || "Failed to generate schedule.";
       toast({ title: "Error", description: msg, variant: "destructive" });
     },
   });

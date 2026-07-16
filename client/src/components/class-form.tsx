@@ -96,8 +96,12 @@ export default function ClassForm({ classData, onSuccess }: ClassFormProps) {
       queryClient.invalidateQueries({ queryKey: ["/api/class-enrollments"] });
       onSuccess();
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update class", variant: "destructive" });
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error?.data?.message || error?.data?.error || "Failed to update class",
+        variant: "destructive",
+      });
     },
   });
 
