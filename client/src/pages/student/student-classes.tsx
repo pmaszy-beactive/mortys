@@ -152,6 +152,8 @@ const CalendarView = ({
   isUpcoming: boolean;
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [expandedDay, setExpandedDay] = useState<string | null>(null);
+  const [detailClass, setDetailClass] = useState<ClassWithDetails | null>(null);
   
   const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
@@ -198,19 +200,21 @@ const CalendarView = ({
         <div className={`text-sm font-medium mb-1 flex-shrink-0 ${isToday ? 'text-[#ECC462]' : 'text-gray-700'}`}>
           {day}
         </div>
-        <div className="flex-1 overflow-y-auto space-y-1.5 max-h-28 scrollbar-thin">
-          {dayClasses.map((classItem, index) => {
+        <div className="flex-1 space-y-1.5">
+          {dayClasses.slice(0, 2).map((classItem) => {
             const isTheory = classItem.classNumber && classItem.classNumber <= 5;
-            const hasOverlap = dayClasses.length > 1;
             return (
-              <div 
+              <button
                 key={classItem.id}
-                className={`text-xs p-1.5 rounded-md border-l-2 shadow-sm ${
+                type="button"
+                onClick={() => setDetailClass(classItem)}
+                className={`w-full text-left text-xs p-1.5 rounded-md border-l-2 shadow-sm cursor-pointer hover:brightness-95 transition ${
                   isTheory 
                     ? 'bg-blue-50 text-blue-800 border-l-blue-500' 
                     : 'bg-amber-50 text-amber-800 border-l-amber-500'
-                } ${hasOverlap ? 'relative z-' + (10 - index) : ''}`}
+                }`}
                 title={`${classItem.courseType} - Class ${classItem.classNumber} at ${classItem.time}`}
+                data-testid={`chip-class-${classItem.id}`}
               >
                 <div className="font-medium leading-tight">
                   {classItem.time.slice(0, 5)}
@@ -218,9 +222,19 @@ const CalendarView = ({
                 <div className="leading-tight opacity-80">
                   {isTheory ? 'Theory' : 'Driving'} {classItem.classNumber}
                 </div>
-              </div>
+              </button>
             );
           })}
+          {dayClasses.length > 2 && (
+            <button
+              type="button"
+              onClick={() => setExpandedDay(dateStr)}
+              className="w-full text-left text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md px-1.5 py-1.5 transition-colors"
+              data-testid={`button-more-classes-${dateStr}`}
+            >
+              +{dayClasses.length - 2} more
+            </button>
+          )}
         </div>
       </div>
     );
@@ -249,6 +263,119 @@ const CalendarView = ({
       <div className="grid grid-cols-7 gap-2">
         {calendarDays}
       </div>
+      
+      <Dialog open={expandedDay !== null} onOpenChange={(open) => { if (!open) setExpandedDay(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {expandedDay ? new Date(`${expandedDay}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : ''}
+            </DialogTitle>
+            <DialogDescription>
+              All classes scheduled for this day
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            {(expandedDay ? classesByDate[expandedDay] || [] : []).map((classItem) => {
+              const isTheory = classItem.classNumber && classItem.classNumber <= 5;
+              return (
+                <button
+                  key={classItem.id}
+                  type="button"
+                  onClick={() => setDetailClass(classItem)}
+                  className={`w-full flex items-center justify-between gap-3 text-left text-sm p-3 rounded-md border-l-4 shadow-sm hover:brightness-95 transition ${
+                    isTheory
+                      ? 'bg-blue-50 text-blue-900 border-l-blue-500'
+                      : 'bg-amber-50 text-amber-900 border-l-amber-500'
+                  }`}
+                  data-testid={`day-class-${classItem.id}`}
+                >
+                  <div>
+                    <div className="font-medium">
+                      {isTheory ? 'Theory' : 'Driving'} Class {classItem.classNumber}
+                    </div>
+                    <div className="text-xs opacity-80 flex items-center gap-1 mt-0.5">
+                      <Clock className="h-3 w-3" />
+                      {new Date(`${classItem.date}T${classItem.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                      <span className="mx-1">·</span>
+                      {classItem.duration} min
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 flex-shrink-0 opacity-60" />
+                </button>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={detailClass !== null} onOpenChange={(open) => { if (!open) setDetailClass(null); }}>
+        <DialogContent className="sm:max-w-md">
+          {detailClass && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  {getCourseIcon(detailClass.courseType)}
+                  {detailClass.courseType.toUpperCase()} - Class {detailClass.classNumber}
+                </DialogTitle>
+                <DialogDescription className="sr-only">Class details</DialogDescription>
+              </DialogHeader>
+              <div className="flex items-center gap-2">
+                {getStatusBadge(detailClass)}
+              </div>
+              <div className="space-y-3 text-sm text-gray-700">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-gray-400" />
+                  <span data-testid={`detail-date-${detailClass.id}`}>
+                    {new Date(`${detailClass.date}T${detailClass.time}`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-gray-400" />
+                  <span data-testid={`detail-time-${detailClass.id}`}>
+                    {new Date(`${detailClass.date}T${detailClass.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                    {' · '}{detailClass.duration} min
+                  </span>
+                </div>
+                {detailClass.instructorName && (
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-gray-400" />
+                    <span data-testid={`detail-instructor-${detailClass.id}`}>{detailClass.instructorName}</span>
+                  </div>
+                )}
+                {detailClass.room && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gray-400" />
+                    <span data-testid={`detail-room-${detailClass.id}`}>Room {detailClass.room}</span>
+                  </div>
+                )}
+                {detailClass.zoomLink && (
+                  <a
+                    href={detailClass.zoomLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-amber-700 hover:underline"
+                    data-testid={`detail-zoom-${detailClass.id}`}
+                  >
+                    <Video className="h-4 w-4" />
+                    Join Zoom
+                  </a>
+                )}
+                {detailClass.hasTest && (
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-gray-400" />
+                    <span>
+                      Test Included
+                      {detailClass.testScore !== null && detailClass.testScore !== undefined && (
+                        <span className="ml-1 font-semibold">({detailClass.testScore}%)</span>
+                      )}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
       
       <div className="mt-6 space-y-4">
         <h4 className="font-medium text-gray-700">Classes this month:</h4>
