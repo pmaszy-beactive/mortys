@@ -255,14 +255,14 @@ export default function InstructorSchedule() {
     return 'future';
   };
 
-  // Determine if class is theory or practical
-  const isTheoryClass = (classNumber: number) => {
-    return classNumber === 1 || classNumber === 5; // Classes 1 and 5 are theory
+  // Determine if class is theory or driving based on its actual classType field
+  const isTheoryClass = (classType: string | null | undefined) => {
+    return classType === 'theory';
   };
 
   // Get color scheme for class type
-  const getClassTypeColors = (classNumber: number) => {
-    if (isTheoryClass(classNumber)) {
+  const getClassTypeColors = (classType: string | null | undefined) => {
+    if (isTheoryClass(classType)) {
       return {
         border: 'border-l-blue-500',
         bg: 'bg-white',
@@ -491,13 +491,13 @@ export default function InstructorSchedule() {
                 <div className="w-8 h-8 rounded-md bg-blue-50 border border-blue-200 flex items-center justify-center">
                   <GraduationCap className="h-4 w-4 text-blue-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">Theory Classes (1 & 5)</span>
+                <span className="text-sm font-medium text-gray-700">Theory Classes</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-md bg-green-50 border border-green-200 flex items-center justify-center">
                   <Car className="h-4 w-4 text-green-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">Driving Classes (2, 3 & 4)</span>
+                <span className="text-sm font-medium text-gray-700">Driving Classes</span>
               </div>
             </div>
           </CardContent>
@@ -680,8 +680,8 @@ export default function InstructorSchedule() {
                     ) : (
                       dayClasses.map((classItem) => {
                         const timeStatus = getTimeStatus(classItem.date, classItem.time);
-                        const typeColors = getClassTypeColors(classItem.classNumber);
-                        const isTheory = isTheoryClass(classItem.classNumber);
+                        const typeColors = getClassTypeColors(classItem.classType);
+                        const isTheory = isTheoryClass(classItem.classType);
                         return (
                           <div
                             key={classItem.id}
@@ -795,7 +795,7 @@ export default function InstructorSchedule() {
                           <div
                             key={classItem.id}
                             className={`w-2 h-2 rounded-full ${
-                              isTheoryClass(classItem.classNumber) ? 'bg-blue-500' : 'bg-green-500'
+                              isTheoryClass(classItem.classType) ? 'bg-blue-500' : 'bg-green-500'
                             }`}
                           />
                         ))}
@@ -807,7 +807,7 @@ export default function InstructorSchedule() {
                       {/* Desktop: Show class details */}
                       <div className="hidden sm:block space-y-1 max-h-[70px] overflow-y-auto">
                         {dayClasses.slice(0, 3).map((classItem) => {
-                          const isTheory = isTheoryClass(classItem.classNumber);
+                          const isTheory = isTheoryClass(classItem.classType);
                           return (
                             <div
                               key={classItem.id}
@@ -873,8 +873,8 @@ export default function InstructorSchedule() {
                       })
                       .map((classItem) => {
                         const timeStatus = getTimeStatus(classItem.date, classItem.time);
-                        const typeColors = getClassTypeColors(classItem.classNumber);
-                        const isTheory = isTheoryClass(classItem.classNumber);
+                        const typeColors = getClassTypeColors(classItem.classType);
+                        const isTheory = isTheoryClass(classItem.classType);
                         return (
                           <TableRow 
                             key={classItem.id} 
@@ -1069,10 +1069,10 @@ export default function InstructorSchedule() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center">
-              <div className={`rounded-lg p-2 mr-3 ${isTheoryClass(attendanceClass?.classNumber || 0) ? 'bg-blue-100' : 'bg-green-100'}`}>
-                <ClipboardCheck className={`h-5 w-5 ${isTheoryClass(attendanceClass?.classNumber || 0) ? 'text-blue-600' : 'text-green-600'}`} />
+              <div className={`rounded-lg p-2 mr-3 ${isTheoryClass(attendanceClass?.classType) ? 'bg-blue-100' : 'bg-green-100'}`}>
+                <ClipboardCheck className={`h-5 w-5 ${isTheoryClass(attendanceClass?.classType) ? 'text-blue-600' : 'text-green-600'}`} />
               </div>
-              {isTheoryClass(attendanceClass?.classNumber || 0) ? 'Theory' : 'Driving'} Class Attendance
+              {isTheoryClass(attendanceClass?.classType) ? 'Theory' : 'Driving'} Class Attendance
             </DialogTitle>
             <DialogDescription>
               {attendanceClass && (

@@ -73,7 +73,7 @@ export default function InstructorEvaluations() {
       ...data,
       classId: selectedClass.classData.id,
       studentId: selectedClass.student.id,
-      sessionType: selectedClass.classData.classNumber === 1 || selectedClass.classData.classNumber === 5 ? 'theory' : 'in-car',
+      sessionType: selectedClass.classData.classType === 'theory' ? 'theory' : 'in-car',
       evaluationDate: new Date().toISOString().split('T')[0],
     };
     
@@ -97,8 +97,8 @@ export default function InstructorEvaluations() {
     }
   };
 
-  const getClassTypeInfo = (classNumber: number) => {
-    if (classNumber === 1 || classNumber === 5) {
+  const getClassTypeInfo = (classType: string | null | undefined) => {
+    if (classType === 'theory') {
       return { type: 'Theory', icon: BookOpen, color: 'text-blue-600', bgColor: 'bg-blue-50' };
     }
     return { type: 'Driving', icon: Car, color: 'text-green-600', bgColor: 'bg-green-50' };
@@ -225,7 +225,7 @@ export default function InstructorEvaluations() {
                   </TableHeader>
                   <TableBody>
                     {classesNeedingEval.map((item, index) => {
-                      const classTypeInfo = getClassTypeInfo(item.class.classNumber);
+                      const classTypeInfo = getClassTypeInfo(item.class.classType);
                       const ClassIcon = classTypeInfo.icon;
                       
                       return (
@@ -329,7 +329,7 @@ export default function InstructorEvaluations() {
                 instructorId: instructor?.id,
                 instructorName: instructor ? `${instructor.firstName} ${instructor.lastName}` : undefined,
                 classId: selectedClass.classData.id,
-                sessionType: selectedClass.classData.classNumber === 1 || selectedClass.classData.classNumber === 5 ? 'theory' : 'in-car',
+                sessionType: selectedClass.classData.classType === 'theory' ? 'theory' : 'in-car',
               }}
             />
           )}

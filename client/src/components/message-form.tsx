@@ -302,7 +302,7 @@ export default function MessageForm({ message, onSuccess }: MessageFormProps) {
         const matchesCourseType = student.courseType === cls.courseType;
         const isActiveStudent = student.phase && !student.phase.includes('Completed') && !student.phase.includes('Graduated');
         
-        const isTheoryClass = cls.classNumber <= 12;
+        const isTheoryClass = cls.classType === 'theory';
         const isInCarClass = !isTheoryClass;
         
         if (isTheoryClass) {
