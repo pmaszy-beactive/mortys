@@ -14,7 +14,7 @@ export default function StudentPortalLayout({ children }: StudentPortalLayoutPro
         <StudentSidebar />
         
         {/* Main Content Area */}
-        <div className="flex-1 min-h-screen md:ml-0">
+        <div className="flex-1 min-w-0 min-h-screen md:ml-0">
           {/* Mobile top spacing for fixed header */}
           <div className="md:hidden h-16"></div>
           

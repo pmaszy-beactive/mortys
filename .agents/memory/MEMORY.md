@@ -2,4 +2,5 @@
 - [Frontend API conventions](frontend-api-conventions.md) — apiRequest returns parsed body (no .json()); default queryFn uses only queryKey[0], parameterized URLs need explicit queryFn.
 - [Dev auth testing](dev-auth-testing.md) — session cookies are Secure even in dev; curl tests of admin endpoints must use https://$REPLIT_DEV_DOMAIN, not localhost.
 - [Tailwind theme alpha](tailwind-theme-alpha.md) — theme vars now raw HSL channels + `<alpha-value>`; new theme colors must follow that format or /N variants silently break.
+- [In-browser verification](browser-verification.md) — Puppeteer + system Chromium work in dev; inflated innerWidth = real horizontal overflow (flex-1 missing min-w-0), not an emulation quirk.
 - [Migration baseline](migration-baseline.md) — post-merge "relation already exists" means dev DB got schema via push before tracking; baseline the migration hash, don't replay.
