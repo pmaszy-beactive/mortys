@@ -1362,7 +1362,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/booking-policies/:id", authMiddleware, async (req: any, res) => {
+  const updateBookingPolicyHandler = async (req: any, res: any) => {
     try {
       const id = parseInt(req.params.id);
       const { changeReason, ...rawPolicyData } = req.body;
@@ -1409,7 +1409,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error updating booking policy:", error);
       res.status(500).json({ message: "Failed to update booking policy" });
     }
-  });
+  };
+  app.patch("/api/booking-policies/:id", authMiddleware, updateBookingPolicyHandler);
+  app.put("/api/booking-policies/:id", authMiddleware, updateBookingPolicyHandler);
 
   app.delete("/api/booking-policies/:id", authMiddleware, async (req, res) => {
     try {
@@ -12968,6 +12970,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ message: "Failed to delete user" });
     }
+  });
+
+  // Catch-all for unmatched API routes: return 404 JSON instead of falling
+  // through to the SPA handler (which would return 200 with HTML and make
+  // callers believe the request succeeded).
+  app.use("/api", (_req, res) => {
+    res.status(404).json({ message: "API endpoint not found" });
   });
 
   const httpServer = createServer(app);
