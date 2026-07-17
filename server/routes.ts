@@ -2716,6 +2716,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           changes.newInstructor = newInstructor ? `${newInstructor.firstName} ${newInstructor.lastName}` : 'Unassigned';
           hasChanges = true;
         }
+        if ((existingClass.room || '') !== (classData.room || '')) {
+          changes.oldLocation = existingClass.room || 'No room assigned';
+          changes.newLocation = classData.room || 'No room assigned';
+          hasChanges = true;
+        }
         
         if (hasChanges) {
           try {
