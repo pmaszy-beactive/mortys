@@ -45,7 +45,7 @@ import {
 } from "@shared/examData";
 import { PHASE_DEFINITIONS } from "@shared/phaseConfig";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
-import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY } from "@shared/bookingRules";
+import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { loginUser, isAuthenticatedTraditional } from "./auth";
 import { loginInstructor, isInstructorAuthenticated } from "./instructor-auth";
@@ -2993,7 +2993,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       if (classData) {
-        const classType = classData.classNumber && classData.classNumber <= 5 ? 'theory' : 'driving';
+        const classType = isTheoryClass(classData.classType, classData.classNumber) ? 'theory' : 'driving';
         const policies = await storage.getActiveBookingPolicies(classData.courseType || undefined, classType);
 
         // Check max_duration policy
@@ -3063,7 +3063,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Validate learner's permit for driving (in-car) classes
       if (classData && enrollmentData.studentId) {
-        const classType = classData.classNumber && classData.classNumber <= 5 ? 'theory' : 'driving';
+        const classType = isTheoryClass(classData.classType, classData.classNumber) ? 'theory' : 'driving';
         if (classType === 'driving') {
           const studentForPermit = await storage.getStudent(enrollmentData.studentId);
           if (studentForPermit) {
@@ -3753,14 +3753,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       // Count by class type using classType field, fallback to classNumber if not set
-      const theoryClasses = filteredClasses.filter((c) => {
-        if (c.classType) return c.classType === "theory";
-        return c.classNumber != null && c.classNumber <= 5;
-      });
-      const drivingClasses = filteredClasses.filter((c) => {
-        if (c.classType) return c.classType === "driving";
-        return c.classNumber != null && c.classNumber > 5;
-      });
+      const theoryClasses = filteredClasses.filter((c) => isTheoryClass(c.classType, c.classNumber));
+      const drivingClasses = filteredClasses.filter((c) => !isTheoryClass(c.classType, c.classNumber));
       
       res.json({
         total: filteredClasses.length,
@@ -3969,7 +3963,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             };
           }
           const hours = (cls.duration || 120) / 60;
-          if (cls.classNumber <= 5) {
+          if (isTheoryClass(cls.classType, cls.classNumber)) {
             instructorHoursMap[cls.instructorId].theoryHours += hours;
           } else {
             instructorHoursMap[cls.instructorId].drivingHours += hours;
@@ -3993,10 +3987,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       // Classes by type
-      const theoryClasses = filteredClasses.filter(c => c.classNumber <= 5).length;
-      const drivingClasses = filteredClasses.filter(c => c.classNumber > 5).length;
-      const completedTheoryClasses = completedClasses.filter(c => c.classNumber <= 5).length;
-      const completedDrivingClasses = completedClasses.filter(c => c.classNumber > 5).length;
+      const theoryClasses = filteredClasses.filter(c => isTheoryClass(c.classType, c.classNumber)).length;
+      const drivingClasses = filteredClasses.filter(c => !isTheoryClass(c.classType, c.classNumber)).length;
+      const completedTheoryClasses = completedClasses.filter(c => isTheoryClass(c.classType, c.classNumber)).length;
+      const completedDrivingClasses = completedClasses.filter(c => !isTheoryClass(c.classType, c.classNumber)).length;
       
       res.json({
         students: {
@@ -4067,7 +4061,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             classDate: cls?.date || '',
             classTime: cls?.time || '',
             classNumber: cls?.classNumber || 0,
-            classType: cls && cls.classNumber <= 5 ? 'Theory' : 'Driving',
+            classType: cls && isTheoryClass(cls.classType, cls.classNumber) ? 'Theory' : 'Driving',
             courseType: cls?.courseType || '',
             studentId: enrollment.studentId,
             studentName: student ? `${student.firstName} ${student.lastName}` : 'Unknown',
@@ -4212,7 +4206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const hours = (cls.duration || 120) / 60;
           payrollData[cls.instructorId].classDates.push(cls.date);
           
-          if (cls.classNumber <= 5) {
+          if (isTheoryClass(cls.classType, cls.classNumber)) {
             payrollData[cls.instructorId].theoryClasses++;
             payrollData[cls.instructorId].theoryHours += hours;
           } else {
@@ -4284,7 +4278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         for (const enrollment of attendedEnrollments) {
           const cls = classes.find(c => c.id === enrollment.classId);
           if (cls) {
-            if (cls.classNumber <= 5) {
+            if (isTheoryClass(cls.classType, cls.classNumber)) {
               theoryClassesAttended++;
             } else {
               drivingClassesAttended++;
@@ -8145,7 +8139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const instructor = classItem.instructorId ? instructorMap.get(classItem.instructorId) : null;
         const classDateTime = new Date(`${classItem.date}T${classItem.time}`);
-        const isTheory = classItem.classNumber && classItem.classNumber <= 5;
+        const isTheory = isTheoryClass(classItem.classType, classItem.classNumber);
         
         // Determine lesson status
         let lessonStatus = 'upcoming';
@@ -8539,7 +8533,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const evaluations = await storage.getEvaluationsByStudent(student.id);
 
         // Calculate stats from actual class data (not stored arrays which may be empty)
-        // Theory classes = classNumber 1-5, In-car sessions = classNumber > 5
+        // Classified via classType (fallback to classNumber heuristic when missing)
         // Only count classes where the STUDENT actually attended (not just class marked complete)
         let completedTheoryClasses = 0;
         let completedInCarSessions = 0;
@@ -8550,7 +8544,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const isAttended = enrollment?.attendanceStatus === 'attended';
           
           if (isAttended) {
-            if (classItem.classNumber <= 5) {
+            if (isTheoryClass(classItem.classType, classItem.classNumber)) {
               completedTheoryClasses++;
             } else {
               completedInCarSessions++;
@@ -8604,7 +8598,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const studentClasses = allClasses.filter((c) => classIds.includes(c.id));
         
         // Calculate completed counts based on class type and attendance
-        // Theory classes = classNumber 1-5, In-car sessions = classNumber > 5
+        // Classified via classType (fallback to classNumber heuristic when missing)
         // Only count classes where the STUDENT actually attended (not just class marked complete)
         let completedTheoryClasses = 0;
         let completedInCarSessions = 0;
@@ -8615,7 +8609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const isAttended = enrollment?.attendanceStatus === 'attended';
           
           if (isAttended) {
-            if (classItem.classNumber <= 5) {
+            if (isTheoryClass(classItem.classType, classItem.classNumber)) {
               completedTheoryClasses++;
             } else {
               completedInCarSessions++;
@@ -8869,7 +8863,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .map((c: any) => {
             const instructor = c.instructorId ? instructorMap.get(c.instructorId) : null;
             const enrolled = enrollmentCounts.get(c.id) || 0;
-            const isTheory = c.classNumber && c.classNumber <= 5;
+            const isTheory = isTheoryClass(c.classType, c.classNumber);
             
             return {
               ...c,
@@ -11974,9 +11968,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
 
-        // Class type breakdown (Theory: class 1-5, Driving: class 6+, One-Off: driving lessons with lessonType='one_off')
-        const theoryClasses = completedClasses.filter((c: any) => c.classNumber >= 1 && c.classNumber <= 5);
-        const regularDrivingClasses = completedClasses.filter((c: any) => c.classNumber > 5 && c.lessonType !== 'one_off');
+        // Class type breakdown (classified via classType with classNumber fallback; One-Off: driving lessons with lessonType='one_off')
+        const theoryClasses = completedClasses.filter((c: any) => isTheoryClass(c.classType, c.classNumber));
+        const regularDrivingClasses = completedClasses.filter((c: any) => !isTheoryClass(c.classType, c.classNumber) && c.lessonType !== 'one_off');
         const oneOffClasses = completedClasses.filter((c: any) => c.lessonType === 'one_off');
         
         const theoryHours = theoryClasses.reduce((sum: number, c: any) => sum + (c.duration || 0), 0) / 60;

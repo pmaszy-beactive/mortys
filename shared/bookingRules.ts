@@ -5,6 +5,21 @@
  * Call validateClassBooking() before creating any enrollment.
  */
 
+/**
+ * Classify a class as theory vs driving. Uses the class's actual classType
+ * field; falls back to the legacy class-number heuristic (1-5 = theory) only
+ * when classType is missing.
+ */
+export function isTheoryClass(
+  classType: string | null | undefined,
+  classNumber: number | null | undefined,
+): boolean {
+  if (classType === "theory" || classType === "driving") {
+    return classType === "theory";
+  }
+  return classNumber != null && classNumber <= 5;
+}
+
 export interface CompletedClassRecord {
   classType: "theory" | "driving";
   classNumber: number;
