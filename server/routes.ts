@@ -8787,6 +8787,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         res.json({
           classes: filteredClasses,
+          // date → number of classes already booked that day (scheduled only,
+          // cancelled classes never consume a daily slot). Same counting rule
+          // as the server-side 2-classes-per-day booking limit.
+          dailyBookings: sameDayCountMapAvail,
           phaseInfo: {
             currentPhase: currentPhase.name,
             phaseOrder: currentPhase.order,

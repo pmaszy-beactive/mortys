@@ -69,8 +69,12 @@ interface PhaseInfo {
 
 interface AvailableClassesResponse {
   classes: AvailableClass[];
+  /** date (YYYY-MM-DD) → number of classes already booked that day (cancelled classes excluded) */
+  dailyBookings?: Record<string, number>;
   phaseInfo: PhaseInfo;
 }
+
+const DAILY_CLASS_LIMIT = 2;
 
 const getCourseIcon = (courseType: string) => {
   switch (courseType.toLowerCase()) {
@@ -102,6 +106,7 @@ export default function BookClasses() {
   
   const availableClasses = classesResponse?.classes || [];
   const phaseInfo = classesResponse?.phaseInfo;
+  const dailyBookings = classesResponse?.dailyBookings || {};
 
   const { data: instructors = [] } = useQuery({
     queryKey: ["/api/instructors"],
@@ -200,6 +205,9 @@ export default function BookClasses() {
       minute: "2-digit",
     });
 
+    const bookedOnDay = dailyBookings[classItem.date] ?? 0;
+    const dayFull = bookedOnDay >= DAILY_CLASS_LIMIT;
+
     const isFull = classItem.spotsRemaining <= 0;
     const isLowAvailability = classItem.spotsRemaining <= 3 && classItem.spotsRemaining > 0;
     // bookingAllowed defaults to true for backward compatibility (non-auto courses etc.)
@@ -273,6 +281,18 @@ export default function BookClasses() {
                     <Users className="h-3 w-3" />
                     <span>
                       {classItem.spotsRemaining} {classItem.spotsRemaining === 1 ? 'spot' : 'spots'} left
+                    </span>
+                  </div>
+                )}
+                {bookedOnDay > 0 && (
+                  <div className={`flex items-center gap-1 text-sm px-3 py-1 rounded-md border ${
+                    dayFull ? "bg-red-50 text-red-700 border-red-100" : "bg-blue-50 text-blue-700 border-blue-100"
+                  }`} data-testid={`badge-daily-bookings-${classItem.id}`}>
+                    <Calendar className="h-3 w-3" />
+                    <span>
+                      {dayFull
+                        ? `Daily limit reached (${bookedOnDay} of ${DAILY_CLASS_LIMIT} booked on ${formattedDate})`
+                        : `${bookedOnDay} of ${DAILY_CLASS_LIMIT} daily bookings used on ${formattedDate}`}
                     </span>
                   </div>
                 )}
