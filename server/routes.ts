@@ -451,6 +451,55 @@ function effectiveDailyLimit(
   return policy?.value ?? MAX_CLASSES_PER_DAY;
 }
 
+/**
+ * Scope + date-window overlap check for daily-limit policies. Two
+ * max_bookings_per_day policies conflict when their course/class scopes can
+ * both match the same class (null = "all") and their effective windows
+ * intersect — enforcement then picks whichever is found first, which is
+ * arbitrary. Used to warn staff at save time.
+ */
+function findOverlappingDailyLimitPolicies(
+  candidate: {
+    id?: number;
+    policyType: string;
+    isActive: boolean;
+    courseType?: string | null;
+    classType?: string | null;
+    effectiveFrom?: Date | string | null;
+    effectiveTo?: Date | string | null;
+  },
+  policies: Array<{
+    id: number;
+    name: string;
+    policyType: string;
+    isActive: boolean;
+    value: number;
+    courseType?: string | null;
+    classType?: string | null;
+    effectiveFrom?: Date | string | null;
+    effectiveTo?: Date | string | null;
+  }>,
+) {
+  if (candidate.policyType !== 'max_bookings_per_day' || !candidate.isActive) return [];
+  const scopesOverlap = (a?: string | null, b?: string | null) => !a || !b || a === b;
+  const toTime = (d?: Date | string | null, fallback?: number) =>
+    d ? new Date(d).getTime() : fallback!;
+  const datesOverlap = (
+    aFrom?: Date | string | null, aTo?: Date | string | null,
+    bFrom?: Date | string | null, bTo?: Date | string | null,
+  ) =>
+    toTime(aFrom, -Infinity) <= toTime(bTo, Infinity) &&
+    toTime(bFrom, -Infinity) <= toTime(aTo, Infinity);
+  return policies.filter(p =>
+    p.id !== candidate.id &&
+    p.policyType === 'max_bookings_per_day' &&
+    p.isActive &&
+    scopesOverlap(candidate.courseType, p.courseType) &&
+    scopesOverlap(candidate.classType, p.classType) &&
+    datesOverlap(candidate.effectiveFrom, candidate.effectiveTo, p.effectiveFrom, p.effectiveTo)
+  );
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Public endpoint — publishable key is meant to be exposed
   app.get('/api/stripe-config', (_req, res) => {
@@ -1223,8 +1272,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid booking policy data", errors: parsed.error.flatten().fieldErrors });
       }
+      const existing = await storage.getBookingPolicies();
       const policy = await storage.createBookingPolicy(parsed.data);
-      res.status(201).json(policy);
+      const overlaps = findOverlappingDailyLimitPolicies(
+        { ...parsed.data, id: policy.id, isActive: parsed.data.isActive ?? true },
+        existing,
+      );
+      res.status(201).json({
+        ...policy,
+        ...(overlaps.length > 0 && {
+          overlapWarning: {
+            message: `This daily-limit policy overlaps ${overlaps.length} other active daily-limit ${overlaps.length === 1 ? 'policy' : 'policies'}. When scopes overlap, whichever policy is matched first wins — the effective limit may not be the one you expect.`,
+            policies: overlaps.map(p => ({ id: p.id, name: p.name, value: p.value, courseType: p.courseType ?? null, classType: p.classType ?? null })),
+          },
+        }),
+      });
     } catch (error) {
       console.error("Error creating booking policy:", error);
       res.status(500).json({ message: "Failed to create booking policy" });
@@ -1246,15 +1308,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "User authentication required" });
       }
       
+      const existing = await storage.getBookingPolicies();
+
       // Use version tracking if changeReason is provided
-      if (changeReason) {
-        const policy = await storage.updateBookingPolicyWithVersion(id, policyData, userId, changeReason);
-        res.json(policy);
-      } else {
-        // Simple update without version tracking
-        const policy = await storage.updateBookingPolicy(id, policyData);
-        res.json(policy);
-      }
+      const policy = changeReason
+        ? await storage.updateBookingPolicyWithVersion(id, policyData, userId, changeReason)
+        : await storage.updateBookingPolicy(id, policyData);
+
+      const overlaps = findOverlappingDailyLimitPolicies(
+        {
+          id,
+          policyType: policy.policyType,
+          isActive: policy.isActive,
+          courseType: policy.courseType,
+          classType: policy.classType,
+          effectiveFrom: policy.effectiveFrom,
+          effectiveTo: policy.effectiveTo,
+        },
+        existing,
+      );
+      res.json({
+        ...policy,
+        ...(overlaps.length > 0 && {
+          overlapWarning: {
+            message: `This daily-limit policy overlaps ${overlaps.length} other active daily-limit ${overlaps.length === 1 ? 'policy' : 'policies'}. When scopes overlap, whichever policy is matched first wins — the effective limit may not be the one you expect.`,
+            policies: overlaps.map(p => ({ id: p.id, name: p.name, value: p.value, courseType: p.courseType ?? null, classType: p.classType ?? null })),
+          },
+        }),
+      });
     } catch (error) {
       console.error("Error updating booking policy:", error);
       res.status(500).json({ message: "Failed to update booking policy" });

@@ -123,6 +123,20 @@ export default function BookingPolicies() {
     },
   });
 
+  const showOverlapWarning = (result: any) => {
+    const warning = result?.overlapWarning;
+    if (!warning) return;
+    const names = Array.isArray(warning.policies)
+      ? warning.policies.map((p: any) => `"${p.name}" (limit ${p.value})`).join(", ")
+      : "";
+    toast({
+      title: "Overlapping Daily-Limit Policies",
+      description: `${warning.message}${names ? ` Overlaps with: ${names}.` : ""} Consider deactivating or narrowing the scope of one of them.`,
+      variant: "destructive",
+      duration: 12000,
+    });
+  };
+
   const handlePolicyError = (error: any, fallback: string) => {
     const fieldErrors = error?.status === 400 ? error?.data?.errors : undefined;
     if (fieldErrors && typeof fieldErrors === "object" && Object.keys(fieldErrors).length > 0) {
@@ -156,9 +170,10 @@ export default function BookingPolicies() {
       };
       return apiRequest("POST", "/api/booking-policies", payload);
     },
-    onSuccess: () => {
+    onSuccess: (result: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/booking-policies"] });
       toast({ title: "Policy Created", description: "Booking policy has been created successfully." });
+      showOverlapWarning(result);
       setIsDialogOpen(false);
       form.reset();
     },
@@ -180,9 +195,10 @@ export default function BookingPolicies() {
       };
       return apiRequest("PATCH", `/api/booking-policies/${id}`, payload);
     },
-    onSuccess: () => {
+    onSuccess: (result: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/booking-policies"] });
       toast({ title: "Policy Updated", description: "Booking policy has been updated successfully. Version history has been updated." });
+      showOverlapWarning(result);
       setIsDialogOpen(false);
       setEditingPolicy(null);
       form.reset();
@@ -253,6 +269,25 @@ export default function BookingPolicies() {
 
   const getPolicyTypeLabel = (type: string) => {
     return policyTypes.find(t => t.value === type)?.label || type;
+  };
+
+  // Mirrors the server-side overlap rule: two active max_bookings_per_day
+  // policies conflict when their course/class scopes intersect (null = all)
+  // and their effective date windows overlap.
+  const getOverlappingPolicies = (policy: BookingPolicy): BookingPolicy[] => {
+    if (policy.policyType !== "max_bookings_per_day" || !policy.isActive) return [];
+    const scopesOverlap = (a?: string | null, b?: string | null) => !a || !b || a === b;
+    const t = (d: Date | string | null | undefined, fallback: number) =>
+      d ? new Date(d).getTime() : fallback;
+    return policies.filter(p =>
+      p.id !== policy.id &&
+      p.policyType === "max_bookings_per_day" &&
+      p.isActive &&
+      scopesOverlap(policy.courseType, p.courseType) &&
+      scopesOverlap(policy.classType, p.classType) &&
+      t(policy.effectiveFrom, -Infinity) <= t(p.effectiveTo, Infinity) &&
+      t(p.effectiveFrom, -Infinity) <= t(policy.effectiveTo, Infinity)
+    );
   };
 
   const formatValue = (type: string, value: number) => {
@@ -349,12 +384,22 @@ export default function BookingPolicies() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {policies.map((policy) => (
+                  {policies.map((policy) => {
+                    const overlaps = getOverlappingPolicies(policy);
+                    return (
                     <TableRow key={policy.id} data-testid={`row-policy-${policy.id}`}>
                       <TableCell className="font-medium" data-testid={`text-policy-name-${policy.id}`}>
                         {policy.name}
                         {policy.description && (
                           <p className="text-xs text-gray-500 mt-1">{policy.description}</p>
+                        )}
+                        {overlaps.length > 0 && (
+                          <div className="mt-1" data-testid={`badge-policy-overlap-${policy.id}`}>
+                            <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-xs gap-1">
+                              <AlertTriangle className="h-3 w-3" />
+                              Overlaps: {overlaps.map(p => p.name).join(", ")}
+                            </Badge>
+                          </div>
                         )}
                       </TableCell>
                       <TableCell data-testid={`text-policy-type-${policy.id}`}>
@@ -460,7 +505,7 @@ export default function BookingPolicies() {
                         </Dialog>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );})}
                 </TableBody>
               </Table>
             )}
