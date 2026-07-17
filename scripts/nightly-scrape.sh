@@ -223,6 +223,21 @@ if [ "$SKIPPED_PAGES" -gt 0 ]; then
     echo "# Skipped pages detected in this run: $SKIPPED_PAGES"
 fi
 
+# --- Abandoned-page detection -------------------------------------------------
+# The spider caps per-URL queue retries (SCRAPE_QUEUE_MAX_FAILURES, default 5
+# consecutive failed nights). When a URL hits the cap it is dropped from the
+# queue file for good and logged as "ABANDONED <url> ...". Because the entry is
+# removed, this alert fires exactly once per URL — count those lines so the
+# office gets a one-time "gave up on <url>" notice instead of nightly reminders
+# forever.
+# Match only the per-URL lines ("ABANDONED http..."), not the run-summary
+# line ("Pages ABANDONED (...): N"), so the count is accurate.
+ABANDONED_PAGES="$(echo "$COMBINED_OUTPUT" | grep -c "ABANDONED http")"
+[ -z "$ABANDONED_PAGES" ] && ABANDONED_PAGES=0
+if [ "$ABANDONED_PAGES" -gt 0 ]; then
+    echo "# Abandoned pages (dropped from the retry queue) in this run: $ABANDONED_PAGES"
+fi
+
 PREV_FAILURES="$(read_failure_count)"
 
 if [ -n "$REASON" ]; then
@@ -233,13 +248,20 @@ if [ -n "$REASON" ]; then
     echo "# Consecutive failure count: $CONSECUTIVE"
 
     # Quote the last 40 lines of output (queue drain + registration scrape) so
-    # the alert has actionable context.
+    # the alert has actionable context. If any URLs were permanently abandoned
+    # this run, prepend those lines — the tail alone might scroll past them.
     LOG_TAIL="$(echo "$COMBINED_OUTPUT" | tail -n 40)"
+    if [ "$ABANDONED_PAGES" -gt 0 ]; then
+        ABANDONED_LINES="$(echo "$COMBINED_OUTPUT" | grep "ABANDONED http" | tail -n 40)"
+        LOG_TAIL="$ABANDONED_LINES
+
+$LOG_TAIL"
+    fi
 
     # Build a JSON payload safely (use python for proper escaping; fall back to
     # a minimal payload if python is unavailable).
     if command -v python3 >/dev/null 2>&1; then
-        PAYLOAD="$(RUN_DATE="$TODAY" REASON="$REASON" LOG_TAIL="$LOG_TAIL" CONSECUTIVE="$CONSECUTIVE" SKIPPED="$SKIPPED_PAGES" python3 -c '
+        PAYLOAD="$(RUN_DATE="$TODAY" REASON="$REASON" LOG_TAIL="$LOG_TAIL" CONSECUTIVE="$CONSECUTIVE" SKIPPED="$SKIPPED_PAGES" ABANDONED="$ABANDONED_PAGES" python3 -c '
 import json, os
 print(json.dumps({
     "runDate": os.environ.get("RUN_DATE", ""),
@@ -247,9 +269,10 @@ print(json.dumps({
     "logTail": os.environ.get("LOG_TAIL", ""),
     "consecutiveFailures": int(os.environ.get("CONSECUTIVE", "1") or "1"),
     "skippedPages": int(os.environ.get("SKIPPED", "0") or "0"),
+    "abandonedPages": int(os.environ.get("ABANDONED", "0") or "0"),
 }))')"
     else
-        PAYLOAD="{\"runDate\":\"$TODAY\",\"reason\":\"$REASON\",\"consecutiveFailures\":$CONSECUTIVE,\"skippedPages\":$SKIPPED_PAGES}"
+        PAYLOAD="{\"runDate\":\"$TODAY\",\"reason\":\"$REASON\",\"consecutiveFailures\":$CONSECUTIVE,\"skippedPages\":$SKIPPED_PAGES,\"abandonedPages\":$ABANDONED_PAGES}"
     fi
 
     post_alert "$PAYLOAD" "failure"
@@ -261,24 +284,29 @@ elif [ "$SKIPPED_PAGES" -gt 0 ]; then
     # its recovery notice) tracks hard failures like an expired cookie, while
     # each night with skips sends its own fresh alert anyway.
     REASON="Scrape completed but $SKIPPED_PAGES page(s) were skipped after exhausting retries — they are missing from tonight's data. The skipped pages have been added to the scrape queue and will be re-fetched automatically on the next nightly run."
+    if [ "$ABANDONED_PAGES" -gt 0 ]; then
+        REASON="$REASON $ABANDONED_PAGES page(s) hit the retry cap and were permanently removed from the queue — they will NOT be retried automatically."
+    fi
     echo "# Run succeeded with $SKIPPED_PAGES skipped page(s) — sending skipped-pages alert."
 
     # Quote the SKIPPING lines themselves (they name the missing URLs) so the
-    # alert is actionable; cap at 40 lines like the failure log tail.
-    LOG_TAIL="$(echo "$COMBINED_OUTPUT" | grep "SKIPPING " | tail -n 40)"
+    # alert is actionable; cap at 40 lines like the failure log tail. ABANDONED
+    # lines go first — they name the URLs that will never be retried again.
+    LOG_TAIL="$(echo "$COMBINED_OUTPUT" | grep -E "ABANDONED http|SKIPPING " | tail -n 40)"
 
     if command -v python3 >/dev/null 2>&1; then
-        PAYLOAD="$(RUN_DATE="$TODAY" REASON="$REASON" LOG_TAIL="$LOG_TAIL" SKIPPED="$SKIPPED_PAGES" python3 -c '
+        PAYLOAD="$(RUN_DATE="$TODAY" REASON="$REASON" LOG_TAIL="$LOG_TAIL" SKIPPED="$SKIPPED_PAGES" ABANDONED="$ABANDONED_PAGES" python3 -c '
 import json, os
 print(json.dumps({
     "runDate": os.environ.get("RUN_DATE", ""),
     "reason": os.environ.get("REASON", ""),
     "logTail": os.environ.get("LOG_TAIL", ""),
     "skippedPages": int(os.environ.get("SKIPPED", "0") or "0"),
+    "abandonedPages": int(os.environ.get("ABANDONED", "0") or "0"),
     "skippedOnly": True,
 }))')"
     else
-        PAYLOAD="{\"runDate\":\"$TODAY\",\"reason\":\"$REASON\",\"skippedPages\":$SKIPPED_PAGES,\"skippedOnly\":true}"
+        PAYLOAD="{\"runDate\":\"$TODAY\",\"reason\":\"$REASON\",\"skippedPages\":$SKIPPED_PAGES,\"abandonedPages\":$ABANDONED_PAGES,\"skippedOnly\":true}"
     fi
 
     post_alert "$PAYLOAD" "skipped-pages"

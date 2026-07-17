@@ -4948,6 +4948,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         logTail,
         consecutiveFailures: parseCount(req.body?.consecutiveFailures),
         skippedPages: parseCount(req.body?.skippedPages),
+        abandonedPages: parseCount(req.body?.abandonedPages),
         skippedOnly:
           req.body?.skippedOnly === true || req.body?.skippedOnly === "true",
       });

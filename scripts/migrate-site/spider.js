@@ -43,6 +43,22 @@ const QUEUE_FILE = process.env.SCRAPE_QUEUE_FILE
     ? path.resolve(process.env.SCRAPE_QUEUE_FILE)
     : path.join(OUTPUT_DIR, 'scrape-queue.txt');
 
+// Per-URL retry cap for the persistent scrape queue. A genuinely dead URL
+// (deleted record, permanent 404) would otherwise fail every nightly drain,
+// stay in the queue forever, and trigger a skipped-pages alert every night.
+// After this many consecutive failed runs the entry is dropped from the queue
+// (logged as "ABANDONED" so the nightly wrapper can alert the office once).
+// Failure counts live in a JSON sidecar next to the queue file so they survive
+// restarts; a successful scrape clears the URL's count.
+let MAX_QUEUE_FAILURES = parseInt(process.env.SCRAPE_QUEUE_MAX_FAILURES || '5', 10);
+if (!Number.isFinite(MAX_QUEUE_FAILURES) || MAX_QUEUE_FAILURES < 1) MAX_QUEUE_FAILURES = 5;
+
+function queueFailuresFileFor(queueFile) {
+    return process.env.SCRAPE_QUEUE_FAILURES_FILE
+        ? path.resolve(process.env.SCRAPE_QUEUE_FAILURES_FILE)
+        : `${queueFile}.failures.json`;
+}
+
 let DELAY_MS = 2000;
 let MAX_PAGES = 1000;
 // Number of extra navigation attempts on failure. Defaults to 2 (so a page is
@@ -132,6 +148,11 @@ class SiteMigrationSpider {
         // Of those, how many were appended to the persistent scrape queue file
         // so the next nightly run's queue drain re-fetches them automatically.
         this.skippedQueuedForRetry = 0;
+        // Queue seeds permanently dropped this run after hitting the per-URL
+        // consecutive-failure cap (MAX_QUEUE_FAILURES). Surfaced in the run
+        // summary and via per-URL "ABANDONED" log lines so the nightly wrapper
+        // can alert the office once.
+        this.abandonedPages = 0;
         this.browser = null;
         this.page = null;
 
@@ -143,6 +164,11 @@ class SiteMigrationSpider {
         this.queueFile = null;
         this.queueSeedUrls = [];
         this.pendingQueue = new Set();
+        // Persistent per-URL consecutive-failure counts for queue seeds
+        // (normalized URL -> failed drains). Loaded from / saved to a JSON
+        // sidecar next to the queue file in setQueue().
+        this.queueFailures = new Map();
+        this.queueFailuresFile = null;
         this.explicitSeed = true;
         
         if (!fs.existsSync(OUTPUT_DIR)) {
@@ -233,6 +259,7 @@ class SiteMigrationSpider {
         this.queueFile = queueFile;
         this.queueSeedUrls = urls.slice();
         this.pendingQueue = new Set(urls.map(u => this.normalizeUrl(u)));
+        this.loadQueueFailures();
 
         // Isolate queue runs from the shared resume state (_spider_state.json /
         // _visited_urls.txt) loaded by the constructor. Otherwise a queued URL
@@ -255,6 +282,75 @@ class SiteMigrationSpider {
         this.pendingQueue.delete(norm);
         this.rewriteQueueFile();
         log.debug(`    Removed from queue file: ${url} (${this.pendingQueue.size} still queued)`);
+    }
+
+    // --- Persistent per-URL failure counts (queue retry cap) ----------------
+    // Loaded once when queue mode is enabled. Entries whose URL is no longer in
+    // the queue file are pruned so the sidecar can't grow unbounded.
+    loadQueueFailures() {
+        this.queueFailuresFile = queueFailuresFileFor(this.queueFile);
+        this.queueFailures = new Map();
+        try {
+            if (fs.existsSync(this.queueFailuresFile)) {
+                const raw = JSON.parse(fs.readFileSync(this.queueFailuresFile, 'utf8'));
+                if (raw && typeof raw === 'object') {
+                    for (const [u, n] of Object.entries(raw)) {
+                        const count = parseInt(n, 10);
+                        if (Number.isFinite(count) && count > 0 && this.pendingQueue.has(this.normalizeUrl(u))) {
+                            this.queueFailures.set(this.normalizeUrl(u), count);
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            log.warn(`Could not read queue failure counts (${this.queueFailuresFile}): ${e.message} — starting fresh.`);
+            this.queueFailures = new Map();
+        }
+        if (this.queueFailures.size > 0) {
+            log.info(`Loaded prior failure counts for ${this.queueFailures.size} queued URL(s) (cap: ${MAX_QUEUE_FAILURES} runs).`);
+        }
+    }
+
+    saveQueueFailures() {
+        if (!this.queueFailuresFile) return;
+        try {
+            const obj = Object.fromEntries(this.queueFailures);
+            const tmp = `${this.queueFailuresFile}.tmp`;
+            fs.writeFileSync(tmp, JSON.stringify(obj, null, 2) + '\n');
+            fs.renameSync(tmp, this.queueFailuresFile);
+        } catch (e) {
+            log.warn(`Could not update queue failure counts ${this.queueFailuresFile}: ${e.message}`);
+        }
+    }
+
+    // A queue seed was scraped successfully: forget its failure streak.
+    clearQueueSeedFailure(url) {
+        const norm = this.normalizeUrl(url);
+        if (this.queueFailures.delete(norm)) {
+            this.saveQueueFailures();
+        }
+    }
+
+    // A queue seed hard-failed this run. Bump its consecutive-failure count;
+    // once it hits MAX_QUEUE_FAILURES, drop it from the queue file for good and
+    // log an "ABANDONED" line (the nightly wrapper turns those into a one-time
+    // office alert). Below the cap the seed simply stays queued as before.
+    recordQueueSeedFailure(url) {
+        const norm = this.normalizeUrl(url);
+        if (!this.pendingQueue.has(norm)) return;
+        const count = (this.queueFailures.get(norm) || 0) + 1;
+        if (count >= MAX_QUEUE_FAILURES) {
+            this.pendingQueue.delete(norm);
+            this.queueFailures.delete(norm);
+            this.rewriteQueueFile();
+            this.saveQueueFailures();
+            this.abandonedPages++;
+            log.error(`    ABANDONED ${url} — removed from the scrape queue after ${count} consecutive failed run(s). It will NOT be retried automatically.`);
+        } else {
+            this.queueFailures.set(norm, count);
+            this.saveQueueFailures();
+            log.warn(`    ${url} has now failed ${count}/${MAX_QUEUE_FAILURES} consecutive run(s) — will retry next run.`);
+        }
     }
 
     // A page the spider permanently gave up on (retries + re-queues exhausted)
@@ -282,6 +378,10 @@ class SiteMigrationSpider {
                 this.queueSeedUrls.push(url);
                 this.pendingQueue.add(norm);
                 this.rewriteQueueFile();
+                // It already failed once (this run) — start its streak at 1 so
+                // the retry cap counts every failed night consistently.
+                this.queueFailures.set(norm, 1);
+                this.saveQueueFailures();
                 this.skippedQueuedForRetry++;
                 log.warn(`    Queued ${url} for automatic retry on the next run (${this.queueFile})`);
                 return;
@@ -805,6 +905,11 @@ class SiteMigrationSpider {
                 this.visitedHashes.add(urlHash);
                 this.skippedPages++;
                 log.error(`    SKIPPING ${url} — gave up after ${MAX_RETRIES + 1} attempt(s) x ${MAX_REQUEUES + 1} pass(es). This page is MISSING from the scrape.`);
+                // Bump the persistent per-URL failure count for queue seeds
+                // BEFORE deciding whether to keep it queued: at the cap the
+                // seed is dropped (ABANDONED) and queueSkippedPageForRetry
+                // below becomes a no-op for it.
+                if (this.queueMode) this.recordQueueSeedFailure(url);
                 this.queueSkippedPageForRetry(url);
             }
             return { url, error: e.message };
@@ -867,6 +972,7 @@ class SiteMigrationSpider {
                 // already scraped earlier in THIS run — harmless to leave queued;
                 // it gets removed once it is freshly scraped.)
                 if (isQueueEntry && result && !result.error) {
+                    this.clearQueueSeedFailure(url);
                     this.removeQueueEntry(url);
                 }
 
@@ -888,6 +994,9 @@ class SiteMigrationSpider {
         if (this.skippedPages > 0) {
             log.error(`Pages SKIPPED after exhausting retries/re-queues: ${this.skippedPages} (these are MISSING from the scrape — search the log for "SKIPPING")`);
             log.error(`Skipped pages queued for automatic retry on the next run: ${this.skippedQueuedForRetry}${this.queueMode ? ` (plus any failed queue seeds left in ${this.queueFile})` : ` (${QUEUE_FILE})`}`);
+            if (this.abandonedPages > 0) {
+                log.error(`Pages ABANDONED (dropped from the queue after ${MAX_QUEUE_FAILURES} consecutive failed runs): ${this.abandonedPages} — search the log for "ABANDONED". These will NOT be retried automatically.`);
+            }
         } else {
             log.info(`Pages skipped: 0`);
         }

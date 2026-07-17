@@ -337,6 +337,11 @@ export async function notifyScrapeFailure(failure: {
   // a hard failure.
   skippedPages?: number;
   skippedOnly?: boolean;
+  // Of the skipped pages, how many hit the per-URL retry cap this run and were
+  // permanently dropped from the scrape queue (they will NOT retry again).
+  // Because the queue entry is removed on abandonment, this notice fires only
+  // once per URL.
+  abandonedPages?: number;
 }): Promise<number | null> {
   const recipients = await getScrapeAlertRecipients();
 
@@ -364,6 +369,15 @@ export async function notifyScrapeFailure(failure: {
       : undefined;
   const skippedOnly = failure.skippedOnly === true && !!skipped;
 
+  const abandoned =
+    typeof failure.abandonedPages === 'number' && failure.abandonedPages > 0
+      ? failure.abandonedPages
+      : undefined;
+
+  const abandonedLine = abandoned
+    ? `${abandoned} page${abandoned === 1 ? '' : 's'} ${abandoned === 1 ? 'has' : 'have'} now failed too many nights in a row and ${abandoned === 1 ? 'was' : 'were'} permanently removed from the retry queue — ${abandoned === 1 ? 'it' : 'they'} will NOT be retried automatically. The abandoned URL${abandoned === 1 ? ' is' : 's are'} listed below; if this data matters, investigate the source page manually.`
+    : '';
+
   const tail = failure.logTail?.trim();
 
   let title: string;
@@ -377,6 +391,7 @@ export async function notifyScrapeFailure(failure: {
       `Run date: ${failure.runDate}\n` +
       `Reason: ${failure.reason}\n\n` +
       `The skipped pages have been queued for automatic retry — the next nightly run will re-fetch them. No manual action is needed unless they keep failing.` +
+      (abandonedLine ? `\n\n${abandonedLine}` : '') +
       (tail ? `\n\nSkipped pages:\n${tail}` : '');
   } else {
     title =
@@ -392,6 +407,7 @@ export async function notifyScrapeFailure(failure: {
         ? `Skipped pages this run: ${skipped} (missing from the scraped data)\n`
         : '') +
       `\nRegistration data may now be stale until this is resolved.` +
+      (abandonedLine ? `\n\n${abandonedLine}` : '') +
       (tail ? `\n\nRecent log output:\n${tail}` : '');
   }
 
@@ -404,6 +420,7 @@ export async function notifyScrapeFailure(failure: {
       reason: failure.reason,
       consecutiveFailures: skippedOnly ? undefined : streak,
       ...(skipped ? { skippedPages: skipped, skippedOnly } : {}),
+      ...(abandoned ? { abandonedPages: abandoned } : {}),
     },
     recipients,
     channels: ['email', 'in_app'],
