@@ -2599,89 +2599,95 @@ export class DatabaseStorage implements IStorage {
     studentId: number, 
     classId: number
   ): Promise<{ success: boolean; message?: string; enrollment?: ClassEnrollment }> {
-    const [classData] = await db
-      .select()
-      .from(classes)
-      .where(eq(classes.id, classId));
+    return db.transaction(async (tx) => {
+      // Lock the class row so concurrent bookings for the same class are
+      // serialized: the second transaction waits here until the first
+      // commits, then sees the up-to-date enrollment count.
+      const [classData] = await tx
+        .select()
+        .from(classes)
+        .where(eq(classes.id, classId))
+        .for('update');
 
-    if (!classData) {
-      return { success: false, message: 'Class not found' };
-    }
-
-    if (classData.status !== 'scheduled') {
-      return { success: false, message: 'Class is not available for booking' };
-    }
-
-    const existingEnrollment = await db
-      .select()
-      .from(classEnrollments)
-      .where(
-        and(
-          eq(classEnrollments.classId, classId),
-          eq(classEnrollments.studentId, studentId),
-          isNull(classEnrollments.cancelledAt)
-        )
-      );
-
-    if (existingEnrollment.length > 0) {
-      return { success: false, message: 'You are already enrolled in this class' };
-    }
-
-    const enrolledStudents = await db
-      .select()
-      .from(classEnrollments)
-      .where(
-        and(
-          eq(classEnrollments.classId, classId),
-          isNull(classEnrollments.cancelledAt)
-        )
-      );
-
-    if (enrolledStudents.length >= classData.maxStudents) {
-      return { success: false, message: 'Class is full' };
-    }
-
-    const studentEnrollments = await db
-      .select({
-        classId: classEnrollments.classId,
-        date: classes.date,
-        time: classes.time,
-        duration: classes.duration,
-      })
-      .from(classEnrollments)
-      .innerJoin(classes, eq(classEnrollments.classId, classes.id))
-      .where(
-        and(
-          eq(classEnrollments.studentId, studentId),
-          isNull(classEnrollments.cancelledAt),
-          eq(classes.status, 'scheduled')
-        )
-      );
-
-    for (const enrollment of studentEnrollments) {
-      if (enrollment.date === classData.date && enrollment.time === classData.time) {
-        return { 
-          success: false, 
-          message: 'You have a time conflict with another class on the same date and time' 
-        };
+      if (!classData) {
+        return { success: false, message: 'Class not found' };
       }
-    }
 
-    const [newEnrollment] = await db
-      .insert(classEnrollments)
-      .values({
-        classId,
-        studentId,
-        attendanceStatus: 'registered',
-        testScore: null,
-      })
-      .returning();
+      if (classData.status !== 'scheduled') {
+        return { success: false, message: 'Class is not available for booking' };
+      }
 
-    return { 
-      success: true, 
-      message: 'Successfully enrolled in class',
-      enrollment: newEnrollment 
-    };
+      const existingEnrollment = await tx
+        .select()
+        .from(classEnrollments)
+        .where(
+          and(
+            eq(classEnrollments.classId, classId),
+            eq(classEnrollments.studentId, studentId),
+            isNull(classEnrollments.cancelledAt)
+          )
+        );
+
+      if (existingEnrollment.length > 0) {
+        return { success: false, message: 'You are already enrolled in this class' };
+      }
+
+      const enrolledStudents = await tx
+        .select()
+        .from(classEnrollments)
+        .where(
+          and(
+            eq(classEnrollments.classId, classId),
+            isNull(classEnrollments.cancelledAt)
+          )
+        );
+
+      if (enrolledStudents.length >= classData.maxStudents) {
+        return { success: false, message: 'Class is full' };
+      }
+
+      const studentEnrollments = await tx
+        .select({
+          classId: classEnrollments.classId,
+          date: classes.date,
+          time: classes.time,
+          duration: classes.duration,
+        })
+        .from(classEnrollments)
+        .innerJoin(classes, eq(classEnrollments.classId, classes.id))
+        .where(
+          and(
+            eq(classEnrollments.studentId, studentId),
+            isNull(classEnrollments.cancelledAt),
+            eq(classes.status, 'scheduled')
+          )
+        );
+
+      for (const enrollment of studentEnrollments) {
+        if (enrollment.date === classData.date && enrollment.time === classData.time) {
+          return { 
+            success: false, 
+            message: 'You have a time conflict with another class on the same date and time' 
+          };
+        }
+      }
+
+      const [newEnrollment] = await tx
+        .insert(classEnrollments)
+        .values({
+          classId,
+          studentId,
+          attendanceStatus: 'registered',
+          testScore: null,
+        })
+        .returning();
+
+      return { 
+        success: true, 
+        message: 'Successfully enrolled in class',
+        enrollment: newEnrollment 
+      };
+    });
   }
 
   // Contract Templates
