@@ -92,6 +92,29 @@ export function isPermitExpired(expiryDateString: string): boolean {
   return expiry < new Date();
 }
 
+export function daysUntilPermitExpiry(expiryDateString: string): number | null {
+  if (!expiryDateString) return null;
+  // Parse date-only strings (YYYY-MM-DD) as local dates to avoid UTC drift.
+  const datePart = expiryDateString.split('T')[0];
+  const parts = datePart.split('-');
+  let expiry: Date;
+  if (parts.length === 3 && parts[0].length === 4) {
+    expiry = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  } else {
+    expiry = new Date(expiryDateString);
+    if (isNaN(expiry.getTime())) return null;
+  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  expiry.setHours(0, 0, 0, 0);
+  return Math.round((expiry.getTime() - today.getTime()) / (24 * 60 * 60 * 1000));
+}
+
+export function isPermitExpiringSoon(expiryDateString: string, withinDays: number = 30): boolean {
+  const days = daysUntilPermitExpiry(expiryDateString);
+  return days !== null && days >= 0 && days <= withinDays;
+}
+
 export function generateAttestationNumber(): string {
   const year = new Date().getFullYear();
   const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');

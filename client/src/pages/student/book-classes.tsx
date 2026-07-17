@@ -33,7 +33,7 @@ import { useLocation } from "wouter";
 import { useStudentAuth } from "@/hooks/useStudentAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { isPermitExpired, formatDate } from "@/lib/utils";
+import { isPermitExpired, isPermitExpiringSoon, formatDate } from "@/lib/utils";
 
 interface AvailableClass {
   id: number;
@@ -433,6 +433,35 @@ export default function BookClasses() {
             </Card>
           )
         )}
+
+        {/* Permit Expiring Soon Banner */}
+        {student && phaseInfo?.allowedClassTypes.includes('driving') &&
+          student.learnerPermitNumber && student.learnerPermitExpiryDate &&
+          !isPermitExpired(student.learnerPermitExpiryDate) &&
+          isPermitExpiringSoon(student.learnerPermitExpiryDate) && (
+            <Card className="border border-amber-200 rounded-md shadow-sm border-l-4 border-l-amber-500 bg-amber-50" data-testid="card-permit-expiring-soon">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-amber-800">Learner's Permit Expiring Soon</h3>
+                    <p className="text-sm text-amber-700">
+                      Your learner's permit expires on {formatDate(student.learnerPermitExpiryDate)}. Please renew it soon so your driving-class bookings aren't interrupted, then update your profile.
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-amber-200 text-amber-700 hover:bg-white bg-white/50"
+                      onClick={() => setLocation("/student/profile")}
+                      data-testid="button-update-permit-expiring"
+                    >
+                      Update Permit Info
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
         {/* Booking Rules & Cancellation Policy */}
         <Card className="border border-blue-200 rounded-md shadow-sm bg-blue-50/30" data-testid="card-booking-rules">

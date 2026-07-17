@@ -45,7 +45,7 @@ import PhaseProgressTracker, { PhaseProgressTrackerSkeleton } from "@/components
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { getStripePromise } from "@/lib/stripe";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { isPermitExpired } from "@/lib/utils";
+import { isPermitExpired, isPermitExpiringSoon, formatDate } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 const stripePromise = getStripePromise();
@@ -1488,6 +1488,26 @@ export default function StudentClasses() {
                   </div>
                 )
               )}
+
+              {activeBookingType === 'driving' && student &&
+                student.learnerPermitNumber && student.learnerPermitExpiryDate &&
+                !isPermitExpired(student.learnerPermitExpiryDate) &&
+                isPermitExpiringSoon(student.learnerPermitExpiryDate) && (
+                  <div className="mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200" data-testid="card-permit-expiring-soon">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-semibold text-amber-800 text-sm">Permit Expiring Soon</p>
+                        <p className="text-xs text-amber-700 mt-0.5">
+                          Your learner's permit expires on {formatDate(student.learnerPermitExpiryDate)}. Renew it soon to keep booking driving classes.
+                        </p>
+                        <Button size="sm" variant="outline" className="mt-1.5 h-7 text-xs border-amber-300 text-amber-700 hover:bg-amber-50" onClick={() => { setBookingWizardOpen(false); setLocation("/student/profile"); }} data-testid="button-update-permit-expiring">
+                          Update Permit Info
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
               {availableClassesLoading ? (
                 <div className="space-y-2">
