@@ -19,7 +19,7 @@ import { startOfWeek, endOfWeek, parse, format, addDays } from "date-fns";
 
 export default function Scheduling() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingClass, setEditingClass] = useState<Class | null>(null);
+  const [editingClass, setEditingClass] = useState<(Class & { enrolledCount?: number }) | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [vehicleFilters, setVehicleFilters] = useState({
     auto: true,
@@ -778,11 +778,14 @@ export default function Scheduling() {
                             onDragEnd={handleDragEnd}
                             onClick={() => setEditingClass(cls)}
                             className={`text-xs px-2 py-1 rounded-md truncate font-medium cursor-grab active:cursor-grabbing relative ${getCourseColor(cls.courseType)} ${hasConflict ? 'ring-2 ring-red-500 ring-offset-1' : ''} ${isDragging ? 'opacity-50 scale-95' : ''}`}
-                            title={`${cls.courseType.toUpperCase()} #${cls.classNumber} - ${cls.time}${hasConflict ? ' (CONFLICT!)' : ''} - Drag to reschedule`}
+                            title={`${cls.courseType.toUpperCase()} #${cls.classNumber} - ${cls.time} - ${cls.enrolledCount ?? 0}/${cls.maxStudents} enrolled${hasConflict ? ' (CONFLICT!)' : ''} - Drag to reschedule`}
                           >
                             <div className="flex items-center gap-1">
                               {hasConflict && <AlertTriangle className="h-3 w-3 text-red-500 flex-shrink-0" />}
                               <span className="truncate">{cls.courseType.charAt(0).toUpperCase()}{cls.courseType.slice(1)} #{cls.classNumber}</span>
+                              <span className="ml-auto flex-shrink-0 text-[10px] font-semibold opacity-80" data-testid={`text-cell-enrolled-${cls.id}`}>
+                                {cls.enrolledCount ?? 0}/{cls.maxStudents}
+                              </span>
                             </div>
                           </div>
                         );
@@ -970,9 +973,15 @@ export default function Scheduling() {
                         <div className="flex items-center gap-2">
                           {hasConflict && <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />}
                           <span>{cls.courseType.charAt(0).toUpperCase()}{cls.courseType.slice(1)} #{cls.classNumber}</span>
-                          <span className="ml-auto flex items-center gap-1 text-xs">
-                            <Clock className="h-3 w-3" />
-                            {cls.time}
+                          <span className="ml-auto flex items-center gap-2 text-xs">
+                            <span className="flex items-center gap-1" data-testid={`text-day-enrolled-${cls.id}`}>
+                              <Users className="h-3 w-3" />
+                              {cls.enrolledCount ?? 0}/{cls.maxStudents}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {cls.time}
+                            </span>
                           </span>
                         </div>
                         {hasConflict && <div className="text-xs text-red-600 mt-1">Scheduling conflict</div>}
@@ -993,6 +1002,11 @@ export default function Scheduling() {
                 <DialogDescription>
                   Update class details, timing, and instructor assignment.
                 </DialogDescription>
+                <div className="flex items-center gap-1.5 text-sm text-gray-700 pt-1" data-testid="text-dialog-enrolled">
+                  <Users className="h-4 w-4 text-[#ECC462]" />
+                  <span className="font-semibold">{editingClass.enrolledCount ?? 0} / {editingClass.maxStudents}</span>
+                  <span className="text-gray-500">students enrolled</span>
+                </div>
               </DialogHeader>
               {editingClass.seriesId && (
                 <div className="rounded-md border border-[#ECC462] bg-amber-50 p-3 flex items-center justify-between gap-3 flex-wrap" data-testid="banner-series-membership">
