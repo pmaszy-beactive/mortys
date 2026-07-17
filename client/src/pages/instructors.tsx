@@ -37,6 +37,8 @@ export default function Instructors() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("name-asc");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [specializationFilter, setSpecializationFilter] = useState<string>("all");
 
   const { data: instructors = [], isLoading } = useQuery<Instructor[]>({
     queryKey: ["/api/instructors"],
@@ -45,15 +47,33 @@ export default function Instructors() {
     refetchOnMount: "always",
   });
 
+  const specializationOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const instructor of instructors) {
+      for (const label of getSpecializationLabels(instructor.specializations)) {
+        set.add(label);
+      }
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [instructors]);
+
   const visibleInstructors = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    const filtered = query
-      ? instructors.filter((instructor) => {
-          const fullName = `${instructor.firstName ?? ""} ${instructor.lastName ?? ""}`.toLowerCase();
-          const email = (instructor.email ?? "").toLowerCase();
-          return fullName.includes(query) || email.includes(query);
-        })
-      : [...instructors];
+    const filtered = instructors.filter((instructor) => {
+      if (query) {
+        const fullName = `${instructor.firstName ?? ""} ${instructor.lastName ?? ""}`.toLowerCase();
+        const email = (instructor.email ?? "").toLowerCase();
+        if (!fullName.includes(query) && !email.includes(query)) return false;
+      }
+      if (statusFilter !== "all") {
+        if ((instructor.status ?? "").toLowerCase() !== statusFilter) return false;
+      }
+      if (specializationFilter !== "all") {
+        const labels = getSpecializationLabels(instructor.specializations);
+        if (!labels.includes(specializationFilter)) return false;
+      }
+      return true;
+    });
 
     filtered.sort((a, b) => {
       if (sortOption === "status") {
@@ -68,7 +88,7 @@ export default function Instructors() {
     });
 
     return filtered;
-  }, [instructors, searchQuery, sortOption]);
+  }, [instructors, searchQuery, sortOption, statusFilter, specializationFilter]);
 
   if (isLoading) {
     return (
@@ -177,6 +197,31 @@ export default function Instructors() {
                     data-testid="input-search-instructors"
                   />
                 </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-full sm:w-36" data-testid="select-filter-status">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all" data-testid="filter-status-all">All Statuses</SelectItem>
+                    <SelectItem value="active" data-testid="filter-status-active">Active</SelectItem>
+                    <SelectItem value="inactive" data-testid="filter-status-inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+                {specializationOptions.length > 0 && (
+                  <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
+                    <SelectTrigger className="w-full sm:w-48" data-testid="select-filter-specialization">
+                      <SelectValue placeholder="Specialization" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all" data-testid="filter-specialization-all">All Specializations</SelectItem>
+                      {specializationOptions.map((label) => (
+                        <SelectItem key={label} value={label} data-testid={`filter-specialization-${label}`}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 <Select value={sortOption} onValueChange={(v) => setSortOption(v as SortOption)}>
                   <SelectTrigger className="w-full sm:w-48" data-testid="select-sort-instructors">
                     <SelectValue placeholder="Sort by" />
@@ -203,7 +248,9 @@ export default function Instructors() {
               <Search className="h-10 w-10 text-gray-300 mx-auto mb-3" />
               <p className="text-sm font-medium text-gray-900">No instructors found</p>
               <p className="text-sm text-gray-500 mt-1">
-                No instructors match "{searchQuery}". Try a different search.
+                {searchQuery.trim()
+                  ? `No instructors match "${searchQuery}". Try a different search or adjust the filters.`
+                  : "No instructors match the selected filters. Try adjusting them."}
               </p>
             </div>
           ) : (
