@@ -77,6 +77,19 @@ const policyFormSchema = z.object({
 
 type PolicyFormData = z.infer<typeof policyFormSchema>;
 
+const fieldLabels: Record<string, string> = {
+  name: "Policy Name",
+  policyType: "Policy Type",
+  courseType: "Course Type",
+  classType: "Class Type",
+  value: "Value",
+  isActive: "Active",
+  description: "Description",
+  effectiveFrom: "Effective From",
+  effectiveTo: "Effective To",
+  changeReason: "Change Reason",
+};
+
 export default function BookingPolicies() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -110,6 +123,28 @@ export default function BookingPolicies() {
     },
   });
 
+  const handlePolicyError = (error: any, fallback: string) => {
+    const fieldErrors = error?.status === 400 ? error?.data?.errors : undefined;
+    if (fieldErrors && typeof fieldErrors === "object" && Object.keys(fieldErrors).length > 0) {
+      const parts: string[] = [];
+      for (const [field, messages] of Object.entries(fieldErrors)) {
+        const label = fieldLabels[field] || field;
+        const message = Array.isArray(messages) && messages.length > 0 ? String(messages[0]) : "Invalid value";
+        parts.push(`${label}: ${message}`);
+        if (field in fieldLabels) {
+          form.setError(field as keyof PolicyFormData, { type: "server", message });
+        }
+      }
+      toast({
+        title: "Please fix the highlighted fields",
+        description: parts.join("; "),
+        variant: "destructive",
+      });
+    } else {
+      toast({ title: "Error", description: fallback, variant: "destructive" });
+    }
+  };
+
   const createMutation = useMutation({
     mutationFn: (data: PolicyFormData) => {
       const payload = {
@@ -127,8 +162,8 @@ export default function BookingPolicies() {
       setIsDialogOpen(false);
       form.reset();
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create booking policy.", variant: "destructive" });
+    onError: (error: any) => {
+      handlePolicyError(error, "Failed to create booking policy.");
     },
   });
 
@@ -152,8 +187,8 @@ export default function BookingPolicies() {
       setEditingPolicy(null);
       form.reset();
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update booking policy.", variant: "destructive" });
+    onError: (error: any) => {
+      handlePolicyError(error, "Failed to update booking policy.");
     },
   });
 
