@@ -2338,7 +2338,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/class-series/:seriesId/change-days", authMiddleware, async (req, res) => {
     try {
       const { seriesId } = req.params;
-      const { scope, fromDate, daysOfWeek } = req.body || {};
+      const { scope, fromDate, daysOfWeek, dryRun } = req.body || {};
+      const isDryRun = dryRun === true;
       if (scope !== 'all' && scope !== 'future') {
         return res.status(400).json({ message: "scope must be 'all' or 'future'" });
       }
@@ -2422,7 +2423,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (violation) availabilityViolations.push(violation.message);
         }
       }
-      if (availabilityViolations.length > 0) {
+      if (availabilityViolations.length > 0 && !isDryRun) {
         return res.status(409).json({
           message: `The new days fall outside the instructor's availability. No classes were changed.`,
           availabilityViolations,
@@ -2451,10 +2452,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       }
-      if (conflictErrors.length > 0) {
+      if (conflictErrors.length > 0 && !isDryRun) {
         return res.status(409).json({
           message: `Changing the series days would create ${conflictErrors.length} scheduling conflict${conflictErrors.length !== 1 ? 's' : ''}. No classes were changed.`,
           conflicts: conflictErrors,
+        });
+      }
+
+      // Dry-run: simulate the moves without mutating anything and report the
+      // plan, including students at risk of needing manual follow-up.
+      if (isDryRun) {
+        // Virtual new schedule: kept classes (real capacity/enrollment) plus
+        // to-be-created classes (empty, template capacity).
+        const virtualSchedule = [
+          ...kept.map(c => ({
+            date: c.date,
+            capacity: Math.max(0, (c.maxStudents || 15) - (c.enrolledStudents?.length || 0)),
+            enrolledIds: new Set<number>((c.enrolledStudents || []).map(s => s.id)),
+            isNew: false,
+          })),
+          ...toCreate.map(d => ({
+            date: d,
+            capacity: template.maxStudents || 15,
+            enrolledIds: new Set<number>(),
+            isNew: true,
+          })),
+        ].sort((a, b) => a.date.localeCompare(b.date));
+
+        const plannedMoves: { studentId: number; studentName: string; fromDate: string; toDate: string }[] = [];
+        const atRisk: { studentId: number; studentName: string; fromDate: string; reason: string }[] = [];
+
+        for (const cls of toRemove) {
+          const dest =
+            virtualSchedule.find(n => n.date >= cls.date) ||
+            [...virtualSchedule].reverse().find(n => n.date < cls.date);
+          for (const s of cls.enrolledStudents || []) {
+            if (!dest) {
+              atRisk.push({ studentId: s.id, studentName: s.name, fromDate: cls.date, reason: "No replacement class available" });
+              continue;
+            }
+            if (dest.enrolledIds.has(s.id)) {
+              plannedMoves.push({ studentId: s.id, studentName: s.name, fromDate: cls.date, toDate: dest.date });
+              continue;
+            }
+            if (dest.capacity <= 0) {
+              atRisk.push({ studentId: s.id, studentName: s.name, fromDate: cls.date, reason: `Class on ${dest.date} is full` });
+              continue;
+            }
+            dest.capacity--;
+            dest.enrolledIds.add(s.id);
+            plannedMoves.push({ studentId: s.id, studentName: s.name, fromDate: cls.date, toDate: dest.date });
+          }
+        }
+
+        return res.json({
+          dryRun: true,
+          wouldCreate: toCreate.length,
+          wouldDelete: toRemove.length,
+          kept: kept.length,
+          plannedMoves,
+          atRisk,
+          conflicts: conflictErrors,
+          availabilityViolations,
+          skippedPast,
+          skippedDetached,
+          skippedCancelled,
         });
       }
 

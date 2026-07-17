@@ -94,6 +94,33 @@ export default function SeriesManager({ seriesId, anchorClass, mode, instructors
     };
   }, [series, scope, anchorClass.date, mode, effectiveDays]);
 
+  type DaysPreview = {
+    dryRun: true;
+    wouldCreate: number;
+    wouldDelete: number;
+    kept: number;
+    plannedMoves: { studentId: number; studentName: string; fromDate: string; toDate: string }[];
+    atRisk: { studentId: number; studentName: string; fromDate: string; reason: string }[];
+    conflicts: string[];
+    availabilityViolations: string[];
+  };
+
+  const daysChangedForPreview =
+    effectiveDays.length > 0 &&
+    (effectiveDays.length !== currentDays.length || effectiveDays.some(d => !currentDays.includes(d)));
+
+  const { data: daysPreview, isFetching: previewLoading } = useQuery<DaysPreview>({
+    queryKey: ["/api/class-series", seriesId, "change-days-preview", scope, anchorClass.date, effectiveDays.join(",")],
+    queryFn: () =>
+      apiRequest("POST", `/api/class-series/${seriesId}/change-days`, {
+        scope,
+        fromDate: scope === "future" ? anchorClass.date : undefined,
+        daysOfWeek: effectiveDays,
+        dryRun: true,
+      }),
+    enabled: mode === "days" && daysChangedForPreview,
+  });
+
   const editMutation = useMutation({
     mutationFn: () =>
       apiRequest("PATCH", `/api/class-series/${seriesId}`, {
@@ -350,6 +377,57 @@ export default function SeriesManager({ seriesId, anchorClass, mode, instructors
                 </p>
                 {effectiveDays.length === 0 && (
                   <p className="text-xs text-red-600">Select at least one day.</p>
+                )}
+              </div>
+            )}
+
+            {/* Pre-flight preview for days mode */}
+            {mode === "days" && daysChangedForPreview && (
+              <div className="rounded-lg border p-4 space-y-2 bg-gray-50 border-gray-200" data-testid="section-days-preview">
+                {previewLoading || !daysPreview ? (
+                  <p className="text-sm text-gray-500 flex items-center gap-2" data-testid="text-preview-loading">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Checking what this change would do...
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-sm font-semibold text-gray-900" data-testid="text-preview-summary">
+                      Preview: {daysPreview.wouldCreate} class{daysPreview.wouldCreate !== 1 ? "es" : ""} created, {daysPreview.wouldDelete} removed
+                      {daysPreview.plannedMoves.length > 0 && `, ${daysPreview.plannedMoves.length} student${daysPreview.plannedMoves.length !== 1 ? "s" : ""} moved automatically`}
+                    </p>
+                    {daysPreview.atRisk.length > 0 && (
+                      <div className="rounded-md border border-red-200 bg-red-50 p-3 space-y-1" data-testid="section-preview-at-risk">
+                        <p className="text-xs font-semibold text-red-800 flex items-center gap-1">
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                          {daysPreview.atRisk.length} student{daysPreview.atRisk.length !== 1 ? "s" : ""} may not be movable and will need office follow-up:
+                        </p>
+                        <div className="max-h-24 overflow-y-auto space-y-0.5">
+                          {daysPreview.atRisk.map((s, i) => (
+                            <p key={`${s.studentId}-${i}`} className="text-xs text-red-700" data-testid={`text-at-risk-${s.studentId}`}>
+                              {s.studentName} — {s.reason}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {(daysPreview.conflicts.length > 0 || daysPreview.availabilityViolations.length > 0) && (
+                      <div className="rounded-md border border-red-200 bg-red-50 p-3 space-y-1" data-testid="section-preview-conflicts">
+                        <p className="text-xs font-semibold text-red-800 flex items-center gap-1">
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                          This change would be blocked by scheduling conflicts:
+                        </p>
+                        <div className="max-h-24 overflow-y-auto space-y-0.5">
+                          {[...daysPreview.availabilityViolations, ...daysPreview.conflicts].map((c, i) => (
+                            <p key={i} className="text-xs text-red-700">{c}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {daysPreview.atRisk.length === 0 && daysPreview.conflicts.length === 0 && daysPreview.availabilityViolations.length === 0 && (
+                      <p className="text-xs text-green-700" data-testid="text-preview-ok">
+                        All enrolled students can be moved automatically.
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             )}
