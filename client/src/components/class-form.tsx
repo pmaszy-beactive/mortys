@@ -331,7 +331,7 @@ export default function ClassForm({ classData, onSuccess }: ClassFormProps) {
             <FormItem>
               <FormLabel>Zoom Link (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder="https://zoom.us/j/..." {...field} data-testid="input-zoom-link" />
+                <Input placeholder="https://zoom.us/j/..." {...field} value={field.value ?? ""} data-testid="input-zoom-link" />
               </FormControl>
               <FormMessage />
             </FormItem>

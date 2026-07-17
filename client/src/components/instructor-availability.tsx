@@ -46,7 +46,7 @@ export default function InstructorAvailability({ instructor }: InstructorAvailab
   const { data: availability = [], isLoading, refetch } = useQuery<InstructorAvailability[]>({
     queryKey: [`/api/instructors/${instructor.id}/availability`],
     staleTime: 0, // Always refetch
-    cacheTime: 0, // Don't cache
+    gcTime: 0, // Don't cache
   });
 
   const form = useForm<AvailabilityFormData>({
