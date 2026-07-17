@@ -29,6 +29,14 @@ export interface TargetClassInfo {
    * "maximum 2 classes per day" policy.
    */
   sameDayAlreadyBookedCount?: number;
+  /**
+   * Effective daily booking limit. Precedence rule: an active
+   * "max_bookings_per_day" booking policy (Settings → Booking Policies)
+   * OVERRIDES the built-in default of MAX_CLASSES_PER_DAY (2). Callers that
+   * have loaded booking policies should pass the policy value here; when
+   * omitted, the built-in default applies.
+   */
+  maxClassesPerDay?: number;
 }
 
 export interface BookingValidationResult {
@@ -164,17 +172,22 @@ export function validateClassBooking(
   return validateAutoRules(target, completed);
 }
 
+/**
+ * Built-in default daily limit. An active "max_bookings_per_day" booking
+ * policy overrides this — see TargetClassInfo.maxClassesPerDay.
+ */
 export const MAX_CLASSES_PER_DAY = 2;
 
 function checkMaxClassesPerDay(
   target: TargetClassInfo
 ): BookingValidationResult | null {
+  const limit = target.maxClassesPerDay ?? MAX_CLASSES_PER_DAY;
   const alreadyBooked = target.sameDayAlreadyBookedCount ?? 0;
-  if (alreadyBooked >= MAX_CLASSES_PER_DAY) {
+  if (alreadyBooked >= limit) {
     return {
       allowed: false,
-      reason: `Students can book a maximum of ${MAX_CLASSES_PER_DAY} classes per day. You already have ${alreadyBooked} classes booked on this date. Please choose a different day.`,
-      blockingRule: "max_2_classes_per_day",
+      reason: `Students can book a maximum of ${limit} ${limit === 1 ? "class" : "classes"} per day. You already have ${alreadyBooked} ${alreadyBooked === 1 ? "class" : "classes"} booked on this date. Please choose a different day.`,
+      blockingRule: "max_classes_per_day",
       detail: {},
     };
   }

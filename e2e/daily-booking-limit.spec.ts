@@ -124,7 +124,7 @@ test.describe.serial('Daily 2-class booking limit', () => {
     const res = await bookClass(classIds.c);
     expect(res.status()).toBe(400);
     const body = await res.json();
-    expect(body.policyViolation).toBe('max_2_classes_per_day');
+    expect(body.policyViolation).toBe('max_classes_per_day');
     expect(body.message).toContain('maximum of 2 classes per day');
   });
 
@@ -143,5 +143,52 @@ test.describe.serial('Daily 2-class booking limit', () => {
     expect(res.status()).toBe(400);
     const body = await res.json();
     expect(body.message).toContain('time conflict');
+  });
+
+  // Reset same-day enrollments and restore classes a/b/c to scheduled, keeping
+  // the attended Theory 1 record (needed for phase rules).
+  async function resetSameDayState() {
+    await db.query(
+      `DELETE FROM class_enrollments WHERE student_id = $1 AND class_id IN ($2, $3, $4, $5)`,
+      [studentId, classIds.a, classIds.b, classIds.c, classIds.d],
+    );
+    await db.query(
+      `UPDATE classes SET status = 'scheduled' WHERE id = ANY($1::int[])`,
+      [[classIds.a, classIds.b, classIds.c]],
+    );
+  }
+
+  test('an active max_bookings_per_day policy of 3 overrides the default of 2', async () => {
+    await resetSameDayState();
+    await db.query(
+      `INSERT INTO booking_policies (name, policy_type, value, is_active) VALUES ('E2E Daily Limit 3', 'max_bookings_per_day', 3, true)`,
+    );
+    try {
+      expect((await bookClass(classIds.a)).ok()).toBeTruthy();
+      expect((await bookClass(classIds.b)).ok()).toBeTruthy();
+      // 3rd same-day booking would be blocked by the default limit of 2,
+      // but the policy of 3 must take precedence.
+      const res = await bookClass(classIds.c);
+      expect(res.ok()).toBeTruthy();
+    } finally {
+      await db.query(`DELETE FROM booking_policies WHERE name = 'E2E Daily Limit 3'`);
+    }
+  });
+
+  test('an active max_bookings_per_day policy of 1 blocks the 2nd booking', async () => {
+    await resetSameDayState();
+    await db.query(
+      `INSERT INTO booking_policies (name, policy_type, value, is_active) VALUES ('E2E Daily Limit 1', 'max_bookings_per_day', 1, true)`,
+    );
+    try {
+      expect((await bookClass(classIds.a)).ok()).toBeTruthy();
+      const res = await bookClass(classIds.b);
+      expect(res.status()).toBe(400);
+      const body = await res.json();
+      expect(body.policyViolation).toBe('max_classes_per_day');
+      expect(body.message).toContain('maximum of 1 class per day');
+    } finally {
+      await db.query(`DELETE FROM booking_policies WHERE name = 'E2E Daily Limit 1'`);
+    }
   });
 });

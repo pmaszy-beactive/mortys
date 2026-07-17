@@ -45,7 +45,7 @@ import {
 } from "@shared/examData";
 import { PHASE_DEFINITIONS } from "@shared/phaseConfig";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
-import { validateClassBooking, buildCompletedClasses } from "@shared/bookingRules";
+import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { loginUser, isAuthenticatedTraditional } from "./auth";
 import { loginInstructor, isInstructorAuthenticated } from "./instructor-auth";
@@ -430,6 +430,25 @@ async function storeDocument(
   const buffer = Buffer.from(base64, "base64");
   const key = buildDocumentKey(studentId, documentId, filename);
   return await uploadToS3(key, buffer, detectedMime);
+}
+
+/**
+ * Effective per-day booking limit. Precedence rule: an active
+ * "max_bookings_per_day" booking policy (scoped to the class's course/class
+ * type) OVERRIDES the built-in default MAX_CLASSES_PER_DAY (2).
+ */
+function effectiveDailyLimit(
+  policies: Array<{ policyType: string; value: number; courseType?: string | null; classType?: string | null }>,
+  scope?: { courseType?: string | null; classType?: string | null },
+): number {
+  const policy = policies.find(p =>
+    p.policyType === 'max_bookings_per_day' &&
+    (scope === undefined || (
+      (!p.courseType || p.courseType === scope.courseType) &&
+      (!p.classType || p.classType === scope.classType)
+    ))
+  );
+  return policy?.value ?? MAX_CLASSES_PER_DAY;
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -2932,20 +2951,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 };
               });
             const completedForPhase = buildCompletedClasses(enrollmentDetailsPhase);
-            // Count same-day booked classes for the daily 2-class limit. Only
-            // classes that are still scheduled count — enrollments in
-            // cancelled classes must not consume a daily slot.
+            // NOTE: the daily booking limit is NOT checked here — it is
+            // enforced below via the max_bookings_per_day policy check (which
+            // uses the policy value when set, falling back to the built-in
+            // default) so authorized staff can override it with a reason.
             const targetDatePhase = classData.date ?? new Date().toISOString().slice(0, 10);
-            const sameDayCountPhase = enrollmentDetailsPhase.filter(
-              d => d.date === targetDatePhase && d.classStatus === 'scheduled'
-            ).length;
             const targetForPhase = {
               classType: classData.classType as "theory" | "driving",
               classNumber: classData.classNumber ?? 0,
               date: targetDatePhase,
               duration: classData.duration ?? undefined,
               maxStudents: classData.maxStudents ?? undefined,
-              sameDayAlreadyBookedCount: sameDayCountPhase,
             };
             const phaseCheck = validateClassBooking(
               targetForPhase,
@@ -3004,9 +3020,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
 
-        // Check max_bookings_per_day policy
-        const maxBookingsPolicy = policies.find(p => p.policyType === 'max_bookings_per_day');
-        if (maxBookingsPolicy && classData.date && enrollmentData.studentId) {
+        // Check the daily booking limit. Precedence rule: an active
+        // max_bookings_per_day policy OVERRIDES the built-in default of
+        // MAX_CLASSES_PER_DAY (2).
+        const dailyLimit = effectiveDailyLimit(policies);
+        if (classData.date && enrollmentData.studentId) {
           const studentEnrollments = await storage.getClassEnrollmentsByStudent(enrollmentData.studentId);
           const classesForStudent = await Promise.all(
             studentEnrollments
@@ -3019,10 +3037,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             c => c && c.date === classData.date && c.status === 'scheduled'
           ).length;
 
-          if (bookingsOnSameDay >= maxBookingsPolicy.value) {
+          if (bookingsOnSameDay >= dailyLimit) {
             if (!overridePolicy || !canOverride) {
               return res.status(400).json({ 
-                message: `Student has ${bookingsOnSameDay} booking(s) on this date. Maximum is ${maxBookingsPolicy.value}. ${canOverride ? 'Provide overrideReason to override.' : ''}`,
+                message: `Student has ${bookingsOnSameDay} booking(s) on this date. Maximum is ${dailyLimit}. ${canOverride ? 'Provide overrideReason to override.' : ''}`,
                 policyViolation: 'max_bookings_per_day',
                 canOverride
               });
@@ -3036,7 +3054,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             policyViolations.push({
               policyType: 'max_bookings_per_day',
-              originalValue: `${maxBookingsPolicy.value} bookings`,
+              originalValue: `${dailyLimit} bookings`,
               overriddenValue: `${bookingsOnSameDay + 1} bookings`
             });
           }
@@ -8726,6 +8744,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           filters,
         );
 
+        // Daily limit: an active max_bookings_per_day policy overrides the
+        // built-in default of MAX_CLASSES_PER_DAY. Policies may be scoped by
+        // course/class type, so resolve the limit per class below.
+        const allPoliciesAvail = (await storage.getBookingPolicies()).filter(p => p.isActive);
+
         // Annotate every class with booking eligibility — show all classes but mark
         // blocked ones so the UI can grey them out with an explanation.
         const today = new Date().toISOString().slice(0, 10);
@@ -8740,6 +8763,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               duration: classItem.duration ?? undefined,
               maxStudents: classItem.maxStudents ?? undefined,
               sameDayAlreadyBookedCount: sameDayCountMapAvail[classDate] ?? 0,
+              maxClassesPerDay: effectiveDailyLimit(allPoliciesAvail, {
+                courseType: classItem.courseType ?? undefined,
+                classType: classItem.classType ?? undefined,
+              }),
             };
             const validation = validateClassBooking(target, completedClassesAvail, studentCourseTypeAvail);
             return {
@@ -9076,6 +9103,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           d => d.date === classDateForBook && d.classStatus === 'scheduled'
         ).length;
 
+        // Get active booking policies for this class type. Daily limit
+        // precedence rule: an active max_bookings_per_day policy OVERRIDES
+        // the built-in default of MAX_CLASSES_PER_DAY (2); the rules engine
+        // below is the single enforcement point.
+        const policies = await storage.getActiveBookingPolicies(classData.courseType || undefined, classData.classType || undefined);
+
         const bookingTarget = {
           classType: classData.classType as "theory" | "driving",
           classNumber: classData.classNumber ?? 0,
@@ -9084,6 +9117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           currentEnrollmentCount: undefined as number | undefined,
           maxStudents: classData.maxStudents ?? undefined,
           sameDayAlreadyBookedCount: sameDayAlreadyBookedBook,
+          maxClassesPerDay: effectiveDailyLimit(policies),
         };
 
         // For shared session check on In-Car 12/13, count current non-cancelled enrollments
@@ -9141,9 +9175,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
 
-        // Get active booking policies for this class type
-        const policies = await storage.getActiveBookingPolicies(classData.courseType || undefined, classData.classType || undefined);
-
         // Check max_duration policy
         const maxDurationPolicy = policies.find(p => p.policyType === 'max_duration');
         if (maxDurationPolicy && classData.duration) {
@@ -9155,34 +9186,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
 
-        // Check max_bookings_per_day policy
-        const maxBookingsPolicy = policies.find(p => p.policyType === 'max_bookings_per_day');
-        if (maxBookingsPolicy && classData.date) {
-          // Count student's bookings for this date
-          const studentEnrollments = await storage.getClassEnrollmentsByStudent(student.id);
-          const classesForStudent = await Promise.all(
-            studentEnrollments
-              .filter(e => !e.cancelledAt)
-              .map(async (e) => {
-                if (e.classId) {
-                  return await storage.getClass(e.classId);
-                }
-                return null;
-              })
-          );
-          // Only count classes that are still scheduled — enrollments in
-          // cancelled classes must not consume a daily slot.
-          const bookingsOnSameDay = classesForStudent.filter(
-            c => c && c.date === classData.date && c.status === 'scheduled'
-          ).length;
-
-          if (bookingsOnSameDay >= maxBookingsPolicy.value) {
-            return res.status(400).json({ 
-              message: `You have already booked ${bookingsOnSameDay} class(es) on this date. Maximum allowed is ${maxBookingsPolicy.value}.`,
-              policyViolation: 'max_bookings_per_day'
-            });
-          }
-        }
+        // NOTE: the max_bookings_per_day limit is enforced by the rules
+        // engine above (validateClassBooking) using the effective daily
+        // limit, so it is not re-checked here.
 
         // Check advance_booking_days policy
         const advanceBookingPolicy = policies.find(p => p.policyType === 'advance_booking_days');

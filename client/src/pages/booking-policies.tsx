@@ -42,7 +42,7 @@ interface PolicyVersion {
 
 const policyTypes = [
   { value: "max_duration", label: "Maximum Booking Duration (minutes)", description: "Maximum duration for a single booking" },
-  { value: "max_bookings_per_day", label: "Maximum Bookings Per Day", description: "Maximum number of bookings a student can make per day" },
+  { value: "max_bookings_per_day", label: "Maximum Bookings Per Day", description: "Maximum number of bookings a student can make per day. When active, this policy overrides the built-in default of 2 classes per day." },
   { value: "max_bookings_per_week", label: "Maximum Bookings Per Week", description: "Maximum number of bookings a student can make per week" },
   { value: "advance_booking_days", label: "Advance Booking Days", description: "How many days in advance students can book" },
   { value: "min_booking_notice", label: "Minimum Booking Notice (hours)", description: "Minimum hours notice required for booking" },
@@ -303,6 +303,9 @@ export default function BookingPolicies() {
           </div>
           <p className="text-lg text-gray-600 font-medium">
             Define booking limits and rules for students. Staff with override permissions can bypass these limits.
+          </p>
+          <p className="text-sm text-gray-500 mt-2" data-testid="text-daily-limit-note">
+            Note: by default students can book a maximum of 2 classes per day. An active "Maximum Bookings Per Day" policy overrides that default — whether it is set higher or lower.
           </p>
         </div>
 
