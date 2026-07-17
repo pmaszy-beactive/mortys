@@ -74,6 +74,24 @@ export function getCoursePrice(courseType: string): number {
   }
 }
 
+export function isPermitExpired(expiryDateString: string): boolean {
+  if (!expiryDateString) return false;
+  // Parse date-only strings (YYYY-MM-DD) as local dates so the permit
+  // is not treated as expired on the expiry day itself due to UTC parsing.
+  const datePart = expiryDateString.split('T')[0];
+  const parts = datePart.split('-');
+  let expiry: Date;
+  if (parts.length === 3 && parts[0].length === 4) {
+    expiry = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  } else {
+    expiry = new Date(expiryDateString);
+    if (isNaN(expiry.getTime())) return false;
+  }
+  // Valid through the end of the expiry day
+  expiry.setHours(23, 59, 59, 999);
+  return expiry < new Date();
+}
+
 export function generateAttestationNumber(): string {
   const year = new Date().getFullYear();
   const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');

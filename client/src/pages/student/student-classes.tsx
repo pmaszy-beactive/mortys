@@ -45,6 +45,7 @@ import PhaseProgressTracker, { PhaseProgressTrackerSkeleton } from "@/components
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { getStripePromise } from "@/lib/stripe";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { isPermitExpired } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 const stripePromise = getStripePromise();
@@ -1464,7 +1465,7 @@ export default function StudentClasses() {
 
               {activeBookingType === 'driving' && student && (
                 (!student.learnerPermitNumber || !student.learnerPermitExpiryDate || 
-                 (student.learnerPermitExpiryDate && new Date(student.learnerPermitExpiryDate) < new Date())) && (
+                 (student.learnerPermitExpiryDate && isPermitExpired(student.learnerPermitExpiryDate))) && (
                   <div className="mb-3 p-3 rounded-lg bg-red-50 border border-red-200" data-testid="card-permit-warning">
                     <div className="flex items-start gap-2">
                       <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />

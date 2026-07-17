@@ -33,6 +33,7 @@ import { useLocation } from "wouter";
 import { useStudentAuth } from "@/hooks/useStudentAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { isPermitExpired, formatDate } from "@/lib/utils";
 
 interface AvailableClass {
   id: number;
@@ -378,7 +379,7 @@ export default function BookClasses() {
         {/* Permit Warning Banner */}
         {student && phaseInfo?.allowedClassTypes.includes('driving') && (
           (!student.learnerPermitNumber || !student.learnerPermitExpiryDate || 
-           (student.learnerPermitExpiryDate && new Date(student.learnerPermitExpiryDate) < new Date())) && (
+           (student.learnerPermitExpiryDate && isPermitExpired(student.learnerPermitExpiryDate))) && (
             <Card className="border border-red-200 rounded-md shadow-sm border-l-4 border-l-red-500 bg-red-50" data-testid="card-permit-warning">
               <CardContent className="p-6">
                 <div className="flex items-start gap-3">
@@ -396,7 +397,7 @@ export default function BookClasses() {
                         ? "You need a valid learner's permit on file to book driving classes. Please update your permit information in your profile."
                         : !student.learnerPermitExpiryDate
                         ? "Please add your permit expiration date in your profile to book driving classes."
-                        : `Your learner's permit expired on ${new Date(student.learnerPermitExpiryDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. Please renew your permit and update your profile.`}
+                        : `Your learner's permit expired on ${formatDate(student.learnerPermitExpiryDate)}. Please renew your permit and update your profile.`}
                     </p>
                     <Button 
                       size="sm"

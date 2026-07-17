@@ -7686,7 +7686,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         phase: student.phase,
         instructorId: student.instructorId,
         attestationNumber: student.attestationNumber,
+        learnerPermitNumber: student.learnerPermitNumber,
         learnerPermitValidDate: student.learnerPermitValidDate,
+        learnerPermitExpiryDate: student.learnerPermitExpiryDate,
       });
     } catch (error) {
       console.error("Error fetching student info:", error);

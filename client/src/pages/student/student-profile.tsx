@@ -187,6 +187,7 @@ export default function StudentProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/student/permit"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/me"] });
       toast({ title: "Permit info updated", description: "Your permit information has been saved." });
     },
     onError: () => {
