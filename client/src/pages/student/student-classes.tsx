@@ -78,6 +78,7 @@ interface CancelPolicy {
 interface AvailableClass {
   id: number;
   courseType: string;
+  classType?: string;
   classNumber: number;
   date: string;
   time: string;
@@ -203,7 +204,9 @@ const CalendarView = ({
         </div>
         <div className="flex-1 space-y-1.5">
           {dayClasses.slice(0, 2).map((classItem) => {
-            const isTheory = classItem.classNumber && classItem.classNumber <= 5;
+            const isTheory = classItem.classType
+              ? classItem.classType === 'theory'
+              : classItem.classNumber != null && classItem.classNumber <= 5;
             return (
               <button
                 key={classItem.id}
@@ -277,7 +280,9 @@ const CalendarView = ({
           </DialogHeader>
           <div className="space-y-2">
             {(expandedDay ? classesByDate[expandedDay] || [] : []).map((classItem) => {
-              const isTheory = classItem.classNumber && classItem.classNumber <= 5;
+              const isTheory = classItem.classType
+                ? classItem.classType === 'theory'
+                : classItem.classNumber != null && classItem.classNumber <= 5;
               return (
                 <button
                   key={classItem.id}
@@ -999,7 +1004,9 @@ export default function StudentClasses() {
   const bookableClasses = useMemo(() => {
     if (!activeBookingType || !availableClasses.length) return [];
     return availableClasses.filter(c => {
-      const isTheory = c.classNumber <= 5;
+      const isTheory = c.classType
+        ? c.classType === 'theory'
+        : c.classNumber <= 5;
       return activeBookingType === 'theory' ? isTheory : !isTheory;
     });
   }, [availableClasses, activeBookingType]);
@@ -1523,7 +1530,7 @@ export default function StudentClasses() {
                               </div>
                               <div className="min-w-0">
                                 <p className="font-semibold text-sm text-gray-900 truncate" data-testid={`text-class-title-${classItem.id}`}>
-                                  {classItem.courseType.toUpperCase()} - Class {classItem.classNumber}
+                                  {classItem.courseType.toUpperCase()} - {classItem.classType === 'driving' ? 'In-Car' : 'Theory'} #{classItem.classNumber}
                                 </p>
                                 <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
                                   <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{classDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span>
@@ -1574,7 +1581,7 @@ export default function StudentClasses() {
                     <span className="text-[#ECC462]">{getCourseIcon(selectedBookingClass.courseType)}</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">{selectedBookingClass.courseType.toUpperCase()} - Class {selectedBookingClass.classNumber}</h4>
+                    <h4 className="font-semibold text-gray-900">{selectedBookingClass.courseType.toUpperCase()} - {selectedBookingClass.classType === 'driving' ? 'In-Car' : 'Theory'} #{selectedBookingClass.classNumber}</h4>
                     <p className="text-sm text-gray-600">{selectedBookingClass.instructorName}</p>
                   </div>
                 </div>
@@ -1664,7 +1671,7 @@ export default function StudentClasses() {
                     <span className="text-green-600">{getCourseIcon(selectedBookingClass.courseType)}</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">{selectedBookingClass.courseType.toUpperCase()} - Class {selectedBookingClass.classNumber}</h4>
+                    <h4 className="font-semibold text-gray-900">{selectedBookingClass.courseType.toUpperCase()} - {selectedBookingClass.classType === 'driving' ? 'In-Car' : 'Theory'} #{selectedBookingClass.classNumber}</h4>
                     <p className="text-sm text-gray-600">{selectedBookingClass.instructorName}</p>
                   </div>
                 </div>
