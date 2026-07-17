@@ -351,7 +351,18 @@ export default function CourseStartDates() {
             )}
             {backfillReport.failed.length > 0 && (
               <div>
-                <p className="font-medium text-red-600 mb-1">Needs manual enrollment</p>
+                <p className="font-medium text-red-600 mb-1">
+                  Needs manual enrollment
+                  {backfillReport.failed.some((s) => s.handled) && (
+                    <span
+                      className="ml-2 font-normal text-gray-500"
+                      data-testid="text-backfill-handled-count"
+                    >
+                      ({backfillReport.failed.filter((s) => s.handled).length} of{" "}
+                      {backfillReport.failed.length} handled)
+                    </span>
+                  )}
+                </p>
                 <ul className="space-y-1">
                   {backfillReport.failed.map((s) => (
                     <li
@@ -626,7 +637,18 @@ export default function CourseStartDates() {
               )}
               {changeReport.needsAttention.length > 0 && (
                 <div>
-                  <p className="font-medium text-red-600 mb-1">Needs manual attention</p>
+                  <p className="font-medium text-red-600 mb-1">
+                    Needs manual attention
+                    {changeReport.needsAttention.some((s) => s.handled) && (
+                      <span
+                        className="ml-2 font-normal text-gray-500"
+                        data-testid="text-attention-handled-count"
+                      >
+                        ({changeReport.needsAttention.filter((s) => s.handled).length} of{" "}
+                        {changeReport.needsAttention.length} handled)
+                      </span>
+                    )}
+                  </p>
                   <ul className="space-y-1">
                     {changeReport.needsAttention.map((s) => (
                       <li
