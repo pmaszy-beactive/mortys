@@ -500,6 +500,75 @@ function findOverlappingDailyLimitPolicies(
   );
 }
 
+/**
+ * Evaluate the max_bookings_per_week, min_booking_notice, and
+ * max_pending_bookings policies against a target class + the student's
+ * existing enrollments. Returns a violation ({ policyType, message }) for the
+ * first policy breached, or null when all pass.
+ *
+ * - Week window is Monday–Sunday containing the target class date.
+ * - "Pending" bookings are enrollments still in "registered" status for
+ *   scheduled classes on today or a future date.
+ */
+function checkWeeklyNoticePendingPolicies(
+  policies: Array<{ policyType: string; value: number }>,
+  target: { date: string | null; time: string | null },
+  existing: Array<{ date: string | null; classStatus: string | null; attendanceStatus: string | null }>,
+): { policyType: string; message: string } | null {
+  const weeklyPolicy = policies.find(p => p.policyType === 'max_bookings_per_week');
+  if (weeklyPolicy && target.date) {
+    const d = new Date(`${target.date}T00:00:00`);
+    const day = d.getDay(); // 0 = Sunday
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - ((day + 6) % 7));
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    const weekStart = monday.toISOString().slice(0, 10);
+    const weekEnd = sunday.toISOString().slice(0, 10);
+    const inWeek = existing.filter(
+      e => e.date && e.classStatus === 'scheduled' && e.date >= weekStart && e.date <= weekEnd
+    ).length;
+    if (inWeek >= weeklyPolicy.value) {
+      return {
+        policyType: 'max_bookings_per_week',
+        message: `Weekly booking limit reached: the student already has ${inWeek} booking(s) during the week of ${weekStart}. Maximum bookings per week is ${weeklyPolicy.value}.`,
+      };
+    }
+  }
+
+  const noticePolicy = policies.find(p => p.policyType === 'min_booking_notice');
+  if (noticePolicy && target.date) {
+    const classStart = new Date(`${target.date}T${target.time || '00:00'}`);
+    const hoursUntil = (classStart.getTime() - Date.now()) / (1000 * 60 * 60);
+    if (hoursUntil < noticePolicy.value) {
+      return {
+        policyType: 'min_booking_notice',
+        message: `This class starts too soon: bookings require at least ${noticePolicy.value} hour(s) notice, but the class starts in ${Math.max(0, Math.floor(hoursUntil))} hour(s).`,
+      };
+    }
+  }
+
+  const pendingPolicy = policies.find(p => p.policyType === 'max_pending_bookings');
+  if (pendingPolicy) {
+    const today = new Date().toISOString().slice(0, 10);
+    const pendingCount = existing.filter(
+      e =>
+        e.date &&
+        e.date >= today &&
+        e.classStatus === 'scheduled' &&
+        (e.attendanceStatus === 'registered' || !e.attendanceStatus)
+    ).length;
+    if (pendingCount >= pendingPolicy.value) {
+      return {
+        policyType: 'max_pending_bookings',
+        message: `Pending booking limit reached: the student has ${pendingCount} upcoming unconfirmed booking(s). Maximum pending bookings is ${pendingPolicy.value}.`,
+      };
+    }
+  }
+
+  return null;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Public endpoint — publishable key is meant to be exposed
   app.get('/api/stripe-config', (_req, res) => {
@@ -3137,6 +3206,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
               policyType: 'max_bookings_per_day',
               originalValue: `${dailyLimit} bookings`,
               overriddenValue: `${bookingsOnSameDay + 1} bookings`
+            });
+          }
+
+          // Check max_bookings_per_week / min_booking_notice /
+          // max_pending_bookings policies
+          const existingForPolicies = studentEnrollments
+            .filter(e => !e.cancelledAt)
+            .map(e => {
+              const cls = classesForStudent.find(c => c && c.id === e.classId);
+              return {
+                date: cls?.date ?? null,
+                classStatus: cls?.status ?? null,
+                attendanceStatus: e.attendanceStatus ?? null,
+              };
+            });
+          const wnpViolation = checkWeeklyNoticePendingPolicies(
+            policies,
+            { date: classData.date, time: classData.time },
+            existingForPolicies,
+          );
+          if (wnpViolation) {
+            if (!overridePolicy || !canOverride) {
+              return res.status(400).json({
+                message: `${wnpViolation.message} ${canOverride ? 'Provide overrideReason to override.' : 'Contact an authorized staff member to override.'}`,
+                policyViolation: wnpViolation.policyType,
+                canOverride
+              });
+            }
+            if (!overrideReason) {
+              return res.status(400).json({
+                message: 'A reason is required when overriding booking policies.',
+                requiresReason: true
+              });
+            }
+            policyViolations.push({
+              policyType: wnpViolation.policyType,
+              originalValue: wnpViolation.message,
+              overriddenValue: 'Manually overridden by authorized staff'
             });
           }
         }
@@ -9284,6 +9391,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
               policyViolation: 'advance_booking_days'
             });
           }
+        }
+
+        // Check max_bookings_per_week / min_booking_notice /
+        // max_pending_bookings policies
+        const wnpViolation = checkWeeklyNoticePendingPolicies(
+          policies,
+          { date: classData.date, time: classData.time },
+          enrollmentDetails.map(d => ({
+            date: d.date,
+            classStatus: d.classStatus,
+            attendanceStatus: d.attendanceStatus ?? null,
+          })),
+        );
+        if (wnpViolation) {
+          return res.status(400).json({
+            message: wnpViolation.message,
+            policyViolation: wnpViolation.policyType,
+          });
         }
 
         const result = await storage.bookClass(student.id, classId);
