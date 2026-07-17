@@ -16,20 +16,33 @@ import bcrypt from 'bcryptjs';
  *  - Minimum notice: with min_booking_notice = 48 hours, a class starting
  *    tomorrow is blocked (400 + min_booking_notice), and the same booking
  *    succeeds once the policy is removed.
- *  - The available-classes listing still responds while these policies are active.
+ *  - The available-classes listing (GET /api/student/classes/available)
+ *    annotates classes blocked by these policies with bookingAllowed: false,
+ *    a blockingReason, and a blockingRule so the UI can grey them out.
  *
  * Runs against the live dev server with an authenticated student session
- * (Bearer token). Uses far-future dates (year 2035) for week/pending tests and
- * cleans up every row it creates.
+ * (Bearer token). Uses future dates ~6-7 months out (inside the listing's
+ * 13-month window) for week/pending tests and cleans up every row it creates.
  */
 
 const STUDENT_EMAIL = 'e2e-wnp-policy-student@test.local';
 const STUDENT_PASSWORD = 'e2e-wnp-policy-pw-1';
-// 2035-05-07 is a Monday; 2035-05-10 (Thursday) is in the same Mon-Sun week.
-const WEEK_DATE_A = '2035-05-07';
-const WEEK_DATE_B = '2035-05-10';
-// A different far-future week for the pending-bookings test.
-const OTHER_WEEK_DATE = '2035-06-12';
+
+// Dates must stay inside the available-classes listing window (today ..
+// today + 13 months), so compute them relative to "now": a Monday ~6 months
+// out plus a Thursday in the same Mon-Sun week, and a Wednesday in a
+// different week ~7 months out for the pending-bookings test.
+function isoDaysFromNow(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+const now = new Date();
+// Days until next Monday (1 = Monday), always at least 7 to stay future.
+const daysToMonday = ((8 - now.getDay()) % 7) + 7;
+const WEEK_DATE_A = isoDaysFromNow(daysToMonday + 26 * 7); // Monday
+const WEEK_DATE_B = isoDaysFromNow(daysToMonday + 26 * 7 + 3); // same-week Thursday
+const OTHER_WEEK_DATE = isoDaysFromNow(daysToMonday + 30 * 7 + 2); // different week
 
 const POLICY_NAMES = [
   'E2E Weekly Limit 1',
@@ -74,6 +87,14 @@ async function deletePolicy(name: string) {
 
 function bookClass(id: number) {
   return api.post(`/api/student/classes/${id}/book`);
+}
+
+async function fetchAvailable(): Promise<any[]> {
+  const res = await api.get('/api/student/classes/available');
+  expect(res.ok(), await res.text()).toBeTruthy();
+  const body = await res.json();
+  expect(Array.isArray(body.classes)).toBe(true);
+  return body.classes;
 }
 
 test.describe.serial('Weekly / notice / pending booking policies (student portal)', () => {
@@ -157,11 +178,14 @@ test.describe.serial('Weekly / notice / pending booking policies (student portal
       const first = await bookClass(classIds.weekA);
       expect(first.ok(), await first.text()).toBeTruthy();
 
-      // Available-classes listing still responds while the policy is active.
-      const avail = await api.get('/api/student/classes/available');
-      expect(avail.ok(), await avail.text()).toBeTruthy();
-      const availBody = await avail.json();
-      expect(Array.isArray(availBody.classes)).toBe(true);
+      // Available-classes listing marks the same-week class as blocked so
+      // the UI can grey it out.
+      const classes = await fetchAvailable();
+      const weekB = classes.find((c: any) => c.id === classIds.weekB);
+      expect(weekB, 'weekB class missing from available listing').toBeTruthy();
+      expect(weekB.bookingAllowed).toBe(false);
+      expect(weekB.blockingRule).toBe('max_bookings_per_week');
+      expect(weekB.blockingReason).toContain('Weekly booking limit reached');
 
       // 2nd booking in the same Mon-Sun week is blocked.
       const second = await bookClass(classIds.weekB);
@@ -179,6 +203,14 @@ test.describe.serial('Weekly / notice / pending booking policies (student portal
     // The student still holds the weekA booking (registered, future, scheduled).
     await insertPolicy('E2E Pending Limit 1', 'max_pending_bookings', 1);
     try {
+      // Listing greys out the class before the student even tries to book.
+      const classes = await fetchAvailable();
+      const otherWeek = classes.find((c: any) => c.id === classIds.otherWeek);
+      expect(otherWeek, 'otherWeek class missing from available listing').toBeTruthy();
+      expect(otherWeek.bookingAllowed).toBe(false);
+      expect(otherWeek.blockingRule).toBe('max_pending_bookings');
+      expect(otherWeek.blockingReason).toContain('Pending booking limit reached');
+
       const res = await bookClass(classIds.otherWeek);
       expect(res.status()).toBe(400);
       const body = await res.json();
@@ -193,6 +225,14 @@ test.describe.serial('Weekly / notice / pending booking policies (student portal
   test('min_booking_notice = 48 blocks a class starting tomorrow', async () => {
     await insertPolicy('E2E Min Notice 48h', 'min_booking_notice', 48);
     try {
+      // Listing greys out the too-soon class.
+      const classes = await fetchAvailable();
+      const tomorrowCls = classes.find((c: any) => c.id === classIds.tomorrow);
+      expect(tomorrowCls, 'tomorrow class missing from available listing').toBeTruthy();
+      expect(tomorrowCls.bookingAllowed).toBe(false);
+      expect(tomorrowCls.blockingRule).toBe('min_booking_notice');
+      expect(tomorrowCls.blockingReason).toContain('hour(s) notice');
+
       const res = await bookClass(classIds.tomorrow);
       expect(res.status()).toBe(400);
       const body = await res.json();
@@ -204,6 +244,12 @@ test.describe.serial('Weekly / notice / pending booking policies (student portal
   });
 
   test('the same tomorrow class books fine once the notice policy is removed', async () => {
+    // With no policies active the listing marks it bookable again.
+    const classes = await fetchAvailable();
+    const tomorrowCls = classes.find((c: any) => c.id === classIds.tomorrow);
+    expect(tomorrowCls, 'tomorrow class missing from available listing').toBeTruthy();
+    expect(tomorrowCls.bookingAllowed).toBe(true);
+
     const res = await bookClass(classIds.tomorrow);
     expect(res.ok(), await res.text()).toBeTruthy();
   });

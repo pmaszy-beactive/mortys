@@ -8936,6 +8936,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Annotate every class with booking eligibility — show all classes but mark
         // blocked ones so the UI can grey them out with an explanation.
         const today = new Date().toISOString().slice(0, 10);
+        // Existing bookings snapshot for the weekly/notice/pending policy
+        // checks — same shape/counting rules as the booking route.
+        const wnpExistingAvail = enrollments
+          .filter(e => !e.cancelledAt)
+          .map(e => {
+            const cls = allClasses.find(c => c.id === e.classId);
+            return {
+              date: cls?.date ?? null,
+              classStatus: cls?.status ?? null,
+              attendanceStatus: e.attendanceStatus ?? null,
+            };
+          });
         const filteredClasses = availableClasses
           .filter((classItem: any) => classItem.classType && classItem.classNumber)
           .map((classItem: any) => {
@@ -8953,11 +8965,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }),
             };
             const validation = validateClassBooking(target, completedClassesAvail, studentCourseTypeAvail);
+            if (!validation.allowed) {
+              return {
+                ...classItem,
+                bookingAllowed: false,
+                blockingReason: validation.reason,
+                blockingRule: validation.blockingRule,
+              };
+            }
+            // Weekly/notice/pending policies — same scoping as the booking
+            // route (policy applies when its course/class type is unset or
+            // matches the class).
+            const scopedPoliciesAvail = allPoliciesAvail.filter(p =>
+              (!p.courseType || p.courseType === classItem.courseType) &&
+              (!p.classType || p.classType === classItem.classType)
+            );
+            const wnpViolation = checkWeeklyNoticePendingPolicies(
+              scopedPoliciesAvail,
+              { date: classItem.date, time: classItem.time },
+              wnpExistingAvail,
+            );
             return {
               ...classItem,
-              bookingAllowed: validation.allowed,
-              blockingReason: validation.allowed ? undefined : validation.reason,
-              blockingRule: validation.allowed ? undefined : validation.blockingRule,
+              bookingAllowed: !wnpViolation,
+              blockingReason: wnpViolation ? wnpViolation.message : undefined,
+              blockingRule: wnpViolation ? wnpViolation.policyType : undefined,
             };
           });
 
