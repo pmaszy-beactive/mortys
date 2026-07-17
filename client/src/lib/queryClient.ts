@@ -18,6 +18,10 @@ function getCleanErrorMessage(serverMessage: string, statusCode: number): string
   }
   
   if (statusCode === 403) {
+    // Show the server's specific message when it provides one.
+    if (serverMessage && !serverMessage.match(/^\d{3}:/) && serverMessage.toLowerCase() !== 'forbidden') {
+      return serverMessage;
+    }
     return 'You do not have permission to perform this action.';
   }
   

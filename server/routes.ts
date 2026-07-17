@@ -6627,9 +6627,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const attempt = await loadOwnedAttempt(req, res);
       if (!attempt) return;
       const now = new Date();
-      if (attempt.resultsVisibleAt && now >= new Date(attempt.resultsVisibleAt)) {
-        return res.status(403).json({ message: "The test window has closed." });
-      }
+      // Submit is always allowed: even if the window has closed, grade the
+      // already-saved answers so the attempt is never left stuck un-graded.
       const graded = gradeAttempt(attempt.testCode, (attempt.answers || {}) as Record<string, string>);
       await storage.updateExamAttempt(attempt.id, {
         status: "submitted",
