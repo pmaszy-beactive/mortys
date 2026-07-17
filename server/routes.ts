@@ -32,6 +32,7 @@ import {
   courseStartDates,
   examAttempts,
   insertCourseStartDateSchema,
+  insertBookingPolicySchema,
 } from "@shared/schema";
 import {
   EXAM_TESTS,
@@ -1186,9 +1187,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  const nullableCoercedDate = z.preprocess(
+    (v) => (v === undefined ? undefined : v === null || v === "" ? null : v),
+    z.coerce.date().nullable()
+  ).optional();
+  const bookingPolicyDateCoercion = {
+    effectiveFrom: nullableCoercedDate,
+    effectiveTo: nullableCoercedDate,
+  };
+  const createBookingPolicySchema = insertBookingPolicySchema.extend(bookingPolicyDateCoercion);
+  const updateBookingPolicySchema = insertBookingPolicySchema.partial().extend(bookingPolicyDateCoercion);
+
   app.post("/api/booking-policies", authMiddleware, async (req, res) => {
     try {
-      const policy = await storage.createBookingPolicy(req.body);
+      const parsed = createBookingPolicySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid booking policy data", errors: parsed.error.flatten().fieldErrors });
+      }
+      const policy = await storage.createBookingPolicy(parsed.data);
       res.status(201).json(policy);
     } catch (error) {
       console.error("Error creating booking policy:", error);
@@ -1199,7 +1215,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/booking-policies/:id", authMiddleware, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const { changeReason, ...policyData } = req.body;
+      const { changeReason, ...rawPolicyData } = req.body;
+      const parsedPolicy = updateBookingPolicySchema.safeParse(rawPolicyData);
+      if (!parsedPolicy.success) {
+        return res.status(400).json({ message: "Invalid booking policy data", errors: parsedPolicy.error.flatten().fieldErrors });
+      }
+      const policyData = parsedPolicy.data;
       const userId = req.user?.id;
       
       if (!userId) {
