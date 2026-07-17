@@ -2861,15 +2861,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   classNumber: cls?.classNumber ?? null,
                   date: cls?.date ?? null,
                   duration: cls?.duration ?? null,
+                  classStatus: cls?.status ?? null,
                 };
               });
             const completedForPhase = buildCompletedClasses(enrollmentDetailsPhase);
+            // Count same-day booked classes for the daily 2-class limit. Only
+            // classes that are still scheduled count — enrollments in
+            // cancelled classes must not consume a daily slot.
+            const targetDatePhase = classData.date ?? new Date().toISOString().slice(0, 10);
+            const sameDayCountPhase = enrollmentDetailsPhase.filter(
+              d => d.date === targetDatePhase && d.classStatus === 'scheduled'
+            ).length;
             const targetForPhase = {
               classType: classData.classType as "theory" | "driving",
               classNumber: classData.classNumber ?? 0,
-              date: classData.date ?? new Date().toISOString().slice(0, 10),
+              date: targetDatePhase,
               duration: classData.duration ?? undefined,
               maxStudents: classData.maxStudents ?? undefined,
+              sameDayAlreadyBookedCount: sameDayCountPhase,
             };
             const phaseCheck = validateClassBooking(
               targetForPhase,
@@ -2937,7 +2946,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               .filter(e => !e.cancelledAt)
               .map(async (e) => e.classId ? await storage.getClass(e.classId) : null)
           );
-          const bookingsOnSameDay = classesForStudent.filter(c => c && c.date === classData.date).length;
+          // Only count classes that are still scheduled — enrollments in
+          // cancelled classes must not consume a daily slot.
+          const bookingsOnSameDay = classesForStudent.filter(
+            c => c && c.date === classData.date && c.status === 'scheduled'
+          ).length;
 
           if (bookingsOnSameDay >= maxBookingsPolicy.value) {
             if (!overridePolicy || !canOverride) {
@@ -8619,6 +8632,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               classNumber: cls?.classNumber ?? null,
               date: cls?.date ?? null,
               duration: cls?.duration ?? null,
+              classStatus: cls?.status ?? null,
             };
           });
 
@@ -8629,11 +8643,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const completedTheoryClasses = completedClassesAvail.filter(c => c.classType === 'theory').length;
         const completedInCarSessions = completedClassesAvail.filter(c => c.classType === 'driving').length;
 
-        // Build a map of date → total booked minutes for same-day limit checks (Phase 3)
-        const sameDayMinutesMapAvail: Record<string, number> = {};
+        // Build a map of date → number of booked classes for the daily 2-class
+        // limit. Only classes that are still scheduled count — enrollments in
+        // cancelled classes must not consume a daily slot.
+        const sameDayCountMapAvail: Record<string, number> = {};
         for (const detail of enrollmentDetailsAvail) {
-          if (detail.date && detail.duration != null) {
-            sameDayMinutesMapAvail[detail.date] = (sameDayMinutesMapAvail[detail.date] ?? 0) + detail.duration;
+          if (detail.date && detail.classStatus === 'scheduled') {
+            sameDayCountMapAvail[detail.date] = (sameDayCountMapAvail[detail.date] ?? 0) + 1;
           }
         }
 
@@ -8655,7 +8671,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               date: classDate,
               duration: classItem.duration ?? undefined,
               maxStudents: classItem.maxStudents ?? undefined,
-              sameDayAlreadyBookedMinutes: sameDayMinutesMapAvail[classDate] ?? 0,
+              sameDayAlreadyBookedCount: sameDayCountMapAvail[classDate] ?? 0,
             };
             const validation = validateClassBooking(target, completedClassesAvail, studentCourseTypeAvail);
             return {
@@ -8977,21 +8993,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               classNumber: cls?.classNumber ?? null,
               date: cls?.date ?? null,
               duration: cls?.duration ?? null,
+              classStatus: cls?.status ?? null,
             };
           });
 
         const completedClassesForRules = buildCompletedClasses(enrollmentDetails);
         const studentCourseType = (student.courseType || 'auto').toLowerCase();
 
-        // Build same-day minutes map for Phase 3 daily limit check
-        const sameDayMinutesMapBook: Record<string, number> = {};
-        for (const detail of enrollmentDetails) {
-          if (detail.date && detail.duration != null) {
-            sameDayMinutesMapBook[detail.date] = (sameDayMinutesMapBook[detail.date] ?? 0) + detail.duration;
-          }
-        }
+        // Count same-day booked classes for the daily 2-class limit. Only
+        // classes that are still scheduled count — enrollments in cancelled
+        // classes must not consume a daily slot.
         const classDateForBook = classData.date ?? new Date().toISOString().slice(0, 10);
-        const sameDayAlreadyBookedBook = sameDayMinutesMapBook[classDateForBook] ?? 0;
+        const sameDayAlreadyBookedBook = enrollmentDetails.filter(
+          d => d.date === classDateForBook && d.classStatus === 'scheduled'
+        ).length;
 
         const bookingTarget = {
           classType: classData.classType as "theory" | "driving",
@@ -9000,7 +9015,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           duration: classData.duration ?? undefined,
           currentEnrollmentCount: undefined as number | undefined,
           maxStudents: classData.maxStudents ?? undefined,
-          sameDayAlreadyBookedMinutes: sameDayAlreadyBookedBook,
+          sameDayAlreadyBookedCount: sameDayAlreadyBookedBook,
         };
 
         // For shared session check on In-Car 12/13, count current non-cancelled enrollments
@@ -9087,8 +9102,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return null;
               })
           );
+          // Only count classes that are still scheduled — enrollments in
+          // cancelled classes must not consume a daily slot.
           const bookingsOnSameDay = classesForStudent.filter(
-            c => c && c.date === classData.date
+            c => c && c.date === classData.date && c.status === 'scheduled'
           ).length;
 
           if (bookingsOnSameDay >= maxBookingsPolicy.value) {

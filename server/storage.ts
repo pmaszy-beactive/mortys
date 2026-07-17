@@ -2653,7 +2653,8 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(classEnrollments.studentId, studentId),
-          isNull(classEnrollments.cancelledAt)
+          isNull(classEnrollments.cancelledAt),
+          eq(classes.status, 'scheduled')
         )
       );
 

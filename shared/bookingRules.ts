@@ -22,11 +22,13 @@ export interface TargetClassInfo {
   /** Is this class configured as a shared (2-student) session? */
   maxStudents?: number;
   /**
-   * Phase 3 daily limit: total minutes already booked by this student on the
-   * same date (excluding the class being evaluated). Used to enforce the
-   * "max 3 hours per day in Phase 3" rule.
+   * Daily booking limit: number of classes this student already has booked on
+   * the same date (excluding the class being evaluated). Only classes that
+   * are still scheduled should be counted — enrollments in cancelled classes
+   * must not consume a daily slot. Used to enforce the school-wide
+   * "maximum 2 classes per day" policy.
    */
-  sameDayAlreadyBookedMinutes?: number;
+  sameDayAlreadyBookedCount?: number;
 }
 
 export interface BookingValidationResult {
@@ -150,12 +152,33 @@ export function validateClassBooking(
   completed: CompletedClassRecord[],
   courseType: string = "auto"
 ): BookingValidationResult {
+  // School-wide daily limit: maximum 2 classes per day (applies in every phase)
+  const dailyLimitCheck = checkMaxClassesPerDay(target);
+  if (dailyLimitCheck) return dailyLimitCheck;
+
   // For non-auto courses apply simplified rules
   if (courseType !== "auto") {
     return validateSimplifiedRules(target, completed, courseType);
   }
 
   return validateAutoRules(target, completed);
+}
+
+export const MAX_CLASSES_PER_DAY = 2;
+
+function checkMaxClassesPerDay(
+  target: TargetClassInfo
+): BookingValidationResult | null {
+  const alreadyBooked = target.sameDayAlreadyBookedCount ?? 0;
+  if (alreadyBooked >= MAX_CLASSES_PER_DAY) {
+    return {
+      allowed: false,
+      reason: `Students can book a maximum of ${MAX_CLASSES_PER_DAY} classes per day. You already have ${alreadyBooked} classes booked on this date. Please choose a different day.`,
+      blockingRule: "max_2_classes_per_day",
+      detail: {},
+    };
+  }
+  return null;
 }
 
 // ─── Auto-course full rule set ────────────────────────────────────────────────
@@ -263,17 +286,7 @@ function validateAutoRules(
           detail: { prerequisitesNeeded: missing, phaseLabel: "Phase 3" },
         };
       }
-      // Phase 3 daily 3-hour limit
-      const sameDayT8 = target.sameDayAlreadyBookedMinutes ?? 0;
-      const durationT8 = target.duration ?? 120;
-      if (sameDayT8 + durationT8 > 180) {
-        return {
-          allowed: false,
-          reason: `Phase 3 allows a maximum of 3 hours (180 minutes) of classes per day. You already have ${sameDayT8} minutes booked on this day. Adding this ${durationT8}-minute theory class would bring the total to ${sameDayT8 + durationT8} minutes.`,
-          blockingRule: "phase3_max_3_hours_per_day",
-          detail: { phaseLabel: "Phase 3" },
-        };
-      }
+      // Daily 2-classes limit is enforced globally in validateClassBooking
       return { allowed: true };
     }
 
@@ -287,17 +300,7 @@ function validateAutoRules(
           detail: { prerequisitesNeeded: ["Theory #8"], phaseLabel: "Phase 3" },
         };
       }
-      // Phase 3 daily 3-hour limit
-      const sameDayT = target.sameDayAlreadyBookedMinutes ?? 0;
-      const durationT = target.duration ?? 120;
-      if (sameDayT + durationT > 180) {
-        return {
-          allowed: false,
-          reason: `Phase 3 allows a maximum of 3 hours (180 minutes) of classes per day. You already have ${sameDayT} minutes booked on this day. Adding this ${durationT}-minute theory class would bring the total to ${sameDayT + durationT} minutes.`,
-          blockingRule: "phase3_max_3_hours_per_day",
-          detail: { phaseLabel: "Phase 3" },
-        };
-      }
+      // Daily 2-classes limit is enforced globally in validateClassBooking
       return { allowed: true };
     }
 
@@ -442,18 +445,7 @@ function validateAutoRules(
         };
       }
 
-      // Phase 3 daily 3-hour limit (max 180 minutes per day)
-      const sameDayIC = target.sameDayAlreadyBookedMinutes ?? 0;
-      const durationIC = duration ?? 60;
-      if (sameDayIC + durationIC > 180) {
-        return {
-          allowed: false,
-          reason: `Phase 3 allows a maximum of 3 hours (180 minutes) of classes per day. You already have ${sameDayIC} minutes booked on this day. Adding this ${durationIC}-minute in-car session would bring the total to ${sameDayIC + durationIC} minutes.`,
-          blockingRule: "phase3_max_3_hours_per_day",
-          detail: { phaseLabel: "Phase 3" },
-        };
-      }
-
+      // Daily 2-classes limit is enforced globally in validateClassBooking
       return { allowed: true };
     }
 
