@@ -256,13 +256,13 @@ export default function Scheduling() {
   };
 
   const now = new Date();
-  const weekEnd = endOfWeek(now, { weekStartsOn: 0 });
+  const upcomingWindowEnd = addDays(now, 7);
   const upcomingClasses = classes
     .filter(c => {
       if (c.status !== "scheduled") return false;
       const classDateTime = new Date(`${c.date}T${c.time || "00:00"}`);
       if (isNaN(classDateTime.getTime())) return false;
-      return classDateTime >= now && classDateTime <= weekEnd;
+      return classDateTime >= now && classDateTime <= upcomingWindowEnd;
     })
     .sort((a, b) =>
       new Date(`${a.date}T${a.time || "00:00"}`).getTime() -
@@ -816,7 +816,7 @@ export default function Scheduling() {
                 <CardTitle className="text-xl font-semibold text-gray-900">
                   Upcoming Classes This Week
                 </CardTitle>
-                <p className="text-sm text-gray-600 mt-1">Next scheduled theory sessions</p>
+                <p className="text-sm text-gray-600 mt-1">Scheduled sessions in the next 7 days</p>
               </div>
               <div className="bg-amber-100 rounded-xl p-2.5">
                 <BookOpen className="h-5 w-5 text-[#ECC462]" />
