@@ -1409,6 +1409,26 @@ export const insertExamAttemptSchema = createInsertSchema(examAttempts).omit({
 export type ExamAttempt = typeof examAttempts.$inferSelect;
 export type InsertExamAttempt = z.infer<typeof insertExamAttemptSchema>;
 
+// ============================================================
+// Server error logs (HTTP 500+ capture for admin review)
+// ============================================================
+export const errorLogs = pgTable("error_logs", {
+  id: serial("id").primaryKey(),
+  statusCode: integer("status_code").notNull(),
+  method: text("method").notNull(),
+  path: text("path").notNull(),
+  message: text("message").notNull(),
+  stack: text("stack"),
+  userId: text("user_id"),
+  userEmail: text("user_email"),
+  requestContext: json("request_context"), // sanitized { body, params, query }
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertErrorLogSchema = createInsertSchema(errorLogs).omit({ id: true, createdAt: true });
+export type ErrorLog = typeof errorLogs.$inferSelect;
+export type InsertErrorLog = z.infer<typeof insertErrorLogSchema>;
+
 // Auth types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;

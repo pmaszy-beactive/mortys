@@ -35,7 +35,8 @@ import {
   type PayerProfileStudent, type InsertPayerProfileStudent,
   type PaymentTransaction, type PayrollAccessLog, type InsertPayrollAccessLog,
   type StudentNote, type InsertStudentNote,
-  type ImportedPage, type InsertImportedPage
+  type ImportedPage, type InsertImportedPage,
+  errorLogs, type ErrorLog, type InsertErrorLog
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql, gte, lte, isNotNull, isNull, inArray } from "drizzle-orm";
@@ -419,6 +420,12 @@ export interface IStorage {
   createCourseStartDate(data: InsertCourseStartDate): Promise<CourseStartDate>;
   updateCourseStartDate(id: number, data: Partial<InsertCourseStartDate>): Promise<CourseStartDate | undefined>;
   deleteCourseStartDate(id: number): Promise<void>;
+
+  // Server error logs (HTTP 500+ capture)
+  createErrorLog(log: InsertErrorLog): Promise<ErrorLog>;
+  getErrorLogs(filters?: { path?: string; startDate?: string; endDate?: string; limit?: number; offset?: number }): Promise<{ logs: ErrorLog[]; total: number }>;
+  getErrorLog(id: number): Promise<ErrorLog | undefined>;
+  deleteErrorLogsOlderThan(days: number): Promise<number>;
 
   // Module 5 exam attempts
   getExamAttempt(id: number): Promise<ExamAttempt | undefined>;
@@ -4053,6 +4060,60 @@ export class DatabaseStorage implements IStorage {
       .where(eq(examAttempts.id, id))
       .returning();
     return row;
+  }
+
+  // Server error logs (HTTP 500+ capture)
+  async createErrorLog(log: InsertErrorLog): Promise<ErrorLog> {
+    const [row] = await db.insert(errorLogs).values(log).returning();
+    return row;
+  }
+
+  async getErrorLogs(filters?: { path?: string; startDate?: string; endDate?: string; limit?: number; offset?: number }): Promise<{ logs: ErrorLog[]; total: number }> {
+    const conditions = [];
+    if (filters?.path) {
+      conditions.push(sql`${errorLogs.path} ILIKE ${'%' + filters.path + '%'}`);
+    }
+    if (filters?.startDate) {
+      conditions.push(gte(errorLogs.createdAt, new Date(filters.startDate)));
+    }
+    if (filters?.endDate) {
+      const end = new Date(filters.endDate);
+      end.setDate(end.getDate() + 1);
+      conditions.push(lte(errorLogs.createdAt, end));
+    }
+    const where = conditions.length ? and(...conditions) : undefined;
+
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(errorLogs)
+      .where(where);
+
+    const query = db
+      .select()
+      .from(errorLogs)
+      .where(where)
+      .orderBy(sql`${errorLogs.createdAt} DESC, ${errorLogs.id} DESC`)
+      .offset(filters?.offset ?? 0)
+      .$dynamic();
+    // limit === undefined → unbounded (used for full JSON export); list views pass a capped limit.
+    const logs =
+      filters?.limit === undefined ? await query : await query.limit(filters.limit);
+
+    return { logs, total: count };
+  }
+
+  async getErrorLog(id: number): Promise<ErrorLog | undefined> {
+    const [row] = await db.select().from(errorLogs).where(eq(errorLogs.id, id));
+    return row;
+  }
+
+  async deleteErrorLogsOlderThan(days: number): Promise<number> {
+    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const deleted = await db
+      .delete(errorLogs)
+      .where(lte(errorLogs.createdAt, cutoff))
+      .returning({ id: errorLogs.id });
+    return deleted.length;
   }
 }
 

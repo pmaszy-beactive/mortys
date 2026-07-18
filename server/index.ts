@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./init-db";
 import { startScheduledMessageWorker } from "./scheduled-message-sender";
+import { errorCaptureMiddleware, captureRequestError, startErrorLogCleanup } from "./services/error-logger";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
@@ -28,6 +29,9 @@ app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+
+// Capture all HTTP 500+ responses to the error_logs table
+app.use(errorCaptureMiddleware);
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
@@ -83,8 +87,13 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
+    // Remember the real error so the error-capture middleware logs it with a stack
+    captureRequestError(err);
+    console.error(err);
+
+    if (!res.headersSent) {
+      res.status(status).json({ message });
+    }
   });
 
   // importantly only setup vite in development and after
@@ -109,5 +118,8 @@ app.use((req, res, next) => {
     
     // Start the scheduled message worker
     startScheduledMessageWorker();
+
+    // Daily cleanup of error logs older than 30 days
+    startErrorLogCleanup();
   });
 })();

@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { initializeDatabase } from "./init-db";
 import { startScheduledMessageWorker } from "./scheduled-message-sender";
+import { errorCaptureMiddleware, captureRequestError, startErrorLogCleanup } from "./services/error-logger";
 import { readFileSync, existsSync } from "fs";
 import { resolve } from "path";
 import path from "path";
@@ -35,6 +36,9 @@ app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: false, limit: "10mb" }));
+
+// Capture all HTTP 500+ responses to the error_logs table
+app.use(errorCaptureMiddleware);
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
@@ -91,8 +95,14 @@ app.use((req, res, next) => {
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-    res.status(status).json({ message });
-    throw err;
+
+    // Remember the real error so the error-capture middleware logs it with a stack
+    captureRequestError(err);
+    console.error(err);
+
+    if (!res.headersSent) {
+      res.status(status).json({ message });
+    }
   });
 
   // Serve compiled frontend — no vite required
@@ -111,5 +121,6 @@ app.use((req, res, next) => {
   server.listen({ port, host: "0.0.0.0", reusePort: true }, () => {
     log(`serving on port ${port}`);
     startScheduledMessageWorker();
+    startErrorLogCleanup();
   });
 })();
