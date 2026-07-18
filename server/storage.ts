@@ -39,6 +39,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql, gte, lte, isNotNull, isNull, inArray } from "drizzle-orm";
+import { isTheoryClass } from "@shared/bookingRules";
 
 export interface IStorage {
   // Users - Basic Auth methods
@@ -185,6 +186,7 @@ export interface IStorage {
 
   // Instructor-specific methods
   getInstructorStudents(instructorId: number): Promise<Student[]>;
+  getStudentsAttendedHours(studentIds: number[]): Promise<Map<number, { theoryHours: number; drivingHours: number }>>;
   getInstructorClasses(instructorId: number): Promise<Class[]>;
   getInstructorEvaluations(instructorId: number): Promise<Evaluation[]>;
   getInstructorClassesNeedingEvaluation(instructorId: number): Promise<any[]>;
@@ -1229,6 +1231,27 @@ export class MemStorage implements IStorage {
     return Array.from(this.students.values()).filter(s => s.instructorId === instructorId);
   }
 
+  async getStudentsAttendedHours(studentIds: number[]): Promise<Map<number, { theoryHours: number; drivingHours: number }>> {
+    const result = new Map<number, { theoryHours: number; drivingHours: number }>();
+    for (const id of studentIds) result.set(id, { theoryHours: 0, drivingHours: 0 });
+    const idSet = new Set(studentIds);
+    for (const enrollment of Array.from(this.classEnrollments.values())) {
+      if (!idSet.has(enrollment.studentId)) continue;
+      if (enrollment.cancelledAt) continue;
+      if (enrollment.attendanceStatus !== 'attended') continue;
+      const cls = this.classes.get(enrollment.classId);
+      if (!cls) continue;
+      const hours = (cls.duration || 0) / 60;
+      const entry = result.get(enrollment.studentId)!;
+      if (isTheoryClass(cls.classType, cls.classNumber)) {
+        entry.theoryHours += hours;
+      } else {
+        entry.drivingHours += hours;
+      }
+    }
+    return result;
+  }
+
   async getInstructorClasses(instructorId: number): Promise<Class[]> {
     return Array.from(this.classes.values()).filter(c => c.instructorId === instructorId);
   }
@@ -2238,6 +2261,42 @@ export class DatabaseStorage implements IStorage {
       if (!byId.has(row.student.id)) byId.set(row.student.id, row.student);
     }
     return Array.from(byId.values());
+  }
+
+  async getStudentsAttendedHours(studentIds: number[]): Promise<Map<number, { theoryHours: number; drivingHours: number }>> {
+    const result = new Map<number, { theoryHours: number; drivingHours: number }>();
+    for (const id of studentIds) result.set(id, { theoryHours: 0, drivingHours: 0 });
+    if (studentIds.length === 0) return result;
+
+    const rows = await db
+      .select({
+        studentId: classEnrollments.studentId,
+        classType: classes.classType,
+        classNumber: classes.classNumber,
+        duration: classes.duration,
+      })
+      .from(classEnrollments)
+      .innerJoin(classes, eq(classEnrollments.classId, classes.id))
+      .where(
+        and(
+          inArray(classEnrollments.studentId, studentIds),
+          isNull(classEnrollments.cancelledAt),
+          eq(classEnrollments.attendanceStatus, 'attended')
+        )
+      );
+
+    for (const row of rows) {
+      if (row.studentId == null) continue;
+      const entry = result.get(row.studentId);
+      if (!entry) continue;
+      const hours = (row.duration || 0) / 60;
+      if (isTheoryClass(row.classType, row.classNumber)) {
+        entry.theoryHours += hours;
+      } else {
+        entry.drivingHours += hours;
+      }
+    }
+    return result;
   }
 
   async getInstructorClasses(instructorId: number): Promise<Class[]> {

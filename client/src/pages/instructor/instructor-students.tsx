@@ -267,16 +267,12 @@ export default function InstructorStudents() {
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
-                            {student.theoryHoursCompleted !== undefined && (
-                              <p className="text-sm text-gray-600">
-                                Theory: <span className="font-medium text-gray-900">{student.theoryHoursCompleted}h</span>
-                              </p>
-                            )}
-                            {student.practicalHoursCompleted !== undefined && (
-                              <p className="text-sm text-gray-600">
-                                Driving: <span className="font-medium text-gray-900">{student.practicalHoursCompleted}h</span>
-                              </p>
-                            )}
+                            <p className="text-sm text-gray-600">
+                              Theory: <span className="font-medium text-gray-900">{student.theoryHoursCompleted ?? 0}h</span>
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Driving: <span className="font-medium text-gray-900">{student.practicalHoursCompleted ?? 0}h</span>
+                            </p>
                           </div>
                         </TableCell>
                       </TableRow>

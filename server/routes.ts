@@ -11760,7 +11760,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: any, res) => {
       try {
         const students = await storage.getInstructorStudents(req.instructor.id);
-        res.json(students);
+        const hoursMap = await storage.getStudentsAttendedHours(students.map(s => s.id));
+        const enriched = students.map(s => {
+          const hours = hoursMap.get(s.id);
+          return {
+            ...s,
+            theoryHoursCompleted: hours ? Math.round(hours.theoryHours * 10) / 10 : 0,
+            practicalHoursCompleted: hours ? Math.round(hours.drivingHours * 10) / 10 : 0,
+          };
+        });
+        res.json(enriched);
       } catch (error) {
         console.error("Error fetching instructor students:", error);
         res.status(500).json({ message: "Failed to fetch students" });
