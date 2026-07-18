@@ -437,18 +437,58 @@ async function storeDocument(
  * "max_bookings_per_day" booking policy (scoped to the class's course/class
  * type) OVERRIDES the built-in default MAX_CLASSES_PER_DAY (2).
  */
+type DailyLimitPolicyLike = {
+  id?: number;
+  name?: string;
+  policyType: string;
+  value: number;
+  courseType?: string | null;
+  classType?: string | null;
+  effectiveFrom?: Date | string | null;
+  effectiveTo?: Date | string | null;
+};
+
+// Resolve the effective per-day booking limit. Precedence: an active
+// max_bookings_per_day policy that is inside its effective-date window
+// OVERRIDES the built-in default (MAX_CLASSES_PER_DAY). When several
+// policies match, the most specific one (course+class scope > single
+// scope > global) wins deterministically instead of depending on DB
+// row order. Returns which policy supplied the limit so booking
+// decisions can be logged/audited.
+function resolveDailyLimit(
+  policies: DailyLimitPolicyLike[],
+  scope?: { courseType?: string | null; classType?: string | null },
+): { limit: number; policy: DailyLimitPolicyLike | null } {
+  const now = new Date();
+  const inEffect = (p: DailyLimitPolicyLike) => {
+    const from = p.effectiveFrom ? new Date(p.effectiveFrom) : null;
+    const to = p.effectiveTo ? new Date(p.effectiveTo) : null;
+    if (from && from > now) return false;
+    if (to && to < now) return false;
+    return true;
+  };
+  const candidates = policies
+    .filter(p =>
+      p.policyType === 'max_bookings_per_day' &&
+      inEffect(p) &&
+      (scope === undefined || (
+        (!p.courseType || p.courseType === scope.courseType) &&
+        (!p.classType || p.classType === scope.classType)
+      ))
+    )
+    .sort((a, b) => {
+      const spec = (p: DailyLimitPolicyLike) => (p.courseType ? 1 : 0) + (p.classType ? 1 : 0);
+      return spec(b) - spec(a);
+    });
+  const policy = candidates[0] ?? null;
+  return { limit: policy?.value ?? MAX_CLASSES_PER_DAY, policy };
+}
+
 function effectiveDailyLimit(
-  policies: Array<{ policyType: string; value: number; courseType?: string | null; classType?: string | null }>,
+  policies: DailyLimitPolicyLike[],
   scope?: { courseType?: string | null; classType?: string | null },
 ): number {
-  const policy = policies.find(p =>
-    p.policyType === 'max_bookings_per_day' &&
-    (scope === undefined || (
-      (!p.courseType || p.courseType === scope.courseType) &&
-      (!p.classType || p.classType === scope.classType)
-    ))
-  );
-  return policy?.value ?? MAX_CLASSES_PER_DAY;
+  return resolveDailyLimit(policies, scope).limit;
 }
 
 /**
@@ -9328,6 +9368,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // the built-in default of MAX_CLASSES_PER_DAY (2); the rules engine
         // below is the single enforcement point.
         const policies = await storage.getActiveBookingPolicies(classData.courseType || undefined, classData.classType || undefined);
+        const dailyLimit = resolveDailyLimit(policies);
+
+        // Booking decision log context — enough to explain, after the fact,
+        // why any booking attempt was allowed or denied.
+        const bookingLogCtx =
+          `[booking] student=${student.id} class=${classId} ` +
+          `classType=${classData.classType}#${classData.classNumber ?? '?'} date=${classDateForBook} ` +
+          `sameDayBooked=${sameDayAlreadyBookedBook} dailyLimit=${dailyLimit.limit} ` +
+          `limitSource=${dailyLimit.policy ? `policy#${dailyLimit.policy.id}(${dailyLimit.policy.name ?? 'unnamed'})` : `default(${MAX_CLASSES_PER_DAY})`}`;
+        const logBookingDecision = (outcome: string, reason?: string) => {
+          console.log(`${bookingLogCtx} outcome=${outcome}${reason ? ` reason="${reason}"` : ''}`);
+        };
 
         const bookingTarget = {
           classType: classData.classType as "theory" | "driving",
@@ -9337,7 +9389,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           currentEnrollmentCount: undefined as number | undefined,
           maxStudents: classData.maxStudents ?? undefined,
           sameDayAlreadyBookedCount: sameDayAlreadyBookedBook,
-          maxClassesPerDay: effectiveDailyLimit(policies),
+          maxClassesPerDay: dailyLimit.limit,
         };
 
         // For shared session check on In-Car 12/13, count current non-cancelled enrollments
@@ -9348,6 +9400,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const phaseValidation = validateClassBooking(bookingTarget, completedClassesForRules, studentCourseType);
         if (!phaseValidation.allowed) {
+          logBookingDecision(
+            `deny rule=${phaseValidation.blockingRule ?? 'phase_ordering'}`,
+            phaseValidation.reason ?? undefined,
+          );
           return res.status(400).json({
             message: phaseValidation.reason ?? "Booking not allowed at this stage of your training.",
             policyViolation: phaseValidation.blockingRule ?? 'phase_ordering',
@@ -9360,6 +9416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Validate learner's permit for driving (in-car) classes
         if (isDrivingClass) {
           if (!student.learnerPermitNumber) {
+            logBookingDecision('deny rule=permit_required', "No learner's permit on file");
             return res.status(400).json({
               message: "You need a valid learner's permit on file to book driving classes. Please update your permit information in your profile.",
               policyViolation: 'permit_required'
@@ -9367,6 +9424,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           if (!student.learnerPermitExpiryDate) {
+            logBookingDecision('deny rule=permit_expiry_missing', "Permit expiry date not on file");
             return res.status(400).json({
               message: "Your learner's permit expiration date is not on file. Please update your permit information in your profile.",
               policyViolation: 'permit_expiry_missing'
@@ -9378,6 +9436,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           today.setHours(0, 0, 0, 0);
           
           if (permitExpiry < today) {
+            logBookingDecision('deny rule=permit_expired', "Learner's permit has expired");
             return res.status(400).json({
               message: "Your learner's permit has expired. Please renew your permit and update your profile before booking driving classes.",
               policyViolation: 'permit_expired'
@@ -9387,6 +9446,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (classData.date) {
             const classDate = new Date(classData.date);
             if (classDate > permitExpiry) {
+              logBookingDecision('deny rule=permit_expires_before_class', "Permit expires before class date");
               return res.status(400).json({
                 message: `Your learner's permit expires on ${permitExpiry.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. You cannot book a driving class after that date.`,
                 policyViolation: 'permit_expires_before_class'
@@ -9399,6 +9459,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const maxDurationPolicy = policies.find(p => p.policyType === 'max_duration');
         if (maxDurationPolicy && classData.duration) {
           if (classData.duration > maxDurationPolicy.value) {
+            logBookingDecision(
+              `deny rule=max_duration policy#${maxDurationPolicy.id}`,
+              `Duration ${classData.duration}min exceeds max ${maxDurationPolicy.value}min`,
+            );
             return res.status(400).json({ 
               message: `Class duration (${classData.duration} minutes) exceeds the maximum allowed (${maxDurationPolicy.value} minutes)`,
               policyViolation: 'max_duration'
@@ -9420,6 +9484,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
           
           if (diffDays > advanceBookingPolicy.value) {
+            logBookingDecision(
+              `deny rule=advance_booking_days policy#${advanceBookingPolicy.id}`,
+              `Class is ${diffDays} days out, max ${advanceBookingPolicy.value}`,
+            );
             return res.status(400).json({ 
               message: `Cannot book classes more than ${advanceBookingPolicy.value} days in advance`,
               policyViolation: 'advance_booking_days'
@@ -9439,6 +9507,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           })),
         );
         if (wnpViolation) {
+          logBookingDecision(`deny rule=${wnpViolation.policyType}`, wnpViolation.message);
           return res.status(400).json({
             message: wnpViolation.message,
             policyViolation: wnpViolation.policyType,
@@ -9448,11 +9517,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const result = await storage.bookClass(student.id, classId);
 
         if (result.success) {
+          logBookingDecision('allow');
           res.json({
             message: "Class booked successfully",
             enrollment: result.enrollment,
           });
         } else {
+          logBookingDecision('deny rule=book_class', result.message);
           res.status(400).json({ message: result.message });
         }
       } catch (error) {

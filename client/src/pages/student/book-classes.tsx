@@ -133,7 +133,7 @@ export default function BookClasses() {
     onError: (error: any) => {
       toast({
         title: "Booking Failed",
-        description: error.response?.data?.message || "Failed to book class. Please try again.",
+        description: error?.message || "Failed to book class. Please try again.",
         variant: "destructive",
       });
     },

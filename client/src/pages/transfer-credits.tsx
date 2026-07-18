@@ -143,7 +143,7 @@ export default function TransferCredits() {
       console.error('Transfer credit creation error:', error);
       toast({ 
         title: "Failed to create transfer credit",
-        description: error.response?.data?.message || error.message || "Please check all required fields and try again.",
+        description: error?.message || "Please check all required fields and try again.",
         variant: "destructive"
       });
     }

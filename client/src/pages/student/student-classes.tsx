@@ -502,7 +502,7 @@ function ReschedulePaymentForm({
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.message || "Failed to process reschedule",
+        description: error?.message || "Failed to process reschedule",
         variant: "destructive",
       });
     } finally {
@@ -582,7 +582,7 @@ function CancelPaymentForm({
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.message || "Failed to process cancellation",
+        description: error?.message || "Failed to process cancellation",
         variant: "destructive",
       });
     } finally {
@@ -645,7 +645,7 @@ function RescheduleModal({
     onError: (error: any) => {
       toast({
         title: "Reschedule Failed",
-        description: error.response?.data?.message || "Failed to reschedule class",
+        description: error?.message || "Failed to reschedule class",
         variant: "destructive",
       });
     },
@@ -662,7 +662,7 @@ function RescheduleModal({
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.message || "Failed to create payment",
+        description: error?.message || "Failed to create payment",
         variant: "destructive",
       });
     }
@@ -841,7 +841,7 @@ function CancelModal({
     onError: (error: any) => {
       toast({
         title: "Cancellation Failed",
-        description: error.response?.data?.message || "Failed to cancel class",
+        description: error?.message || "Failed to cancel class",
         variant: "destructive",
       });
     },
@@ -854,7 +854,7 @@ function CancelModal({
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.message || "Failed to create payment",
+        description: error?.message || "Failed to create payment",
         variant: "destructive",
       });
     }
@@ -995,7 +995,7 @@ export default function StudentClasses() {
     onError: (error: any) => {
       toast({
         title: "Booking Failed",
-        description: error.response?.data?.message || "Failed to book class. Please try again.",
+        description: error?.message || "Failed to book class. Please try again.",
         variant: "destructive",
       });
     },
