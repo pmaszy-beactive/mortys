@@ -50,6 +50,17 @@ export default function InstructorStudentDetail({ studentId }: StudentDetailProp
     enabled: !!instructor && !!studentId,
   });
 
+  const overallProgressPercent = (() => {
+    if (!phaseProgressData) return 0;
+    let completed = 0;
+    let total = 0;
+    for (const phase of phaseProgressData.phases) {
+      completed += phase.completedCount;
+      total += phase.totalCount;
+    }
+    return total > 0 ? Math.round((completed / total) * 100) : 0;
+  })();
+
   const createNoteMutation = useMutation({
     mutationFn: (data: { noteType: string; content: string }) =>
       apiRequest("POST", `/api/students/${studentId}/notes`, data),
@@ -233,9 +244,13 @@ export default function InstructorStudentDetail({ studentId }: StudentDetailProp
                 <div>
                   <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Progress</label>
                   <div className="mt-1">
-                    <span className="text-2xl font-bold text-gray-900">
-                      {student.progress || 0}%
-                    </span>
+                    {phaseLoading ? (
+                      <div className="h-8 w-16 bg-gray-200 rounded animate-pulse" data-testid="skeleton-progress" />
+                    ) : (
+                      <span className="text-2xl font-bold text-gray-900" data-testid="text-progress-percent">
+                        {overallProgressPercent}%
+                      </span>
+                    )}
                   </div>
                 </div>
 
