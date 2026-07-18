@@ -178,19 +178,19 @@ export function NotificationCenter({ userType }: NotificationCenterProps) {
                     data-testid={`notification-item-${notification.id}`}
                   >
                     <div className="flex gap-3">
-                      <div className={`h-8 w-8 rounded-full shrink-0 self-start flex items-center justify-center ${colorClass}`}>
+                      <div className={`h-8 w-8 min-h-8 min-w-8 max-h-8 max-w-8 rounded-full flex-none self-start flex items-center justify-center ${colorClass}`}>
                         <IconComponent className="h-4 w-4" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <p className={`text-sm font-medium truncate ${isUnread ? "text-foreground" : "text-muted-foreground"}`}>
+                          <p className={`text-sm font-medium break-words min-w-0 ${isUnread ? "text-foreground" : "text-muted-foreground"}`}>
                             {notification.title}
                           </p>
                           {isUnread && (
                             <div className="h-2 w-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                        <p className="text-xs text-muted-foreground break-words mt-1">
                           {notification.message}
                         </p>
                         <p className="text-xs text-muted-foreground mt-2">
