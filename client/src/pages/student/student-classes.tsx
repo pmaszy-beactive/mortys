@@ -121,27 +121,68 @@ const getCourseIcon = (courseType: string) => {
   }
 };
 
-const getStatusBadge = (classItem: ClassWithDetails) => {
-  const classDate = new Date(`${classItem.date}T${classItem.time}`);
-  const now = new Date();
-  
-  if (classItem.status === 'cancelled') {
-    return <Badge variant="destructive" data-testid={`badge-status-${classItem.id}`}><XCircle className="mr-1 h-3 w-3" />Cancelled</Badge>;
+type LiveClassStatus = 'cancelled' | 'completed' | 'missed' | 'pending_review' | 'in_progress' | 'starting_soon' | 'upcoming';
+
+const STARTING_SOON_WINDOW_MS = 15 * 60 * 1000;
+
+const getLiveClassStatus = (classItem: ClassWithDetails, now: Date): LiveClassStatus => {
+  if (classItem.status === 'cancelled') return 'cancelled';
+
+  const startMs = new Date(`${classItem.date}T${classItem.time}`).getTime();
+  const endMs = startMs + (classItem.duration ?? 0) * 60 * 1000;
+  const nowMs = now.getTime();
+
+  if (classItem.attendanceStatus === 'attended' || classItem.status === 'completed') return 'completed';
+  if (classItem.attendanceStatus === 'absent' || classItem.attendanceStatus === 'no-show') return 'missed';
+
+  if (nowMs >= endMs) return 'pending_review';
+  if (nowMs >= startMs) return 'in_progress';
+  if (startMs - nowMs <= STARTING_SOON_WINDOW_MS) return 'starting_soon';
+  return 'upcoming';
+};
+
+const classActionsLocked = (classItem: ClassWithDetails, now: Date): boolean => {
+  const status = getLiveClassStatus(classItem, now);
+  return status !== 'upcoming' && status !== 'starting_soon';
+};
+
+const getStatusBadge = (classItem: ClassWithDetails, now: Date = new Date()) => {
+  const status = getLiveClassStatus(classItem, now);
+  const testId = `badge-status-${classItem.id}`;
+
+  switch (status) {
+    case 'cancelled':
+      return <Badge variant="destructive" data-testid={testId}><XCircle className="mr-1 h-3 w-3" />Cancelled</Badge>;
+    case 'completed':
+      return <Badge className="bg-gray-500 text-white hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-500" data-testid={testId}><CheckCircle2 className="mr-1 h-3 w-3" />Completed</Badge>;
+    case 'missed':
+      return <Badge className="bg-red-500 text-white hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-500" data-testid={testId}><XCircle className="mr-1 h-3 w-3" />Missed</Badge>;
+    case 'pending_review':
+      return <Badge variant="secondary" data-testid={testId}>Pending Review</Badge>;
+    case 'in_progress':
+      return (
+        <Badge className="bg-green-500 text-white hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500" data-testid={testId}>
+          <span className="relative mr-1.5 flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+          </span>
+          Live now
+        </Badge>
+      );
+    case 'starting_soon':
+      return <Badge className="bg-orange-500 text-white hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-500" data-testid={testId}><Timer className="mr-1 h-3 w-3" />Starting soon!</Badge>;
+    default:
+      return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/40 dark:text-yellow-300 dark:hover:bg-yellow-900/60" data-testid={testId}><Timer className="mr-1 h-3 w-3" />Upcoming</Badge>;
   }
-  
-  if (classItem.attendanceStatus === 'attended') {
-    return <Badge className="bg-green-500 hover:bg-green-600" data-testid={`badge-status-${classItem.id}`}><CheckCircle2 className="mr-1 h-3 w-3" />Completed</Badge>;
-  }
-  
-  if (classItem.attendanceStatus === 'absent' || classItem.attendanceStatus === 'no-show') {
-    return <Badge variant="destructive" data-testid={`badge-status-${classItem.id}`}><XCircle className="mr-1 h-3 w-3" />Missed</Badge>;
-  }
-  
-  if (classDate < now && classItem.status === 'scheduled') {
-    return <Badge variant="secondary" data-testid={`badge-status-${classItem.id}`}>Pending Review</Badge>;
-  }
-  
-  return <Badge className="bg-[#ECC462] text-[#111111] hover:bg-[#d4ad4f]" data-testid={`badge-status-${classItem.id}`}><Timer className="mr-1 h-3 w-3" />Upcoming</Badge>;
+};
+
+const useNow = (intervalMs: number = 30000) => {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), intervalMs);
+    return () => clearInterval(interval);
+  }, [intervalMs]);
+  return now;
 };
 
 const CalendarView = ({ 
@@ -156,6 +197,7 @@ const CalendarView = ({
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
   const [detailClass, setDetailClass] = useState<ClassWithDetails | null>(null);
+  const now = useNow();
   
   const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
@@ -326,7 +368,7 @@ const CalendarView = ({
                 <DialogDescription className="sr-only">Class details</DialogDescription>
               </DialogHeader>
               <div className="flex items-center gap-2">
-                {getStatusBadge(detailClass)}
+                {getStatusBadge(detailClass, now)}
               </div>
               <div className="space-y-3 text-sm text-gray-700">
                 <div className="flex items-center gap-2">
@@ -970,6 +1012,7 @@ export default function StudentClasses() {
   const [, setLocation] = useLocation();
   const { student, isLoading: authLoading, isAuthenticated } = useStudentAuth();
   const { toast } = useToast();
+  const now = useNow();
 
   const [selectedClass, setSelectedClass] = useState<ClassWithDetails | null>(null);
   const [selectedEnrollmentId, setSelectedEnrollmentId] = useState<number | null>(null);
@@ -1105,9 +1148,11 @@ export default function StudentClasses() {
       minute: '2-digit' 
     });
     
-    const isCompleted = classItem.attendanceStatus === 'attended' || classItem.status === 'completed';
-    const isCancelled = classItem.status === 'cancelled';
-    const isMissed = classItem.attendanceStatus === 'absent' || classItem.attendanceStatus === 'no-show';
+    const liveStatus = getLiveClassStatus(classItem, now);
+    const isCompleted = liveStatus === 'completed';
+    const isCancelled = liveStatus === 'cancelled';
+    const isMissed = liveStatus === 'missed';
+    const canModify = !classActionsLocked(classItem, now);
     
     const getCardStyles = () => {
       if (isCompleted) {
@@ -1143,7 +1188,7 @@ export default function StudentClasses() {
                     <h3 className={`font-semibold text-lg text-gray-900`} data-testid={`text-class-title-${classItem.id}`}>
                       {classItem.courseType.toUpperCase()} - Class {classItem.classNumber}
                     </h3>
-                    {getStatusBadge(classItem)}
+                    {getStatusBadge(classItem, now)}
                   </div>
                   <p className={`text-sm text-gray-500 mt-1`}>
                     {classItem.instructorName && (
@@ -1220,9 +1265,9 @@ export default function StudentClasses() {
             </div>
 
             <div className="flex flex-col items-end gap-3">
-              {getStatusBadge(classItem)}
+              {getStatusBadge(classItem, now)}
               
-              {isUpcoming && classItem.status === 'scheduled' && (
+              {isUpcoming && classItem.status === 'scheduled' && canModify && (
                 <>
                   <CountdownTimer targetDate={classDate} durationMinutes={classItem.duration} />
                   
