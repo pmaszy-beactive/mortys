@@ -660,6 +660,29 @@ export const insertPolicyOverrideLogSchema = createInsertSchema(policyOverrideLo
 export type PolicyOverrideLog = typeof policyOverrideLogs.$inferSelect;
 export type InsertPolicyOverrideLog = z.infer<typeof insertPolicyOverrideLogSchema>;
 
+// Attendance Audit Log - Track all attendance/completion actions (including blocked early attempts)
+export const attendanceAuditLogs = pgTable("attendance_audit_logs", {
+  id: serial("id").primaryKey(),
+  actorType: text("actor_type").notNull(), // instructor, admin
+  actorId: text("actor_id").notNull(), // instructor id (number as text) or admin user id
+  actorName: text("actor_name"), // Snapshot of actor's display name at time of action
+  action: text("action").notNull(), // mark_complete, bulk_attendance, check_in, check_out, no_show, reset_attendance
+  classId: integer("class_id").references(() => classes.id),
+  enrollmentId: integer("enrollment_id").references(() => classEnrollments.id),
+  studentId: integer("student_id").references(() => students.id),
+  instructorId: integer("instructor_id").references(() => instructors.id), // Instructor assigned to the class (for filtering)
+  previousStatus: text("previous_status"), // Status before the action
+  newStatus: text("new_status"), // Status after the action
+  outcome: text("outcome").notNull(), // success, blocked
+  blockReason: text("block_reason"), // Why the action was blocked (early attempt, etc.)
+  details: text("details"), // Extra context (e.g. attended/absent counts for bulk submissions)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAttendanceAuditLogSchema = createInsertSchema(attendanceAuditLogs).omit({ id: true, createdAt: true });
+export type AttendanceAuditLog = typeof attendanceAuditLogs.$inferSelect;
+export type InsertAttendanceAuditLog = z.infer<typeof insertAttendanceAuditLogSchema>;
+
 export type ZoomSettings = typeof zoomSettings.$inferSelect;
 export type InsertZoomSettings = z.infer<typeof insertZoomSettingsSchema>;
 

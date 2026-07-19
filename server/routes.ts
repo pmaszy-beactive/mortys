@@ -1576,6 +1576,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Attendance Audit Logs - Admin/owner review of attendance & completion actions
+  app.get("/api/attendance-audit-logs", requireAdmin, async (req: any, res) => {
+    try {
+      const { instructorId, classId, startDate, endDate, outcome, action } = req.query;
+      const filters: any = {};
+      if (instructorId) filters.instructorId = parseInt(instructorId as string);
+      if (classId) filters.classId = parseInt(classId as string);
+      if (startDate) filters.startDate = startDate;
+      if (endDate) filters.endDate = endDate;
+      if (outcome) filters.outcome = outcome;
+      if (action) filters.action = action;
+
+      const logs = await storage.getAttendanceAuditLogs(Object.keys(filters).length > 0 ? filters : undefined);
+
+      // Enrich logs with student and class details
+      const enrichedLogs = await Promise.all(logs.map(async (log) => {
+        const student = log.studentId ? await storage.getStudent(log.studentId) : null;
+        const classData = log.classId ? await storage.getClass(log.classId) : null;
+        return {
+          ...log,
+          studentName: student ? `${student.firstName} ${student.lastName}` : null,
+          classInfo: classData ? `${classData.date} ${classData.time} - ${classData.courseType} #${classData.classNumber}` : null,
+        };
+      }));
+
+      res.json(enrichedLogs);
+    } catch (error) {
+      captureRequestError(error);
+      console.error("Error fetching attendance audit logs:", error);
+      res.status(500).json({ message: "Failed to fetch attendance audit logs" });
+    }
+  });
+
   // User permissions routes - Check if user can override booking policies
   app.get("/api/users/:id/can-override-policies", authMiddleware, async (req, res) => {
     try {
@@ -3619,6 +3652,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ---- Attendance time-based enforcement + audit trail helpers ----
+
+  // Students may be checked in up to 15 minutes before the scheduled start time.
+  const CHECK_IN_EARLY_WINDOW_MINUTES = 15;
+
+  // Parse a class's scheduled start into a Date (server-local time).
+  function getClassStartTime(classData: { date: string; time: string }): Date {
+    const [year, month, day] = classData.date.split('-').map(Number);
+    const [hour = 0, minute = 0] = (classData.time || "00:00").split(':').map(Number);
+    return new Date(year, month - 1, day, hour, minute, 0, 0);
+  }
+
+  // Returns true once the class's scheduled start time has passed
+  // (optionally allowing a grace window of minutes before start).
+  function hasClassStarted(classData: { date: string; time: string }, earlyWindowMinutes = 0): boolean {
+    const start = getClassStartTime(classData);
+    return Date.now() >= start.getTime() - earlyWindowMinutes * 60 * 1000;
+  }
+
+  // Extract the acting user (instructor session or admin user) for audit entries.
+  function getAttendanceActor(req: any): { actorType: string; actorId: string; actorName: string | null } {
+    if (req.instructor) {
+      return {
+        actorType: "instructor",
+        actorId: String(req.instructor.id),
+        actorName: `${req.instructor.firstName || ""} ${req.instructor.lastName || ""}`.trim() || req.instructor.email || null,
+      };
+    }
+    if (req.user) {
+      return {
+        actorType: "admin",
+        actorId: String(req.user.id),
+        actorName: `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || req.user.email || null,
+      };
+    }
+    return { actorType: "unknown", actorId: "unknown", actorName: null };
+  }
+
+  // Write an attendance audit entry; never let audit failures break the request.
+  async function logAttendanceAction(entry: {
+    req: any;
+    action: string;
+    outcome: "success" | "blocked";
+    classId?: number | null;
+    enrollmentId?: number | null;
+    studentId?: number | null;
+    instructorId?: number | null;
+    previousStatus?: string | null;
+    newStatus?: string | null;
+    blockReason?: string | null;
+    details?: string | null;
+  }) {
+    try {
+      const actor = getAttendanceActor(entry.req);
+      await storage.createAttendanceAuditLog({
+        ...actor,
+        action: entry.action,
+        outcome: entry.outcome,
+        classId: entry.classId ?? null,
+        enrollmentId: entry.enrollmentId ?? null,
+        studentId: entry.studentId ?? null,
+        instructorId: entry.instructorId ?? null,
+        previousStatus: entry.previousStatus ?? null,
+        newStatus: entry.newStatus ?? null,
+        blockReason: entry.blockReason ?? null,
+        details: entry.details ?? null,
+      });
+    } catch (err) {
+      console.error("Failed to write attendance audit log (non-critical):", err);
+    }
+  }
+
   // Student Check-in/Check-out for lessons
   app.post("/api/class-enrollments/:id/check-in", isAdminOrInstructor, async (req, res) => {
     try {
@@ -3634,6 +3739,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Enrollment not found" });
       }
 
+      const checkInClass = await storage.getClass(existingEnrollment.classId);
+      if (!checkInClass) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+
+      // Check-in opens 15 minutes before the scheduled start time
+      if (!hasClassStarted(checkInClass, CHECK_IN_EARLY_WINDOW_MINUTES)) {
+        await logAttendanceAction({
+          req, action: "check_in", outcome: "blocked",
+          classId: checkInClass.id, enrollmentId: id, studentId: existingEnrollment.studentId,
+          instructorId: checkInClass.instructorId,
+          previousStatus: existingEnrollment.attendanceStatus,
+          blockReason: "Attempted before check-in window (15 minutes before scheduled start)",
+        });
+        return res.status(400).json({ message: `Check-in opens ${CHECK_IN_EARLY_WINDOW_MINUTES} minutes before the class's scheduled start time.` });
+      }
+
       const allEvaluations = await storage.getEvaluations();
       const classEvaluation = allEvaluations.find(
         e => e.classId === existingEnrollment.classId && (e.signedOff || (e.instructorSignature && e.studentSignature))
@@ -3646,6 +3768,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         checkInSignature: signature,
         checkInAt: new Date(),
         attendanceStatus: "checked_in"
+      });
+
+      await logAttendanceAction({
+        req, action: "check_in", outcome: "success",
+        classId: checkInClass.id, enrollmentId: id, studentId: existingEnrollment.studentId,
+        instructorId: checkInClass.instructorId,
+        previousStatus: existingEnrollment.attendanceStatus, newStatus: "checked_in",
       });
       
       res.json(enrollment);
@@ -3666,11 +3795,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const existingEnrollment = await storage.getClassEnrollment(id);
+      if (!existingEnrollment || !existingEnrollment.classId) {
+        return res.status(404).json({ message: "Enrollment not found" });
+      }
+
+      const checkOutClass = await storage.getClass(existingEnrollment.classId);
+      if (!checkOutClass) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+
+      // Check-out is only allowed once the class's scheduled start time has passed
+      if (!hasClassStarted(checkOutClass)) {
+        await logAttendanceAction({
+          req, action: "check_out", outcome: "blocked",
+          classId: checkOutClass.id, enrollmentId: id, studentId: existingEnrollment.studentId,
+          instructorId: checkOutClass.instructorId,
+          previousStatus: existingEnrollment.attendanceStatus,
+          blockReason: "Attempted before the class's scheduled start time",
+        });
+        return res.status(400).json({ message: "Cannot check out a student before the class's scheduled start time." });
+      }
 
       const enrollment = await storage.updateClassEnrollment(id, {
         checkOutSignature: signature,
         checkOutAt: new Date(),
         attendanceStatus: "attended"
+      });
+
+      await logAttendanceAction({
+        req, action: "check_out", outcome: "success",
+        classId: checkOutClass.id, enrollmentId: id, studentId: existingEnrollment.studentId,
+        instructorId: checkOutClass.instructorId,
+        previousStatus: existingEnrollment.attendanceStatus, newStatus: "attended",
       });
 
       if (existingEnrollment?.studentId && existingEnrollment?.classId) {
@@ -3694,6 +3850,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Enrollment not found" });
       }
 
+      const noShowClass = await storage.getClass(existingEnrollment.classId);
+      if (!noShowClass) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+
+      // No-show can only be recorded once the class's scheduled start time has passed
+      if (!hasClassStarted(noShowClass)) {
+        await logAttendanceAction({
+          req, action: "no_show", outcome: "blocked",
+          classId: noShowClass.id, enrollmentId: id, studentId: existingEnrollment.studentId,
+          instructorId: noShowClass.instructorId,
+          previousStatus: existingEnrollment.attendanceStatus,
+          blockReason: "Attempted before the class's scheduled start time",
+        });
+        return res.status(400).json({ message: "Cannot mark a student as no-show before the class's scheduled start time." });
+      }
+
       const allEvaluations = await storage.getEvaluations();
       const classEvaluation = allEvaluations.find(
         e => e.classId === existingEnrollment.classId && (e.signedOff || (e.instructorSignature && e.studentSignature))
@@ -3704,6 +3877,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const enrollment = await storage.updateClassEnrollment(id, {
         attendanceStatus: "no-show"
+      });
+
+      await logAttendanceAction({
+        req, action: "no_show", outcome: "success",
+        classId: noShowClass.id, enrollmentId: id, studentId: existingEnrollment.studentId,
+        instructorId: noShowClass.instructorId,
+        previousStatus: existingEnrollment.attendanceStatus, newStatus: "no-show",
       });
       
       res.json(enrollment);
@@ -3732,6 +3912,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const today = new Date();
       const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
       if (classData.date !== todayStr) {
+        await logAttendanceAction({
+          req, action: "reset_attendance", outcome: "blocked",
+          classId: classData.id, enrollmentId: id, studentId: existingEnrollment.studentId,
+          instructorId: classData.instructorId,
+          previousStatus: existingEnrollment.attendanceStatus,
+          blockReason: "Attempted on a different day than the class",
+        });
         return res.status(400).json({ message: "Attendance can only be corrected on the same day as the class" });
       }
 
@@ -3741,6 +3928,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         checkOutAt: null,
         checkOutSignature: null,
         attendanceStatus: "registered"
+      });
+
+      await logAttendanceAction({
+        req, action: "reset_attendance", outcome: "success",
+        classId: classData.id, enrollmentId: id, studentId: existingEnrollment.studentId,
+        instructorId: classData.instructorId,
+        previousStatus: existingEnrollment.attendanceStatus, newStatus: "registered",
       });
 
       res.json(enrollment);
@@ -12417,18 +12611,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(403).json({ message: "Access denied - not your class" });
         }
 
-        // Check that the class date is today or in the past
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const [year, month, day] = classData.date.split('-').map(Number);
-        const classDate = new Date(year, month - 1, day);
-        
-        if (classDate > today) {
-          return res.status(400).json({ message: "Cannot mark a future class as completed" });
+        // Check that the class's scheduled start time has passed
+        if (!hasClassStarted(classData)) {
+          await logAttendanceAction({
+            req, action: "mark_complete", outcome: "blocked",
+            classId, instructorId: classData.instructorId,
+            previousStatus: classData.status,
+            blockReason: "Attempted before the class's scheduled start time",
+          });
+          return res.status(400).json({ message: "Cannot mark this class as completed before its scheduled start time." });
         }
 
         // Update the class status to 'completed'
         await storage.updateClass(classId, { status: 'completed' });
+
+        await logAttendanceAction({
+          req, action: "mark_complete", outcome: "success",
+          classId, instructorId: classData.instructorId,
+          previousStatus: classData.status, newStatus: "completed",
+        });
 
         res.json({ success: true, message: "Class marked as completed" });
       } catch (error) {
@@ -12518,20 +12719,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(403).json({ message: "Access denied - not your class" });
         }
 
-        // Check that the class date is today or in the past
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const [year, month, day] = classData.date.split('-').map(Number);
-        const classDate = new Date(year, month - 1, day);
-        
-        if (classDate > today) {
-          return res.status(400).json({ message: "Cannot submit attendance for a future class" });
+        // Check that the class's scheduled start time has passed
+        if (!hasClassStarted(classData)) {
+          await logAttendanceAction({
+            req, action: "bulk_attendance", outcome: "blocked",
+            classId, instructorId: classData.instructorId,
+            previousStatus: classData.status,
+            blockReason: "Attempted before the class's scheduled start time",
+          });
+          return res.status(400).json({ message: "Cannot submit attendance before the class's scheduled start time." });
         }
 
         // Update attendance for each student
         for (const record of attendance) {
+          const prevEnrollment = await storage.getClassEnrollment(record.enrollmentId);
+          const newStatus = record.attended ? 'attended' : 'absent';
           await storage.updateClassEnrollment(record.enrollmentId, {
-            attendanceStatus: record.attended ? 'attended' : 'absent',
+            attendanceStatus: newStatus,
+          });
+          await logAttendanceAction({
+            req, action: "bulk_attendance", outcome: "success",
+            classId, enrollmentId: record.enrollmentId,
+            studentId: prevEnrollment?.studentId ?? null,
+            instructorId: classData.instructorId,
+            previousStatus: prevEnrollment?.attendanceStatus ?? null, newStatus,
           });
         }
 
@@ -12541,6 +12752,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           attendanceSignature: signature,
           attendanceSignedAt: new Date().toISOString(),
           attendanceSignedBy: instructor.id,
+        });
+
+        await logAttendanceAction({
+          req, action: "mark_complete", outcome: "success",
+          classId, instructorId: classData.instructorId,
+          previousStatus: classData.status, newStatus: "completed",
+          details: `Bulk attendance: ${attendance.filter((a: any) => a.attended).length} present, ${attendance.filter((a: any) => !a.attended).length} absent`,
         });
 
         res.json({ 

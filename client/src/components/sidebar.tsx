@@ -46,6 +46,7 @@ const navigation: NavItem[] = [
       { name: "Zoom Integration", href: "/zoom", icon: Video },
       { name: "Booking Policies", href: "/booking-policies", icon: Shield },
       { name: "Override Audit Logs", href: "/override-audit-logs", icon: Shield },
+      { name: "Attendance Audit Logs", href: "/attendance-audit-logs", icon: ClipboardCheck },
       { name: "Data Migration", href: "/data-migration", icon: Database },
       { name: "System Settings", href: "/settings", icon: Settings },
     ]

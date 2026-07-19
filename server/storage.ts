@@ -30,6 +30,7 @@ import {
   type BookingPolicy, type InsertBookingPolicy,
   type BookingPolicyVersion, type InsertBookingPolicyVersion,
   type PolicyOverrideLog, type InsertPolicyOverrideLog,
+  attendanceAuditLogs, type AttendanceAuditLog, type InsertAttendanceAuditLog,
   type PayerProfile, type InsertPayerProfile, type PaymentIntake, type InsertPaymentIntake,
   type PaymentAllocation, type InsertPaymentAllocation, type PaymentAuditLog, type InsertPaymentAuditLog,
   type PayerProfileStudent, type InsertPayerProfileStudent,
@@ -139,6 +140,10 @@ export interface IStorage {
   getPolicyOverrideLog(id: number): Promise<PolicyOverrideLog | undefined>;
   createPolicyOverrideLog(log: InsertPolicyOverrideLog): Promise<PolicyOverrideLog>;
   updatePolicyOverrideLog(id: number, updates: Partial<InsertPolicyOverrideLog>): Promise<PolicyOverrideLog>;
+
+  // Attendance Audit Logs
+  createAttendanceAuditLog(log: InsertAttendanceAuditLog): Promise<AttendanceAuditLog>;
+  getAttendanceAuditLogs(filters?: { instructorId?: number; classId?: number; startDate?: string; endDate?: string; outcome?: string; action?: string }): Promise<AttendanceAuditLog[]>;
   
   // Analytics
   getStudentCompletionAnalytics(enrollmentYear?: number, completionYear?: number): Promise<{
@@ -1145,6 +1150,15 @@ export class MemStorage implements IStorage {
     return { id, ...updates, createdAt: new Date() } as PolicyOverrideLog;
   }
 
+  // Attendance Audit Logs - Stub implementations
+  async createAttendanceAuditLog(log: InsertAttendanceAuditLog): Promise<AttendanceAuditLog> {
+    return { id: 0, ...log, createdAt: new Date() } as AttendanceAuditLog;
+  }
+
+  async getAttendanceAuditLogs(): Promise<AttendanceAuditLog[]> {
+    return [];
+  }
+
   // Instructors
   async getInstructors(): Promise<Instructor[]> {
     return Array.from(this.instructors.values());
@@ -2048,6 +2062,41 @@ export class DatabaseStorage implements IStorage {
   async createPolicyOverrideLog(log: InsertPolicyOverrideLog): Promise<PolicyOverrideLog> {
     const [newLog] = await db.insert(policyOverrideLogs).values(log).returning();
     return newLog;
+  }
+
+  // Attendance Audit Logs
+  async createAttendanceAuditLog(log: InsertAttendanceAuditLog): Promise<AttendanceAuditLog> {
+    const [newLog] = await db.insert(attendanceAuditLogs).values(log).returning();
+    return newLog;
+  }
+
+  async getAttendanceAuditLogs(filters?: { instructorId?: number; classId?: number; startDate?: string; endDate?: string; outcome?: string; action?: string }): Promise<AttendanceAuditLog[]> {
+    const conditions = [];
+    if (filters?.instructorId) {
+      conditions.push(eq(attendanceAuditLogs.instructorId, filters.instructorId));
+    }
+    if (filters?.classId) {
+      conditions.push(eq(attendanceAuditLogs.classId, filters.classId));
+    }
+    if (filters?.startDate) {
+      conditions.push(gte(attendanceAuditLogs.createdAt, new Date(filters.startDate)));
+    }
+    if (filters?.endDate) {
+      const end = new Date(filters.endDate);
+      end.setHours(23, 59, 59, 999);
+      conditions.push(lte(attendanceAuditLogs.createdAt, end));
+    }
+    if (filters?.outcome) {
+      conditions.push(eq(attendanceAuditLogs.outcome, filters.outcome));
+    }
+    if (filters?.action) {
+      conditions.push(eq(attendanceAuditLogs.action, filters.action));
+    }
+
+    if (conditions.length > 0) {
+      return await db.select().from(attendanceAuditLogs).where(and(...conditions)).orderBy(sql`${attendanceAuditLogs.createdAt} DESC`);
+    }
+    return await db.select().from(attendanceAuditLogs).orderBy(sql`${attendanceAuditLogs.createdAt} DESC`);
   }
 
   async updatePolicyOverrideLog(id: number, updates: Partial<InsertPolicyOverrideLog>): Promise<PolicyOverrideLog> {

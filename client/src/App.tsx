@@ -27,6 +27,7 @@ import Analytics from "@/pages/analytics";
 import Settings from "@/pages/settings";
 import BookingPolicies from "@/pages/booking-policies";
 import OverrideAuditLogs from "@/pages/override-audit-logs";
+import AttendanceAuditLogs from "@/pages/attendance-audit-logs";
 import DocumentVerification from "@/pages/document-verification";
 import PaymentReconciliation from "@/pages/payment-reconciliation";
 import TransactionAudit from "@/pages/transaction-audit";
@@ -215,6 +216,7 @@ function Router() {
           <Route path="/settings" component={Settings} />
           <Route path="/booking-policies" component={BookingPolicies} />
           <Route path="/override-audit-logs" component={OverrideAuditLogs} />
+          <Route path="/attendance-audit-logs" component={AttendanceAuditLogs} />
           <Route path="/payment-reconciliation" component={PaymentReconciliation} />
           <Route path="/transaction-audit" component={TransactionAudit} />
           <Route path="/refund-requests" component={RefundRequests} />
