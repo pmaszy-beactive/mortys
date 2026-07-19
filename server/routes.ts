@@ -4812,9 +4812,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filteredStudents = filteredStudents.filter(s => s.courseType === courseType);
       }
       
+      const attendedHoursMap = await storage.getStudentsAttendedHours(filteredStudents.map(s => s.id));
+      
       const records = filteredStudents.map(student => {
         const studentEnrollments = enrollments.filter(e => e.studentId === student.id && !e.cancelledAt);
         const attendedEnrollments = studentEnrollments.filter(e => e.attendanceStatus === 'attended');
+        const attendedHours = attendedHoursMap.get(student.id);
         
         // Count by class type
         let theoryClassesAttended = 0;
@@ -4842,8 +4845,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           totalAttended: attendedEnrollments.length,
           theoryClassesAttended,
           drivingClassesAttended,
-          theoryHoursCompleted: student.theoryHoursCompleted || 0,
-          practicalHoursCompleted: student.practicalHoursCompleted || 0,
+          theoryHoursCompleted: attendedHours ? Math.round(attendedHours.theoryHours * 10) / 10 : 0,
+          practicalHoursCompleted: attendedHours ? Math.round(attendedHours.drivingHours * 10) / 10 : 0,
           progress: student.progress || 0
         };
       });
