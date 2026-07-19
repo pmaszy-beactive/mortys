@@ -407,16 +407,23 @@ const CalendarView = ({
   );
 };
 
-const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
-  const [timeLeft, setTimeLeft] = useState("");
+const CountdownTimer = ({ targetDate, durationMinutes }: { targetDate: Date; durationMinutes?: number }) => {
+  const [display, setDisplay] = useState<{ caption: string; label: string }>({ caption: "Starts in", label: "" });
   
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date();
       const diff = targetDate.getTime() - now.getTime();
+      const endTime = targetDate.getTime() + (durationMinutes ?? 0) * 60 * 1000;
       
       if (diff <= 0) {
-        setTimeLeft("Starting soon!");
+        if (durationMinutes && now.getTime() < endTime) {
+          setDisplay({ caption: "Status", label: "In progress" });
+        } else if (durationMinutes) {
+          setDisplay({ caption: "Status", label: "Ended" });
+        } else {
+          setDisplay({ caption: "Status", label: "Starting soon!" });
+        }
         return;
       }
       
@@ -424,22 +431,36 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
       const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       
+      let label: string;
       if (days > 0) {
-        setTimeLeft(`${days}d ${hours}h`);
+        label = `${days}d ${hours}h`;
       } else if (hours > 0) {
-        setTimeLeft(`${hours}h ${minutes}m`);
+        label = `${hours}h ${minutes}m`;
+      } else if (minutes > 0) {
+        label = `${minutes}m`;
       } else {
-        setTimeLeft(`${minutes}m`);
+        label = "Starting soon!";
       }
+      setDisplay({ caption: "Starts in", label });
     };
     
     calculateTimeLeft();
     const interval = setInterval(calculateTimeLeft, 60000);
     
     return () => clearInterval(interval);
-  }, [targetDate]);
+  }, [targetDate, durationMinutes]);
   
-  return <span className="text-sm font-medium text-[#ECC462]">{timeLeft}</span>;
+  return (
+    <div className="text-right">
+      <p className="text-xs text-gray-500 mb-1">{display.caption}</p>
+      <span
+        className={`text-sm font-medium ${display.label === "Ended" ? "text-gray-400" : "text-[#ECC462]"}`}
+        data-testid="text-countdown"
+      >
+        {display.label}
+      </span>
+    </div>
+  );
 };
 
 function ReschedulePaymentForm({ 
@@ -1203,10 +1224,7 @@ export default function StudentClasses() {
               
               {isUpcoming && classItem.status === 'scheduled' && (
                 <>
-                  <div className="text-right">
-                    <p className="text-xs text-gray-500 mb-1">Starts in</p>
-                    <CountdownTimer targetDate={classDate} />
-                  </div>
+                  <CountdownTimer targetDate={classDate} durationMinutes={classItem.duration} />
                   
                   <div className="flex gap-2">
                     <Button
