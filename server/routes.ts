@@ -1691,7 +1691,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!student) {
         return res.status(404).json({ message: "Student not found" });
       }
-      res.json(student);
+      const hoursMap = await storage.getStudentsAttendedHours([student.id]);
+      const hours = hoursMap.get(student.id);
+      const theoryHoursCompleted = hours ? Math.round(hours.theoryHours * 10) / 10 : 0;
+      const practicalHoursCompleted = hours ? Math.round(hours.drivingHours * 10) / 10 : 0;
+      res.json({
+        ...student,
+        theoryHoursCompleted,
+        practicalHoursCompleted,
+        totalHoursCompleted: Math.round((theoryHoursCompleted + practicalHoursCompleted) * 10) / 10,
+      });
     } catch (error) {
       captureRequestError(error);
       res.status(500).json({ message: "Failed to fetch student" });
