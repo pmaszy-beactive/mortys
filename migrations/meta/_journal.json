@@ -64,6 +64,13 @@
       "when": 1784500000000,
       "tag": "0008_error_logs",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1784900000000,
+      "tag": "0009_attendance_audit_logs",
+      "breakpoints": true
     }
   ]
 }

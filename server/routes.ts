@@ -541,6 +541,49 @@ function findOverlappingDailyLimitPolicies(
   );
 }
 
+// Class dates/times are stored as wall-clock strings in the school's local
+// timezone. The server may run in a different timezone (e.g. UTC in Docker),
+// so any "has the class started?" / "how long until start?" comparison must
+// convert using the school's timezone rather than the server's.
+const SCHOOL_TIMEZONE = process.env.SCHOOL_TIMEZONE || "America/Toronto";
+
+// Millisecond offset of `tz` from UTC at the given instant.
+function timeZoneOffsetMs(tz: string, at: Date): number {
+  const dtf = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz, hour12: false,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+  });
+  const parts: Record<string, string> = {};
+  for (const p of dtf.formatToParts(at)) parts[p.type] = p.value;
+  const asUtc = Date.UTC(
+    Number(parts.year), Number(parts.month) - 1, Number(parts.day),
+    Number(parts.hour) % 24, Number(parts.minute), Number(parts.second),
+  );
+  return asUtc - at.getTime();
+}
+
+// Parse a class's scheduled start (school-local wall clock) into a real instant.
+function getClassStartTime(classData: { date: string; time: string }): Date {
+  const [year, month, day] = classData.date.split('-').map(Number);
+  const [hour = 0, minute = 0] = (classData.time || "00:00").split(':').map(Number);
+  const utcGuess = Date.UTC(year, month - 1, day, hour, minute, 0, 0);
+  try {
+    const offset = timeZoneOffsetMs(SCHOOL_TIMEZONE, new Date(utcGuess));
+    return new Date(utcGuess - offset);
+  } catch {
+    // Invalid timezone configured — fall back to server-local interpretation.
+    return new Date(year, month - 1, day, hour, minute, 0, 0);
+  }
+}
+
+// Returns true once the class's scheduled start time has passed
+// (optionally allowing a grace window of minutes before start).
+function hasClassStarted(classData: { date: string; time: string }, earlyWindowMinutes = 0): boolean {
+  const start = getClassStartTime(classData);
+  return Date.now() >= start.getTime() - earlyWindowMinutes * 60 * 1000;
+}
+
 /**
  * Evaluate the max_bookings_per_week, min_booking_notice, and
  * max_pending_bookings policies against a target class + the student's
@@ -579,7 +622,7 @@ function checkWeeklyNoticePendingPolicies(
 
   const noticePolicy = policies.find(p => p.policyType === 'min_booking_notice');
   if (noticePolicy && target.date) {
-    const classStart = new Date(`${target.date}T${target.time || '00:00'}`);
+    const classStart = getClassStartTime({ date: target.date, time: target.time || '00:00' });
     const hoursUntil = (classStart.getTime() - Date.now()) / (1000 * 60 * 60);
     if (hoursUntil < noticePolicy.value) {
       return {
@@ -3665,20 +3708,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Students may be checked in up to 15 minutes before the scheduled start time.
   const CHECK_IN_EARLY_WINDOW_MINUTES = 15;
-
-  // Parse a class's scheduled start into a Date (server-local time).
-  function getClassStartTime(classData: { date: string; time: string }): Date {
-    const [year, month, day] = classData.date.split('-').map(Number);
-    const [hour = 0, minute = 0] = (classData.time || "00:00").split(':').map(Number);
-    return new Date(year, month - 1, day, hour, minute, 0, 0);
-  }
-
-  // Returns true once the class's scheduled start time has passed
-  // (optionally allowing a grace window of minutes before start).
-  function hasClassStarted(classData: { date: string; time: string }, earlyWindowMinutes = 0): boolean {
-    const start = getClassStartTime(classData);
-    return Date.now() >= start.getTime() - earlyWindowMinutes * 60 * 1000;
-  }
 
   // Extract the acting user (instructor session or admin user) for audit entries.
   function getAttendanceActor(req: any): { actorType: string; actorId: string; actorName: string | null } {
