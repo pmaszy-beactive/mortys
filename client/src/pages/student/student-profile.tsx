@@ -113,10 +113,13 @@ export default function StudentProfile() {
   const [licenseExpiry, setLicenseExpiry] = useState("");
   const [permitPhotoPreview, setPermitPhotoPreview] = useState<string | null>(null);
   const permitPhotoInputRef = useRef<HTMLInputElement>(null);
+  const permitFormInitializedRef = useRef(false);
 
-  // Initialize permit form values when data loads
+  // Initialize permit form values only on first load, so refetches
+  // (e.g. after a photo-only upload) don't overwrite unsaved edits
   useEffect(() => {
-    if (permitInfo) {
+    if (permitInfo && !permitFormInitializedRef.current) {
+      permitFormInitializedRef.current = true;
       setPermitNumber(permitInfo.learnerPermitNumber || "");
       setPermitValidDate(permitInfo.learnerPermitValidDate || "");
       setPermitExpiry(permitInfo.learnerPermitExpiryDate || "");
