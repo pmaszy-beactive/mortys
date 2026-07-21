@@ -14,7 +14,10 @@ import {
   ArrowRight,
   CreditCard,
   CalendarClock,
+  CalendarDays,
+  Clock,
 } from "lucide-react";
+import { formatDate, formatTime } from "@/lib/utils";
 import { useLocation } from "wouter";
 import { useStudentAuth } from "@/hooks/useStudentAuth";
 import { useSelectedCourse } from "@/hooks/useSelectedCourse";
@@ -120,6 +123,10 @@ export default function StudentDashboard() {
 
   const studentData = dashboardData.student;
 
+  const upcomingForCourse = (dashboardData.upcomingClasses || []).filter(
+    (c) => !selectedCourse?.courseType || c.courseType === selectedCourse.courseType,
+  );
+
   return (
     <div className="space-y-8">
       <div className="bg-white border border-gray-200 rounded-md shadow-sm">
@@ -160,6 +167,69 @@ export default function StudentDashboard() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* My Upcoming Classes */}
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <CalendarDays className="h-5 w-5 text-[#ECC462]" />
+          My Upcoming Classes
+        </h2>
+        {upcomingForCourse.length > 0 ? (
+          <div className="flex gap-4 overflow-x-auto pb-2">
+            {upcomingForCourse.map((classItem: any) => {
+              const isTheory = classItem.classType
+                ? classItem.classType === "theory"
+                : classItem.classNumber != null && classItem.classNumber <= 5;
+              return (
+                <div
+                  key={classItem.id}
+                  className={`flex-shrink-0 w-[240px] bg-white border border-gray-200 rounded-md shadow-sm p-4 border-l-4 ${
+                    isTheory ? "border-l-blue-500" : "border-l-amber-500"
+                  }`}
+                  data-testid={`card-upcoming-class-${classItem.id}`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    {isTheory ? (
+                      <BookOpen className="h-4 w-4 text-blue-600" />
+                    ) : (
+                      <Car className="h-4 w-4 text-amber-600" />
+                    )}
+                    <span className="text-sm font-bold text-gray-900">
+                      {isTheory ? "Theory" : "Driving"} #{classItem.classNumber}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 flex items-center gap-1.5">
+                    <CalendarDays className="h-3.5 w-3.5 text-gray-400" />
+                    {formatDate(classItem.date)}
+                  </p>
+                  <p className="text-sm text-gray-700 flex items-center gap-1.5 mt-1">
+                    <Clock className="h-3.5 w-3.5 text-gray-400" />
+                    {formatTime(classItem.time)}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div
+            className="bg-white border border-dashed border-gray-300 rounded-md p-6 text-center"
+            data-testid="placeholder-no-upcoming-classes"
+          >
+            <CalendarDays className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+            <p className="text-sm font-medium text-gray-700">No classes scheduled yet</p>
+            <p className="text-sm text-gray-500 mt-1">
+              We're waiting for you to select a class — book your first session to see it here.
+            </p>
+            <Button
+              className="mt-4 bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111]"
+              onClick={() => setLocation("/student/book")}
+              data-testid="button-book-first-class"
+            >
+              Book a Class
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Book a Driving Session */}

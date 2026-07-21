@@ -9287,12 +9287,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           classIds.includes(c.id),
         );
 
-        // Get upcoming classes
+        // Get upcoming classes (school-timezone aware)
         const upcomingClasses = studentClasses
-          .filter((c) => {
-            const classDate = new Date(`${c.date}T${c.time}`);
-            return classDate > new Date() && c.status === "scheduled";
-          })
+          .filter((c) => !hasClassStarted(c) && c.status === "scheduled")
           .slice(0, 5);
 
         // Get student's evaluations
@@ -12322,11 +12319,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
 
-        // Calculate stats
-        const upcomingClasses = classes.filter((c) => {
-          const classDate = new Date(`${c.date}T${c.time}`);
-          return classDate > new Date() && c.status === "scheduled";
-        });
+        // Calculate stats (school-timezone aware)
+        const upcomingClasses = classes.filter(
+          (c) => !hasClassStarted(c) && c.status === "scheduled",
+        );
 
         const completedEvaluations = evaluations.filter(
           (e) => e.signedOff,
