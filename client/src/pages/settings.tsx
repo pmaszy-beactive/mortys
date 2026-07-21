@@ -279,7 +279,9 @@ function AdminUsersTab() {
                       {user.role}
                     </Badge>
                     {user.canOverrideBookingPolicies && (
-                      <ShieldCheck className="h-4 w-4 text-amber-500" title="Can override booking policies" />
+                      <span title="Can override booking policies" aria-label="Can override booking policies">
+                        <ShieldCheck className="h-4 w-4 text-amber-500" />
+                      </span>
                     )}
                   </div>
                   <span className="text-sm text-gray-500">{user.email}</span>

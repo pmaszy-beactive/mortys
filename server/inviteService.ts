@@ -13,12 +13,12 @@ if (isEmailConfigured) {
   );
 }
 
-async function deliverMail(msg: { to: string; subject: string; [key: string]: any }): Promise<void> {
+async function deliverMail(msg: { to: string; from: string; subject: string; [key: string]: any }): Promise<void> {
   if (!isEmailConfigured) {
     console.log(`[MOCK EMAIL] To: ${msg.to}, Subject: ${msg.subject}`);
     return;
   }
-  await sgMail.send({ replyTo: process.env.SENDGRID_REPLY_TO || "info@mortys.ca", trackingSettings: { clickTracking: { enable: false, enableText: false } }, ...msg });
+  await sgMail.send({ replyTo: process.env.SENDGRID_REPLY_TO || "info@mortys.ca", trackingSettings: { clickTracking: { enable: false, enableText: false } }, ...msg } as sgMail.MailDataRequired);
 }
 
 export function generateInviteToken(): string {
