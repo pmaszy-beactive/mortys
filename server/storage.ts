@@ -38,6 +38,7 @@ import {
   type StudentNote, type InsertStudentNote,
   type ImportedPage, type InsertImportedPage,
   errorLogs, type ErrorLog, type InsertErrorLog,
+  assistantLogs, type AssistantLog, type InsertAssistantLog,
   bugReports, type BugReport, type InsertBugReport
 } from "@shared/schema";
 import { db } from "./db";
@@ -433,6 +434,9 @@ export interface IStorage {
   getErrorLogs(filters?: { path?: string; startDate?: string; endDate?: string; limit?: number; offset?: number }): Promise<{ logs: ErrorLog[]; total: number }>;
   getErrorLog(id: number): Promise<ErrorLog | undefined>;
   deleteErrorLogsOlderThan(days: number): Promise<number>;
+  createAssistantLog(log: InsertAssistantLog): Promise<AssistantLog>;
+  getAssistantLogs(filters?: { role?: string; startDate?: string; endDate?: string; limit?: number; offset?: number }): Promise<{ logs: AssistantLog[]; total: number }>;
+  deleteAssistantLogsOlderThan(days: number): Promise<number>;
 
   // Bug reports
   createBugReport(report: InsertBugReport): Promise<BugReport>;
@@ -4182,6 +4186,52 @@ export class DatabaseStorage implements IStorage {
       .delete(errorLogs)
       .where(lte(errorLogs.createdAt, cutoff))
       .returning({ id: errorLogs.id });
+    return deleted.length;
+  }
+
+  // AI assistant Q&A logs
+  async createAssistantLog(log: InsertAssistantLog): Promise<AssistantLog> {
+    const [row] = await db.insert(assistantLogs).values(log).returning();
+    return row;
+  }
+
+  async getAssistantLogs(filters?: { role?: string; startDate?: string; endDate?: string; limit?: number; offset?: number }): Promise<{ logs: AssistantLog[]; total: number }> {
+    const conditions = [];
+    if (filters?.role) {
+      conditions.push(eq(assistantLogs.userRole, filters.role));
+    }
+    if (filters?.startDate) {
+      conditions.push(gte(assistantLogs.createdAt, new Date(filters.startDate)));
+    }
+    if (filters?.endDate) {
+      const end = new Date(filters.endDate);
+      end.setDate(end.getDate() + 1);
+      conditions.push(lte(assistantLogs.createdAt, end));
+    }
+    const where = conditions.length ? and(...conditions) : undefined;
+
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(assistantLogs)
+      .where(where);
+
+    const logs = await db
+      .select()
+      .from(assistantLogs)
+      .where(where)
+      .orderBy(sql`${assistantLogs.createdAt} DESC, ${assistantLogs.id} DESC`)
+      .offset(filters?.offset ?? 0)
+      .limit(Math.min(filters?.limit ?? 50, 500));
+
+    return { logs, total: count };
+  }
+
+  async deleteAssistantLogsOlderThan(days: number): Promise<number> {
+    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const deleted = await db
+      .delete(assistantLogs)
+      .where(lte(assistantLogs.createdAt, cutoff))
+      .returning({ id: assistantLogs.id });
     return deleted.length;
   }
 

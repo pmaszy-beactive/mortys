@@ -1503,6 +1503,22 @@ export type ErrorLog = typeof errorLogs.$inferSelect;
 export type InsertErrorLog = z.infer<typeof insertErrorLogSchema>;
 
 // ============================================================
+// AI assistant Q&A logs (office review of what people ask)
+// ============================================================
+export const assistantLogs = pgTable("assistant_logs", {
+  id: serial("id").primaryKey(),
+  userRole: text("user_role").notNull(), // student | parent | instructor
+  userId: integer("user_id").notNull(),
+  question: text("question").notNull(),
+  answer: text("answer").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAssistantLogSchema = createInsertSchema(assistantLogs).omit({ id: true, createdAt: true });
+export type AssistantLog = typeof assistantLogs.$inferSelect;
+export type InsertAssistantLog = z.infer<typeof insertAssistantLogSchema>;
+
+// ============================================================
 // Bug reports (in-app "report a problem" submissions)
 // ============================================================
 export const bugReports = pgTable("bug_reports", {

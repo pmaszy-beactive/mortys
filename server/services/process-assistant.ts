@@ -251,12 +251,14 @@ export async function handleAssistantChat(req: Request, res: Response) {
   };
 
   let sentAny = false;
+  let fullReply = "";
   try {
     for await (const chunk of stream as AsyncIterable<any>) {
       if (res.writableEnded || res.destroyed) break;
       const delta = chunk.choices?.[0]?.delta?.content;
       if (delta) {
         sentAny = true;
+        fullReply += delta;
         send({ delta });
       }
     }
@@ -276,5 +278,21 @@ export async function handleAssistantChat(req: Request, res: Response) {
     }
   } finally {
     if (!res.writableEnded) res.end();
+
+    // Log the exchange for office review (fire-and-forget — never blocks the stream).
+    // Logs whatever was streamed, even if the reply was cut off mid-stream.
+    const lastUserMessage = [...history].reverse().find((m) => m.role === "user");
+    if (lastUserMessage && fullReply.trim()) {
+      storage
+        .createAssistantLog({
+          userRole: user.role,
+          userId: user.id,
+          question: lastUserMessage.content,
+          answer: fullReply.trim(),
+        })
+        .catch((err) => {
+          console.warn("[assistant] failed to log Q&A exchange:", (err as Error)?.message);
+        });
+    }
   }
 }

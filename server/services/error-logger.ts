@@ -193,6 +193,14 @@ export function startErrorLogCleanup(): void {
     } catch (err) {
       console.warn("[error-logger] cleanup failed:", (err as Error)?.message);
     }
+    try {
+      const deleted = await storage.deleteAssistantLogsOlderThan(RETENTION_DAYS);
+      if (deleted > 0) {
+        console.log(`[error-logger] cleanup removed ${deleted} assistant log(s) older than ${RETENTION_DAYS} days`);
+      }
+    } catch (err) {
+      console.warn("[error-logger] assistant log cleanup failed:", (err as Error)?.message);
+    }
   };
   void run();
   const timer = setInterval(run, CLEANUP_INTERVAL_MS);

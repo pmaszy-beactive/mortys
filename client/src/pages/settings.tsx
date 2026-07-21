@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Settings as SettingsIcon, FileText, Hash, Users, Plus, Pencil, Trash2, Eye, EyeOff, ShieldCheck, AlertTriangle, Download, ChevronDown, ChevronRight, RefreshCw, Bug } from "lucide-react";
+import { Settings as SettingsIcon, FileText, Hash, Users, Plus, Pencil, Trash2, Eye, EyeOff, ShieldCheck, AlertTriangle, Download, ChevronDown, ChevronRight, RefreshCw, Bug, MessageCircleQuestion } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -663,6 +663,152 @@ function BugReportsTab() {
   );
 }
 
+// ─── Assistant Q&A Logs Tab ───────────────────────────────────────────────────
+interface AssistantLogEntry {
+  id: number;
+  userRole: string;
+  userId: number;
+  question: string;
+  answer: string;
+  createdAt: string;
+}
+
+const ASSISTANT_PAGE_SIZE = 25;
+
+const ROLE_BADGE_STYLES: Record<string, string> = {
+  student: "bg-blue-100 text-blue-800",
+  parent: "bg-purple-100 text-purple-800",
+  instructor: "bg-green-100 text-green-800",
+};
+
+function AssistantLogsTab() {
+  const [page, setPage] = useState(0);
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const params = new URLSearchParams();
+  params.set("limit", String(ASSISTANT_PAGE_SIZE));
+  params.set("offset", String(page * ASSISTANT_PAGE_SIZE));
+  if (roleFilter !== "all") params.set("role", roleFilter);
+  if (startDate) params.set("startDate", startDate);
+  if (endDate) params.set("endDate", endDate);
+  const listUrl = `/api/admin/assistant-logs?${params.toString()}`;
+
+  const { data, isLoading, isFetching, refetch } = useQuery<{ logs: AssistantLogEntry[]; total: number }>({
+    queryKey: [listUrl],
+  });
+
+  const logs = data?.logs ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / ASSISTANT_PAGE_SIZE));
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">Assistant Q&A Logs</h3>
+          <p className="text-sm text-gray-500">
+            Every question asked to the AI process assistant, with its answer. Use this to spot gaps or wrong answers in the knowledge base. Entries are kept for 30 days, then deleted automatically.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} data-testid="button-refresh-assistant-logs">
+          <RefreshCw className={`h-4 w-4 mr-1 ${isFetching ? "animate-spin" : ""}`} /> Refresh
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white p-3">
+        <div className="min-w-[160px]">
+          <Label className="text-xs text-gray-500">Role</Label>
+          <Select value={roleFilter} onValueChange={v => { setRoleFilter(v); setPage(0); }}>
+            <SelectTrigger className="h-9" data-testid="select-assistant-role-filter">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All roles</SelectItem>
+              <SelectItem value="student">Students</SelectItem>
+              <SelectItem value="parent">Parents</SelectItem>
+              <SelectItem value="instructor">Instructors</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-gray-500">From</Label>
+          <Input type="date" value={startDate} onChange={e => { setStartDate(e.target.value); setPage(0); }} className="h-9" data-testid="input-assistant-start-date" />
+        </div>
+        <div>
+          <Label className="text-xs text-gray-500">To</Label>
+          <Input type="date" value={endDate} onChange={e => { setEndDate(e.target.value); setPage(0); }} className="h-9" data-testid="input-assistant-end-date" />
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-2">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse" />)}
+        </div>
+      ) : logs.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center text-gray-500" data-testid="text-no-assistant-logs">
+          <MessageCircleQuestion className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+          No assistant questions recorded{roleFilter !== "all" || startDate || endDate ? " for these filters" : " yet"}.
+        </div>
+      ) : (
+        <div className="rounded-lg border border-gray-200 bg-white divide-y divide-gray-100">
+          {logs.map(log => {
+            const expanded = expandedId === log.id;
+            return (
+              <div key={log.id} data-testid={`row-assistant-log-${log.id}`}>
+                <button
+                  type="button"
+                  onClick={() => setExpandedId(expanded ? null : log.id)}
+                  className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50"
+                  data-testid={`button-expand-assistant-${log.id}`}
+                >
+                  {expanded ? <ChevronDown className="h-4 w-4 text-gray-400 shrink-0" /> : <ChevronRight className="h-4 w-4 text-gray-400 shrink-0" />}
+                  <Badge className={`${ROLE_BADGE_STYLES[log.userRole] || "bg-gray-100 text-gray-800"} shrink-0 capitalize`}>{log.userRole}</Badge>
+                  <span className="text-sm text-gray-800 truncate flex-1" title={log.question} data-testid={`text-assistant-question-${log.id}`}>{log.question}</span>
+                  <span className="text-xs text-gray-400 shrink-0">{new Date(log.createdAt).toLocaleString()}</span>
+                </button>
+                {expanded && (
+                  <div className="px-4 pb-4 pt-1 space-y-3 bg-gray-50 border-t border-gray-100">
+                    <div className="text-xs text-gray-500">
+                      Asked {new Date(log.createdAt).toLocaleString()} · {log.userRole} #{log.userId}
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-gray-700 mb-1">Question</div>
+                      <div className="text-sm text-gray-800 bg-white rounded border border-gray-200 p-2 whitespace-pre-wrap break-words">{log.question}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-gray-700 mb-1">Assistant's answer</div>
+                      <div className="text-sm text-gray-800 bg-white rounded border border-gray-200 p-2 whitespace-pre-wrap break-words" data-testid={`text-assistant-answer-${log.id}`}>{log.answer}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {total > ASSISTANT_PAGE_SIZE && (
+        <div className="flex items-center justify-between text-sm text-gray-500">
+          <span data-testid="text-assistant-log-count">
+            Showing {page * ASSISTANT_PAGE_SIZE + 1}–{Math.min((page + 1) * ASSISTANT_PAGE_SIZE, total)} of {total}
+          </span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)} data-testid="button-assistant-prev-page">
+              Previous
+            </Button>
+            <Button variant="outline" size="sm" disabled={page + 1 >= totalPages} onClick={() => setPage(p => p + 1)} data-testid="button-assistant-next-page">
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Settings() {
   return (
@@ -694,6 +840,10 @@ export default function Settings() {
               className="rounded-none border-b-2 border-transparent px-4 pb-3 pt-1 text-sm font-medium text-gray-500 data-[state=active]:border-[#ECC462] data-[state=active]:text-[#111111] data-[state=active]:shadow-none bg-transparent">
               <Bug className="h-4 w-4 mr-2 inline" />Bug Reports
             </TabsTrigger>
+            <TabsTrigger value="assistant-logs" data-testid="tab-assistant-logs"
+              className="rounded-none border-b-2 border-transparent px-4 pb-3 pt-1 text-sm font-medium text-gray-500 data-[state=active]:border-[#ECC462] data-[state=active]:text-[#111111] data-[state=active]:shadow-none bg-transparent">
+              <MessageCircleQuestion className="h-4 w-4 mr-2 inline" />Assistant Q&A
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
@@ -710,6 +860,10 @@ export default function Settings() {
 
           <TabsContent value="bug-reports">
             <BugReportsTab />
+          </TabsContent>
+
+          <TabsContent value="assistant-logs">
+            <AssistantLogsTab />
           </TabsContent>
         </Tabs>
       </div>

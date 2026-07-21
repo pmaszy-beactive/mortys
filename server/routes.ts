@@ -13804,6 +13804,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ─── AI Assistant Q&A Logs (admin/owner only) ─────────────────────────────
+  app.get("/api/admin/assistant-logs", requireAdmin, async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(String(req.query.limit)) || 50, 500);
+      const offset = parseInt(String(req.query.offset)) || 0;
+      const role = req.query.role ? String(req.query.role) : undefined;
+      const startDate = req.query.startDate ? String(req.query.startDate) : undefined;
+      const endDate = req.query.endDate ? String(req.query.endDate) : undefined;
+
+      const result = await storage.getAssistantLogs({ role, startDate, endDate, limit, offset });
+      res.json(result);
+    } catch (error) {
+      captureRequestError(error);
+      console.error("Error fetching assistant logs:", error);
+      res.status(500).json({ message: "Failed to fetch assistant logs" });
+    }
+  });
+
   // AI process Q&A assistant (students, parents, instructors)
   app.post("/api/assistant/chat", isPortalUserAuthenticated, async (req, res) => {
     try {
