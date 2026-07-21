@@ -3,17 +3,27 @@ import type { RequestHandler, Request, Response } from "express";
 import { z } from "zod";
 import { storage } from "../storage";
 import { verifyStudentToken } from "../student-auth";
+import {
+  buildCompletedClasses,
+  validateClassBooking,
+  type CompletedClassRecord,
+} from "@shared/bookingRules";
 
 /**
  * AI process Q&A assistant for students, parents, and instructors.
- * Answers questions about school processes/policies only — no live account data.
+ * Answers questions about school processes/policies. For student sessions
+ * (and parents with a selected student) the prompt also includes that
+ * student's real completed-class progress so "what can I book next?" gets a
+ * grounded, personalized answer. Instructors stay policy-only.
  */
 
 const SYSTEM_PROMPT = `You are the helpful virtual assistant for Morty's Driving School. You answer questions about how the school's processes and policies work for students, parents, and instructors.
 
 STRICT SCOPE:
 - You ONLY answer questions about Morty's Driving School processes: booking rules, phase progression, class types, scheduling, payments/contracts basics, attendance rules, parent access, and how to contact the office.
-- You do NOT have access to any live account data. If asked account-specific questions (e.g. "what's my balance?", "when is my next class?", "why was my booking blocked?"), explain you can't look up personal records and direct them to check their portal or contact the office.
+- The only live account data you may have is the STUDENT PROGRESS section below (if present): the student's completed classes and what the booking-rules engine says about what they can book next. Use ONLY that data for progress/booking questions — never guess or extrapolate beyond it.
+- If no STUDENT PROGRESS section is present, you have NO access to live account data. For any account-specific question (e.g. "what's my balance?", "when is my next class?", "why was my booking blocked?"), explain you can't look up personal records and direct them to check their portal or contact the office.
+- Even when a STUDENT PROGRESS section is present, you still cannot see balances, payments, schedules of upcoming classes, contracts, or any other account details — direct those questions to the portal or the office.
 - Politely decline questions unrelated to the driving school (general knowledge, homework, coding, other businesses, etc.) in one short sentence and offer to help with school-process questions instead.
 - Never invent policies. If you are unsure or the question falls outside the knowledge below, say so and direct the person to the office.
 - Keep answers concise, friendly, and in plain language. Use short bullet lists when helpful.
@@ -129,7 +139,17 @@ export const isPortalUserAuthenticated: RequestHandler = async (req, res, next) 
     if (session?.parentId) {
       const parent = await storage.getParent(session.parentId);
       if (parent && parent.accountStatus === "active") {
-        (req as any).assistantUser = { role: "parent", id: parent.id };
+        // Attach the selected student ONLY if this parent is actually linked
+        // to them — prevents any cross-student data leakage via stale sessions.
+        let selectedStudentId: number | undefined;
+        const candidateId = session?.selectedStudentId;
+        if (candidateId) {
+          const linked = await storage.getParentStudents(parent.id);
+          if (linked.some((rel: any) => rel.studentId === candidateId)) {
+            selectedStudentId = candidateId;
+          }
+        }
+        (req as any).assistantUser = { role: "parent", id: parent.id, studentId: selectedStudentId };
         return next();
       }
     }
@@ -171,6 +191,113 @@ setInterval(() => {
   });
 }, 10 * 60 * 1000).unref();
 
+// ─── Student progress context ────────────────────────────────────────────────
+
+function classLabel(classType: "theory" | "driving", classNumber: number): string {
+  return classType === "theory" ? `Theory #${classNumber}` : `In-Car #${classNumber}`;
+}
+
+/**
+ * Build a grounded STUDENT PROGRESS prompt section from the student's real
+ * enrollment data. Runs the same booking-rules engine used at booking time so
+ * "what can I book next" answers match what the portal will actually allow.
+ * Returns null if the student can't be loaded (assistant falls back to
+ * policy-only mode).
+ */
+async function buildStudentProgressContext(studentId: number): Promise<string | null> {
+  try {
+    const student = await storage.getStudent(studentId);
+    if (!student) return null;
+
+    const enrollments = await storage.getClassEnrollmentsByStudent(studentId);
+    const allClasses = await storage.getClasses();
+    const enrollmentDetails = enrollments
+      .filter((e: any) => !e.cancelledAt)
+      .map((e: any) => {
+        const cls = allClasses.find((c: any) => c.id === e.classId);
+        return {
+          attendanceStatus: e.attendanceStatus,
+          classType: cls?.classType ?? null,
+          classNumber: cls?.classNumber ?? null,
+          date: cls?.date ?? null,
+          duration: cls?.duration ?? null,
+        };
+      });
+    const completed = buildCompletedClasses(enrollmentDetails);
+    const courseType = (student.courseType || "auto").toLowerCase();
+    const today = new Date().toISOString().slice(0, 10);
+
+    // Evaluate every not-yet-completed class through the real rules engine.
+    const candidates: { classType: "theory" | "driving"; classNumber: number }[] = [];
+    for (let n = 1; n <= 12; n++) candidates.push({ classType: "theory", classNumber: n });
+    for (let n = 1; n <= 15; n++) candidates.push({ classType: "driving", classNumber: n });
+
+    const bookableNow: string[] = [];
+    const blocked: string[] = [];
+    for (const cand of candidates) {
+      const done = completed.some(
+        (c: CompletedClassRecord) =>
+          c.classType === cand.classType && c.classNumber === cand.classNumber
+      );
+      if (done) continue;
+      const result = validateClassBooking(
+        {
+          classType: cand.classType,
+          classNumber: cand.classNumber,
+          date: today,
+          // Evaluate prerequisites only: assume a valid duration and a shared
+          // session where required, and ignore the daily limit (no specific
+          // class is being booked yet).
+          duration: 60,
+          maxStudents: cand.classType === "driving" && (cand.classNumber === 12 || cand.classNumber === 13) ? 2 : undefined,
+          currentEnrollmentCount: 0,
+          sameDayAlreadyBookedCount: 0,
+        },
+        completed,
+        courseType
+      );
+      const label = classLabel(cand.classType, cand.classNumber);
+      if (result.allowed) {
+        bookableNow.push(label);
+      } else if (result.reason) {
+        blocked.push(`${label}: ${result.reason}`);
+      }
+    }
+
+    const completedSorted = [...completed].sort((a, b) => a.date.localeCompare(b.date));
+    const completedLines =
+      completedSorted.length > 0
+        ? completedSorted
+            .map((c) => `- ${classLabel(c.classType, c.classNumber)} (attended ${c.date})`)
+            .join("\n")
+        : "- None yet";
+
+    return `=== STUDENT PROGRESS (live data for ${student.firstName} ${student.lastName}, as of ${today}) ===
+
+Course type: ${courseType}
+
+Completed (attended) classes:
+${completedLines}
+
+Classes the booking rules allow booking RIGHT NOW (prerequisites met):
+${bookableNow.length > 0 ? bookableNow.map((l) => `- ${l}`).join("\n") : "- None — see blocked reasons below"}
+
+Classes NOT yet bookable and why:
+${blocked.length > 0 ? blocked.map((l) => `- ${l}`).join("\n") : "- None — everything remaining is bookable"}
+
+NOTES ON THIS DATA:
+- "Bookable right now" means the phase/prerequisite rules are satisfied. An actual booking can still be limited by class availability, class capacity, the daily booking limit, or an active school policy.
+- In-Car #1–#4 and In-Car #15 must be 60-minute sessions; In-Car #12 and #13 must be shared 2-student sessions.
+- A class only counts once it is marked ATTENDED — a booked-but-not-yet-attended class does not unlock the next one.
+- When answering "what can I book next?", list the bookable classes above and briefly explain what unlocks the next blocked ones. Always remind them the office is the final authority.
+
+=== END STUDENT PROGRESS ===`;
+  } catch (error) {
+    console.error("Assistant: failed to build student progress context:", error);
+    return null;
+  }
+}
+
 // ─── Chat handler ─────────────────────────────────────────────────────────────
 
 const chatRequestSchema = z.object({
@@ -205,7 +332,7 @@ export async function handleAssistantChat(req: Request, res: Response) {
     return res.status(400).json({ message: "Invalid chat request." });
   }
 
-  const user = (req as any).assistantUser as { role: string; id: number };
+  const user = (req as any).assistantUser as { role: string; id: number; studentId?: number };
   const rateKey = `${user.role}:${user.id}`;
   if (isRateLimited(rateKey)) {
     return res.status(429).json({
@@ -215,6 +342,24 @@ export async function handleAssistantChat(req: Request, res: Response) {
 
   // Keep only the most recent exchanges to bound token usage
   const history = parsed.data.messages.slice(-12);
+
+  // Personalized progress: students see their own; parents see their verified
+  // selected student's. Instructors (and parents with no selected student)
+  // stay policy-only.
+  let progressContext: string | null = null;
+  if (user.role === "student") {
+    progressContext = await buildStudentProgressContext(user.id);
+  } else if (user.role === "parent" && user.studentId) {
+    progressContext = await buildStudentProgressContext(user.studentId);
+  }
+
+  let systemContent = `${SYSTEM_PROMPT}\n\nThe person you are talking to is a ${user.role}.`;
+  if (progressContext) {
+    systemContent += `\n\n${progressContext}`;
+    if (user.role === "parent") {
+      systemContent += `\n\nThe progress data above belongs to the parent's currently selected student.`;
+    }
+  }
 
   // Stream tokens back via Server-Sent Events so the widget can render
   // the reply word-by-word instead of waiting for the full completion.
@@ -228,7 +373,7 @@ export async function handleAssistantChat(req: Request, res: Response) {
       messages: [
         {
           role: "system",
-          content: `${SYSTEM_PROMPT}\n\nThe person you are talking to is a ${user.role}.`,
+          content: systemContent,
         },
         ...history,
       ],
