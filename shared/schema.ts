@@ -1531,6 +1531,7 @@ export const bugReports = pgTable("bug_reports", {
   submitterEmail: text("submitter_email"),
   submitterRole: text("submitter_role"), // staff role (owner/admin/...) or portal type
   pageUrl: text("page_url"),
+  status: text("status").notNull().default("open"), // open, resolved
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

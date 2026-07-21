@@ -440,7 +440,8 @@ export interface IStorage {
 
   // Bug reports
   createBugReport(report: InsertBugReport): Promise<BugReport>;
-  getBugReports(filters?: { limit?: number; offset?: number }): Promise<{ reports: BugReport[]; total: number }>;
+  getBugReports(filters?: { limit?: number; offset?: number; status?: string }): Promise<{ reports: BugReport[]; total: number }>;
+  updateBugReportStatus(id: number, status: string): Promise<BugReport | undefined>;
 
   // Module 5 exam attempts
   getExamAttempt(id: number): Promise<ExamAttempt | undefined>;
@@ -4241,19 +4242,35 @@ export class DatabaseStorage implements IStorage {
     return row;
   }
 
-  async getBugReports(filters?: { limit?: number; offset?: number }): Promise<{ reports: BugReport[]; total: number }> {
-    const [{ count }] = await db
+  async getBugReports(filters?: { limit?: number; offset?: number; status?: string }): Promise<{ reports: BugReport[]; total: number }> {
+    const where = filters?.status ? eq(bugReports.status, filters.status) : undefined;
+
+    const countQuery = db
       .select({ count: sql<number>`count(*)::int` })
       .from(bugReports);
+    const [{ count }] = where ? await countQuery.where(where) : await countQuery;
 
-    const reports = await db
+    let listQuery = db
       .select()
       .from(bugReports)
+      .$dynamic();
+    if (where) listQuery = listQuery.where(where);
+
+    const reports = await listQuery
       .orderBy(sql`${bugReports.createdAt} DESC, ${bugReports.id} DESC`)
       .offset(filters?.offset ?? 0)
       .limit(Math.min(filters?.limit ?? 50, 500));
 
     return { reports, total: count };
+  }
+
+  async updateBugReportStatus(id: number, status: string): Promise<BugReport | undefined> {
+    const [row] = await db
+      .update(bugReports)
+      .set({ status })
+      .where(eq(bugReports.id, id))
+      .returning();
+    return row;
   }
 }
 

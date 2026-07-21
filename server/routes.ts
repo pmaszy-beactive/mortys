@@ -13974,12 +13974,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const limit = Math.min(parseInt(String(req.query.limit)) || 50, 500);
       const offset = parseInt(String(req.query.offset)) || 0;
-      const result = await storage.getBugReports({ limit, offset });
+      const statusParam = String(req.query.status || "");
+      const status = statusParam === "open" || statusParam === "resolved" ? statusParam : undefined;
+      const result = await storage.getBugReports({ limit, offset, status });
       res.json(result);
     } catch (error) {
       captureRequestError(error);
       console.error("Error fetching bug reports:", error);
       res.status(500).json({ message: "Failed to fetch bug reports" });
+    }
+  });
+
+  app.patch("/api/admin/bug-reports/:id/status", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(String(req.params.id));
+      if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({ message: "Invalid bug report id" });
+      }
+      const status = String(req.body?.status || "");
+      if (status !== "open" && status !== "resolved") {
+        return res.status(400).json({ message: "Status must be 'open' or 'resolved'" });
+      }
+      const updated = await storage.updateBugReportStatus(id, status);
+      if (!updated) {
+        return res.status(404).json({ message: "Bug report not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      captureRequestError(error);
+      console.error("Error updating bug report status:", error);
+      res.status(500).json({ message: "Failed to update bug report status" });
     }
   });
 

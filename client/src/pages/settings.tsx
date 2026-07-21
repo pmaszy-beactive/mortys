@@ -572,6 +572,7 @@ interface BugReportEntry {
   submitterEmail: string | null;
   submitterRole: string | null;
   pageUrl: string | null;
+  status: string;
   createdAt: string;
 }
 
@@ -579,14 +580,34 @@ const BUG_PAGE_SIZE = 25;
 
 function BugReportsTab() {
   const [page, setPage] = useState(0);
+  const [statusFilter, setStatusFilter] = useState<"open" | "all">("open");
+  const { toast } = useToast();
 
   const params = new URLSearchParams();
   params.set("limit", String(BUG_PAGE_SIZE));
   params.set("offset", String(page * BUG_PAGE_SIZE));
+  if (statusFilter === "open") params.set("status", "open");
   const listUrl = `/api/admin/bug-reports?${params.toString()}`;
 
   const { data, isLoading, isFetching, refetch } = useQuery<{ reports: BugReportEntry[]; total: number }>({
     queryKey: [listUrl],
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: number; status: string }) =>
+      apiRequest("PATCH", `/api/admin/bug-reports/${id}/status`, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        predicate: q => typeof q.queryKey[0] === "string" && (q.queryKey[0] as string).startsWith("/api/admin/bug-reports"),
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Couldn't update status",
+        description: error?.message || "Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const reports = data?.reports ?? [];
@@ -604,9 +625,20 @@ function BugReportsTab() {
             Problems reported by users from the in-app bug report button, newest first.
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} data-testid="button-refresh-bug-reports">
-          <RefreshCw className={`h-4 w-4 mr-1 ${isFetching ? "animate-spin" : ""}`} /> Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v as "open" | "all"); setPage(0); }}>
+            <SelectTrigger className="w-[140px] h-9" data-testid="select-bug-status-filter">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="open">Open only</SelectItem>
+              <SelectItem value="all">All reports</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} data-testid="button-refresh-bug-reports">
+            <RefreshCw className={`h-4 w-4 mr-1 ${isFetching ? "animate-spin" : ""}`} /> Refresh
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -616,7 +648,7 @@ function BugReportsTab() {
       ) : reports.length === 0 ? (
         <div className="rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center text-gray-500" data-testid="text-no-bug-reports">
           <Bug className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-          No bug reports submitted yet.
+          {statusFilter === "open" ? "No open bug reports. Switch the filter to \"All reports\" to see resolved ones." : "No bug reports submitted yet."}
         </div>
       ) : (
         <div className="rounded-lg border border-gray-200 bg-white divide-y divide-gray-100">
@@ -626,12 +658,25 @@ function BugReportsTab() {
                 <Badge className={report.category === "billing" ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-blue-800"} data-testid={`badge-bug-category-${report.id}`}>
                   {categoryLabel(report.category)}
                 </Badge>
+                <Badge className={report.status === "resolved" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-700"} data-testid={`badge-bug-status-${report.id}`}>
+                  {report.status === "resolved" ? "Resolved" : "Open"}
+                </Badge>
                 <span className="text-sm font-medium text-gray-800" data-testid={`text-bug-submitter-${report.id}`}>
                   {report.submitterName || "Unknown"}
                   {report.submitterEmail ? ` (${report.submitterEmail})` : ""}
                 </span>
                 <span className="text-xs text-gray-500 capitalize">{report.submitterRole || report.submitterType}</span>
                 <span className="text-xs text-gray-400 ml-auto">{new Date(report.createdAt).toLocaleString()}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs"
+                  disabled={statusMutation.isPending}
+                  onClick={() => statusMutation.mutate({ id: report.id, status: report.status === "resolved" ? "open" : "resolved" })}
+                  data-testid={`button-toggle-bug-status-${report.id}`}
+                >
+                  {report.status === "resolved" ? "Reopen" : "Mark resolved"}
+                </Button>
               </div>
               {report.pageUrl && (
                 <div className="text-xs font-mono text-gray-500" data-testid={`text-bug-page-${report.id}`}>Page: {report.pageUrl}</div>
