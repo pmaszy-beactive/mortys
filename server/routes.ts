@@ -2345,13 +2345,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const counts = await db
         .select({
           classId: classEnrollments.classId,
-          enrolledCount: count(classEnrollments.id),
+          enrolledCount: count(sql`CASE WHEN ${classEnrollments.cancelledAt} IS NULL THEN 1 END`),
+          historicalCount: count(classEnrollments.id),
         })
         .from(classEnrollments)
-        .where(isNull(classEnrollments.cancelledAt))
         .groupBy(classEnrollments.classId);
-      const countMap = new Map(counts.map(c => [c.classId, Number(c.enrolledCount)]));
-      res.json(allClasses.map(c => ({ ...c, enrolledCount: countMap.get(c.id) ?? 0 })));
+      const countMap = new Map(counts.map(c => [c.classId, { enrolled: Number(c.enrolledCount), historical: Number(c.historicalCount) }]));
+      res.json(allClasses.map(c => ({
+        ...c,
+        enrolledCount: countMap.get(c.id)?.enrolled ?? 0,
+        historicalEnrollmentCount: countMap.get(c.id)?.historical ?? 0,
+      })));
     } catch (error) {
       captureRequestError(error);
       res.status(500).json({ message: "Failed to fetch classes" });

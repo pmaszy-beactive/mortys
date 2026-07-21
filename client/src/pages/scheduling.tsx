@@ -19,7 +19,7 @@ import { startOfWeek, endOfWeek, parse, format, addDays } from "date-fns";
 
 export default function Scheduling() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingClass, setEditingClass] = useState<(Class & { enrolledCount?: number }) | null>(null);
+  const [editingClass, setEditingClass] = useState<(Class & { enrolledCount?: number; historicalEnrollmentCount?: number }) | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [vehicleFilters, setVehicleFilters] = useState({
     auto: true,
@@ -241,7 +241,7 @@ export default function Scheduling() {
 
   const calendarDays = generateCalendarDays(currentMonth);
 
-  const { data: classes = [], isLoading: classesLoading } = useQuery<(Class & { enrolledCount?: number })[]>({
+  const { data: classes = [], isLoading: classesLoading } = useQuery<(Class & { enrolledCount?: number; historicalEnrollmentCount?: number })[]>({
     queryKey: ["/api/classes"],
   });
 
@@ -1062,14 +1062,19 @@ export default function Scheduling() {
                 const classDateTime = new Date(`${editingClass.date}T${editingClass.time || "00:00"}`);
                 const isPastClass = !isNaN(classDateTime.getTime()) && classDateTime < new Date();
                 if (!isPastClass) return null;
-                const hasStudents = (editingClass.enrolledCount ?? 0) > 0;
+                const activeCount = editingClass.enrolledCount ?? 0;
+                const historyCount = editingClass.historicalEnrollmentCount ?? activeCount;
+                const hasStudents = historyCount > 0;
+                const onlyCancelled = hasStudents && activeCount === 0;
                 return (
                   <div className="rounded-md border border-gray-200 bg-gray-50 p-3 flex items-center justify-between gap-3 flex-wrap" data-testid="banner-past-class-delete">
                     <div className="text-sm text-gray-700">
                       <span className="font-medium">This class is in the past.</span>{" "}
                       {hasStudents
-                        ? "It cannot be deleted because students were enrolled — attendance history is preserved."
-                        : "No students were enrolled, so it can be safely removed from the calendar."}
+                        ? onlyCancelled
+                          ? "It cannot be deleted because it has booking history (cancelled enrollments) — attendance records are preserved."
+                          : "It cannot be deleted because students were enrolled — attendance history is preserved."
+                        : "No students were ever enrolled, so it can be safely removed from the calendar."}
                     </div>
                     <Button
                       variant="outline"
