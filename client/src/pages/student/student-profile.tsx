@@ -288,9 +288,12 @@ export default function StudentProfile() {
     },
   });
 
-  // Update form when profile data loads
+  // Update form when profile data first loads. Guarded so background
+  // refetches don't overwrite unsaved edits.
+  const profileFormInitializedRef = useRef(false);
   useEffect(() => {
-    if (profileData) {
+    if (profileData && !profileFormInitializedRef.current) {
+      profileFormInitializedRef.current = true;
       form.reset(profileData);
       if (profileData.profilePhoto) {
         setPhotoPreview(profileData.profilePhoto);

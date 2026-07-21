@@ -9,7 +9,7 @@ import { useLocation, Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { NotificationCenter } from "@/components/notification-center";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface NotificationPref {
   notificationType: string;
@@ -58,8 +58,12 @@ export default function ParentDashboard() {
     },
   });
 
+  // Initialize once so background refetches don't clobber toggles the
+  // parent just changed (preferences auto-save on toggle).
+  const prefsInitializedRef = useRef(false);
   useEffect(() => {
-    if (notifPrefs) {
+    if (notifPrefs && !prefsInitializedRef.current) {
+      prefsInitializedRef.current = true;
       setLocalPrefs(notifPrefs);
     }
   }, [notifPrefs]);

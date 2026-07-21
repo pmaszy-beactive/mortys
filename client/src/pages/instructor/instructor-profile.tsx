@@ -161,8 +161,12 @@ export default function InstructorProfile() {
 
   const [localReminderSettings, setLocalReminderSettings] = useState<Partial<ReminderSettings>>({});
 
+  // Initialize once so background refetches don't clobber toggles the
+  // instructor just changed (settings auto-save on change).
+  const reminderSettingsInitializedRef = useRef(false);
   useEffect(() => {
-    if (reminderSettings) {
+    if (reminderSettings && !reminderSettingsInitializedRef.current) {
+      reminderSettingsInitializedRef.current = true;
       setLocalReminderSettings(reminderSettings);
     }
   }, [reminderSettings]);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -111,6 +111,9 @@ export default function StudentOnboarding() {
     enabled: !!registrationId,
   });
 
+  // Step/form data initialize only on first load so a background refetch
+  // doesn't yank the student back a step or wipe in-progress typing.
+  const onboardingInitializedRef = useRef(false);
   useEffect(() => {
     if (registration) {
       if (!registration.emailVerified) {
@@ -121,8 +124,11 @@ export default function StudentOnboarding() {
         setLocation("/student/login");
         return;
       }
-      setCurrentStep(registration.onboardingStep || 1);
-      setFormData(registration.onboardingData || {});
+      if (!onboardingInitializedRef.current) {
+        onboardingInitializedRef.current = true;
+        setCurrentStep(registration.onboardingStep || 1);
+        setFormData(registration.onboardingData || {});
+      }
     }
   }, [registration, setLocation]);
 

@@ -105,18 +105,25 @@ export default function InstructorSchedule() {
     refetchOnMount: 'always',
   });
 
+  // Tracks whether the instructor has manually changed any attendance
+  // toggles since the dialog opened, so data refetches don't wipe them.
+  const attendanceDirtyRef = useRef(false);
+
   useEffect(() => {
     if (attendanceClass) {
       signaturePadRef.current?.clear();
       setStudentAttendance([]);
+      attendanceDirtyRef.current = false;
       setUseSavedSignature(!!instructor?.digitalSignature);
       queryClient.invalidateQueries({ queryKey: ["/api/instructor/classes", attendanceClass.id, "students"] });
     }
   }, [attendanceClass, instructor?.digitalSignature]);
 
-  // Initialize attendance state when students data loads
+  // Initialize attendance state when students data loads. Skipped once the
+  // instructor has toggled anything, so a background refetch can't overwrite
+  // unsaved attendance selections.
   useEffect(() => {
-    if (classStudentsData?.students) {
+    if (classStudentsData?.students && !attendanceDirtyRef.current) {
       setStudentAttendance(
         classStudentsData.students.map(s => ({
           ...s,
@@ -369,6 +376,7 @@ export default function InstructorSchedule() {
 
   // Toggle individual student attendance
   const toggleStudentAttendance = (enrollmentId: number) => {
+    attendanceDirtyRef.current = true;
     setStudentAttendance(prev =>
       prev.map(s =>
         s.enrollmentId === enrollmentId ? { ...s, attended: !s.attended } : s
@@ -378,11 +386,13 @@ export default function InstructorSchedule() {
 
   // Mark all students as present
   const markAllPresent = () => {
+    attendanceDirtyRef.current = true;
     setStudentAttendance(prev => prev.map(s => ({ ...s, attended: true })));
   };
 
   // Mark all students as absent
   const markAllAbsent = () => {
+    attendanceDirtyRef.current = true;
     setStudentAttendance(prev => prev.map(s => ({ ...s, attended: false })));
   };
 

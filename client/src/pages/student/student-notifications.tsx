@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -34,9 +34,12 @@ export default function StudentNotifications() {
     notifyPaymentReceipts: true,
   });
 
-  // Update local state when preferences are loaded
+  // Update local state when preferences first load. Guarded so background
+  // refetches don't overwrite toggles the student just changed.
+  const preferencesInitializedRef = useRef(false);
   useEffect(() => {
-    if (preferences) {
+    if (preferences && !preferencesInitializedRef.current) {
+      preferencesInitializedRef.current = true;
       setLocalPreferences(preferences);
     }
   }, [preferences]);
@@ -76,7 +79,9 @@ export default function StudentNotifications() {
     );
   }
 
-  const currentPrefs = preferences || localPreferences;
+  // Render from local state (initialized from the server once) so toggles
+  // update instantly and background refetches can't revert the switches.
+  const currentPrefs = localPreferences;
 
   return (
     <div className="space-y-6">
