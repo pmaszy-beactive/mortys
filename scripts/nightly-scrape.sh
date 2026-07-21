@@ -110,23 +110,55 @@ write_failure_count() {
 }
 
 # Helper: POST a JSON payload to the alert endpoint and log the result.
+# Prefers curl; falls back to node (always present in this image — it runs the
+# app and the spider) so a missing curl binary can never silently eat alerts.
 post_alert() {
     local payload="$1"
     local kind="$2"
     echo "# Sending $kind alert to $ALERT_URL"
     if [ -z "$INTERNAL_ALERT_TOKEN" ]; then
         echo "# WARNING: INTERNAL_ALERT_TOKEN is not set — the alert endpoint is disabled, no notification will be sent."
+        echo "# WARNING: set INTERNAL_ALERT_TOKEN in the app container environment (the entrypoint passes it to cron) to enable alerts."
     fi
-    local response
-    response="$(curl -sS -m 30 -X POST "$ALERT_URL" \
-        -H "Content-Type: application/json" \
-        -H "X-Internal-Token: ${INTERNAL_ALERT_TOKEN}" \
-        -d "$payload" 2>&1)"
-    local rc=$?
+    local response rc
+    if command -v curl >/dev/null 2>&1; then
+        response="$(curl -sS -m 30 -X POST "$ALERT_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-Internal-Token: ${INTERNAL_ALERT_TOKEN}" \
+            -d "$payload" 2>&1)"
+        rc=$?
+    elif command -v node >/dev/null 2>&1; then
+        echo "# curl not found — falling back to node for the alert POST."
+        response="$(ALERT_URL="$ALERT_URL" ALERT_PAYLOAD="$payload" INTERNAL_ALERT_TOKEN="$INTERNAL_ALERT_TOKEN" node -e '
+const url = new URL(process.env.ALERT_URL);
+const mod = url.protocol === "https:" ? require("https") : require("http");
+const payload = process.env.ALERT_PAYLOAD || "{}";
+const req = mod.request(url, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "X-Internal-Token": process.env.INTERNAL_ALERT_TOKEN || "",
+        "Content-Length": Buffer.byteLength(payload)
+    },
+    timeout: 30000
+}, res => {
+    let body = "";
+    res.on("data", d => { body += d; });
+    res.on("end", () => { console.log(`HTTP ${res.statusCode} ${body}`); process.exit(0); });
+});
+req.on("timeout", () => { req.destroy(new Error("timed out after 30s")); });
+req.on("error", e => { console.error(e.message); process.exit(1); });
+req.end(payload);
+' 2>&1)"
+        rc=$?
+    else
+        echo "# ERROR: neither curl nor node is available — the $kind alert CANNOT be sent. Fix the container image."
+        return 1
+    fi
     if [ $rc -eq 0 ]; then
         echo "# Alert endpoint response: $response"
     else
-        echo "# WARNING: failed to reach alert endpoint (curl exit $rc): $response"
+        echo "# WARNING: failed to reach alert endpoint (exit $rc): $response"
     fi
 }
 
@@ -161,7 +193,11 @@ if [ -s "$QUEUE_FILE" ]; then
     QUEUE_OUTPUT="$(node "$SCRIPT_DIR/migrate-site/spider.js" --queue-file "$QUEUE_FILE" --max-pages "$QUEUE_MAX_PAGES" --delay 5000 "${LOG_LEVEL_ARGS[@]}" 2>&1)"
     QUEUE_STATUS=$?
     echo "$QUEUE_OUTPUT"
-    if echo "$QUEUE_OUTPUT" | grep -qiE "Redirected to login|session cookie has expired"; then
+    # A cookie-validation failure ("Cookie file is invalid" / a raw Chromium
+    # "Invalid cookie fields" error) is treated exactly like an expired cookie:
+    # skip the registration scrape (it would fail identically) so the queue
+    # retry budget is not burned on a bad cookie file.
+    if echo "$QUEUE_OUTPUT" | grep -qiE "Redirected to login|session cookie has expired|Cookie file is invalid|Invalid cookie fields"; then
         QUEUE_COOKIE_EXPIRED=1
     fi
 else
@@ -202,6 +238,11 @@ if [ $STATUS -ne 0 ]; then
 fi
 if echo "$COMBINED_OUTPUT" | grep -qiE "Redirected to login|session cookie has expired"; then
     REASON="Session cookie expired (scraper was redirected to the login page). Refresh the cookie."
+fi
+# A malformed cookie file is checked LAST so it wins: the fix is different
+# (correct the file format, not just refresh the session).
+if echo "$COMBINED_OUTPUT" | grep -qiE "Cookie file is invalid|Invalid cookie fields"; then
+    REASON="Cookie file is invalid (malformed ${MIGRATE_COOKIE_FILE}). Replace it with a valid cookie: either one 'name=value; name2=value2' line or one name=value per line."
 fi
 
 # --- Skipped-page detection --------------------------------------------------

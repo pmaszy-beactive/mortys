@@ -86,10 +86,14 @@ WORKDIR /app
 # coreutils provides GNU `date`, whose relative-date arithmetic
 # (`date -d "<date> - N days"`) the scrape-registrations.sh script relies on;
 # Alpine's BusyBox `date` does not support it.
+# curl is used by scripts/nightly-scrape.sh to POST scrape-failure alerts to
+# the running app; without it alerts were silently lost (exit 127). The
+# wrapper also falls back to node if curl is ever missing.
 RUN apk add --no-cache \
     bash \
     busybox-suid \
     coreutils \
+    curl \
     chromium \
     nss \
     freetype \

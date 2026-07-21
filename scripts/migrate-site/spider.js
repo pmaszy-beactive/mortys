@@ -809,7 +809,7 @@ class SiteMigrationSpider {
                 log.error(`Final URL: ${finalUrlRaw}`);
                 log.error('Your session cookie has expired. Please:');
                 log.error('  1. Log in again in your browser');
-                log.error('  2. Copy the new cookie to scripts/cookie.txt');
+                log.error(`  2. Copy the new cookie to ${COOKIE_FILE}`);
                 log.error('  3. Delete migrate/_spider_state.json to start fresh');
                 log.error('  4. Re-run the spider');
                 log.error('!'.repeat(60));
@@ -831,7 +831,7 @@ class SiteMigrationSpider {
                 log.error(`Final URL: ${finalUrlRaw}`);
                 log.error('Your session cookie has expired or is invalid. Please:');
                 log.error('  1. Log in again in your browser');
-                log.error('  2. Copy the new cookie to scripts/cookie.txt');
+                log.error(`  2. Copy the new cookie to ${COOKIE_FILE}`);
                 log.error('  3. Delete migrate/_spider_state.json to start fresh');
                 log.error('  4. Re-run the spider');
                 log.error('!'.repeat(60));
@@ -944,7 +944,19 @@ class SiteMigrationSpider {
         });
         
         if (this.cookies.length > 0) {
-            await this.page.setCookie(...this.cookies);
+            try {
+                await this.page.setCookie(...this.cookies);
+            } catch (e) {
+                // Belt-and-braces: parsing validates up front, but if Chromium
+                // still rejects a cookie, fail with the same actionable
+                // marker lines instead of a raw protocol error stack.
+                log.error('!'.repeat(60));
+                log.error(`ERROR: Cookie file is invalid — the browser rejected the cookies (${e.message}).`);
+                logCookieGuidance();
+                log.error('!'.repeat(60));
+                await this.browser.close();
+                process.exit(1);
+            }
         }
         
         if (this.queueMode) {
@@ -1048,30 +1060,78 @@ class SiteMigrationSpider {
     }
 }
 
+// Cookie names the legacy site requires for an authenticated session. Matched
+// case-insensitively when warning (the site has been seen setting
+// locationid_new in lowercase).
+const REQUIRED_COOKIE_NAMES = ['ASP.NET_SessionId', '.ASPXAUTH', 'locationId_new'];
+
+// RFC 6265-ish validation: cookie names are tokens (no whitespace, control
+// chars, or separators); values must not contain whitespace, control chars,
+// semicolons, or commas. Chromium rejects anything looser with a cryptic
+// "Protocol error (Network.setCookies): Invalid cookie fields".
+const COOKIE_NAME_RE = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+const COOKIE_VALUE_RE = /^[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]*$/;
+
+// Parse a cookie file into Puppeteer cookie objects. Tolerates common
+// formatting mistakes: a leading "Cookie:" header prefix, surrounding quotes,
+// one-cookie-per-line files (newline-separated instead of "; "-separated),
+// blank lines/segments, and set-cookie attribute noise (path, secure, ...).
+// Returns { cookies, invalidNames } — invalidNames lists the NAMES (never
+// values) of segments that would be rejected by the browser.
 function parseCookieString(cookieStr, domain) {
+    let str = cookieStr.trim();
+    // Strip an accidental "Cookie:" header prefix.
+    str = str.replace(/^cookie\s*:\s*/i, '');
+    // Strip one pair of surrounding quotes.
+    if (str.length >= 2 && ((str[0] === '"' && str.endsWith('"')) || (str[0] === "'" && str.endsWith("'")))) {
+        str = str.slice(1, -1);
+    }
+
     const cookies = [];
-    const parts = cookieStr.split(';');
-    
+    const invalidNames = [];
+    // Split on semicolons AND newlines so both header-style single-line files
+    // and one-cookie-per-line files work.
+    const parts = str.split(/[;\r\n]+/);
+
     for (const part of parts) {
         const trimmed = part.trim();
+        if (!trimmed) continue;
         const eqIndex = trimmed.indexOf('=');
-        if (eqIndex > 0) {
-            const name = trimmed.slice(0, eqIndex).trim();
-            const value = trimmed.slice(eqIndex + 1).trim();
-            if (name && !['path', 'domain', 'expires', 'max-age', 'secure', 'httponly', 'samesite'].includes(name.toLowerCase())) {
-                cookies.push({
-                    name,
-                    value,
-                    domain,
-                    path: '/',
-                    httpOnly: true,
-                    secure: true
-                });
-            }
+        if (eqIndex <= 0) {
+            // Attribute flags like "secure"/"httponly" have no '=' — ignore.
+            continue;
         }
+        const name = trimmed.slice(0, eqIndex).trim();
+        const value = trimmed.slice(eqIndex + 1).trim();
+        if (!name || ['path', 'domain', 'expires', 'max-age', 'secure', 'httponly', 'samesite'].includes(name.toLowerCase())) {
+            continue;
+        }
+        if (!COOKIE_NAME_RE.test(name) || !COOKIE_VALUE_RE.test(value)) {
+            // Never log the value — only the (truncated) name.
+            invalidNames.push(name.slice(0, 60) || '(unnamed)');
+            continue;
+        }
+        cookies.push({
+            name,
+            value,
+            domain,
+            path: '/',
+            httpOnly: true,
+            secure: true
+        });
     }
-    
-    return cookies;
+
+    return { cookies, invalidNames };
+}
+
+// Log the standard actionable refresh-the-cookie guidance (same wording the
+// expired-session paths use so the nightly wrapper's grep catches it too).
+function logCookieGuidance() {
+    log.error('Your session cookie has expired or is invalid. Please:');
+    log.error(`  1. Log in again in your browser`);
+    log.error(`  2. Copy the new cookie to ${COOKIE_FILE}`);
+    log.error('  3. Delete migrate/_spider_state.json to start fresh');
+    log.error('  4. Re-run the spider');
 }
 
 function loadCookies(domain) {
@@ -1081,7 +1141,25 @@ function loadCookies(domain) {
             // Never log the cookie contents — only that one was found.
             log.info(`Loaded cookie from: ${COOKIE_FILE}`);
             log.debug(`Cookie file present (${cookieStr.length} chars, values not logged)`);
-            return parseCookieString(cookieStr, domain);
+            const { cookies, invalidNames } = parseCookieString(cookieStr, domain);
+
+            if (invalidNames.length > 0) {
+                // Fail fast with an actionable message instead of letting
+                // Chromium throw a cryptic "Invalid cookie fields" later.
+                log.error('!'.repeat(60));
+                log.error(`ERROR: Cookie file is invalid — cookie(s) with illegal characters: ${invalidNames.join(', ')} (values not logged).`);
+                log.error(`Check the format of ${COOKIE_FILE}: either a single "name=value; name2=value2" line or one name=value per line.`);
+                logCookieGuidance();
+                log.error('!'.repeat(60));
+                process.exit(1);
+            }
+
+            const presentLower = new Set(cookies.map(c => c.name.toLowerCase()));
+            const missing = REQUIRED_COOKIE_NAMES.filter(n => !presentLower.has(n.toLowerCase()));
+            if (missing.length > 0) {
+                log.warn(`Cookie file is missing expected cookie(s): ${missing.join(', ')} — the scrape will likely be treated as unauthenticated.`);
+            }
+            return cookies;
         }
     }
     log.warn(`No cookie file found at ${COOKIE_FILE} — scraping unauthenticated`);
