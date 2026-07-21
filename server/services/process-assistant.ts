@@ -1,0 +1,240 @@
+import OpenAI from "openai";
+import type { RequestHandler, Request, Response } from "express";
+import { z } from "zod";
+import { storage } from "../storage";
+import { verifyStudentToken } from "../student-auth";
+
+/**
+ * AI process Q&A assistant for students, parents, and instructors.
+ * Answers questions about school processes/policies only — no live account data.
+ */
+
+const SYSTEM_PROMPT = `You are the helpful virtual assistant for Morty's Driving School. You answer questions about how the school's processes and policies work for students, parents, and instructors.
+
+STRICT SCOPE:
+- You ONLY answer questions about Morty's Driving School processes: booking rules, phase progression, class types, scheduling, payments/contracts basics, attendance rules, parent access, and how to contact the office.
+- You do NOT have access to any live account data. If asked account-specific questions (e.g. "what's my balance?", "when is my next class?", "why was my booking blocked?"), explain you can't look up personal records and direct them to check their portal or contact the office.
+- Politely decline questions unrelated to the driving school (general knowledge, homework, coding, other businesses, etc.) in one short sentence and offer to help with school-process questions instead.
+- Never invent policies. If you are unsure or the question falls outside the knowledge below, say so and direct the person to the office.
+- Keep answers concise, friendly, and in plain language. Use short bullet lists when helpful.
+- Write in PLAIN TEXT only — no markdown formatting (no **bold**, no headings, no numbered markdown). Simple dashes for lists are fine.
+- Always note, when giving policy answers, that the office is the final authority on any exceptions.
+
+=== SCHOOL KNOWLEDGE BASE ===
+
+CLASS TYPES
+- Theory Classes: classroom lessons, Theory #1 through Theory #12. Some theory classes are offered over Zoom with attendance tracking.
+- Driving Classes (in-car sessions): one-on-one lessons in a car with an instructor, In-Car #1 through In-Car #15. Most can be 1 hour (60 min) or 2 hours (120 min), with exceptions noted below.
+
+4-PHASE PROGRESSION (standard auto course)
+Phase 1 — Theory foundation:
+- Theory #1 must be the very first class (no prerequisites).
+- Theory #2, #3, #4 each require Theory #1 completed first (any order after that).
+- Theory #5 (final test of Phase 1) requires Theory #1–#4 all completed AND at least 28 days since Theory #1.
+Phase 2 — starts with Theory #6 (requires all of Phase 1 complete):
+- Theory #7 must immediately follow Theory #6.
+- In-Car #1 requires Theory #6 AND Theory #7 done. In-Car #1–#4 must be done in order (1→2→3→4) and are 60-minute sessions only.
+- In-Car #4 also requires at least 28 days since Theory #6.
+Phase 3 — starts with Theory #8 (requires all of Phase 2 complete):
+- Theory #9 and #10 require Theory #8 first; otherwise flexible ordering.
+- In-Car #5–#10 require Theory #8 first; can be 60 or 120 minutes.
+- Phase 3 must last at least 56 days before starting Phase 4 (measured from Theory #8).
+Phase 4 — starts with Theory #11 (requires all of Phase 3 complete, incl. Theory #8–#10 and In-Car #5–#10):
+- Theory #12 requires Theory #11 first.
+- In-Car #11–#14 require Theory #11 first; 60 or 120 minutes; any order among themselves.
+- In-Car #12 and #13 must be shared 2-student sessions.
+- In-Car #15 (final session) requires Theory #12 and In-Car #11–#14 all completed, and is 60 minutes only.
+Other course types (moto, scooter) use simplified rules — students should ask the office for specifics.
+
+DAILY BOOKING LIMIT
+- Students can book a maximum of 2 classes per day by default. The school can set a different active daily-limit policy that overrides this default (higher or lower). If a booking is blocked for this reason, choose a different day or contact the office.
+
+BOOKING & CANCELLATIONS
+- Students book classes through the student portal from the available-classes list; the system automatically enforces the phase rules and daily limit above.
+- If a class you expect to book isn't shown as available, it's usually because a prerequisite isn't completed yet, a minimum waiting period hasn't passed, the class is full, or the daily limit is reached.
+- Office staff with override permission can bypass a booking rule in special cases, but a reason must be recorded. Ask the office if you believe an exception applies.
+- If you need to cancel or reschedule, do it in your portal or contact the office as early as possible.
+
+ATTENDANCE & CHECK-IN
+- Check-in opens 15 minutes before a class's scheduled start time. Attendance actions (check-in, check-out, marking complete, no-show) are not possible before then.
+- Class times follow the school's local time zone.
+- A class only counts toward your progression once it is marked attended.
+
+PAYMENTS & CONTRACTS (basics)
+- Each student has a contract that tracks the course price and payments.
+- The school accepts card payments online (through the portal) and can also record external/manual payments made at the office.
+- Payment reminders and confirmations are sent by email/in-app notification depending on your notification preferences.
+- For balances, refunds, payment plans, or receipts, contact the office — the assistant cannot see account balances.
+
+PARENT / GUARDIAN ACCESS
+- Parents are linked to students by invitation from the school.
+- Three permission levels: View Only (see progress and schedule), View + Book (also book classes for the student), and View + Book + Payments (also make payments).
+- Parents with multiple linked students can switch between them in the parent portal.
+- Parents manage their own notification preferences (email and in-app) in the parent dashboard.
+
+INSTRUCTORS
+- Instructors set their availability in the instructor portal; classes are scheduled within it.
+- Instructors record attendance and complete lessons after the class start time, and can add lesson notes and evaluations.
+
+NOTIFICATIONS
+- The system sends reminders for upcoming classes, schedule changes (reschedules/cancellations), and payment notices, by email and in-app, according to each user's preferences.
+
+CONTACTING THE OFFICE
+- For anything account-specific, exceptions, rescheduling help, payment questions, or issues the assistant can't resolve, contact the school office directly — by phone, email, or in person during office hours. Office staff have the final say on all policies.
+
+=== END KNOWLEDGE BASE ===
+
+Remember: informational answers only; the office is the final authority.`;
+
+// ─── Combined auth: student (token/session), parent, or instructor ───────────
+
+export const isPortalUserAuthenticated: RequestHandler = async (req, res, next) => {
+  try {
+    const session = req.session as any;
+
+    // Student via Bearer token
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith("Bearer ")) {
+      const studentId = verifyStudentToken(authHeader.substring(7));
+      if (studentId) {
+        const student = await storage.getStudent(studentId);
+        if (student && student.accountStatus === "active") {
+          (req as any).assistantUser = { role: "student", id: student.id };
+          return next();
+        }
+      }
+      // fall through to session checks (token may be stale while a session exists)
+    }
+
+    // Student via session (incl. admin impersonation)
+    const studentId = session?.studentId || session?.impersonatingStudentId;
+    if (studentId) {
+      const student = await storage.getStudent(studentId);
+      if (student && student.accountStatus === "active") {
+        (req as any).assistantUser = { role: "student", id: student.id };
+        return next();
+      }
+    }
+
+    // Instructor via session
+    if (session?.instructorId) {
+      const instructor = await storage.getInstructor(session.instructorId);
+      if (instructor && instructor.status === "active") {
+        (req as any).assistantUser = { role: "instructor", id: instructor.id };
+        return next();
+      }
+    }
+
+    // Parent via session
+    if (session?.parentId) {
+      const parent = await storage.getParent(session.parentId);
+      if (parent && parent.accountStatus === "active") {
+        (req as any).assistantUser = { role: "parent", id: parent.id };
+        return next();
+      }
+    }
+
+    return res.status(401).json({ message: "Please log in to use the assistant." });
+  } catch (error) {
+    console.error("Assistant auth error:", error);
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+};
+
+// ─── Simple in-memory rate limiter ───────────────────────────────────────────
+
+const RATE_LIMIT_MAX = 15; // messages
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // per 5 minutes
+
+const rateBuckets = new Map<string, number[]>();
+
+function isRateLimited(key: string): boolean {
+  const now = Date.now();
+  const cutoff = now - RATE_LIMIT_WINDOW_MS;
+  const bucket = (rateBuckets.get(key) ?? []).filter((t) => t > cutoff);
+  if (bucket.length >= RATE_LIMIT_MAX) {
+    rateBuckets.set(key, bucket);
+    return true;
+  }
+  bucket.push(now);
+  rateBuckets.set(key, bucket);
+  return false;
+}
+
+// Periodically clear stale buckets so the map doesn't grow forever
+setInterval(() => {
+  const cutoff = Date.now() - RATE_LIMIT_WINDOW_MS;
+  rateBuckets.forEach((times, key) => {
+    const fresh = times.filter((t) => t > cutoff);
+    if (fresh.length === 0) rateBuckets.delete(key);
+    else rateBuckets.set(key, fresh);
+  });
+}, 10 * 60 * 1000).unref();
+
+// ─── Chat handler ─────────────────────────────────────────────────────────────
+
+const chatRequestSchema = z.object({
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().trim().min(1).max(2000),
+      })
+    )
+    .min(1)
+    .max(30),
+});
+
+let openaiClient: OpenAI | null = null;
+function getOpenAI(): OpenAI | null {
+  if (!process.env.OPENAI_API_KEY) return null;
+  if (!openaiClient) openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return openaiClient;
+}
+
+export async function handleAssistantChat(req: Request, res: Response) {
+  const openai = getOpenAI();
+  if (!openai) {
+    return res.status(503).json({
+      message: "The assistant is not available right now. Please contact the office with your question.",
+    });
+  }
+
+  const parsed = chatRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: "Invalid chat request." });
+  }
+
+  const user = (req as any).assistantUser as { role: string; id: number };
+  const rateKey = `${user.role}:${user.id}`;
+  if (isRateLimited(rateKey)) {
+    return res.status(429).json({
+      message: "You're sending messages too quickly. Please wait a few minutes and try again.",
+    });
+  }
+
+  // Keep only the most recent exchanges to bound token usage
+  const history = parsed.data.messages.slice(-12);
+
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    max_tokens: 600,
+    temperature: 0.3,
+    messages: [
+      {
+        role: "system",
+        content: `${SYSTEM_PROMPT}\n\nThe person you are talking to is a ${user.role}.`,
+      },
+      ...history,
+    ],
+  });
+
+  const reply = completion.choices[0]?.message?.content?.trim();
+  if (!reply) {
+    return res.status(502).json({
+      message: "The assistant couldn't generate a response. Please try again.",
+    });
+  }
+
+  res.json({ reply });
+}

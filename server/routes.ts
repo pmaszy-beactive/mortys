@@ -64,6 +64,7 @@ import {
 import { loadOrAnalyzeImportGaps } from "./services/import-gap-analysis";
 import { getNightlyScrapeLog } from "./services/nightly-scrape-log";
 import { checkInstructorAvailability } from "./services/availability";
+import { isPortalUserAuthenticated, handleAssistantChat } from "./services/process-assistant";
 import * as notificationService from "./services/notifications";
 import {
   generateInviteToken,
@@ -13800,6 +13801,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       captureRequestError(error);
       console.error("Error fetching error log:", error);
       res.status(500).json({ message: "Failed to fetch error log" });
+    }
+  });
+
+  // AI process Q&A assistant (students, parents, instructors)
+  app.post("/api/assistant/chat", isPortalUserAuthenticated, async (req, res) => {
+    try {
+      await handleAssistantChat(req, res);
+    } catch (error) {
+      captureRequestError(error);
+      console.error("Assistant chat error:", error);
+      res.status(500).json({ message: "The assistant ran into a problem. Please try again." });
     }
   });
 

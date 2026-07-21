@@ -1,5 +1,6 @@
 import StudentSidebar from "./student-sidebar";
 import ImpersonationBanner from "./impersonation-banner";
+import ProcessAssistantWidget from "./process-assistant-widget";
 
 interface StudentPortalLayoutProps {
   children: React.ReactNode;
@@ -24,6 +25,7 @@ export default function StudentPortalLayout({ children }: StudentPortalLayoutPro
           </main>
         </div>
       </div>
+      <ProcessAssistantWidget />
     </div>
   );
 }

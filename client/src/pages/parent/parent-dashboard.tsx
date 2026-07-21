@@ -9,6 +9,7 @@ import { useLocation, Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { NotificationCenter } from "@/components/notification-center";
 import { BugReportButton } from "@/components/bug-report-button";
+import ProcessAssistantWidget from "@/components/process-assistant-widget";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef } from "react";
 
@@ -322,6 +323,7 @@ export default function ParentDashboard() {
           </Card>
         )}
       </main>
+      <ProcessAssistantWidget />
     </div>
   );
 }

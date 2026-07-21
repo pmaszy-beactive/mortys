@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useInstructorAuth } from "@/hooks/useInstructorAuth";
 import InstructorSidebar from "./instructor-sidebar";
 import ImpersonationBanner from "./impersonation-banner";
+import ProcessAssistantWidget from "./process-assistant-widget";
 
 interface InstructorPortalLayoutProps {
   children: React.ReactNode;
@@ -45,6 +46,7 @@ export default function InstructorPortalLayout({ children }: InstructorPortalLay
           </main>
         </div>
       </div>
+      <ProcessAssistantWidget />
     </div>
   );
 }
