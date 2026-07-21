@@ -652,10 +652,10 @@ export default function StudentOnboarding() {
                         <div className="text-xs text-[#ECC462] font-medium uppercase tracking-wide">Your selected course</div>
                         <div className="text-sm text-white font-semibold">
                           {formData.courseType === "auto"
-                            ? "Automobile (Class 5)"
+                            ? "Automobile (Licence Class 5)"
                             : formData.courseType === "moto"
-                            ? "Motorcycle (Class 6)"
-                            : "Scooter (Class 6D)"}
+                            ? "Motorcycle (Licence Class 6)"
+                            : "Scooter (Licence Class 6D)"}
                         </div>
                         <div className="text-xs text-gray-400 mt-0.5">Selected during registration</div>
                       </div>
@@ -677,19 +677,19 @@ export default function StudentOnboarding() {
                               <SelectItem value="auto">
                                 <div className="flex items-center gap-2">
                                   <Car className="h-4 w-4" />
-                                  <span>Automobile (Class 5)</span>
+                                  <span>Automobile (Licence Class 5)</span>
                                 </div>
                               </SelectItem>
                               <SelectItem value="moto">
                                 <div className="flex items-center gap-2">
                                   <span>🏍️</span>
-                                  <span>Motorcycle (Class 6)</span>
+                                  <span>Motorcycle (Licence Class 6)</span>
                                 </div>
                               </SelectItem>
                               <SelectItem value="scooter">
                                 <div className="flex items-center gap-2">
                                   <span>🛵</span>
-                                  <span>Scooter (Class 6D)</span>
+                                  <span>Scooter (Licence Class 6D)</span>
                                 </div>
                               </SelectItem>
                             </SelectContent>

@@ -46,9 +46,9 @@ const formSchema = z.object({
 });
 
 const COURSE_LABELS: Record<string, string> = {
-  auto: "Automobile (Class 5)",
-  moto: "Motorcycle (Class 6)",
-  scooter: "Scooter (Class 6D)",
+  auto: "Automobile (Licence Class 5)",
+  moto: "Motorcycle (Licence Class 6)",
+  scooter: "Scooter (Licence Class 6D)",
 };
 
 type BackfillReport = {
@@ -484,9 +484,9 @@ export default function CourseStartDates() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="auto">Automobile (Class 5)</SelectItem>
-                        <SelectItem value="moto">Motorcycle (Class 6)</SelectItem>
-                        <SelectItem value="scooter">Scooter (Class 6D)</SelectItem>
+                        <SelectItem value="auto">Automobile (Licence Class 5)</SelectItem>
+                        <SelectItem value="moto">Motorcycle (Licence Class 6)</SelectItem>
+                        <SelectItem value="scooter">Scooter (Licence Class 6D)</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

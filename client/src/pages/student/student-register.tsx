@@ -24,23 +24,23 @@ const COURSE_TYPES = [
   {
     value: "auto",
     label: "Automobile",
-    subtitle: "Class 5",
+    subtitle: "Licence Class 5",
     icon: "🚗",
-    description: "Learn to drive a car and earn your Class 5 licence",
+    description: "Learn to drive a car and earn your Licence Class 5",
   },
   {
     value: "moto",
     label: "Motorcycle",
-    subtitle: "Class 6",
+    subtitle: "Licence Class 6",
     icon: "🏍️",
     description: "Get your motorcycle licence and hit the open road",
   },
   {
     value: "scooter",
     label: "Scooter",
-    subtitle: "Class 6D",
+    subtitle: "Licence Class 6D",
     icon: "🛵",
-    description: "Scooter training for your Class 6D licence",
+    description: "Scooter training for your Licence Class 6D",
   },
 ];
 
