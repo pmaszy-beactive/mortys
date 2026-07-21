@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import sgMail from "@sendgrid/mail";
+import { applyUatEmailOverride } from "./services/sendgrid";
 
 const isEmailConfigured =
   !!process.env.SENDGRID_API_KEY &&
@@ -14,11 +15,16 @@ if (isEmailConfigured) {
 }
 
 async function deliverMail(msg: { to: string; from: string; subject: string; [key: string]: any }): Promise<void> {
-  if (!isEmailConfigured) {
-    console.log(`[MOCK EMAIL] To: ${msg.to}, Subject: ${msg.subject}`);
+  const override = applyUatEmailOverride([msg.to], msg.subject);
+  if (override.blocked) {
     return;
   }
-  await sgMail.send({ replyTo: process.env.SENDGRID_REPLY_TO || "info@mortys.ca", trackingSettings: { clickTracking: { enable: false, enableText: false } }, ...msg } as sgMail.MailDataRequired);
+  const finalMsg = { ...msg, to: override.to, subject: override.subject };
+  if (!isEmailConfigured) {
+    console.log(`[MOCK EMAIL] To: ${finalMsg.to.join(", ")}, Subject: ${finalMsg.subject}`);
+    return;
+  }
+  await sgMail.send({ replyTo: process.env.SENDGRID_REPLY_TO || "info@mortys.ca", trackingSettings: { clickTracking: { enable: false, enableText: false } }, ...finalMsg } as sgMail.MailDataRequired);
 }
 
 export function generateInviteToken(): string {

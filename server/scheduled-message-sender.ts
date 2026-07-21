@@ -1,6 +1,7 @@
 import { storage } from "./storage";
 import sgMail from "@sendgrid/mail";
 import * as notificationService from "./services/notifications";
+import { applyUatEmailOverride } from "./services/sendgrid";
 
 const CHECK_INTERVAL = 60000; // Check every minute
 const REMINDER_HOURS_BEFORE = 24; // Send reminder 24 hours before class
@@ -48,12 +49,18 @@ async function processScheduledMessages() {
         // Send the email using SendGrid
         const fromEmail = process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com";
         
+        const override = applyUatEmailOverride(recipientEmails, message.subject);
+        if (override.blocked) {
+          await storage.updateCommunication(message.id, { status: 'failed' });
+          continue;
+        }
+
         await sgMail.send({
-          to: recipientEmails,
+          to: override.to,
           from: fromEmail,
           replyTo: process.env.SENDGRID_REPLY_TO || "info@mortys.ca",
           trackingSettings: { clickTracking: { enable: false, enableText: false } },
-          subject: message.subject,
+          subject: override.subject,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #111111 0%, #2d2d2d 100%); padding: 30px; text-align: center;">

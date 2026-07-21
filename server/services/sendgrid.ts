@@ -14,6 +14,54 @@ if (isConfigured) {
 
 const REPLY_TO = process.env.SENDGRID_REPLY_TO || "info@mortys.ca";
 
+// UAT email override: when UAT_EMAIL_OVERRIDE is true/1, ALL outgoing emails
+// are redirected to OFFICE_NOTIFICATION_EMAILS so no real students/parents/staff
+// receive mail during UAT with imported live data.
+function isUatOverrideEnabled(): boolean {
+  const v = (process.env.UAT_EMAIL_OVERRIDE || "").trim().toLowerCase();
+  return v === "true" || v === "1";
+}
+
+function getOverrideRecipients(): string[] {
+  return (process.env.OFFICE_NOTIFICATION_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter((e) => e.includes("@"));
+}
+
+export interface UatOverrideResult {
+  // When blocked is true the email must NOT be sent at all.
+  blocked: boolean;
+  to: string[];
+  subject: string;
+}
+
+// Central helper: applies the UAT recipient override to a single outgoing email.
+// Returns the (possibly rewritten) recipients + subject, or blocked=true if the
+// override is on but no override recipients are configured (fail safe — never
+// fall back to real recipients).
+export function applyUatEmailOverride(to: string[], subject: string): UatOverrideResult {
+  if (!isUatOverrideEnabled()) {
+    return { blocked: false, to, subject };
+  }
+
+  const originalRecipients = to.join(", ");
+  const overrideRecipients = getOverrideRecipients();
+
+  if (overrideRecipients.length === 0) {
+    console.warn(
+      `[UAT EMAIL OVERRIDE] BLOCKED email "${subject}" to [${originalRecipients}] — UAT_EMAIL_OVERRIDE is on but OFFICE_NOTIFICATION_EMAILS is empty/unset. Email NOT sent.`,
+    );
+    return { blocked: true, to: [], subject };
+  }
+
+  const newSubject = `[UAT OVERRIDE — original to: ${originalRecipients}] ${subject}`;
+  console.log(
+    `[UAT EMAIL OVERRIDE] Redirecting email "${subject}" from [${originalRecipients}] to [${overrideRecipients.join(", ")}]`,
+  );
+  return { blocked: false, to: overrideRecipients, subject: newSubject };
+}
+
 interface EmailParams {
   to: string[];
   from: string;
@@ -24,18 +72,25 @@ interface EmailParams {
 }
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
+  const override = applyUatEmailOverride(params.to, params.subject);
+  if (override.blocked) {
+    return false;
+  }
+  const to = override.to;
+  const subject = override.subject;
+
   // Mock mode - log and return success
   if (!isConfigured || !mailService) {
-    console.log(`[MOCK EMAIL] To: ${params.to.join(', ')}, From: ${params.from}, Subject: ${params.subject}`);
+    console.log(`[MOCK EMAIL] To: ${to.join(', ')}, From: ${params.from}, Subject: ${subject}`);
     return true;
   }
 
   try {
     const emailData: any = {
-      to: params.to,
+      to,
       from: params.from,
       replyTo: params.replyTo || REPLY_TO,
-      subject: params.subject,
+      subject,
     };
     
     if (params.text) emailData.text = params.text;
@@ -115,12 +170,21 @@ export async function sendBulkEmail(
   for (let i = 0; i < recipients.length; i++) {
     const recipient = recipients[i];
 
+    // Apply the UAT override per-recipient so the subject marker shows who
+    // this specific email was originally meant for.
+    const override = applyUatEmailOverride([recipient], subject);
+    if (override.blocked) {
+      results.errors.push(`Blocked by UAT email override (no override recipients configured): ${recipient}`);
+      results.success = false;
+      continue;
+    }
+
     try {
       await mailService.send({
-        to: recipient,
+        to: override.to,
         from: from,
         replyTo: REPLY_TO,
-        subject: subject,
+        subject: override.subject,
         text: text,
         html: html,
         trackingSettings: { clickTracking: { enable: false, enableText: false } },
