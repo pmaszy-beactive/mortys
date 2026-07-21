@@ -12,6 +12,7 @@ import {
 } from "./services/s3";
 import { storage } from "./storage";
 import { captureRequestError } from "./services/error-logger";
+import { checkClassStart, getClassStartTime, formatClassSchedule } from "./services/class-time";
 import { db } from "./db";
 import { sql, eq, and, not, isNull, isNotNull, ne, count } from "drizzle-orm";
 import {
@@ -546,43 +547,50 @@ function findOverlappingDailyLimitPolicies(
 // timezone. The server may run in a different timezone (e.g. UTC in Docker),
 // so any "has the class started?" / "how long until start?" comparison must
 // convert using the school's timezone rather than the server's.
-const SCHOOL_TIMEZONE = process.env.SCHOOL_TIMEZONE || "America/Toronto";
+// Helpers live in server/services/class-time.ts so they can be unit-tested.
 
-// Millisecond offset of `tz` from UTC at the given instant.
-function timeZoneOffsetMs(tz: string, at: Date): number {
-  const dtf = new Intl.DateTimeFormat("en-US", {
-    timeZone: tz, hour12: false,
-    year: "numeric", month: "2-digit", day: "2-digit",
-    hour: "2-digit", minute: "2-digit", second: "2-digit",
-  });
-  const parts: Record<string, string> = {};
-  for (const p of dtf.formatToParts(at)) parts[p.type] = p.value;
-  const asUtc = Date.UTC(
-    Number(parts.year), Number(parts.month) - 1, Number(parts.day),
-    Number(parts.hour) % 24, Number(parts.minute), Number(parts.second),
-  );
-  return asUtc - at.getTime();
-}
-
-// Parse a class's scheduled start (school-local wall clock) into a real instant.
-function getClassStartTime(classData: { date: string; time: string }): Date {
-  const [year, month, day] = classData.date.split('-').map(Number);
-  const [hour = 0, minute = 0] = (classData.time || "00:00").split(':').map(Number);
-  const utcGuess = Date.UTC(year, month - 1, day, hour, minute, 0, 0);
-  try {
-    const offset = timeZoneOffsetMs(SCHOOL_TIMEZONE, new Date(utcGuess));
-    return new Date(utcGuess - offset);
-  } catch {
-    // Invalid timezone configured — fall back to server-local interpretation.
-    return new Date(year, month - 1, day, hour, minute, 0, 0);
-  }
-}
-
-// Returns true once the class's scheduled start time has passed
-// (optionally allowing a grace window of minutes before start).
+/**
+ * True once the class's scheduled start time has passed (optionally allowing
+ * a grace window of minutes before start). Used by booking flows, where an
+ * unparseable stored schedule is treated as "not started" (fail open —
+ * booking remains possible; attendance flows use attendanceStartGate below,
+ * which reports unparseable schedules explicitly instead).
+ */
 function hasClassStarted(classData: { date: string; time: string }, earlyWindowMinutes = 0): boolean {
-  const start = getClassStartTime(classData);
-  return Date.now() >= start.getTime() - earlyWindowMinutes * 60 * 1000;
+  return checkClassStart(classData, earlyWindowMinutes).status === "started";
+}
+
+/**
+ * Shared gate for all attendance-related actions (check-in, check-out,
+ * no-show, mark-complete, bulk attendance). Returns null when the action is
+ * allowed; otherwise returns the block details (audit reason + honest client
+ * message). An unparseable stored date/time is reported distinctly and logged
+ * server-side instead of masquerading as "before start time".
+ */
+function attendanceStartGate(
+  classData: { id: number; date: string; time: string },
+  earlyWindowMinutes = 0,
+): { blockReason: string; message: string } | null {
+  const check = checkClassStart(classData, earlyWindowMinutes);
+  if (check.status === "started") return null;
+  if (check.status === "invalid") {
+    console.error(
+      `[attendance] Class ${classData.id} has an unparseable schedule (date="${classData.date}", time="${classData.time}") — blocking attendance action with a schedule-data error instead of a start-time error.`,
+    );
+    return {
+      blockReason: `Class schedule could not be interpreted (date="${classData.date}", time="${classData.time}")`,
+      message: "We couldn't determine this class's scheduled time from its stored date/time — please contact the office to correct the class schedule.",
+    };
+  }
+  const scheduled = formatClassSchedule(classData);
+  return {
+    blockReason: earlyWindowMinutes > 0
+      ? `Attempted before check-in window (${earlyWindowMinutes} minutes before scheduled start ${scheduled})`
+      : `Attempted before the class's scheduled start time (${scheduled})`,
+    message: earlyWindowMinutes > 0
+      ? `Check-in opens ${earlyWindowMinutes} minutes before the class's scheduled start time. This class is scheduled for ${scheduled}.`
+      : `This action isn't available before the class's scheduled start time. This class is scheduled for ${scheduled}.`,
+  };
 }
 
 /**
@@ -624,7 +632,7 @@ function checkWeeklyNoticePendingPolicies(
   const noticePolicy = policies.find(p => p.policyType === 'min_booking_notice');
   if (noticePolicy && target.date) {
     const classStart = getClassStartTime({ date: target.date, time: target.time || '00:00' });
-    const hoursUntil = (classStart.getTime() - Date.now()) / (1000 * 60 * 60);
+    const hoursUntil = classStart ? (classStart.getTime() - Date.now()) / (1000 * 60 * 60) : Infinity;
     if (hoursUntil < noticePolicy.value) {
       return {
         policyType: 'min_booking_notice',
@@ -3784,15 +3792,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check-in opens 15 minutes before the scheduled start time
-      if (!hasClassStarted(checkInClass, CHECK_IN_EARLY_WINDOW_MINUTES)) {
+      const checkInBlock = attendanceStartGate(checkInClass, CHECK_IN_EARLY_WINDOW_MINUTES);
+      if (checkInBlock) {
         await logAttendanceAction({
           req, action: "check_in", outcome: "blocked",
           classId: checkInClass.id, enrollmentId: id, studentId: existingEnrollment.studentId,
           instructorId: checkInClass.instructorId,
           previousStatus: existingEnrollment.attendanceStatus,
-          blockReason: "Attempted before check-in window (15 minutes before scheduled start)",
+          blockReason: checkInBlock.blockReason,
         });
-        return res.status(400).json({ message: `Check-in opens ${CHECK_IN_EARLY_WINDOW_MINUTES} minutes before the class's scheduled start time.` });
+        return res.status(400).json({ message: checkInBlock.message });
       }
 
       const allEvaluations = await storage.getEvaluations();
@@ -3844,15 +3853,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check-out is only allowed once the class's scheduled start time has passed
-      if (!hasClassStarted(checkOutClass)) {
+      const checkOutBlock = attendanceStartGate(checkOutClass);
+      if (checkOutBlock) {
         await logAttendanceAction({
           req, action: "check_out", outcome: "blocked",
           classId: checkOutClass.id, enrollmentId: id, studentId: existingEnrollment.studentId,
           instructorId: checkOutClass.instructorId,
           previousStatus: existingEnrollment.attendanceStatus,
-          blockReason: "Attempted before the class's scheduled start time",
+          blockReason: checkOutBlock.blockReason,
         });
-        return res.status(400).json({ message: "Cannot check out a student before the class's scheduled start time." });
+        return res.status(400).json({ message: checkOutBlock.message });
       }
 
       const enrollment = await storage.updateClassEnrollment(id, {
@@ -3895,15 +3905,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // No-show can only be recorded once the class's scheduled start time has passed
-      if (!hasClassStarted(noShowClass)) {
+      const noShowBlock = attendanceStartGate(noShowClass);
+      if (noShowBlock) {
         await logAttendanceAction({
           req, action: "no_show", outcome: "blocked",
           classId: noShowClass.id, enrollmentId: id, studentId: existingEnrollment.studentId,
           instructorId: noShowClass.instructorId,
           previousStatus: existingEnrollment.attendanceStatus,
-          blockReason: "Attempted before the class's scheduled start time",
+          blockReason: noShowBlock.blockReason,
         });
-        return res.status(400).json({ message: "Cannot mark a student as no-show before the class's scheduled start time." });
+        return res.status(400).json({ message: noShowBlock.message });
       }
 
       const allEvaluations = await storage.getEvaluations();
@@ -12691,14 +12702,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Check that the class's scheduled start time has passed
-        if (!hasClassStarted(classData)) {
+        const completeBlock = attendanceStartGate(classData);
+        if (completeBlock) {
           await logAttendanceAction({
             req, action: "mark_complete", outcome: "blocked",
             classId, instructorId: classData.instructorId,
             previousStatus: classData.status,
-            blockReason: "Attempted before the class's scheduled start time",
+            blockReason: completeBlock.blockReason,
           });
-          return res.status(400).json({ message: "Cannot mark this class as completed before its scheduled start time." });
+          return res.status(400).json({ message: completeBlock.message });
         }
 
         // Update the class status to 'completed'
@@ -12799,14 +12811,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Check that the class's scheduled start time has passed
-        if (!hasClassStarted(classData)) {
+        const bulkBlock = attendanceStartGate(classData);
+        if (bulkBlock) {
           await logAttendanceAction({
             req, action: "bulk_attendance", outcome: "blocked",
             classId, instructorId: classData.instructorId,
             previousStatus: classData.status,
-            blockReason: "Attempted before the class's scheduled start time",
+            blockReason: bulkBlock.blockReason,
           });
-          return res.status(400).json({ message: "Cannot submit attendance before the class's scheduled start time." });
+          return res.status(400).json({ message: bulkBlock.message });
         }
 
         // Update attendance for each student
