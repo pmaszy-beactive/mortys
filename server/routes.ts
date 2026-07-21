@@ -9480,6 +9480,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .filter((classItem: any) => classItem.classType && classItem.classNumber)
           .map((classItem: any) => {
             const classDate = classItem.date || today;
+            // Past time slots are never bookable — check school-local start time.
+            if (hasClassStarted({ date: classDate, time: classItem.time || "00:00" })) {
+              return {
+                ...classItem,
+                bookingAllowed: false,
+                blockingReason: "This class has already started and can no longer be booked.",
+                blockingRule: "class_already_started",
+              };
+            }
             const target = {
               classType: classItem.classType as "theory" | "driving",
               classNumber: classItem.classNumber,
@@ -9823,6 +9832,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const classData = await storage.getClass(classId);
         if (!classData) {
           return res.status(404).json({ message: "Class not found" });
+        }
+
+        // Reject bookings for classes whose scheduled start time has already
+        // passed (school-local time, not server time).
+        if (classData.date && hasClassStarted({ date: classData.date, time: classData.time || "00:00" })) {
+          return res.status(400).json({
+            message: "This class has already started and can no longer be booked. Please choose an upcoming time slot.",
+            policyViolation: "class_already_started",
+          });
         }
 
         // ── Phase ordering & prerequisite validation ──────────────────────────
