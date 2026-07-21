@@ -415,6 +415,73 @@ class SiteMigrationSpider {
         }
     }
 
+    // Any student pages discovered during this run but never actually crawled
+    // (typically because MAX_PAGES was hit — e.g. the daily class-list scrape
+    // caps each date/location run) are added to the persistent scrape queue so
+    // the next nightly run's queue drain fetches them. Students already
+    // scraped (visited this run or in the shared resume state) are skipped.
+    // Returns the number of URLs queued.
+    queueUncrawledStudentLinks() {
+        const isStudentFile = (u) => {
+            try {
+                return new URL(u).pathname.toLowerCase().includes('/studentfile');
+            } catch {
+                return false;
+            }
+        };
+        const leftovers = [];
+        const seen = new Set();
+        for (const u of this.queue) {
+            if (!isStudentFile(u)) continue;
+            const norm = this.normalizeUrl(u);
+            if (seen.has(norm)) continue;
+            if (this.visitedHashes.has(this.urlHash(u)) || this.visitedUrls.has(u)) continue;
+            seen.add(norm);
+            leftovers.push(u);
+        }
+        if (leftovers.length === 0) return 0;
+
+        let queued = 0;
+        try {
+            if (this.queueMode) {
+                // Fold into the in-memory seed list so rewriteQueueFile() (run
+                // as other seeds succeed) preserves the entries.
+                for (const u of leftovers) {
+                    const norm = this.normalizeUrl(u);
+                    if (this.pendingQueue.has(norm)) continue;
+                    if (this.queueSeedUrls.some(s => this.normalizeUrl(s) === norm)) continue;
+                    this.queueSeedUrls.push(u);
+                    this.pendingQueue.add(norm);
+                    queued++;
+                }
+                if (queued > 0) this.rewriteQueueFile();
+            } else {
+                const queueFile = QUEUE_FILE;
+                const existing = fs.existsSync(queueFile)
+                    ? new Set(
+                          fs.readFileSync(queueFile, 'utf8')
+                              .split('\n')
+                              .map(l => l.trim())
+                              .filter(Boolean)
+                              .map(u => this.normalizeUrl(u))
+                      )
+                    : new Set();
+                const toAppend = leftovers.filter(u => !existing.has(this.normalizeUrl(u)));
+                if (toAppend.length > 0) {
+                    fs.mkdirSync(path.dirname(queueFile), { recursive: true });
+                    fs.appendFileSync(queueFile, toAppend.join('\n') + '\n');
+                }
+                queued = toAppend.length;
+            }
+            if (queued > 0) {
+                log.info(`Queued ${queued} discovered-but-uncrawled student page(s) for the next run's queue drain (${this.queueMode ? this.queueFile : QUEUE_FILE}).`);
+            }
+        } catch (e) {
+            log.warn(`Could not queue uncrawled student pages: ${e.message}`);
+        }
+        return queued;
+    }
+
     // Rewrite the queue file with only the still-pending entries. Crash-safe:
     // write to a temp file then atomically rename so an interrupted run never
     // truncates or double-processes the queue.
@@ -1006,9 +1073,16 @@ class SiteMigrationSpider {
             await this.browser.close();
         }
         
+        // Students seen in class lists (or anywhere else) but not crawled this
+        // run get queued so the next nightly drain scrapes them automatically.
+        const queuedStudents = this.queueUncrawledStudentLinks();
+
         log.info('='.repeat(60));
         log.info('Spider Complete!');
         log.info(`Pages scraped: ${this.pagesScraped}`);
+        if (queuedStudents > 0) {
+            log.info(`Student pages queued for next run: ${queuedStudents}`);
+        }
         if (this.skippedPages > 0) {
             log.error(`Pages SKIPPED after exhausting retries/re-queues: ${this.skippedPages} (these are MISSING from the scrape — search the log for "SKIPPING")`);
             log.error(`Skipped pages queued for automatic retry on the next run: ${this.skippedQueuedForRetry}${this.queueMode ? ` (plus any failed queue seeds left in ${this.queueFile})` : ` (${QUEUE_FILE})`}`);
