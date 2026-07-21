@@ -28,6 +28,9 @@ import {
   lessonRecords,
   studentNotes,
   studentDocuments,
+  classes,
+  classEnrollments,
+  instructors,
 } from "@shared/schema";
 import { storage } from "../storage";
 import { isS3Configured, buildDocumentKey, uploadToS3 } from "./s3";
@@ -59,6 +62,7 @@ interface ScrapedField {
   value: string;
   checked?: boolean;
   disabled?: boolean;
+  options?: { value: string; text: string; selected?: boolean }[];
 }
 
 interface ScrapedForm {
@@ -99,6 +103,8 @@ export interface ImportSummary {
   lessons: EntityCounts;
   notes: EntityCounts;
   documents: EntityCounts;
+  classes: EntityCounts;
+  enrollments: EntityCounts;
   pages: { processed: number; skipped: number; errors: number };
 }
 
@@ -127,6 +133,8 @@ function emptySummary(): ImportSummary {
     lessons: emptyCounts(),
     notes: emptyCounts(),
     documents: emptyCounts(),
+    classes: emptyCounts(),
+    enrollments: emptyCounts(),
     pages: { processed: 0, skipped: 0, errors: 0 },
   };
 }
@@ -141,6 +149,8 @@ function totalCounts(s: ImportSummary): EntityCounts {
     s.lessons,
     s.notes,
     s.documents,
+    s.classes,
+    s.enrollments,
   ];
   return {
     created: groups.reduce((a, g) => a + g.created, 0),
@@ -253,6 +263,8 @@ export type PageType =
   | "practicaleval"
   | "zoomscreenshot"
   | "attestation"
+  | "classes"
+  | "classlist"
   | "other";
 
 export function classify(relPath: string, page?: ScrapedPage): PageType {
@@ -268,6 +280,10 @@ export function classify(relPath: string, page?: ScrapedPage): PageType {
   if (u.includes("practicaleval") || u.includes("closedcircuit")) return "practicaleval";
   if (u.includes("zoomscreenshot")) return "zoomscreenshot";
   if (u.includes("attestation")) return "attestation";
+  if (u.includes("/classes/classlist") || relPath.toLowerCase().includes("classes/classlist"))
+    return "classlist";
+  if (u.includes("/admin/classes") || relPath.toLowerCase().includes("admin/classes"))
+    return "classes";
   return "other";
 }
 
@@ -283,8 +299,12 @@ const TYPE_PRIORITY: Record<PageType, number> = {
   practicaleval: 5,
   zoomscreenshot: 5,
   reservations: 6,
-  attestation: 8,
-  other: 9,
+  // Class schedule pages first (they create/refresh the class rows), then the
+  // classlist pages that attach student enrollments to those classes.
+  classes: 7,
+  classlist: 8,
+  attestation: 9,
+  other: 10,
 };
 
 /**
@@ -413,6 +433,22 @@ export const PARSER_CONSUMED_KEYS: Record<
     field_names: [],
     table_headers: [],
     notes: "url studentUserId.",
+  },
+  classes: {
+    label_values: [],
+    field_data: ["locationId", "date"],
+    field_names: ["locationId"],
+    table_headers: [],
+    notes:
+      "per-location/day class table: rows scanned generically for a time range + component (Theory/In-Car N) + instructor name; classlist links (scheduledClassId) keyed to rows by order; location name from the locationId select's selected option (heading fallback).",
+  },
+  classlist: {
+    label_values: ["Location", "Instructor"],
+    field_data: [],
+    field_names: [],
+    table_headers: [],
+    notes:
+      "url scheduledClassId; headings (component, date, time range, reserved X/Y capacity); links[] with a studentUserId enroll students (stub-created like registrations).",
   },
 };
 
@@ -679,6 +715,12 @@ interface ImportContext {
   lessonKeys: Set<string>;
   noteSigs: Set<string>;
   docKeys: Set<string>;
+  /** legacy scheduledClassId -> classes.id */
+  classByLegacy: Map<string, number>;
+  /** "classId:studentId" pairs already enrolled (legacy classes only) */
+  enrollKeys: Set<string>;
+  /** lower-cased "first last" instructor name -> instructors.id */
+  instructorByName: Map<string, number>;
 }
 
 async function buildContext(): Promise<ImportContext> {
@@ -691,6 +733,9 @@ async function buildContext(): Promise<ImportContext> {
     lessonKeys: new Set(),
     noteSigs: new Set(),
     docKeys: new Set(),
+    classByLegacy: new Map(),
+    enrollKeys: new Set(),
+    instructorByName: new Map(),
   };
 
   const sRows = await db
@@ -747,6 +792,37 @@ async function buildContext(): Promise<ImportContext> {
     .from(studentDocuments)
     .where(isNotNull(studentDocuments.legacyDocumentId));
   for (const r of dRows) if (r.k) ctx.docKeys.add(r.k);
+
+  // Legacy-imported classes + their enrollments, for classes/classlist pages.
+  const clsRows = await db
+    .select({ id: classes.id, legacy: classes.legacyClassId })
+    .from(classes)
+    .where(isNotNull(classes.legacyClassId));
+  for (const r of clsRows) if (r.legacy) ctx.classByLegacy.set(r.legacy, r.id);
+
+  const enrRows = await db
+    .select({ classId: classEnrollments.classId, studentId: classEnrollments.studentId })
+    .from(classEnrollments)
+    .innerJoin(classes, eq(classEnrollments.classId, classes.id))
+    .where(isNotNull(classes.legacyClassId));
+  for (const r of enrRows) {
+    if (r.classId != null && r.studentId != null) {
+      ctx.enrollKeys.add(`${r.classId}:${r.studentId}`);
+    }
+  }
+
+  // Instructor names so legacy class rows can link to app instructors.
+  const iRows = await db
+    .select({
+      id: instructors.id,
+      firstName: instructors.firstName,
+      lastName: instructors.lastName,
+    })
+    .from(instructors);
+  for (const r of iRows) {
+    const name = `${r.firstName || ""} ${r.lastName || ""}`.replace(/\s+/g, " ").trim().toLowerCase();
+    if (name) ctx.instructorByName.set(name, r.id);
+  }
 
   return ctx;
 }
@@ -1539,6 +1615,310 @@ async function importAttestation(
 }
 
 // ---------------------------------------------------------------------------
+// Daily class list pages (classes + classlist)
+// ---------------------------------------------------------------------------
+
+/** "Automobile Theory 7" / "Motorcycle In-Car 3" -> course/class type + number. */
+function parseComponentInfo(
+  text: string,
+): { courseType: string; classType: string; classNumber: number } | null {
+  const m = text.match(/(theory|in[- ]?car|practical|driving)\s*#?\s*(\d+)/i);
+  if (!m) return null;
+  const classType = /theory/i.test(m[1]) ? "theory" : "driving";
+  const t = text.toLowerCase();
+  let courseType = "auto";
+  if (t.includes("moto")) courseType = "moto";
+  if (t.includes("scooter") || t.includes("cyclomoteur")) courseType = "scooter";
+  return { courseType, classType, classNumber: parseInt(m[2], 10) };
+}
+
+function timeToMinutes(s: string): number | null {
+  const m = s.trim().toLowerCase().match(/^(\d{1,2}):(\d{2})\s*(am|pm)?$/);
+  if (!m) return null;
+  let h = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  if (m[3] === "pm" && h < 12) h += 12;
+  if (m[3] === "am" && h === 12) h = 0;
+  return h * 60 + min;
+}
+
+/** "3:00pm - 5:00pm" -> { time: "3:00pm", duration: 120 }. Duration null if only a start time. */
+function parseTimeRange(text: string): { time: string; duration: number | null } | null {
+  const range = text.match(
+    /(\d{1,2}:\d{2}\s*(?:am|pm)?)\s*(?:-|–|to)\s*(\d{1,2}:\d{2}\s*(?:am|pm)?)/i,
+  );
+  if (range) {
+    const start = timeToMinutes(range[1]);
+    let end = timeToMinutes(range[2]);
+    let duration: number | null = null;
+    if (start !== null && end !== null) {
+      // No-meridiem ranges like "3:00 - 5:00": assume the end is after the start.
+      if (end <= start) end += 12 * 60;
+      duration = end - start;
+      if (duration <= 0 || duration > 12 * 60) duration = null;
+    }
+    return { time: range[1].replace(/\s+/g, " ").trim(), duration };
+  }
+  const single = text.match(/\d{1,2}:\d{2}\s*(?:am|pm)?/i);
+  if (single) return { time: single[0].replace(/\s+/g, " ").trim(), duration: null };
+  return null;
+}
+
+interface LegacyClassData {
+  date?: string | null;
+  time?: string | null;
+  duration?: number | null;
+  courseType?: string | null;
+  classType?: string | null;
+  classNumber?: number | null;
+  /** Location name (stored in classes.room). */
+  room?: string | null;
+  instructorId?: number | null;
+  maxStudents?: number | null;
+}
+
+/**
+ * Create or update a class row keyed by the legacy scheduledClassId. On update
+ * only non-empty fields are patched, so the classes page and its classlist page
+ * can each contribute the fields they know without clobbering the other.
+ */
+async function upsertLegacyClass(
+  ctx: ImportContext,
+  scheduledClassId: string,
+  data: LegacyClassData,
+  summary: ImportSummary,
+): Promise<number> {
+  const existing = ctx.classByLegacy.get(scheduledClassId);
+  if (existing) {
+    const patch: Record<string, any> = {};
+    if (data.date) patch.date = data.date;
+    if (data.time) patch.time = data.time;
+    if (data.duration) patch.duration = data.duration;
+    if (data.courseType) patch.courseType = data.courseType;
+    if (data.classType) patch.classType = data.classType;
+    if (data.classNumber) patch.classNumber = data.classNumber;
+    if (data.room) patch.room = data.room;
+    if (data.instructorId) patch.instructorId = data.instructorId;
+    if (data.maxStudents) patch.maxStudents = data.maxStudents;
+    if (Object.keys(patch).length === 0) {
+      summary.classes.skipped++;
+      return existing;
+    }
+    await db.update(classes).set(patch).where(eq(classes.id, existing));
+    summary.classes.updated++;
+    return existing;
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const classType = data.classType || "theory";
+  const [row] = await db
+    .insert(classes)
+    .values({
+      courseType: data.courseType || "auto",
+      classType,
+      classNumber: data.classNumber ?? 0,
+      date: data.date || "",
+      time: data.time || "",
+      duration: data.duration ?? (classType === "theory" ? 120 : 60),
+      room: data.room || undefined,
+      instructorId: data.instructorId || undefined,
+      maxStudents: data.maxStudents ?? 15,
+      // Past classes come in as completed so they don't pollute upcoming lists.
+      status: data.date && data.date < today ? "completed" : "scheduled",
+      legacyClassId: scheduledClassId,
+    })
+    .returning({ id: classes.id });
+  ctx.classByLegacy.set(scheduledClassId, row.id);
+  summary.classes.created++;
+  return row.id;
+}
+
+/** Find an instructor id by matching a row/heading value against known names. */
+function matchInstructor(ctx: ImportContext, values: string[]): number | null {
+  for (const v of values) {
+    const key = v.replace(/\s+/g, " ").trim().toLowerCase();
+    if (key && ctx.instructorByName.has(key)) return ctx.instructorByName.get(key)!;
+  }
+  return null;
+}
+
+/**
+ * Per-location/day classes page (`/admin/classes/?locationId=X&date=...`).
+ * Upserts one class per "Class List" link (classlist/?scheduledClassId=N).
+ * Row details (time/component/instructor) are zipped to the links by order
+ * when the counts line up; the classlist page fills in anything missing.
+ */
+async function importClasses(
+  page: ScrapedPage,
+  ctx: ImportContext,
+  summary: ImportSummary,
+): Promise<string | null> {
+  // Date: the page form echoes it back in ISO; heading is the fallback.
+  let isoDate: string | null = null;
+  let locationName: string | null = null;
+  for (const form of page.forms || []) {
+    if (!isoDate && form.field_data?.date) isoDate = toISODate(form.field_data.date);
+    // The location select's selected option text is the location name.
+    for (const f of form.fields || []) {
+      if (f.name === "locationId" && f.options) {
+        const sel = f.options.find((o) => o.selected || (f.value && o.value === f.value));
+        if (sel?.text && !/choose/i.test(sel.text)) locationName = sel.text.trim();
+      }
+    }
+  }
+  for (const h of page.headings || []) {
+    if (!isoDate) isoDate = toISODate(h.text);
+    if (!locationName && toISODate(h.text)) {
+      // Heading form: "Dollard-des-Ormeaux, \n Feb 11, 2026"
+      const m = h.text.match(/^([\s\S]*?),\s*[A-Z][a-z]{2}[a-z]*\s+\d{1,2}/);
+      if (m && m[1].trim()) locationName = m[1].replace(/\s+/g, " ").trim();
+    }
+  }
+
+  // The classlist links identify the classes shown on this page, in order.
+  const classIds: string[] = [];
+  for (const link of page.links || []) {
+    const href = link.href || "";
+    if (!href.toLowerCase().includes("classlist")) continue;
+    const sid = queryParam(href, "scheduledClassId") || queryParam(href, "scheduledclassid");
+    if (sid && !classIds.includes(sid)) classIds.push(sid);
+  }
+  if (classIds.length === 0) return null; // "No Classes found." day
+
+  // Candidate class rows: table records containing a time (and usually a component).
+  const rows: { time: string; duration: number | null; comp: ReturnType<typeof parseComponentInfo>; instructorId: number | null }[] = [];
+  for (const t of page.tables || []) {
+    for (const rec of t.records || []) {
+      const values = Object.values(rec)
+        .filter((v) => typeof v === "string")
+        .map((v) => String(v));
+      const joined = values.join(" ");
+      const tr = parseTimeRange(joined);
+      if (!tr) continue;
+      rows.push({
+        time: tr.time,
+        duration: tr.duration,
+        comp: parseComponentInfo(joined),
+        instructorId: matchInstructor(ctx, values),
+      });
+    }
+  }
+  const zip = rows.length === classIds.length;
+
+  for (let i = 0; i < classIds.length; i++) {
+    const row = zip ? rows[i] : null;
+    await upsertLegacyClass(
+      ctx,
+      classIds[i],
+      {
+        date: isoDate,
+        room: locationName,
+        time: row?.time,
+        duration: row?.duration,
+        courseType: row?.comp?.courseType,
+        classType: row?.comp?.classType,
+        classNumber: row?.comp?.classNumber,
+        instructorId: row?.instructorId,
+      },
+      summary,
+    );
+  }
+  return null;
+}
+
+/**
+ * Class list page (`/admin/classes/classlist/?scheduledClassId=N`) — the class
+ * header (component, date, time, capacity) plus the enrolled students. Students
+ * are matched/stub-created by their studentUserId link like registration pages.
+ */
+async function importClasslist(
+  page: ScrapedPage,
+  ctx: ImportContext,
+  summary: ImportSummary,
+): Promise<string | null> {
+  const url = page.final_url || page.url || "";
+  const scheduledClassId =
+    queryParam(url, "scheduledClassId") || queryParam(url, "scheduledclassid");
+  if (!scheduledClassId) return null;
+
+  const lv = page.label_values || {};
+  const headingText = (page.headings || []).map((h) => h.text || "").join("  ");
+  const comp = parseComponentInfo(headingText);
+  const isoDate = toISODate(headingText) || toISODate(lv["Date"]);
+  const tr = parseTimeRange(headingText) || (lv["Time"] ? parseTimeRange(lv["Time"]) : null);
+
+  // Capacity: "Reserved: 46/50" (heading or body text).
+  let maxStudents: number | null = null;
+  const capSource = `${headingText} ${page.text_content || ""}`;
+  const cap = capSource.match(/reserv\w*\s*:?\s*\d+\s*\/\s*(\d+)/i);
+  if (cap) maxStudents = parseInt(cap[1], 10);
+
+  const instructorId =
+    matchInstructor(ctx, [lv["Instructor"] || ""]) ??
+    matchInstructor(ctx, (page.headings || []).map((h) => h.text || ""));
+
+  const classId = await upsertLegacyClass(
+    ctx,
+    scheduledClassId,
+    {
+      date: isoDate,
+      time: tr?.time,
+      duration: tr?.duration,
+      courseType: comp?.courseType,
+      classType: comp?.classType,
+      classNumber: comp?.classNumber,
+      room: lv["Location"] || undefined,
+      instructorId,
+      maxStudents,
+    },
+    summary,
+  );
+
+  // Enroll every student linked on the page (same stub pattern as registrations).
+  // Per-student action links (sign-in/zoom/email) also carry studentUserId, so
+  // pick the best link per student: prefer studentfile links, then any link
+  // whose text isn't an action word, so stub names come from the name link.
+  const ACTION_TEXT = /^(sign\s*in|sign\s*out|zoom|email|remove|delete|edit|view)$/i;
+  const byStudent = new Map<string, { href: string; text: string }>();
+  for (const link of page.links || []) {
+    const href = link.href || "";
+    const sid = queryParam(href, "studentUserId") || queryParam(href, "studentuserid");
+    if (!sid) continue;
+    if (/individualsignin|(^|\/)(zoom|email)(\/|$|\?)/i.test(href)) continue;
+    const text = (link.text || "").trim();
+    const current = byStudent.get(sid);
+    const isProfile = href.toLowerCase().includes("studentfile");
+    const isNameish = text.length > 0 && !ACTION_TEXT.test(text);
+    if (
+      !current ||
+      (isProfile && !current.href.toLowerCase().includes("studentfile")) ||
+      (isNameish && ACTION_TEXT.test(current.text))
+    ) {
+      byStudent.set(sid, { href, text });
+    }
+  }
+
+  const courseType = comp?.courseType || courseTypeFromUrl(url);
+  for (const [sid, link] of Array.from(byStudent.entries())) {
+    const name = link.text && !ACTION_TEXT.test(link.text) ? link.text : undefined;
+    const studentId = await getOrCreateStudent(ctx, sid, { name, courseType }, summary);
+    const key = `${classId}:${studentId}`;
+    if (ctx.enrollKeys.has(key)) {
+      summary.enrollments.skipped++;
+      continue;
+    }
+    await db.insert(classEnrollments).values({
+      classId,
+      studentId,
+      attendanceStatus: "registered",
+    });
+    ctx.enrollKeys.add(key);
+    summary.enrollments.created++;
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Shared upserts
 // ---------------------------------------------------------------------------
 
@@ -1779,6 +2159,12 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
           case "attestation":
             legacyId = await importAttestation(page, ctx, state.summary);
             break;
+          case "classes":
+            legacyId = await importClasses(page, ctx, state.summary);
+            break;
+          case "classlist":
+            legacyId = await importClasslist(page, ctx, state.summary);
+            break;
           // other: no entity data — track as processed.
           default:
             break;
@@ -1820,7 +2206,8 @@ export async function runImport(opts: { reimportAll?: boolean } = {}): Promise<v
     log.info(
       `Import complete. Students ${fmt(state.summary.students)}, contracts ${fmt(state.summary.contracts)}, ` +
         `transactions ${fmt(state.summary.transactions)}, evaluations ${fmt(state.summary.evaluations)}, ` +
-        `lessons ${fmt(state.summary.lessons)}, notes ${fmt(state.summary.notes)}. ` +
+        `lessons ${fmt(state.summary.lessons)}, notes ${fmt(state.summary.notes)}, ` +
+        `classes ${fmt(state.summary.classes)}, enrollments ${fmt(state.summary.enrollments)}. ` +
         `Pages: ${state.summary.pages.processed} processed, ${state.summary.pages.skipped} skipped, ${state.summary.pages.errors} errors.`,
     );
     state.status = "completed";

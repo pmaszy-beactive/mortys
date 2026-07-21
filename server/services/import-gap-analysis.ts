@@ -847,6 +847,8 @@ const EMPTY_REASON: Record<Exclude<PageType, "other">, string> = {
   practicaleval: "no studentUserId (otherwise always inserts an evaluation)",
   zoomscreenshot: "no parseable date in the first heading",
   attestation: "no attestation number found in label_values or page text → attestation-number enrichment skipped (student stub still created)",
+  classes: "no classlist links carrying a scheduledClassId (e.g. a 'No Classes found.' day)",
+  classlist: "no scheduledClassId in the URL",
 };
 
 /**

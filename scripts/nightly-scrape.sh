@@ -218,9 +218,26 @@ else
     echo "$SCRAPE_OUTPUT"
 fi
 
-# A failed queue drain counts as a failed run even if it didn't expire the cookie.
+# --- Step 3: rolling-window daily class list scrape --------------------------
+# Same rolling window as registrations: re-scrape the last 7 days of the
+# per-location classes pages (and their classlist sub-pages) so new/changed
+# classes and enrollments keep flowing into the import data.
+if [ "$QUEUE_COOKIE_EXPIRED" -eq 1 ] || echo "$SCRAPE_OUTPUT" | grep -qiE "Redirected to login|session cookie has expired"; then
+    CLASSES_OUTPUT="(skipped classes scrape — an earlier step hit an expired session)"
+    CLASSES_STATUS=1
+else
+    CLASSES_OUTPUT="$(bash "$SCRIPT_DIR/migrate-site/scrape-classes.sh" "$TODAY" "$DAYS_BACK" 2>&1)"
+    CLASSES_STATUS=$?
+    echo "$CLASSES_OUTPUT"
+fi
+
+# A failed queue drain or classes scrape counts as a failed run even if it
+# didn't expire the cookie.
 if [ "$QUEUE_STATUS" -ne 0 ] && [ "$STATUS" -eq 0 ]; then
     STATUS="$QUEUE_STATUS"
+fi
+if [ "$CLASSES_STATUS" -ne 0 ] && [ "$STATUS" -eq 0 ]; then
+    STATUS="$CLASSES_STATUS"
 fi
 
 echo "# Finished:  $(date) (exit $STATUS)"
@@ -229,7 +246,8 @@ echo "############################################################"
 # Combined output (queue drain + registration scrape) for reason detection and
 # the alert log tail.
 COMBINED_OUTPUT="$QUEUE_OUTPUT
-$SCRAPE_OUTPUT"
+$SCRAPE_OUTPUT
+$CLASSES_OUTPUT"
 
 # Determine whether this run failed and why.
 REASON=""

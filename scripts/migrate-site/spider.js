@@ -245,7 +245,13 @@ class SiteMigrationSpider {
             if (skipExtensions.some(ext => lowerPath.endsWith(ext))) return false;
             
             if (lowerPath.includes('/logout')) return false;
-            
+
+            // Class-list action/noise sub-links: the per-student "Sign in" page
+            // performs an action, and the zoom/email sub-pages are noise. Match
+            // exact path segments so /zoomscreenshot/ pages are NOT excluded.
+            if (lowerPath.includes('individualsignin')) return false;
+            if (/(^|\/)(zoom|email)(\/|$)/.test(lowerPath)) return false;
+
             return true;
         } catch {
             return false;

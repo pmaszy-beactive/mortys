@@ -90,6 +90,8 @@ interface ImportStatus {
     lessons: EntityCounts;
     notes: EntityCounts;
     documents: EntityCounts;
+    classes?: EntityCounts;
+    enrollments?: EntityCounts;
     pages: { processed: number; skipped: number; errors: number };
   };
   error: string | null;
@@ -1471,6 +1473,8 @@ function ImportTab({
     { label: "Lessons", counts: s?.lessons },
     { label: "Notes", counts: s?.notes },
     { label: "Screenshots", counts: s?.documents },
+    { label: "Classes", counts: s?.classes },
+    { label: "Enrollments", counts: s?.enrollments },
   ];
 
   // Run Import controls (the actual import button, progress, results, live log).

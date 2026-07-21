@@ -283,6 +283,7 @@ export const classes = pgTable("classes", {
   attendanceSignedBy: integer("attendance_signed_by").references(() => instructors.id), // Instructor who signed
   seriesId: text("series_id"), // Links classes generated together as one recurring series (null = standalone)
   detachedFromSeries: boolean("detached_from_series").notNull().default(false), // Individually edited; series-wide edits skip this class
+  legacyClassId: text("legacy_class_id"), // Legacy scheduledClassId from the migrated site (import idempotency key)
 });
 
 export const classEnrollments = pgTable("class_enrollments", {
