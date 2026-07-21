@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { StudentCourse } from "@shared/schema";
 import { NotificationCenter } from "@/components/notification-center";
+import { BugReportButton } from "@/components/bug-report-button";
 import versionData from "../../../version.json";
 
 const version: string = versionData.version;
@@ -105,6 +106,7 @@ export default function StudentSidebar() {
             <h1 className="text-lg font-bold text-gray-900">Morty's Driving School</h1>
           </div>
           <div className="flex items-center gap-1">
+            <BugReportButton />
             <NotificationCenter userType="student" />
             <Button
               variant="ghost"
@@ -149,7 +151,10 @@ export default function StudentSidebar() {
                 <p className="text-sm text-gray-500">Student Portal</p>
               </div>
             </div>
-            <NotificationCenter userType="student" />
+            <div className="flex items-center gap-1">
+              <BugReportButton />
+              <NotificationCenter userType="student" />
+            </div>
           </div>
 
           {/* Mobile top spacing */}

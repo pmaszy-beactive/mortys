@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Settings as SettingsIcon, FileText, Hash, Users, Plus, Pencil, Trash2, Eye, EyeOff, ShieldCheck, AlertTriangle, Download, ChevronDown, ChevronRight, RefreshCw } from "lucide-react";
+import { Settings as SettingsIcon, FileText, Hash, Users, Plus, Pencil, Trash2, Eye, EyeOff, ShieldCheck, AlertTriangle, Download, ChevronDown, ChevronRight, RefreshCw, Bug } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -562,6 +562,107 @@ function ErrorLogsTab() {
   );
 }
 
+// ─── Bug Reports Tab ─────────────────────────────────────────────────────────
+interface BugReportEntry {
+  id: number;
+  category: string;
+  description: string;
+  submitterType: string;
+  submitterName: string | null;
+  submitterEmail: string | null;
+  submitterRole: string | null;
+  pageUrl: string | null;
+  createdAt: string;
+}
+
+const BUG_PAGE_SIZE = 25;
+
+function BugReportsTab() {
+  const [page, setPage] = useState(0);
+
+  const params = new URLSearchParams();
+  params.set("limit", String(BUG_PAGE_SIZE));
+  params.set("offset", String(page * BUG_PAGE_SIZE));
+  const listUrl = `/api/admin/bug-reports?${params.toString()}`;
+
+  const { data, isLoading, isFetching, refetch } = useQuery<{ reports: BugReportEntry[]; total: number }>({
+    queryKey: [listUrl],
+  });
+
+  const reports = data?.reports ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / BUG_PAGE_SIZE));
+
+  const categoryLabel = (c: string) => (c === "billing" ? "Billing" : "Technical Support");
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">Bug Reports</h3>
+          <p className="text-sm text-gray-500">
+            Problems reported by users from the in-app bug report button, newest first.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} data-testid="button-refresh-bug-reports">
+          <RefreshCw className={`h-4 w-4 mr-1 ${isFetching ? "animate-spin" : ""}`} /> Refresh
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-2">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse" />)}
+        </div>
+      ) : reports.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center text-gray-500" data-testid="text-no-bug-reports">
+          <Bug className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+          No bug reports submitted yet.
+        </div>
+      ) : (
+        <div className="rounded-lg border border-gray-200 bg-white divide-y divide-gray-100">
+          {reports.map(report => (
+            <div key={report.id} className="p-4 space-y-2" data-testid={`row-bug-report-${report.id}`}>
+              <div className="flex items-center gap-3 flex-wrap">
+                <Badge className={report.category === "billing" ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-blue-800"} data-testid={`badge-bug-category-${report.id}`}>
+                  {categoryLabel(report.category)}
+                </Badge>
+                <span className="text-sm font-medium text-gray-800" data-testid={`text-bug-submitter-${report.id}`}>
+                  {report.submitterName || "Unknown"}
+                  {report.submitterEmail ? ` (${report.submitterEmail})` : ""}
+                </span>
+                <span className="text-xs text-gray-500 capitalize">{report.submitterRole || report.submitterType}</span>
+                <span className="text-xs text-gray-400 ml-auto">{new Date(report.createdAt).toLocaleString()}</span>
+              </div>
+              {report.pageUrl && (
+                <div className="text-xs font-mono text-gray-500" data-testid={`text-bug-page-${report.id}`}>Page: {report.pageUrl}</div>
+              )}
+              <div className="text-sm text-gray-700 whitespace-pre-wrap break-words" data-testid={`text-bug-description-${report.id}`}>
+                {report.description}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {total > BUG_PAGE_SIZE && (
+        <div className="flex items-center justify-between text-sm text-gray-500">
+          <span data-testid="text-bug-report-count">
+            Showing {page * BUG_PAGE_SIZE + 1}–{Math.min((page + 1) * BUG_PAGE_SIZE, total)} of {total}
+          </span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)} data-testid="button-bug-prev-page">
+              Previous
+            </Button>
+            <Button variant="outline" size="sm" disabled={page + 1 >= totalPages} onClick={() => setPage(p => p + 1)} data-testid="button-bug-next-page">
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Settings() {
   return (
@@ -589,6 +690,10 @@ export default function Settings() {
               className="rounded-none border-b-2 border-transparent px-4 pb-3 pt-1 text-sm font-medium text-gray-500 data-[state=active]:border-[#ECC462] data-[state=active]:text-[#111111] data-[state=active]:shadow-none bg-transparent">
               <AlertTriangle className="h-4 w-4 mr-2 inline" />Error Logs
             </TabsTrigger>
+            <TabsTrigger value="bug-reports" data-testid="tab-bug-reports"
+              className="rounded-none border-b-2 border-transparent px-4 pb-3 pt-1 text-sm font-medium text-gray-500 data-[state=active]:border-[#ECC462] data-[state=active]:text-[#111111] data-[state=active]:shadow-none bg-transparent">
+              <Bug className="h-4 w-4 mr-2 inline" />Bug Reports
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
@@ -601,6 +706,10 @@ export default function Settings() {
 
           <TabsContent value="error-logs">
             <ErrorLogsTab />
+          </TabsContent>
+
+          <TabsContent value="bug-reports">
+            <BugReportsTab />
           </TabsContent>
         </Tabs>
       </div>

@@ -8,6 +8,7 @@ import { Loader2, Users, GraduationCap, Car, Calendar, TrendingUp, LogOut, Chevr
 import { useLocation, Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { NotificationCenter } from "@/components/notification-center";
+import { BugReportButton } from "@/components/bug-report-button";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef } from "react";
 
@@ -136,6 +137,7 @@ export default function ParentDashboard() {
             </div>
             
             <div className="flex items-center gap-4">
+              <BugReportButton className="text-gray-400 hover:text-white hover:bg-white/10" />
               <NotificationCenter userType="parent" />
               {hasMultipleStudents && (
                 <Button

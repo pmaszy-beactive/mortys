@@ -13803,6 +13803,156 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ─── Bug Reports ──────────────────────────────────────────────────────────
+  // Any logged-in user (staff, student, instructor, parent) can submit.
+  // Resolves the submitter from whichever auth identity is present.
+  const resolveAnyUser = async (req: any): Promise<{
+    type: string;
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  } | null> => {
+    const session = req.session as any;
+
+    // Staff (admin portal) session
+    const staffId = session?.userId;
+    if (staffId) {
+      const user = await storage.getUser(staffId);
+      if (user) {
+        return {
+          type: "staff",
+          id: String(user.id),
+          name: [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email || "Staff",
+          email: user.email || "",
+          role: user.role || "staff",
+        };
+      }
+    }
+
+    // Instructor session
+    const instructorId = session?.instructorId;
+    if (instructorId) {
+      const instructor = await storage.getInstructor(instructorId);
+      if (instructor && instructor.status === "active") {
+        return {
+          type: "instructor",
+          id: String(instructor.id),
+          name: `${instructor.firstName} ${instructor.lastName}`,
+          email: instructor.email,
+          role: "instructor",
+        };
+      }
+    }
+
+    // Parent session
+    const parentId = session?.parentId;
+    if (parentId) {
+      const parent = await storage.getParent(parentId);
+      if (parent && parent.accountStatus === "active") {
+        return {
+          type: "parent",
+          id: String(parent.id),
+          name: `${parent.firstName} ${parent.lastName}`,
+          email: parent.email,
+          role: "parent",
+        };
+      }
+    }
+
+    // Student: session cookie or Bearer token
+    let studentId: number | null = session?.studentId ?? null;
+    if (!studentId) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        const { verifyStudentToken } = await import("./student-auth");
+        studentId = verifyStudentToken(authHeader.substring(7));
+      }
+    }
+    if (studentId) {
+      const student = await storage.getStudent(studentId);
+      if (student && student.accountStatus === "active") {
+        return {
+          type: "student",
+          id: String(student.id),
+          name: `${student.firstName} ${student.lastName}`,
+          email: student.email,
+          role: "student",
+        };
+      }
+    }
+
+    return null;
+  };
+
+  const bugReportBodySchema = z.object({
+    category: z.enum(["technical_support", "billing"]),
+    description: z.string().trim().min(1, "Description is required").max(5000),
+    pageUrl: z.string().max(2000).optional(),
+  });
+
+  app.post("/api/bug-reports", async (req: any, res) => {
+    try {
+      const submitter = await resolveAnyUser(req);
+      if (!submitter) {
+        return res.status(401).json({ message: "You must be logged in to submit a bug report" });
+      }
+
+      const parsed = bugReportBodySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: parsed.error.errors[0]?.message || "Invalid bug report" });
+      }
+      const { category, description, pageUrl } = parsed.data;
+
+      const report = await storage.createBugReport({
+        category,
+        description,
+        submitterType: submitter.type,
+        submitterId: submitter.id,
+        submitterName: submitter.name,
+        submitterEmail: submitter.email,
+        submitterRole: submitter.role,
+        pageUrl: pageUrl || null,
+      });
+
+      // Email failure must never fail the save — log it instead.
+      try {
+        const sent = await notificationService.sendBugReportEmail({
+          category,
+          description,
+          submitterName: submitter.name,
+          submitterEmail: submitter.email,
+          submitterRole: submitter.role,
+          pageUrl: pageUrl || "",
+        });
+        if (!sent) {
+          console.error(`[bug-report] Email delivery failed for bug report #${report.id}`);
+        }
+      } catch (emailError) {
+        console.error(`[bug-report] Email delivery error for bug report #${report.id}:`, emailError);
+      }
+
+      res.status(201).json({ success: true, id: report.id });
+    } catch (error) {
+      captureRequestError(error);
+      console.error("Error submitting bug report:", error);
+      res.status(500).json({ message: "Failed to submit bug report" });
+    }
+  });
+
+  app.get("/api/admin/bug-reports", requireAdmin, async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(String(req.query.limit)) || 50, 500);
+      const offset = parseInt(String(req.query.offset)) || 0;
+      const result = await storage.getBugReports({ limit, offset });
+      res.json(result);
+    } catch (error) {
+      captureRequestError(error);
+      console.error("Error fetching bug reports:", error);
+      res.status(500).json({ message: "Failed to fetch bug reports" });
+    }
+  });
+
   // Catch-all for unmatched API routes: return 404 JSON instead of falling
   // through to the SPA handler (which would return 200 with HTML and make
   // callers believe the request succeeded).

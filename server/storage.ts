@@ -37,7 +37,8 @@ import {
   type PaymentTransaction, type PayrollAccessLog, type InsertPayrollAccessLog,
   type StudentNote, type InsertStudentNote,
   type ImportedPage, type InsertImportedPage,
-  errorLogs, type ErrorLog, type InsertErrorLog
+  errorLogs, type ErrorLog, type InsertErrorLog,
+  bugReports, type BugReport, type InsertBugReport
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql, gte, lte, isNotNull, isNull, inArray } from "drizzle-orm";
@@ -432,6 +433,10 @@ export interface IStorage {
   getErrorLogs(filters?: { path?: string; startDate?: string; endDate?: string; limit?: number; offset?: number }): Promise<{ logs: ErrorLog[]; total: number }>;
   getErrorLog(id: number): Promise<ErrorLog | undefined>;
   deleteErrorLogsOlderThan(days: number): Promise<number>;
+
+  // Bug reports
+  createBugReport(report: InsertBugReport): Promise<BugReport>;
+  getBugReports(filters?: { limit?: number; offset?: number }): Promise<{ reports: BugReport[]; total: number }>;
 
   // Module 5 exam attempts
   getExamAttempt(id: number): Promise<ExamAttempt | undefined>;
@@ -4178,6 +4183,27 @@ export class DatabaseStorage implements IStorage {
       .where(lte(errorLogs.createdAt, cutoff))
       .returning({ id: errorLogs.id });
     return deleted.length;
+  }
+
+  // Bug reports
+  async createBugReport(report: InsertBugReport): Promise<BugReport> {
+    const [row] = await db.insert(bugReports).values(report).returning();
+    return row;
+  }
+
+  async getBugReports(filters?: { limit?: number; offset?: number }): Promise<{ reports: BugReport[]; total: number }> {
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(bugReports);
+
+    const reports = await db
+      .select()
+      .from(bugReports)
+      .orderBy(sql`${bugReports.createdAt} DESC, ${bugReports.id} DESC`)
+      .offset(filters?.offset ?? 0)
+      .limit(Math.min(filters?.limit ?? 50, 500));
+
+    return { reports, total: count };
   }
 }
 

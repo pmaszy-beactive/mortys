@@ -1501,6 +1501,28 @@ export const insertErrorLogSchema = createInsertSchema(errorLogs).omit({ id: tru
 export type ErrorLog = typeof errorLogs.$inferSelect;
 export type InsertErrorLog = z.infer<typeof insertErrorLogSchema>;
 
+// ============================================================
+// Bug reports (in-app "report a problem" submissions)
+// ============================================================
+export const bugReports = pgTable("bug_reports", {
+  id: serial("id").primaryKey(),
+  category: text("category").notNull(), // technical_support, billing
+  description: text("description").notNull(),
+  submitterType: text("submitter_type").notNull(), // staff, student, instructor, parent
+  submitterId: text("submitter_id").notNull(),
+  submitterName: text("submitter_name"),
+  submitterEmail: text("submitter_email"),
+  submitterRole: text("submitter_role"), // staff role (owner/admin/...) or portal type
+  pageUrl: text("page_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertBugReportSchema = createInsertSchema(bugReports).omit({ id: true, createdAt: true });
+export type BugReport = typeof bugReports.$inferSelect;
+export type InsertBugReport = z.infer<typeof insertBugReportSchema>;
+
+export const BUG_REPORT_CATEGORIES = ["technical_support", "billing"] as const;
+
 // Auth types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationCenter } from "@/components/notification-center";
+import { BugReportButton } from "@/components/bug-report-button";
 import versionData from "../../../version.json";
 
 const version: string = versionData.version;
@@ -113,6 +114,7 @@ export default function Sidebar() {
             <h1 className="text-lg font-bold text-gray-900">Morty's</h1>
           </div>
           <div className="flex items-center gap-1">
+            <BugReportButton />
             <NotificationCenter userType="admin" />
             <Button
               variant="ghost"
@@ -157,7 +159,10 @@ export default function Sidebar() {
                   <p className="text-sm text-gray-500">Driving School</p>
                 </div>
               </div>
-              <NotificationCenter userType="admin" />
+              <div className="flex items-center gap-1">
+                <BugReportButton />
+                <NotificationCenter userType="admin" />
+              </div>
             </div>
           </div>
 

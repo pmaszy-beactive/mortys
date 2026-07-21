@@ -493,6 +493,47 @@ export async function getLatestScrapeFailure(): Promise<{
   };
 }
 
+// Email every SUPPORT_EMAILS address (comma-delimited env var, defaulting to
+// paul@beactive.ai) about a newly submitted in-app bug report. Failure here
+// must never fail the report save — callers catch and log.
+export async function sendBugReportEmail(report: {
+  category: string;
+  description: string;
+  submitterName: string;
+  submitterEmail: string;
+  submitterRole: string;
+  pageUrl: string;
+}): Promise<boolean> {
+  const raw = process.env.SUPPORT_EMAILS;
+  const recipients = (raw && raw.trim() ? raw : "paul@beactive.ai")
+    .split(",")
+    .map((e) => e.trim())
+    .filter((e) => e.includes("@"));
+
+  if (recipients.length === 0) {
+    console.error("[bug-report] SUPPORT_EMAILS contains no valid addresses; bug report email not sent.");
+    return false;
+  }
+
+  const categoryLabel =
+    report.category === "billing" ? "Billing" : "Technical Support";
+
+  const message =
+    `A new bug report was submitted in the app.\n\n` +
+    `Category: ${categoryLabel}\n` +
+    `Submitted by: ${report.submitterName} (${report.submitterEmail}) — ${report.submitterRole}\n` +
+    `Page: ${report.pageUrl || "unknown"}\n\n` +
+    `Description:\n${report.description}`;
+
+  return sendEmail({
+    to: recipients,
+    from: SENDER_EMAIL,
+    subject: `Bug Report (${categoryLabel}) — Morty's Driving School`,
+    text: message,
+    html: generateEmailHtml(`Bug Report (${categoryLabel})`, message, null),
+  });
+}
+
 // Alert the office when a student finished registration with a selected course
 // start date but could not be automatically enrolled in the matching Theory 1
 // class (no matching class scheduled, class full, etc.). Registration still

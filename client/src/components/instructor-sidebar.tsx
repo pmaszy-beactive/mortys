@@ -15,6 +15,7 @@ import {
   ClipboardCheck
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { BugReportButton } from "@/components/bug-report-button";
 import versionData from "../../../version.json";
 
 const version: string = versionData.version;
@@ -84,15 +85,18 @@ export default function InstructorSidebar() {
             </div>
             <span className="ml-2 text-lg font-bold text-[#111111]">Morty's</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2"
-            data-testid="button-mobile-menu"
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
+          <div className="flex items-center gap-1">
+            <BugReportButton />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2"
+              data-testid="button-mobile-menu"
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -122,6 +126,9 @@ export default function InstructorSidebar() {
                 <h2 className="text-lg font-bold text-[#111111]">Morty's Driving</h2>
                 <p className="text-xs text-gray-500">Instructor Portal</p>
               </div>
+            </div>
+            <div className="flex justify-end">
+              <BugReportButton />
             </div>
           </div>
 
