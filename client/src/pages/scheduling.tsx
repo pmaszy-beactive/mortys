@@ -90,10 +90,10 @@ export default function Scheduling() {
         className: "bg-gradient-to-r from-[#ECC462] to-amber-500 text-[#111111] border-0",
       });
     },
-    onError: () => {
+    onError: (err: any) => {
       toast({
         title: "Error",
-        description: "Failed to delete this class. Please try again.",
+        description: err?.data?.message || "Failed to delete this class. Please try again.",
         variant: "destructive",
       });
     },
@@ -1058,6 +1058,39 @@ export default function Scheduling() {
                   </div>
                 </div>
               )}
+              {(() => {
+                const classDateTime = new Date(`${editingClass.date}T${editingClass.time || "00:00"}`);
+                const isPastClass = !isNaN(classDateTime.getTime()) && classDateTime < new Date();
+                if (!isPastClass) return null;
+                const hasStudents = (editingClass.enrolledCount ?? 0) > 0;
+                return (
+                  <div className="rounded-md border border-gray-200 bg-gray-50 p-3 flex items-center justify-between gap-3 flex-wrap" data-testid="banner-past-class-delete">
+                    <div className="text-sm text-gray-700">
+                      <span className="font-medium">This class is in the past.</span>{" "}
+                      {hasStudents
+                        ? "It cannot be deleted because students were enrolled — attendance history is preserved."
+                        : "No students were enrolled, so it can be safely removed from the calendar."}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-300 text-red-600 hover:bg-red-50"
+                      disabled={hasStudents || deleteClassMutation.isPending}
+                      onClick={() => {
+                        if (window.confirm(`Delete this past class on ${editingClass.date} at ${editingClass.time}? This cannot be undone.`)) {
+                          deleteClassMutation.mutate(editingClass.id, {
+                            onSuccess: () => setEditingClass(null),
+                          });
+                        }
+                      }}
+                      data-testid="button-delete-past-class"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Delete Past Class
+                    </Button>
+                  </div>
+                );
+              })()}
               <ClassForm 
                 classData={editingClass} 
                 onSuccess={() => setEditingClass(null)} 

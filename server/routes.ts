@@ -3185,6 +3185,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/classes/:id", authMiddleware, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      const classData = await storage.getClass(id);
+      if (!classData) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+      // Past classes (school-local time) can only be deleted when no student
+      // ever enrolled — this preserves attendance/lesson history.
+      const startCheck = checkClassStart({ date: classData.date, time: classData.time });
+      const isPastClass = startCheck.status === "started";
+      if (isPastClass) {
+        const enrollmentCount = await storage.countClassEnrollmentHistory(id);
+        if (enrollmentCount > 0) {
+          return res.status(409).json({
+            message: `This past class cannot be deleted because ${enrollmentCount} student enrollment record${enrollmentCount === 1 ? " exists" : "s exist"} (including cancelled ones). Past classes with enrollment history are kept to preserve attendance records.`,
+          });
+        }
+      }
       await storage.deleteClass(id);
       res.status(204).send();
     } catch (error) {

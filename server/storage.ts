@@ -211,6 +211,7 @@ export interface IStorage {
   getClassEnrollments(): Promise<ClassEnrollment[]>;
   getClassEnrollment(id: number): Promise<ClassEnrollment | undefined>;
   getClassEnrollmentsByClass(classId: number): Promise<ClassEnrollment[]>;
+  countClassEnrollmentHistory(classId: number): Promise<number>;
   getClassEnrollmentsByStudent(studentId: number): Promise<ClassEnrollment[]>;
   createClassEnrollment(enrollment: InsertClassEnrollment): Promise<ClassEnrollment>;
   updateClassEnrollment(id: number, enrollment: Partial<InsertClassEnrollment>): Promise<ClassEnrollment>;
@@ -1355,6 +1356,10 @@ export class MemStorage implements IStorage {
 
   async getClassEnrollmentsByClass(classId: number): Promise<ClassEnrollment[]> {
     return Array.from(this.classEnrollments.values()).filter(e => e.classId === classId);
+  }
+
+  async countClassEnrollmentHistory(classId: number): Promise<number> {
+    return Array.from(this.classEnrollments.values()).filter(e => e.classId === classId).length;
   }
 
   async getClassEnrollmentsByStudent(studentId: number): Promise<ClassEnrollment[]> {
@@ -2598,6 +2603,16 @@ export class DatabaseStorage implements IStorage {
         isNull(classEnrollments.cancelledAt)
       )
     );
+  }
+
+  async countClassEnrollmentHistory(classId: number): Promise<number> {
+    // Counts ALL enrollment rows for the class, including cancelled/soft-cancelled
+    // ones — used to protect past classes with any enrollment history.
+    const [row] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(classEnrollments)
+      .where(eq(classEnrollments.classId, classId));
+    return row?.count ?? 0;
   }
 
   async getClassEnrollmentsByStudent(studentId: number): Promise<ClassEnrollment[]> {
