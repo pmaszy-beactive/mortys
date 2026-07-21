@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertContractSchema, type Contract, type Student } from "@shared/schema";
+import { insertContractSchema, hasAllClauseInitials, type Contract, type Student } from "@shared/schema";
 import { getCoursePrice } from "@/lib/utils";
 import { z } from "zod";
+import { ContractClausesCapture, collectClauseInitials, useClausePads } from "@/components/contract-clauses";
 
 const contractFormSchema = insertContractSchema.extend({
   contractDate: z.string().min(1, "Contract date is required"),
@@ -48,6 +49,11 @@ export default function ContractForm({ contract, onSuccess }: ContractFormProps)
   });
 
   const watchedCourseType = form.watch("courseType");
+  const watchedStatus = form.watch("status");
+  const clausePadsRef = useClausePads();
+  // Show initials capture when activating a contract that doesn't already have complete initials
+  const alreadyInitialed = hasAllClauseInitials(contract?.clauseInitials);
+  const needsClauseInitials = watchedStatus === "active" && !alreadyInitialed;
 
   const createMutation = useMutation({
     mutationFn: (data: ContractFormData) => apiRequest("POST", "/api/contracts", data),
@@ -92,6 +98,18 @@ export default function ContractForm({ contract, onSuccess }: ContractFormProps)
   });
 
   const onSubmit = (data: ContractFormData) => {
+    if (needsClauseInitials) {
+      const { initials, missing } = collectClauseInitials(clausePadsRef);
+      if (missing.length > 0) {
+        toast({
+          title: "Initials required",
+          description: `Please initial: ${missing.join(", ")}`,
+          variant: "destructive",
+        });
+        return;
+      }
+      data = { ...data, clauseInitials: { ...(contract?.clauseInitials || {}), ...initials } };
+    }
     if (isEditing) {
       updateMutation.mutate(data);
     } else {
@@ -249,6 +267,8 @@ export default function ContractForm({ contract, onSuccess }: ContractFormProps)
             </FormItem>
           )}
         />
+
+        {needsClauseInitials && <ContractClausesCapture padsRef={clausePadsRef} />}
 
         <div className="flex gap-4 pt-4">
           <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>

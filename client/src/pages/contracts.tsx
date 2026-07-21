@@ -10,12 +10,16 @@ import { Plus, Eye, Download, Check, FileSignature, Hourglass, CheckCircle, Cloc
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import ContractForm from "@/components/contract-form";
+import { ContractClausesCapture, ContractClausesDisplay, collectClauseInitials, useClausePads } from "@/components/contract-clauses";
 import { formatCurrency, formatDate, getStatusColor, generateAttestationNumber } from "@/lib/utils";
-import type { Contract, Student } from "@shared/schema";
+import { hasAllClauseInitials, type Contract, type ContractClauseInitials, type Student } from "@shared/schema";
 
 export default function Contracts() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [approvingContract, setApprovingContract] = useState<Contract | null>(null);
+  const [viewingContract, setViewingContract] = useState<Contract | null>(null);
+  const clausePadsRef = useClausePads();
   const { toast } = useToast();
 
   const { data: contracts = [], isLoading } = useQuery<Contract[]>({
@@ -52,24 +56,50 @@ export default function Contracts() {
   });
 
   const approveContractMutation = useMutation({
-    mutationFn: (contractId: number) => 
-      apiRequest("PUT", `/api/contracts/${contractId}`, { status: "active" }),
+    mutationFn: ({ contractId, clauseInitials }: { contractId: number; clauseInitials?: ContractClauseInitials }) =>
+      apiRequest("PUT", `/api/contracts/${contractId}`, clauseInitials ? { status: "active", clauseInitials } : { status: "active" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      setApprovingContract(null);
       toast({
         title: "Success",
         description: "Contract approved successfully",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to approve contract",
+        description: error?.message || "Failed to approve contract",
         variant: "destructive",
       });
     },
   });
+
+  const handleApproveClick = (contract: Contract) => {
+    if (hasAllClauseInitials(contract.clauseInitials)) {
+      approveContractMutation.mutate({ contractId: contract.id });
+    } else {
+      setApprovingContract(contract);
+    }
+  };
+
+  const handleConfirmApprove = () => {
+    if (!approvingContract) return;
+    const { initials, missing } = collectClauseInitials(clausePadsRef);
+    if (missing.length > 0) {
+      toast({
+        title: "Initials required",
+        description: `Please initial: ${missing.join(", ")}`,
+        variant: "destructive",
+      });
+      return;
+    }
+    approveContractMutation.mutate({
+      contractId: approvingContract.id,
+      clauseInitials: { ...(approvingContract.clauseInitials || {}), ...initials },
+    });
+  };
 
   const getStudentName = (studentId: number) => {
     const student = students.find(s => s.id === studentId);
@@ -318,6 +348,8 @@ export default function Contracts() {
                           <Button 
                             variant="ghost" 
                             size="sm"
+                            onClick={() => setViewingContract(contract)}
+                            data-testid={`button-view-contract-${contract.id}`}
                             className="h-8 w-8 p-0 rounded-md"
                           >
                             <Eye className="h-4 w-4" />
@@ -326,7 +358,8 @@ export default function Contracts() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => approveContractMutation.mutate(contract.id)}
+                              onClick={() => handleApproveClick(contract)}
+                              data-testid={`button-approve-contract-${contract.id}`}
                               className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md"
                             >
                               <Check className="h-4 w-4" />
@@ -395,6 +428,75 @@ export default function Contracts() {
             }} />
           </CardContent>
         </Card>
+
+        {/* Approve contract — clause initials dialog */}
+        <Dialog open={!!approvingContract} onOpenChange={(open) => !open && setApprovingContract(null)}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Approve Contract</DialogTitle>
+              <DialogDescription>
+                {approvingContract ? `${getStudentName(approvingContract.studentId!)} — each mandatory clause must be initialed before the contract can be activated.` : ""}
+              </DialogDescription>
+            </DialogHeader>
+            <ContractClausesCapture padsRef={clausePadsRef} />
+            <div className="flex gap-4 pt-2">
+              <Button
+                onClick={handleConfirmApprove}
+                disabled={approveContractMutation.isPending}
+                data-testid="button-confirm-approve"
+                className="bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111]"
+              >
+                {approveContractMutation.isPending ? "Approving..." : "Approve Contract"}
+              </Button>
+              <Button variant="outline" onClick={() => setApprovingContract(null)} data-testid="button-cancel-approve">
+                Cancel
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* View contract dialog */}
+        <Dialog open={!!viewingContract} onOpenChange={(open) => !open && setViewingContract(null)}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Contract Details</DialogTitle>
+              <DialogDescription>
+                {viewingContract ? `${getStudentName(viewingContract.studentId!)} — ${viewingContract.courseType.charAt(0).toUpperCase() + viewingContract.courseType.slice(1)} course` : ""}
+              </DialogDescription>
+            </DialogHeader>
+            {viewingContract && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-gray-500 text-xs font-semibold uppercase">Contract Date</p>
+                    <p className="text-gray-900" data-testid="text-view-contract-date">{formatDate(viewingContract.contractDate)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-xs font-semibold uppercase">Amount</p>
+                    <p className="text-gray-900" data-testid="text-view-contract-amount">{formatCurrency(viewingContract.amount)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-xs font-semibold uppercase">Status</p>
+                    <Badge variant="outline" className={getEnhancedStatusColor(viewingContract.status)} data-testid="badge-view-contract-status">
+                      {viewingContract.status.charAt(0).toUpperCase() + viewingContract.status.slice(1)}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-xs font-semibold uppercase">Payment Method</p>
+                    <p className="text-gray-900">{viewingContract.paymentMethod}</p>
+                  </div>
+                </div>
+                {viewingContract.specialNotes && (
+                  <div>
+                    <p className="text-gray-500 text-xs font-semibold uppercase mb-1">Special Notes</p>
+                    <p className="text-sm text-gray-700">{viewingContract.specialNotes}</p>
+                  </div>
+                )}
+                <ContractClausesDisplay clauseInitials={viewingContract.clauseInitials} />
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

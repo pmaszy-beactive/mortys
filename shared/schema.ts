@@ -367,7 +367,54 @@ export const contracts = pgTable("contracts", {
   signedDate: text("signed_date"),
   witnessName: text("witness_name"),
   witnessSignature: text("witness_signature"),
+
+  // Per-clause initials: { [clauseId]: { initials: base64 image, initialedAt: ISO timestamp } }
+  clauseInitials: jsonb("clause_initials").$type<ContractClauseInitials>(),
 });
+
+// Mandatory contract clauses that must each be individually initialed
+// before a contract can be signed/activated.
+export const CONTRACT_CLAUSES = [
+  {
+    id: "missed_theory_classes",
+    title: "Missed Theory Classes",
+    text: "Any scheduled theory class not attended and not cancelled at least twenty-four (24) hours in advance is subject to a $50.00 missed-class fee. This applies regardless of the reason for the absence, except where the student provides satisfactory medical documentation demonstrating that illness prevented attendance.",
+  },
+  {
+    id: "missed_in_car_sessions",
+    title: "Missed In-Car Sessions",
+    text: "Any scheduled in-car driving session not attended and not cancelled at least twenty-four (24) hours in advance is subject to: $50.00 for a single driving session and $100.00 for a double driving session. This applies regardless of the reason for the absence, except where the student provides satisfactory medical documentation demonstrating that illness prevented attendance.",
+  },
+  {
+    id: "course_duration_extension",
+    title: "Course Duration and Extension",
+    text: "The contract remains valid for eighteen (18) months from the date of signing. If the course is not completed within this period, the contract may be extended for an additional twelve (12) months upon payment of a surcharge equal to the difference between the course price in effect on the date the contract was signed and the course price in effect at the time the extension is requested. Payment of this surcharge extends the validity of the contract by twelve (12) months from the expiration of the original eighteen-month term.",
+  },
+] as const;
+
+export type ContractClauseId = (typeof CONTRACT_CLAUSES)[number]["id"];
+
+export interface ClauseInitial {
+  initials: string; // base64-encoded initials image
+  initialedAt: string; // ISO timestamp
+}
+
+export type ContractClauseInitials = Record<string, ClauseInitial>;
+
+export const clauseInitialSchema = z.object({
+  initials: z.string().min(1),
+  initialedAt: z.string().min(1),
+});
+
+export const contractClauseInitialsSchema = z.record(z.string(), clauseInitialSchema);
+
+export function hasAllClauseInitials(clauseInitials: ContractClauseInitials | null | undefined): boolean {
+  if (!clauseInitials) return false;
+  return CONTRACT_CLAUSES.every((clause) => {
+    const entry = clauseInitials[clause.id];
+    return !!entry && typeof entry.initials === "string" && entry.initials.length > 0;
+  });
+}
 
 export const evaluations = pgTable("evaluations", {
   id: serial("id").primaryKey(),
@@ -509,7 +556,9 @@ export const instructorSpecializationSchema = z.object({
 export const insertClassSchema = createInsertSchema(classes).omit({ id: true });
 export const insertClassEnrollmentSchema = createInsertSchema(classEnrollments).omit({ id: true });
 export const insertContractTemplateSchema = createInsertSchema(contractTemplates).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertContractSchema = createInsertSchema(contracts).omit({ id: true });
+export const insertContractSchema = createInsertSchema(contracts).omit({ id: true }).extend({
+  clauseInitials: contractClauseInitialsSchema.nullable().optional(),
+});
 export const insertEvaluationSchema = createInsertSchema(evaluations).omit({ id: true });
 export const insertNoteSchema = createInsertSchema(notes).omit({ id: true });
 export const insertCommunicationSchema = createInsertSchema(communications).omit({ id: true });

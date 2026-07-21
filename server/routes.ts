@@ -78,6 +78,7 @@ import {
   insertInstructorSchema,
   insertClassSchema,
   insertContractSchema,
+  hasAllClauseInitials,
   insertEvaluationSchema,
   insertNoteSchema,
   insertCommunicationSchema,
@@ -4074,6 +4075,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/contracts", async (req, res) => {
     try {
       const contractData = insertContractSchema.parse(req.body);
+      if (contractData.status === "active" && !hasAllClauseInitials(contractData.clauseInitials)) {
+        return res.status(400).json({
+          message: "All contract clauses must be initialed before the contract can be activated",
+        });
+      }
       const contract = await storage.createContract(contractData);
       res.status(201).json(contract);
     } catch (error) {
@@ -4086,6 +4092,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const updateData = req.body;
+      const existing = await storage.getContract(id);
+      if (!existing) {
+        return res.status(404).json({ message: "Contract not found" });
+      }
+      const becomingActive = updateData.status === "active" && existing.status !== "active";
+      if (becomingActive) {
+        const effectiveInitials =
+          updateData.clauseInitials !== undefined ? updateData.clauseInitials : existing.clauseInitials;
+        if (!hasAllClauseInitials(effectiveInitials)) {
+          return res.status(400).json({
+            message: "All contract clauses must be initialed before the contract can be activated",
+          });
+        }
+      }
       const contract = await storage.updateContract(id, updateData);
       res.json(contract);
     } catch (error) {
