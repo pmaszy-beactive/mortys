@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircleQuestion, X, Send, Loader2, Sparkles } from "lucide-react";
@@ -52,31 +50,116 @@ export default function ProcessAssistantWidget() {
     }
   }, [messages, open]);
 
-  const chatMutation = useMutation({
-    mutationFn: async (allMessages: ChatMessage[]) => {
-      const res = await apiRequest("POST", "/api/assistant/chat", {
-        // Only send real conversation turns (skip the local welcome message)
-        messages: allMessages.filter((m, i) => !(i === 0 && m.role === "assistant")).slice(-12),
+  const [isPending, setIsPending] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+
+  const streamChat = async (allMessages: ChatMessage[]) => {
+    setIsPending(true);
+    setIsStreaming(false);
+    let addedAssistantMessage = false;
+    try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      try {
+        const token = localStorage.getItem("student_auth_token");
+        if (token) headers.Authorization = `Bearer ${token}`;
+      } catch {
+        // ignore
+      }
+
+      const res = await fetch("/api/assistant/chat", {
+        method: "POST",
+        credentials: "include",
+        headers,
+        body: JSON.stringify({
+          // Only send real conversation turns (skip the local welcome message)
+          messages: allMessages.filter((m, i) => !(i === 0 && m.role === "assistant")).slice(-12),
+        }),
       });
-      return res as { reply: string };
-    },
-    onSuccess: (data) => {
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
-      setErrorText(null);
-    },
-    onError: (err: any) => {
-      setErrorText(err?.message || "Something went wrong. Please try again.");
-    },
-  });
+
+      const contentType = res.headers.get("content-type") || "";
+      if (!res.ok || !contentType.includes("text/event-stream")) {
+        let message = "Something went wrong. Please try again.";
+        try {
+          const data = await res.json();
+          if (data?.message) message = data.message;
+        } catch {
+          // ignore
+        }
+        setErrorText(message);
+        return;
+      }
+
+      if (!res.body) {
+        setErrorText("Something went wrong. Please try again.");
+        return;
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let streamError: string | null = null;
+
+      const appendDelta = (delta: string) => {
+        if (!addedAssistantMessage) {
+          addedAssistantMessage = true;
+          setIsStreaming(true);
+          setMessages((prev) => [...prev, { role: "assistant", content: delta }]);
+        } else {
+          setMessages((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            next[next.length - 1] = { ...last, content: last.content + delta };
+            return next;
+          });
+        }
+      };
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const events = buffer.split("\n\n");
+        buffer = events.pop() ?? "";
+        for (const event of events) {
+          const line = event.split("\n").find((l) => l.startsWith("data: "));
+          if (!line) continue;
+          try {
+            const payload = JSON.parse(line.slice(6));
+            if (payload.delta) appendDelta(payload.delta);
+            if (payload.error) streamError = payload.error;
+          } catch {
+            // ignore malformed chunk
+          }
+        }
+      }
+
+      if (streamError) {
+        setErrorText(streamError);
+      } else if (!addedAssistantMessage) {
+        setErrorText("The assistant couldn't generate a response. Please try again.");
+      } else {
+        setErrorText(null);
+      }
+    } catch {
+      setErrorText(
+        addedAssistantMessage
+          ? "The assistant's reply was cut off. Please try again."
+          : "Unable to connect to the server. Please check your internet connection."
+      );
+    } finally {
+      setIsPending(false);
+      setIsStreaming(false);
+    }
+  };
 
   const handleSend = () => {
     const text = input.trim();
-    if (!text || chatMutation.isPending) return;
+    if (!text || isPending) return;
     const next: ChatMessage[] = [...messages, { role: "user", content: text }];
     setMessages(next);
     setInput("");
     setErrorText(null);
-    chatMutation.mutate(next);
+    void streamChat(next);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -146,7 +229,7 @@ export default function ProcessAssistantWidget() {
                 </div>
               </div>
             ))}
-            {chatMutation.isPending && (
+            {isPending && !isStreaming && (
               <div className="flex justify-start" data-testid="status-assistant-typing">
                 <div className="bg-white border border-gray-200 rounded-lg px-3 py-2">
                   <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
@@ -178,7 +261,7 @@ export default function ProcessAssistantWidget() {
             />
             <Button
               onClick={handleSend}
-              disabled={!input.trim() || chatMutation.isPending}
+              disabled={!input.trim() || isPending}
               className="bg-[#ECC462] hover:bg-[#ECC462]/90 text-[#111111] h-10 w-10 p-0 shrink-0"
               aria-label="Send message"
               data-testid="button-send-assistant"

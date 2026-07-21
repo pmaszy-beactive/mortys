@@ -216,25 +216,65 @@ export async function handleAssistantChat(req: Request, res: Response) {
   // Keep only the most recent exchanges to bound token usage
   const history = parsed.data.messages.slice(-12);
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    max_tokens: 600,
-    temperature: 0.3,
-    messages: [
-      {
-        role: "system",
-        content: `${SYSTEM_PROMPT}\n\nThe person you are talking to is a ${user.role}.`,
-      },
-      ...history,
-    ],
-  });
-
-  const reply = completion.choices[0]?.message?.content?.trim();
-  if (!reply) {
+  // Stream tokens back via Server-Sent Events so the widget can render
+  // the reply word-by-word instead of waiting for the full completion.
+  let stream: Awaited<ReturnType<typeof openai.chat.completions.create>>;
+  try {
+    stream = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      max_tokens: 600,
+      temperature: 0.3,
+      stream: true,
+      messages: [
+        {
+          role: "system",
+          content: `${SYSTEM_PROMPT}\n\nThe person you are talking to is a ${user.role}.`,
+        },
+        ...history,
+      ],
+    });
+  } catch (error) {
+    console.error("Assistant stream start error:", error);
     return res.status(502).json({
       message: "The assistant couldn't generate a response. Please try again.",
     });
   }
 
-  res.json({ reply });
+  res.status(200);
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders?.();
+
+  const send = (payload: object) => {
+    res.write(`data: ${JSON.stringify(payload)}\n\n`);
+  };
+
+  let sentAny = false;
+  try {
+    for await (const chunk of stream as AsyncIterable<any>) {
+      if (res.writableEnded || res.destroyed) break;
+      const delta = chunk.choices?.[0]?.delta?.content;
+      if (delta) {
+        sentAny = true;
+        send({ delta });
+      }
+    }
+    if (!sentAny) {
+      send({ error: "The assistant couldn't generate a response. Please try again." });
+    } else {
+      send({ done: true });
+    }
+  } catch (error) {
+    console.error("Assistant stream error:", error);
+    if (!res.writableEnded) {
+      send({
+        error: sentAny
+          ? "The assistant's reply was cut off. Please try again."
+          : "The assistant couldn't generate a response. Please try again.",
+      });
+    }
+  } finally {
+    if (!res.writableEnded) res.end();
+  }
 }
