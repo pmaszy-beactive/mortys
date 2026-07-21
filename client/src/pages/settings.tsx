@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -74,6 +74,20 @@ function UserDialog({
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        firstName: existing?.firstName ?? "",
+        lastName: existing?.lastName ?? "",
+        email: existing?.email ?? "",
+        role: existing?.role ?? "admin",
+        password: "",
+        canOverrideBookingPolicies: existing?.canOverrideBookingPolicies ?? false,
+      });
+      setShowPass(false);
+    }
+  }, [open, existing, form]);
+
   const mutation = useMutation({
     mutationFn: (data: UserFormData) => {
       const payload: any = { ...data };
@@ -127,7 +141,7 @@ function UserDialog({
             <FormField control={form.control} name="role" render={({ field }) => (
               <FormItem>
                 <FormLabel>Role</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                   </FormControl>
