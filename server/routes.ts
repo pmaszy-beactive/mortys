@@ -7689,6 +7689,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `[EXAM] Recalculate: attempt #${attempt.id} (student #${attempt.studentId}) ` +
             `score ${attempt.score} -> ${graded.score}, passed ${attempt.passed} -> ${graded.passed}`,
         );
+        // Pass/fail flips are communicated to the student (email + in-app);
+        // score-only changes stay silent. Notification failures never break
+        // the recalculation itself.
+        if (attempt.passed !== graded.passed && attempt.studentId) {
+          try {
+            await notificationService.notifyExamResultCorrected({
+              studentId: attempt.studentId,
+              attemptId: attempt.id,
+              testCode: attempt.testCode,
+              oldScore: attempt.score,
+              newScore: graded.score,
+              oldPassed: attempt.passed,
+              newPassed: graded.passed,
+              passPercent: EXAM_PASS_PERCENT,
+              canRetake: graded.passed === false && attempt.attemptNumber < 2,
+            }, req.user?.id);
+            (change as any).studentNotified = true;
+          } catch (notifyError) {
+            captureRequestError(notifyError);
+            console.error(
+              `[EXAM] Failed to notify student #${attempt.studentId} about corrected result for attempt #${attempt.id}:`,
+              notifyError,
+            );
+            (change as any).studentNotified = false;
+          }
+        }
       }
       // Enrich changed attempts with student names for the admin UI.
       const uniqueStudentIds = Array.from(new Set(changes.map((c) => c.studentId).filter(Boolean)));

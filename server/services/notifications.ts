@@ -28,7 +28,8 @@ export type NotificationType =
   | 'scrape_recovered'
   | 'auto_enroll_failed'
   | 'start_date_change'
-  | 'series_days_change';
+  | 'series_days_change'
+  | 'exam_result_corrected';
 
 export type RecipientType = 'student' | 'parent' | 'staff';
 
@@ -736,6 +737,55 @@ export async function notifyStartDateReschedule(details: {
       newDate: details.newDate,
       oldTime: details.oldTime ?? undefined,
       newTime: details.newTime ?? undefined,
+    },
+    recipients,
+    triggeredBy,
+  });
+}
+
+// Notify a student (and their linked parents) that an admin recalculation
+// corrected their exam result and the pass/fail outcome changed.
+export async function notifyExamResultCorrected(details: {
+  studentId: number;
+  attemptId: number;
+  testCode: string;
+  oldScore: number | null;
+  newScore: number | null;
+  oldPassed: boolean | null;
+  newPassed: boolean;
+  passPercent: number;
+  canRetake: boolean;
+}, triggeredBy?: string): Promise<void> {
+  const recipients = await getStudentRecipients(details.studentId);
+  if (recipients.length === 0) return;
+
+  const examName = `Module 5 Exam (${details.testCode})`;
+  const outcome = details.newPassed
+    ? `Good news — your corrected score of ${details.newScore}% meets the ${details.passPercent}% pass mark, so your result is now a PASS.`
+    : `Unfortunately, your corrected score of ${details.newScore}% is below the ${details.passPercent}% pass mark, so your result is now marked as NOT PASSED.` +
+      (details.canRetake
+        ? ` You are eligible to retake the exam — please contact the office to arrange your retake.`
+        : ` Please contact the office to discuss your next steps.`);
+
+  const message =
+    `We reviewed and recalculated the results for your ${examName}, and your result has changed.\n\n` +
+    `Previous result: ${details.oldScore ?? '—'}% (${details.oldPassed ? 'Pass' : 'Not passed'})\n` +
+    `Corrected result: ${details.newScore ?? '—'}% (${details.newPassed ? 'Pass' : 'Not passed'})\n\n` +
+    outcome +
+    `\n\nWe apologize for any confusion the earlier result may have caused. If you have any questions, please contact the office.`;
+
+  await enqueueNotification({
+    type: 'exam_result_corrected',
+    title: `Corrected Exam Result: ${details.newPassed ? 'Pass' : 'Not Passed'} — ${examName}`,
+    message,
+    payload: {
+      studentId: details.studentId,
+      attemptId: details.attemptId,
+      testCode: details.testCode,
+      oldScore: details.oldScore ?? undefined,
+      newScore: details.newScore ?? undefined,
+      oldPassed: details.oldPassed ?? undefined,
+      newPassed: details.newPassed,
     },
     recipients,
     triggeredBy,
