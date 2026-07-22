@@ -40,8 +40,18 @@ export interface UatOverrideResult {
 // Returns the (possibly rewritten) recipients + subject, or blocked=true if the
 // override is on but no override recipients are configured (fail safe — never
 // fall back to real recipients).
-export function applyUatEmailOverride(to: string[], subject: string): UatOverrideResult {
+// `bypass` marks emails that must always reach the REAL recipient even during
+// UAT (login/OTP/verification codes, password resets, invitations, and
+// staff/office alerts). Class-update, billing, and bulk/scheduled emails must
+// NOT set it.
+export function applyUatEmailOverride(to: string[], subject: string, bypass?: boolean): UatOverrideResult {
   if (!isUatOverrideEnabled()) {
+    return { blocked: false, to, subject };
+  }
+  if (bypass) {
+    console.log(
+      `[UAT EMAIL OVERRIDE] PASS-THROUGH (login/account or staff alert): "${subject}" sent to real recipient(s) [${to.join(", ")}]`,
+    );
     return { blocked: false, to, subject };
   }
 
@@ -69,10 +79,14 @@ interface EmailParams {
   text?: string;
   html?: string;
   replyTo?: string;
+  // Always deliver to the real recipient even when UAT_EMAIL_OVERRIDE is on.
+  // Reserved for login/account emails (OTP, password reset, invites) and
+  // staff/office alerts. Never set for student/parent class or billing mail.
+  uatBypass?: boolean;
 }
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
-  const override = applyUatEmailOverride(params.to, params.subject);
+  const override = applyUatEmailOverride(params.to, params.subject, params.uatBypass);
   if (override.blocked) {
     return false;
   }
@@ -138,6 +152,7 @@ export async function sendAdminPasswordResetEmail(
     subject: "Admin Password Reset — Morty's Driving School",
     text: `Hi ${firstName},\n\nReset your admin password here (expires in 1 hour):\n${resetUrl}\n\nIf you didn't request this, ignore this email.`,
     html,
+    uatBypass: true,
   });
 }
 

@@ -14,8 +14,11 @@ if (isEmailConfigured) {
   );
 }
 
+// All emails sent through this module are login/account emails (invites,
+// password resets, welcome/setup) or staff alerts (policy overrides), so they
+// always PASS THROUGH the UAT email override to the real recipient.
 async function deliverMail(msg: { to: string; from: string; subject: string; [key: string]: any }): Promise<void> {
-  const override = applyUatEmailOverride([msg.to], msg.subject);
+  const override = applyUatEmailOverride([msg.to], msg.subject, true);
   if (override.blocked) {
     return;
   }

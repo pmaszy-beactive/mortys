@@ -6404,6 +6404,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             to: [email],
             from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
             subject: "Verify your email - Morty's Driving School",
+          uatBypass: true,
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                   <div style="background: linear-gradient(135deg, #111111 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
@@ -6470,6 +6471,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         to: [email],
         from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
         subject: "Verify your email - Morty's Driving School",
+          uatBypass: true,
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #111111 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
@@ -6599,6 +6601,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         to: [registration.email],
         from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
         subject: "Your new verification code - Morty's Driving School",
+          uatBypass: true,
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #111111 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
@@ -7530,6 +7533,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           to: ["info@mortysdrivingschool.com"],
           from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
           subject: `Exam question flagged for review — Q${qn} (${attempt.testCode})`,
+          uatBypass: true,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: #111111; padding: 20px; text-align: center;">
