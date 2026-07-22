@@ -7761,6 +7761,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: resend a failed exam-correction notice for one attempt. The
+  // client supplies the pre-correction values (from the recalc results dialog);
+  // the current attempt row in the DB is the authoritative "after" state.
+  app.post("/api/admin/exam-attempts/:attemptId/resend-correction-notice", requireAdmin, async (req: any, res) => {
+    try {
+      const attemptId = parseInt(req.params.attemptId);
+      if (isNaN(attemptId)) {
+        return res.status(400).json({ message: "Invalid attempt id" });
+      }
+      const attempt = await storage.getExamAttempt(attemptId);
+      if (!attempt) {
+        return res.status(404).json({ message: "Exam attempt not found" });
+      }
+      if (attempt.passed === null || attempt.passed === undefined) {
+        return res.status(400).json({ message: "This attempt has no graded result to notify about" });
+      }
+      const { oldScore, oldPassed } = req.body || {};
+      if (typeof oldPassed !== "boolean") {
+        return res.status(400).json({ message: "Missing pre-correction result (oldPassed)" });
+      }
+      await notificationService.notifyExamResultCorrected({
+        studentId: attempt.studentId,
+        attemptId: attempt.id,
+        testCode: attempt.testCode,
+        oldScore: typeof oldScore === "number" ? oldScore : null,
+        newScore: attempt.score,
+        oldPassed,
+        newPassed: attempt.passed,
+        passPercent: EXAM_PASS_PERCENT,
+        canRetake: attempt.passed === false && attempt.attemptNumber < 2,
+      }, req.user?.id);
+      console.log(`[EXAM] Resent corrected-result notice for attempt #${attempt.id} (student #${attempt.studentId})`);
+      res.json({ success: true, attemptId: attempt.id, studentNotified: true });
+    } catch (error) {
+      captureRequestError(error);
+      console.error("[EXAM] Error resending corrected-result notice:", error);
+      res.status(500).json({ message: "Failed to resend the notification — please try again" });
+    }
+  });
+
   // Admin: history of past exam score recalculation runs (audit trail).
   app.get("/api/admin/exam-recalc-logs", requireAdmin, async (req: any, res) => {
     try {

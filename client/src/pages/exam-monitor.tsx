@@ -124,6 +124,34 @@ export default function ExamMonitor() {
     },
   });
 
+  const resendNoticeMutation = useMutation({
+    mutationFn: async (change: RecalcChange) =>
+      (await apiRequest("POST", `/api/admin/exam-attempts/${change.attemptId}/resend-correction-notice`, {
+        oldScore: change.before.score,
+        oldPassed: change.before.passed,
+      })) as { attemptId: number; studentNotified: boolean },
+    onSuccess: (result) => {
+      setRecalcResult((prev) =>
+        prev
+          ? {
+              ...prev,
+              changes: prev.changes.map((c) =>
+                c.attemptId === result.attemptId ? { ...c, studentNotified: true } : c,
+              ),
+            }
+          : prev,
+      );
+      toast({ title: "Notification sent", description: "The student has been notified about the corrected result." });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Resend failed",
+        description: error?.message || "Could not resend the notification.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const { data: classes = [], isLoading: classesLoading } = useQuery<ExamClass[]>({
     queryKey: ["/api/exam/classes"],
   });
@@ -376,9 +404,26 @@ export default function ExamMonitor() {
                                   <CheckCircle2 className="h-3 w-3 mr-1" /> Student notified
                                 </Badge>
                               ) : c.studentNotified === false ? (
-                                <Badge variant="destructive" data-testid={`badge-notify-failed-${c.attemptId}`}>
-                                  <XCircle className="h-3 w-3 mr-1" /> Notification failed — contact student
-                                </Badge>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="destructive" data-testid={`badge-notify-failed-${c.attemptId}`}>
+                                    <XCircle className="h-3 w-3 mr-1" /> Notification failed
+                                  </Badge>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => resendNoticeMutation.mutate(c)}
+                                    disabled={resendNoticeMutation.isPending}
+                                    data-testid={`button-resend-notice-${c.attemptId}`}
+                                  >
+                                    {resendNoticeMutation.isPending &&
+                                    resendNoticeMutation.variables?.attemptId === c.attemptId ? (
+                                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    ) : (
+                                      <RefreshCcw className="h-3 w-3 mr-1" />
+                                    )}
+                                    Resend
+                                  </Button>
+                                </div>
                               ) : (
                                 <span className="text-sm text-gray-500" data-testid={`text-no-notify-${c.attemptId}`}>
                                   Not needed (score-only change)
