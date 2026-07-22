@@ -447,6 +447,7 @@ export interface IStorage {
   getExamAttempt(id: number): Promise<ExamAttempt | undefined>;
   getExamAttemptsByStudent(studentId: number): Promise<ExamAttempt[]>;
   getExamAttemptsByClass(classId: number): Promise<ExamAttempt[]>;
+  getAllExamAttempts(): Promise<ExamAttempt[]>;
   createExamAttempt(data: InsertExamAttempt): Promise<ExamAttempt>;
   updateExamAttempt(id: number, data: Partial<InsertExamAttempt>): Promise<ExamAttempt | undefined>;
 }
@@ -1614,6 +1615,7 @@ export class MemStorage implements IStorage {
   async getExamAttempt(): Promise<ExamAttempt | undefined> { return undefined; }
   async getExamAttemptsByStudent(): Promise<ExamAttempt[]> { return []; }
   async getExamAttemptsByClass(): Promise<ExamAttempt[]> { return []; }
+  async getAllExamAttempts(): Promise<ExamAttempt[]> { return []; }
   async createExamAttempt(data: InsertExamAttempt): Promise<ExamAttempt> { return { id: 1, ...data } as ExamAttempt; }
   async updateExamAttempt(): Promise<ExamAttempt | undefined> { return undefined; }
 }
@@ -4121,6 +4123,10 @@ export class DatabaseStorage implements IStorage {
 
   async getExamAttemptsByClass(classId: number): Promise<ExamAttempt[]> {
     return await db.select().from(examAttempts).where(eq(examAttempts.classId, classId));
+  }
+
+  async getAllExamAttempts(): Promise<ExamAttempt[]> {
+    return await db.select().from(examAttempts);
   }
 
   async createExamAttempt(data: InsertExamAttempt): Promise<ExamAttempt> {

@@ -7212,6 +7212,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return { correctCount: correct, totalQuestions: total, score, passed: score >= EXAM_PASS_PERCENT };
   };
 
+  // Re-grade an attempt's stored answers and self-heal any stale stored score.
+  // Returns the attempt with fresh, authoritative grading values.
+  const reconcileAttemptGrade = async (attempt: any): Promise<any> => {
+    const graded = gradeAttempt(attempt.testCode, (attempt.answers || {}) as Record<string, string>);
+    const stale =
+      attempt.score !== graded.score ||
+      attempt.passed !== graded.passed ||
+      attempt.correctCount !== graded.correctCount ||
+      attempt.totalQuestions !== graded.totalQuestions;
+    if (stale) {
+      console.log(
+        `[EXAM] Reconciled stale grade for attempt #${attempt.id} (student #${attempt.studentId}): ` +
+          `score ${attempt.score} -> ${graded.score}, passed ${attempt.passed} -> ${graded.passed}`,
+      );
+      await storage.updateExamAttempt(attempt.id, {
+        status: "submitted",
+        score: graded.score,
+        passed: graded.passed,
+        correctCount: graded.correctCount,
+        totalQuestions: graded.totalQuestions,
+        submittedAt: attempt.submittedAt || new Date(),
+      } as any);
+    }
+    return {
+      ...attempt,
+      status: "submitted",
+      score: graded.score,
+      passed: graded.passed,
+      correctCount: graded.correctCount,
+      totalQuestions: graded.totalQuestions,
+      submittedAt: attempt.submittedAt || new Date(),
+    };
+  };
+
   // Student: current exam status for their Theory 5 class.
   app.get("/api/student/exam/status", async (req: any, res) => {
     try {
@@ -7230,12 +7264,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const resultsVisibleAt = classStart ? new Date(classStart.getTime() + duration * 60 * 1000) : null;
 
       const attempts = await storage.getExamAttemptsByStudent(studentId);
-      const classAttempts = attempts
+      let classAttempts = attempts
         .filter((a: any) => a.classId === theory5.id)
         .sort((a: any, b: any) => a.attemptNumber - b.attemptNumber);
-      const latest = classAttempts[classAttempts.length - 1] || null;
 
       const resultsVisible = !!resultsVisibleAt && now >= resultsVisibleAt;
+
+      // Once results are visible, always serve a fresh grading of the stored
+      // answers (self-healing any stale stored score) for submitted attempts.
+      if (resultsVisible) {
+        classAttempts = await Promise.all(
+          classAttempts.map((a: any) => (a.status === "submitted" ? reconcileAttemptGrade(a) : a)),
+        );
+      }
+      const latest = classAttempts[classAttempts.length - 1] || null;
       const unlocked = !!unlockAt && now >= unlockAt;
 
       // Determine whether a (free) retake is available: latest was graded, results visible, and failed.
@@ -7445,9 +7487,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         answers[String(qn)] = option;
       }
+      // Changing an answer invalidates any previously written grade — clear it
+      // so a stale score can never be served later.
       const updated = await storage.updateExamAttempt(attempt.id, {
         answers,
         status: "in_progress",
+        score: null,
+        passed: null,
+        correctCount: null,
       } as any);
       res.json({ answers: updated?.answers || answers });
     } catch (error) {
@@ -7499,7 +7546,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (attempt.resultsVisibleAt && now >= new Date(attempt.resultsVisibleAt)) {
         return res.status(403).json({ message: "The test window has closed." });
       }
-      await storage.updateExamAttempt(attempt.id, { status: "in_progress" } as any);
+      // Reopening for edits invalidates the previously written grade.
+      await storage.updateExamAttempt(attempt.id, {
+        status: "in_progress",
+        score: null,
+        passed: null,
+        correctCount: null,
+      } as any);
       res.json({ status: "in_progress" });
     } catch (error) {
       captureRequestError(error);
@@ -7578,42 +7631,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
           resultsVisibleAt: attempt.resultsVisibleAt,
         });
       }
-      // Ensure the attempt has been graded (grade lazily if a student never pressed submit).
-      let score = attempt.score;
-      let passed = attempt.passed;
-      let correctCount = attempt.correctCount;
-      let totalQuestions = attempt.totalQuestions;
-      if (score === null || score === undefined) {
-        const graded = gradeAttempt(attempt.testCode, (attempt.answers || {}) as Record<string, string>);
-        score = graded.score;
-        passed = graded.passed;
-        correctCount = graded.correctCount;
-        totalQuestions = graded.totalQuestions;
-        await storage.updateExamAttempt(attempt.id, {
-          status: "submitted",
-          score,
-          passed,
-          correctCount,
-          totalQuestions,
-          submittedAt: attempt.submittedAt || new Date(),
-        } as any);
-      }
+      // Always re-grade the stored answers against the answer key so a stale
+      // stored score (e.g. written before answers were finalized) can never be
+      // shown; the stored row is self-healed if it disagrees.
+      const fresh = await reconcileAttemptGrade(attempt);
       res.json({
         attemptId: attempt.id,
         attemptNumber: attempt.attemptNumber,
         testCode: attempt.testCode,
-        score,
-        passed,
-        correctCount,
-        totalQuestions,
+        score: fresh.score,
+        passed: fresh.passed,
+        correctCount: fresh.correctCount,
+        totalQuestions: fresh.totalQuestions,
         passPercent: EXAM_PASS_PERCENT,
-        canRetake: passed === false && attempt.attemptNumber < 2,
+        canRetake: fresh.passed === false && attempt.attemptNumber < 2,
         supportEmail: "info@mortysdrivingschool.com",
       });
     } catch (error) {
       captureRequestError(error);
       console.error("[EXAM] Error fetching result:", error);
       res.status(500).json({ message: "Failed to fetch result" });
+    }
+  });
+
+  // Admin: reconcile all submitted exam attempts whose stored score disagrees
+  // with a fresh grading of their stored answers (one-time backfill / repair).
+  app.post("/api/admin/exam-attempts/recalculate", requireAdmin, async (req: any, res) => {
+    try {
+      const all = await storage.getAllExamAttempts();
+      const changes: any[] = [];
+      let checked = 0;
+      for (const attempt of all as any[]) {
+        if (attempt.status !== "submitted") continue;
+        checked++;
+        const graded = gradeAttempt(attempt.testCode, (attempt.answers || {}) as Record<string, string>);
+        const stale =
+          attempt.score !== graded.score ||
+          attempt.passed !== graded.passed ||
+          attempt.correctCount !== graded.correctCount ||
+          attempt.totalQuestions !== graded.totalQuestions;
+        if (!stale) continue;
+        await storage.updateExamAttempt(attempt.id, {
+          score: graded.score,
+          passed: graded.passed,
+          correctCount: graded.correctCount,
+          totalQuestions: graded.totalQuestions,
+        } as any);
+        const change = {
+          attemptId: attempt.id,
+          studentId: attempt.studentId,
+          classId: attempt.classId,
+          before: { score: attempt.score, passed: attempt.passed, correctCount: attempt.correctCount },
+          after: { score: graded.score, passed: graded.passed, correctCount: graded.correctCount },
+        };
+        changes.push(change);
+        console.log(
+          `[EXAM] Recalculate: attempt #${attempt.id} (student #${attempt.studentId}) ` +
+            `score ${attempt.score} -> ${graded.score}, passed ${attempt.passed} -> ${graded.passed}`,
+        );
+      }
+      res.json({ checked, corrected: changes.length, changes });
+    } catch (error) {
+      captureRequestError(error);
+      console.error("[EXAM] Error recalculating attempts:", error);
+      res.status(500).json({ message: "Failed to recalculate exam attempts" });
     }
   });
 
@@ -7714,10 +7795,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         testCode: attempt.testCode,
         attemptNumber: attempt.attemptNumber,
         status: attempt.status,
-        score: attempt.score ?? graded.score,
-        passed: attempt.passed ?? graded.passed,
-        correctCount: attempt.correctCount ?? graded.correctCount,
-        totalQuestions: attempt.totalQuestions ?? graded.totalQuestions,
+        // Always report the fresh grading so admin review and the student
+        // result view can never disagree.
+        score: graded.score,
+        passed: graded.passed,
+        correctCount: graded.correctCount,
+        totalQuestions: graded.totalQuestions,
         passPercent: EXAM_PASS_PERCENT,
         integrity: {
           agreed: attempt.integrityAgreed,
