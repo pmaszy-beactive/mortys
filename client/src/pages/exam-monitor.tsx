@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -14,7 +14,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Loader2, ClipboardCheck, Flag, CheckCircle2, XCircle, Clock, ArrowLeft, Eye, RefreshCcw,
+  Loader2, ClipboardCheck, Flag, CheckCircle2, XCircle, Clock, ArrowLeft, Eye, RefreshCcw, History,
 } from "lucide-react";
 
 type RecalcChange = {
@@ -30,6 +30,17 @@ type RecalcResult = {
   checked: number;
   corrected: number;
   changes: RecalcChange[];
+};
+
+type RecalcLog = {
+  id: number;
+  adminId: string;
+  adminEmail: string | null;
+  adminName: string | null;
+  checkedCount: number;
+  correctedCount: number;
+  changes: RecalcChange[];
+  createdAt: string;
 };
 
 type ExamClass = {
@@ -87,7 +98,13 @@ export default function ExamMonitor() {
   const [selectedClass, setSelectedClass] = useState<ExamClass | null>(null);
   const [reviewId, setReviewId] = useState<number | null>(null);
   const [recalcResult, setRecalcResult] = useState<RecalcResult | null>(null);
+  const [expandedLogId, setExpandedLogId] = useState<number | null>(null);
   const isAdmin = !!user;
+
+  const { data: recalcLogs = [], isLoading: recalcLogsLoading } = useQuery<RecalcLog[]>({
+    queryKey: ["/api/admin/exam-recalc-logs"],
+    enabled: isAdmin && !selectedClass,
+  });
 
   const recalcMutation = useMutation({
     mutationFn: async () =>
@@ -95,6 +112,7 @@ export default function ExamMonitor() {
     onSuccess: (result) => {
       setRecalcResult(result);
       queryClient.invalidateQueries({ queryKey: ["/api/exam/class"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/exam-recalc-logs"] });
     },
     onError: (error: any) => {
       toast({
@@ -193,6 +211,108 @@ export default function ExamMonitor() {
             )}
           </CardContent>
         </Card>
+
+        {isAdmin && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5 text-[#ECC462]" /> Recalculation History
+              </CardTitle>
+              <CardDescription>
+                Audit trail of past "Recalculate Exam Scores" runs — who ran each one, when, and which attempts changed.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {recalcLogsLoading ? (
+                <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-[#ECC462]" /></div>
+              ) : recalcLogs.length === 0 ? (
+                <p className="text-center text-gray-500 py-6 text-sm" data-testid="text-no-recalc-logs">
+                  No recalculations have been run yet.
+                </p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>When</TableHead>
+                      <TableHead>Run by</TableHead>
+                      <TableHead>Checked</TableHead>
+                      <TableHead>Corrected</TableHead>
+                      <TableHead className="text-right">Details</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recalcLogs.map((log) => (
+                      <Fragment key={log.id}>
+                        <TableRow data-testid={`row-recalc-log-${log.id}`}>
+                          <TableCell className="whitespace-nowrap" data-testid={`text-recalc-log-when-${log.id}`}>
+                            {new Date(log.createdAt).toLocaleString(undefined, {
+                              month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit",
+                            })}
+                          </TableCell>
+                          <TableCell className="font-medium" data-testid={`text-recalc-log-admin-${log.id}`}>
+                            {log.adminName || log.adminEmail || `User ${log.adminId}`}
+                            {log.adminName && log.adminEmail && (
+                              <span className="block text-xs text-gray-500 font-normal">{log.adminEmail}</span>
+                            )}
+                          </TableCell>
+                          <TableCell>{log.checkedCount}</TableCell>
+                          <TableCell>
+                            {log.correctedCount > 0 ? (
+                              <Badge variant="destructive">{log.correctedCount}</Badge>
+                            ) : (
+                              <span className="text-green-600 flex items-center gap-1 text-sm">
+                                <CheckCircle2 className="h-4 w-4" /> 0
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {log.correctedCount > 0 ? (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
+                                data-testid={`button-expand-recalc-log-${log.id}`}
+                              >
+                                {expandedLogId === log.id ? "Hide" : "View"}
+                              </Button>
+                            ) : (
+                              <span className="text-sm text-gray-400">—</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                        {expandedLogId === log.id && log.changes.length > 0 && (
+                          <TableRow key={`${log.id}-details`}>
+                            <TableCell colSpan={5} className="bg-gray-50">
+                              <div className="space-y-1 py-1">
+                                <p className="text-xs font-medium text-gray-600">Corrected attempts:</p>
+                                {log.changes.map((c) => (
+                                  <div
+                                    key={c.attemptId}
+                                    className="text-sm flex flex-wrap items-center gap-2"
+                                    data-testid={`row-recalc-log-change-${log.id}-${c.attemptId}`}
+                                  >
+                                    <span className="font-medium">{c.studentName || `Student #${c.studentId}`}</span>
+                                    <span className="text-gray-500">
+                                      {c.before.score != null ? `${c.before.score}%` : "—"}
+                                      {c.before.passed === true ? " (Pass)" : c.before.passed === false ? " (Fail)" : ""}
+                                      {" → "}
+                                      {c.after.score != null ? `${c.after.score}%` : "—"}
+                                      {c.after.passed === true ? " (Pass)" : c.after.passed === false ? " (Fail)" : ""}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </Fragment>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         <Dialog open={!!recalcResult} onOpenChange={(o) => !o && setRecalcResult(null)}>
           <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">

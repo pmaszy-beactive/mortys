@@ -7660,7 +7660,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const all = await storage.getAllExamAttempts();
       const changes: any[] = [];
+      const pendingUpdates: { id: number; data: any }[] = [];
       let checked = 0;
+      // Phase 1: read-only pass — grade every submitted attempt and collect the
+      // corrections without applying anything yet.
       for (const attempt of all as any[]) {
         if (attempt.status !== "submitted") continue;
         checked++;
@@ -7671,52 +7674,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           attempt.correctCount !== graded.correctCount ||
           attempt.totalQuestions !== graded.totalQuestions;
         if (!stale) continue;
-        await storage.updateExamAttempt(attempt.id, {
-          score: graded.score,
-          passed: graded.passed,
-          correctCount: graded.correctCount,
-          totalQuestions: graded.totalQuestions,
-        } as any);
-        const change = {
+        pendingUpdates.push({
+          id: attempt.id,
+          data: {
+            score: graded.score,
+            passed: graded.passed,
+            correctCount: graded.correctCount,
+            totalQuestions: graded.totalQuestions,
+          },
+        });
+        changes.push({
           attemptId: attempt.id,
           studentId: attempt.studentId,
           classId: attempt.classId,
+          testCode: attempt.testCode,
+          attemptNumber: attempt.attemptNumber,
           before: { score: attempt.score, passed: attempt.passed, correctCount: attempt.correctCount },
           after: { score: graded.score, passed: graded.passed, correctCount: graded.correctCount },
-        };
-        changes.push(change);
-        console.log(
-          `[EXAM] Recalculate: attempt #${attempt.id} (student #${attempt.studentId}) ` +
-            `score ${attempt.score} -> ${graded.score}, passed ${attempt.passed} -> ${graded.passed}`,
-        );
-        // Pass/fail flips are communicated to the student (email + in-app);
-        // score-only changes stay silent. Notification failures never break
-        // the recalculation itself.
-        if (attempt.passed !== graded.passed && attempt.studentId) {
-          try {
-            await notificationService.notifyExamResultCorrected({
-              studentId: attempt.studentId,
-              attemptId: attempt.id,
-              testCode: attempt.testCode,
-              oldScore: attempt.score,
-              newScore: graded.score,
-              oldPassed: attempt.passed,
-              newPassed: graded.passed,
-              passPercent: EXAM_PASS_PERCENT,
-              canRetake: graded.passed === false && attempt.attemptNumber < 2,
-            }, req.user?.id);
-            (change as any).studentNotified = true;
-          } catch (notifyError) {
-            captureRequestError(notifyError);
-            console.error(
-              `[EXAM] Failed to notify student #${attempt.studentId} about corrected result for attempt #${attempt.id}:`,
-              notifyError,
-            );
-            (change as any).studentNotified = false;
-          }
-        }
+        });
       }
-      // Enrich changed attempts with student names for the admin UI.
+      // Enrich changed attempts with student names for the admin UI + audit log.
       const uniqueStudentIds = Array.from(new Set(changes.map((c) => c.studentId).filter(Boolean)));
       const nameById = new Map<number, string>();
       for (const sid of uniqueStudentIds) {
@@ -7730,11 +7707,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const c of changes) {
         c.studentName = nameById.get(c.studentId) || null;
       }
+      // Phase 2: apply all corrections AND write the audit record (who, when,
+      // what changed) in a single transaction — if the audit log cannot be
+      // written, no scores change and the request fails loudly.
+      const admin = req.user;
+      const adminName = [admin?.firstName, admin?.lastName].filter(Boolean).join(" ").trim() || null;
+      await storage.applyExamRecalcWithAudit(pendingUpdates, {
+        adminId: String(admin?.id ?? "unknown"),
+        adminEmail: admin?.email ?? null,
+        adminName,
+        checkedCount: checked,
+        correctedCount: changes.length,
+        changes: JSON.stringify(changes),
+      });
+      for (const c of changes) {
+        console.log(
+          `[EXAM] Recalculate: attempt #${c.attemptId} (student #${c.studentId}) ` +
+            `score ${c.before.score} -> ${c.after.score}, passed ${c.before.passed} -> ${c.after.passed}`,
+        );
+        // Pass/fail flips are communicated to the student (email + in-app);
+        // score-only changes stay silent. Notifications go out only after the
+        // corrections + audit log have been committed, and a notification
+        // failure never breaks the recalculation itself.
+        if (c.before.passed !== c.after.passed && c.studentId) {
+          try {
+            await notificationService.notifyExamResultCorrected({
+              studentId: c.studentId,
+              attemptId: c.attemptId,
+              testCode: c.testCode,
+              oldScore: c.before.score,
+              newScore: c.after.score,
+              oldPassed: c.before.passed,
+              newPassed: c.after.passed,
+              passPercent: EXAM_PASS_PERCENT,
+              canRetake: c.after.passed === false && c.attemptNumber < 2,
+            }, req.user?.id);
+            c.studentNotified = true;
+          } catch (notifyError) {
+            captureRequestError(notifyError);
+            console.error(
+              `[EXAM] Failed to notify student #${c.studentId} about corrected result for attempt #${c.attemptId}:`,
+              notifyError,
+            );
+            c.studentNotified = false;
+          }
+        }
+      }
       res.json({ checked, corrected: changes.length, changes });
     } catch (error) {
       captureRequestError(error);
       console.error("[EXAM] Error recalculating attempts:", error);
       res.status(500).json({ message: "Failed to recalculate exam attempts" });
+    }
+  });
+
+  // Admin: history of past exam score recalculation runs (audit trail).
+  app.get("/api/admin/exam-recalc-logs", requireAdmin, async (req: any, res) => {
+    try {
+      const logs = await storage.getExamRecalcLogs(50);
+      res.json(logs.map((log) => {
+        let changes: any[] = [];
+        try {
+          changes = log.changes ? JSON.parse(log.changes) : [];
+        } catch {
+          // ignore malformed JSON, keep empty list
+        }
+        return { ...log, changes };
+      }));
+    } catch (error) {
+      captureRequestError(error);
+      console.error("[EXAM] Error fetching recalc logs:", error);
+      res.status(500).json({ message: "Failed to fetch recalculation history" });
     }
   });
 

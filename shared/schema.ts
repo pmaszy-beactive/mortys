@@ -733,6 +733,22 @@ export const insertAttendanceAuditLogSchema = createInsertSchema(attendanceAudit
 export type AttendanceAuditLog = typeof attendanceAuditLogs.$inferSelect;
 export type InsertAttendanceAuditLog = z.infer<typeof insertAttendanceAuditLogSchema>;
 
+// Exam Recalculation Log - audit trail for admin "Recalculate Exam Scores" runs
+export const examRecalcLogs = pgTable("exam_recalc_logs", {
+  id: serial("id").primaryKey(),
+  adminId: text("admin_id").notNull(), // users.id of the admin who ran it
+  adminEmail: text("admin_email"),
+  adminName: text("admin_name"), // Snapshot of admin display name at run time
+  checkedCount: integer("checked_count").notNull(),
+  correctedCount: integer("corrected_count").notNull(),
+  changes: text("changes"), // JSON array of changed attempts (before -> after)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertExamRecalcLogSchema = createInsertSchema(examRecalcLogs).omit({ id: true, createdAt: true });
+export type ExamRecalcLog = typeof examRecalcLogs.$inferSelect;
+export type InsertExamRecalcLog = z.infer<typeof insertExamRecalcLogSchema>;
+
 export type ZoomSettings = typeof zoomSettings.$inferSelect;
 export type InsertZoomSettings = z.infer<typeof insertZoomSettingsSchema>;
 

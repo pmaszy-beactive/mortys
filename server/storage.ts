@@ -31,6 +31,7 @@ import {
   type BookingPolicyVersion, type InsertBookingPolicyVersion,
   type PolicyOverrideLog, type InsertPolicyOverrideLog,
   attendanceAuditLogs, type AttendanceAuditLog, type InsertAttendanceAuditLog,
+  examRecalcLogs, type ExamRecalcLog, type InsertExamRecalcLog,
   type PayerProfile, type InsertPayerProfile, type PaymentIntake, type InsertPaymentIntake,
   type PaymentAllocation, type InsertPaymentAllocation, type PaymentAuditLog, type InsertPaymentAuditLog,
   type PayerProfileStudent, type InsertPayerProfileStudent,
@@ -146,6 +147,12 @@ export interface IStorage {
   // Attendance Audit Logs
   createAttendanceAuditLog(log: InsertAttendanceAuditLog): Promise<AttendanceAuditLog>;
   getAttendanceAuditLogs(filters?: { instructorId?: number; classId?: number; startDate?: string; endDate?: string; outcome?: string; action?: string }): Promise<AttendanceAuditLog[]>;
+  createExamRecalcLog(log: InsertExamRecalcLog): Promise<ExamRecalcLog>;
+  getExamRecalcLogs(limit?: number): Promise<ExamRecalcLog[]>;
+  applyExamRecalcWithAudit(
+    updates: { id: number; data: Partial<InsertExamAttempt> }[],
+    log: InsertExamRecalcLog,
+  ): Promise<ExamRecalcLog>;
   
   // Analytics
   getStudentCompletionAnalytics(enrollmentYear?: number, completionYear?: number): Promise<{
@@ -1171,6 +1178,21 @@ export class MemStorage implements IStorage {
     return [];
   }
 
+  async createExamRecalcLog(log: InsertExamRecalcLog): Promise<ExamRecalcLog> {
+    return { id: 0, ...log, createdAt: new Date() } as ExamRecalcLog;
+  }
+
+  async getExamRecalcLogs(): Promise<ExamRecalcLog[]> {
+    return [];
+  }
+
+  async applyExamRecalcWithAudit(
+    _updates: { id: number; data: Partial<InsertExamAttempt> }[],
+    log: InsertExamRecalcLog,
+  ): Promise<ExamRecalcLog> {
+    return { id: 0, ...log, createdAt: new Date() } as ExamRecalcLog;
+  }
+
   // Instructors
   async getInstructors(): Promise<Instructor[]> {
     return Array.from(this.instructors.values());
@@ -2114,6 +2136,32 @@ export class DatabaseStorage implements IStorage {
       return await db.select().from(attendanceAuditLogs).where(and(...conditions)).orderBy(sql`${attendanceAuditLogs.createdAt} DESC`);
     }
     return await db.select().from(attendanceAuditLogs).orderBy(sql`${attendanceAuditLogs.createdAt} DESC`);
+  }
+
+  async createExamRecalcLog(log: InsertExamRecalcLog): Promise<ExamRecalcLog> {
+    const [newLog] = await db.insert(examRecalcLogs).values(log).returning();
+    return newLog;
+  }
+
+  async getExamRecalcLogs(limit: number = 50): Promise<ExamRecalcLog[]> {
+    return await db.select().from(examRecalcLogs).orderBy(sql`${examRecalcLogs.createdAt} DESC`).limit(limit);
+  }
+
+  // Applies exam attempt score corrections and writes the audit log row in ONE
+  // transaction — either every correction AND its audit record persist, or none do.
+  async applyExamRecalcWithAudit(
+    updates: { id: number; data: Partial<InsertExamAttempt> }[],
+    log: InsertExamRecalcLog,
+  ): Promise<ExamRecalcLog> {
+    return await db.transaction(async (tx) => {
+      for (const u of updates) {
+        await tx.update(examAttempts)
+          .set({ ...u.data, updatedAt: new Date() })
+          .where(eq(examAttempts.id, u.id));
+      }
+      const [newLog] = await tx.insert(examRecalcLogs).values(log).returning();
+      return newLog;
+    });
   }
 
   async updatePolicyOverrideLog(id: number, updates: Partial<InsertPolicyOverrideLog>): Promise<PolicyOverrideLog> {

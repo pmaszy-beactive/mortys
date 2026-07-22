@@ -11,7 +11,7 @@ description: How the online proctored-lite exam and course start-dates features 
 - Exam support email = info@mortys.ca (flagged-question emails go there).
 - Backend engine + routes live in server/routes.ts; answer keys + helpers (testCodeForAttempt, questionImagePath, EXAM_OPTIONS, EXAM_PASS_PERCENT) in shared/examData.ts. Question images served at /exam-assets/{code}/qN.png (24 per test).
 
-- Grading is self-healing: student result/status endpoints always re-grade stored answers against the key and repair a stale stored score (never trust a stored 0); answer-save/reopen null out score/passed/correctCount; admin backfill endpoint POST /api/admin/exam-attempts/recalculate.
+- Grading is self-healing: student result/status endpoints always re-grade stored answers against the key and repair a stale stored score (never trust a stored 0); answer-save/reopen null out score/passed/correctCount; admin backfill endpoint POST /api/admin/exam-attempts/recalculate — every run must be audit-logged transactionally with the score corrections (all-or-nothing, no unaudited score changes); this is a compliance requirement.
 
 **Why:** these were locked product decisions; changing them silently breaks compliance expectations. A stored score written before answers were final once showed a student a wrong 0% — stored grades must never be treated as final over a fresh grading.
 
