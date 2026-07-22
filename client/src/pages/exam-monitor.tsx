@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +14,23 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Loader2, ClipboardCheck, Flag, CheckCircle2, XCircle, Clock, ArrowLeft, Eye,
+  Loader2, ClipboardCheck, Flag, CheckCircle2, XCircle, Clock, ArrowLeft, Eye, RefreshCcw,
 } from "lucide-react";
+
+type RecalcChange = {
+  attemptId: number;
+  studentId: number;
+  studentName?: string;
+  classId: number | null;
+  before: { score: number | null; passed: boolean | null; correctCount: number | null };
+  after: { score: number | null; passed: boolean | null; correctCount: number | null };
+};
+
+type RecalcResult = {
+  checked: number;
+  corrected: number;
+  changes: RecalcChange[];
+};
 
 type ExamClass = {
   id: number;
@@ -65,8 +82,28 @@ function statusBadge(a: AttemptRow) {
 
 export default function ExamMonitor() {
   const [, navigate] = useLocation();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [selectedClass, setSelectedClass] = useState<ExamClass | null>(null);
   const [reviewId, setReviewId] = useState<number | null>(null);
+  const [recalcResult, setRecalcResult] = useState<RecalcResult | null>(null);
+  const isAdmin = !!user;
+
+  const recalcMutation = useMutation({
+    mutationFn: async () =>
+      (await apiRequest("POST", "/api/admin/exam-attempts/recalculate")) as RecalcResult,
+    onSuccess: (result) => {
+      setRecalcResult(result);
+      queryClient.invalidateQueries({ queryKey: ["/api/exam/class"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Recalculation failed",
+        description: error?.message || "Could not recalculate exam scores.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const { data: classes = [], isLoading: classesLoading } = useQuery<ExamClass[]>({
     queryKey: ["/api/exam/classes"],
@@ -97,14 +134,32 @@ export default function ExamMonitor() {
               Select a Theory 5 class to see who is taking the online exam and their results.
             </p>
           </div>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/exam-preview")}
-            className="flex items-center gap-2 shrink-0"
-            data-testid="button-preview-exam"
-          >
-            <Eye className="h-4 w-4" /> Preview Exam
-          </Button>
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            {isAdmin && (
+              <Button
+                variant="outline"
+                onClick={() => recalcMutation.mutate()}
+                disabled={recalcMutation.isPending}
+                className="flex items-center gap-2"
+                data-testid="button-recalculate-scores"
+              >
+                {recalcMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCcw className="h-4 w-4" />
+                )}
+                Recalculate Exam Scores
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              onClick={() => navigate("/exam-preview")}
+              className="flex items-center gap-2"
+              data-testid="button-preview-exam"
+            >
+              <Eye className="h-4 w-4" /> Preview Exam
+            </Button>
+          </div>
         </div>
         <Card>
           <CardHeader>
@@ -138,6 +193,71 @@ export default function ExamMonitor() {
             )}
           </CardContent>
         </Card>
+
+        <Dialog open={!!recalcResult} onOpenChange={(o) => !o && setRecalcResult(null)}>
+          <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Exam Score Recalculation</DialogTitle>
+            </DialogHeader>
+            {recalcResult && (
+              <div className="space-y-4">
+                <div className="flex gap-6">
+                  <div>
+                    <p className="text-2xl font-bold" data-testid="text-recalc-checked">{recalcResult.checked}</p>
+                    <p className="text-sm text-gray-500">attempts checked</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold" data-testid="text-recalc-corrected">{recalcResult.corrected}</p>
+                    <p className="text-sm text-gray-500">scores corrected</p>
+                  </div>
+                </div>
+                {recalcResult.corrected === 0 ? (
+                  <p className="text-sm text-green-600 flex items-center gap-2" data-testid="text-recalc-clean">
+                    <CheckCircle2 className="h-4 w-4" /> All submitted exam scores are correct — nothing needed fixing.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Corrected attempts:</p>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Student</TableHead>
+                          <TableHead>Before</TableHead>
+                          <TableHead>After</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {recalcResult.changes.map((c) => (
+                          <TableRow key={c.attemptId} data-testid={`row-recalc-${c.attemptId}`}>
+                            <TableCell className="font-medium">
+                              {c.studentName || `Student #${c.studentId}`}
+                            </TableCell>
+                            <TableCell>
+                              {c.before.score != null ? `${c.before.score}%` : "—"}{" "}
+                              {c.before.passed === true ? (
+                                <Badge className="bg-green-600 ml-1">Pass</Badge>
+                              ) : c.before.passed === false ? (
+                                <Badge variant="destructive" className="ml-1">Fail</Badge>
+                              ) : null}
+                            </TableCell>
+                            <TableCell>
+                              {c.after.score != null ? `${c.after.score}%` : "—"}{" "}
+                              {c.after.passed === true ? (
+                                <Badge className="bg-green-600 ml-1">Pass</Badge>
+                              ) : c.after.passed === false ? (
+                                <Badge variant="destructive" className="ml-1">Fail</Badge>
+                              ) : null}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }

@@ -7690,6 +7690,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             `score ${attempt.score} -> ${graded.score}, passed ${attempt.passed} -> ${graded.passed}`,
         );
       }
+      // Enrich changed attempts with student names for the admin UI.
+      const uniqueStudentIds = Array.from(new Set(changes.map((c) => c.studentId).filter(Boolean)));
+      const nameById = new Map<number, string>();
+      for (const sid of uniqueStudentIds) {
+        try {
+          const student = await storage.getStudent(sid);
+          if (student) nameById.set(sid, `${student.firstName} ${student.lastName}`.trim());
+        } catch {
+          // name lookup is best-effort only
+        }
+      }
+      for (const c of changes) {
+        c.studentName = nameById.get(c.studentId) || null;
+      }
       res.json({ checked, corrected: changes.length, changes });
     } catch (error) {
       captureRequestError(error);
