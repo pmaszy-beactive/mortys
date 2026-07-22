@@ -24,6 +24,7 @@ type RecalcChange = {
   classId: number | null;
   before: { score: number | null; passed: boolean | null; correctCount: number | null };
   after: { score: number | null; passed: boolean | null; correctCount: number | null };
+  studentNotified?: boolean;
 };
 
 type RecalcResult = {
@@ -344,6 +345,7 @@ export default function ExamMonitor() {
                           <TableHead>Student</TableHead>
                           <TableHead>Before</TableHead>
                           <TableHead>After</TableHead>
+                          <TableHead>Notification</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -367,6 +369,21 @@ export default function ExamMonitor() {
                               ) : c.after.passed === false ? (
                                 <Badge variant="destructive" className="ml-1">Fail</Badge>
                               ) : null}
+                            </TableCell>
+                            <TableCell>
+                              {c.studentNotified === true ? (
+                                <Badge className="bg-green-600" data-testid={`badge-notified-${c.attemptId}`}>
+                                  <CheckCircle2 className="h-3 w-3 mr-1" /> Student notified
+                                </Badge>
+                              ) : c.studentNotified === false ? (
+                                <Badge variant="destructive" data-testid={`badge-notify-failed-${c.attemptId}`}>
+                                  <XCircle className="h-3 w-3 mr-1" /> Notification failed — contact student
+                                </Badge>
+                              ) : (
+                                <span className="text-sm text-gray-500" data-testid={`text-no-notify-${c.attemptId}`}>
+                                  Not needed (score-only change)
+                                </span>
+                              )}
                             </TableCell>
                           </TableRow>
                         ))}
