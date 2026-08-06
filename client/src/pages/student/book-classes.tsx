@@ -1,10 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +24,6 @@ import {
   Users,
   CheckCircle2,
   AlertCircle,
-  Filter,
   Info,
   AlertTriangle,
 } from "lucide-react";
@@ -93,14 +91,13 @@ export default function BookClasses() {
   const [, setLocation] = useLocation();
   const { student, isLoading: authLoading, isAuthenticated } = useStudentAuth();
   const { toast } = useToast();
-  const [courseTypeFilter, setCourseTypeFilter] = useState<string>("all");
   const [selectedClass, setSelectedClass] = useState<AvailableClass | null>(null);
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
 
   const { data: classesResponse, isLoading: classesLoading } = useQuery<AvailableClassesResponse>({
-    queryKey: ["/api/student/classes/available", { courseType: courseTypeFilter !== "all" ? courseTypeFilter : undefined }],
+    queryKey: ["/api/student/classes/available"],
     enabled: isAuthenticated,
   });
   
@@ -139,18 +136,8 @@ export default function BookClasses() {
     },
   });
 
-  const filteredClasses = useMemo(() => {
-    return availableClasses.filter((classItem) => {
-      if (courseTypeFilter !== "all" && classItem.courseType.toLowerCase() !== courseTypeFilter) {
-        return false;
-      }
-      return true;
-    });
-  }, [availableClasses, courseTypeFilter]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [courseTypeFilter]);
+  // The server already restricts results to the student's own course type.
+  const filteredClasses = availableClasses;
 
   const totalPages = Math.max(1, Math.ceil(filteredClasses.length / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
@@ -242,10 +229,17 @@ export default function BookClasses() {
                     {classLabel}
                   </h3>
                   <p className="text-sm text-gray-400">
-                    <span className="flex items-center gap-1" data-testid={`text-instructor-${classItem.id}`}>
-                      <User className="h-3 w-3" />
-                      {classItem.instructorName}
-                    </span>
+                    {classItem.instructorId && classItem.instructorName?.trim() ? (
+                      <span className="flex items-center gap-1" data-testid={`text-instructor-${classItem.id}`}>
+                        <User className="h-3 w-3" />
+                        {classItem.instructorName}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-amber-600" data-testid={`text-instructor-${classItem.id}`}>
+                        <User className="h-3 w-3" />
+                        No instructor assigned yet
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -511,29 +505,6 @@ export default function BookClasses() {
           </CardContent>
         </Card>
 
-        {/* Filters */}
-        <Card className="border border-gray-200 rounded-md shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">Filter by:</span>
-              </div>
-              <Select value={courseTypeFilter} onValueChange={setCourseTypeFilter}>
-                <SelectTrigger className="w-[150px] rounded-md" data-testid="select-course-filter">
-                  <SelectValue placeholder="Course Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Courses</SelectItem>
-                  <SelectItem value="auto">Auto</SelectItem>
-                  <SelectItem value="moto">Moto</SelectItem>
-                  <SelectItem value="scooter">Scooter</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Available Classes List */}
         {filteredClasses.length === 0 ? (
           <Card className="border border-gray-200 rounded-md shadow-sm">
@@ -647,7 +618,11 @@ export default function BookClasses() {
                   <h4 className="font-semibold">
                     {selectedClass.courseType.toUpperCase()} - Class {selectedClass.classNumber}
                   </h4>
-                  <p className="text-sm text-gray-600">{selectedClass.instructorName}</p>
+                  <p className="text-sm text-gray-600">
+                    {selectedClass.instructorId && selectedClass.instructorName?.trim()
+                      ? selectedClass.instructorName
+                      : "No instructor assigned yet"}
+                  </p>
                 </div>
               </div>
 

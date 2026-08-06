@@ -9667,10 +9667,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: any, res) => {
       try {
         const student = req.student;
-        const { courseType, instructorId, startDate, endDate } = req.query;
+        const { instructorId, startDate, endDate } = req.query;
 
-        const filters: any = {};
-        if (courseType) filters.courseType = courseType;
+        // Students only ever see classes for their own course type — the
+        // client cannot widen this via query params.
+        const filters: any = {
+          courseType: (student.courseType || 'auto').toLowerCase(),
+        };
         if (instructorId) filters.instructorId = parseInt(instructorId);
         if (startDate) filters.startDate = startDate;
         if (endDate) filters.endDate = endDate;
@@ -10091,6 +10094,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const classData = await storage.getClass(classId);
         if (!classData) {
           return res.status(404).json({ message: "Class not found" });
+        }
+
+        // Students may only book classes for their own course type — mirrors
+        // the server-side filter on the available-classes listing.
+        const studentCourseTypeCheck = (student.courseType || 'auto').toLowerCase();
+        if ((classData.courseType || '').toLowerCase() !== studentCourseTypeCheck) {
+          return res.status(403).json({
+            message: "This class is for a different course type than yours.",
+            policyViolation: "course_type_mismatch",
+          });
         }
 
         // Reject bookings for classes whose scheduled start time has already
