@@ -4,4 +4,5 @@
 - [Tailwind theme alpha](tailwind-theme-alpha.md) — theme vars now raw HSL channels + `<alpha-value>`; new theme colors must follow that format or /N variants silently break.
 - [In-browser verification](browser-verification.md) — Puppeteer + system Chromium work in dev; inflated innerWidth = real horizontal overflow (flex-1 missing min-w-0), not an emulation quirk.
 - [Migration baseline](migration-baseline.md) — post-merge "relation already exists" means dev DB got schema via push before tracking; baseline the migration hash, don't replay.
+- [Billing invoice lifecycle](billing-invoice-lifecycle.md) — status changes only via conditional UPDATE claims; two-step Stripe charge; legacy payments negative totals; SUBSTRING FROM param is a Drizzle trap.
 - [Class times are school-local](class-times-school-timezone.md) — never compare class date/time strings as server-local on the UTC server; use the SCHOOL_TIMEZONE helpers. Also: a migration .sql without a _journal.json entry silently never applies.

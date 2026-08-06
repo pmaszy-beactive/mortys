@@ -15,10 +15,14 @@ import { captureRequestError } from "./services/error-logger";
 import { checkClassStart, getClassStartTime, formatClassSchedule } from "./services/class-time";
 import { validateProgressionForStudent, withStudentBookingLock } from "./services/booking-validation";
 import { enqueueJob, retryJob, cancelJob as cancelQueueJob, runJobNow, getBillingHoldUntil, isBillingHoldActive, getRegisteredJobTypes, validateEnqueueInput } from "./job-queue";
+import {
+  getTaxRates, computeInvoiceTotals, createInvoiceWithNumber, getEffectivePackagePrice,
+  logPricingChange, ensureBillingCustomer, computeBillingReport, recordInvoicePayment, refundVoidedInvoiceCharge,
+} from "./services/billing";
 import { jobs as jobsTable, JOB_STATUSES, JOB_CATEGORIES, type JobCategory } from "@shared/schema";
 import { desc as descOrder } from "drizzle-orm";
 import { db } from "./db";
-import { sql, eq, and, not, isNull, isNotNull, ne, count } from "drizzle-orm";
+import { sql, eq, and, not, isNull, isNotNull, ne, count, desc } from "drizzle-orm";
 import {
   lessonRecords,
   students,
@@ -1877,6 +1881,547 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       captureRequestError(error);
       res.status(500).json({ message: "Failed to run job" });
+    }
+  });
+
+  // ==================== In-house Billing (admin) ====================
+  // All pricing/invoicing lives in the app's own tables; Stripe is only the
+  // card processor. Heavy work runs through the job queue (billing category).
+
+  // --- Tax rates ---
+  app.get("/api/admin/billing/tax-rates", requireAdmin, async (_req: any, res) => {
+    try {
+      res.json(await getTaxRates());
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to fetch tax rates" });
+    }
+  });
+
+  app.put("/api/admin/billing/tax-rates", requireAdmin, async (req: any, res) => {
+    try {
+      const { gstRate, qstRate } = req.body;
+      for (const [key, value] of [["gstRate", gstRate], ["qstRate", qstRate]] as const) {
+        if (value !== undefined && (typeof value !== "number" || !isFinite(value) || value < 0 || value > 100)) {
+          return res.status(400).json({ message: `${key} must be a number between 0 and 100` });
+        }
+      }
+      const before = await getTaxRates();
+      if (gstRate !== undefined) await storage.setSetting("billingGstRate", String(gstRate));
+      if (qstRate !== undefined) await storage.setSetting("billingQstRate", String(qstRate));
+      const after = await getTaxRates();
+      await logPricingChange({ settingKey: "taxRates", action: "updated", before, after, changedBy: req.user?.id });
+      res.json(after);
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to update tax rates" });
+    }
+  });
+
+  // --- Pricing catalog ---
+  app.get("/api/admin/billing/lesson-packages", requireAdmin, async (_req: any, res) => {
+    try {
+      res.json(await storage.getLessonPackages());
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to fetch lesson packages" });
+    }
+  });
+
+  app.get("/api/admin/billing/pricing", requireAdmin, async (_req: any, res) => {
+    try {
+      const { pricingItems } = await import("@shared/schema");
+      const items = await db.select().from(pricingItems).orderBy(pricingItems.itemType, pricingItems.name);
+      res.json(items);
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to fetch pricing items" });
+    }
+  });
+
+  app.post("/api/admin/billing/pricing", requireAdmin, async (req: any, res) => {
+    try {
+      const { pricingItems, insertPricingItemSchema, PRICING_ITEM_TYPES } = await import("@shared/schema");
+      const parsed = insertPricingItemSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid pricing item", errors: parsed.error.flatten().fieldErrors });
+      }
+      if (!(PRICING_ITEM_TYPES as readonly string[]).includes(parsed.data.itemType)) {
+        return res.status(400).json({ message: `itemType must be one of: ${PRICING_ITEM_TYPES.join(", ")}` });
+      }
+      const amount = parseFloat(String(parsed.data.amount));
+      if (!isFinite(amount) || amount < 0 || amount > 100000) {
+        return res.status(400).json({ message: "amount must be between 0 and 100,000" });
+      }
+      const [item] = await db.insert(pricingItems).values(parsed.data).returning();
+      await logPricingChange({ pricingItemId: item.id, action: "created", after: item, changedBy: req.user?.id });
+      res.status(201).json(item);
+    } catch (error: any) {
+      captureRequestError(error);
+      if (error?.code === "23505") return res.status(409).json({ message: "A pricing item with this code already exists" });
+      res.status(500).json({ message: "Failed to create pricing item" });
+    }
+  });
+
+  app.put("/api/admin/billing/pricing/:id", requireAdmin, async (req: any, res) => {
+    try {
+      const { pricingItems, insertPricingItemSchema } = await import("@shared/schema");
+      const id = parseInt(req.params.id);
+      const [existing] = await db.select().from(pricingItems).where(eq(pricingItems.id, id));
+      if (!existing) return res.status(404).json({ message: "Pricing item not found" });
+      const parsed = insertPricingItemSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid pricing item", errors: parsed.error.flatten().fieldErrors });
+      }
+      if (parsed.data.amount !== undefined) {
+        const amount = parseFloat(String(parsed.data.amount));
+        if (!isFinite(amount) || amount < 0 || amount > 100000) {
+          return res.status(400).json({ message: "amount must be between 0 and 100,000" });
+        }
+      }
+      const [updated] = await db.update(pricingItems)
+        .set({ ...parsed.data, updatedAt: new Date() })
+        .where(eq(pricingItems.id, id)).returning();
+      const action = parsed.data.isActive === false && existing.isActive ? "deactivated"
+        : parsed.data.isActive === true && !existing.isActive ? "activated" : "updated";
+      await logPricingChange({ pricingItemId: id, action, before: existing, after: updated, changedBy: req.user?.id });
+      res.json(updated);
+    } catch (error: any) {
+      captureRequestError(error);
+      if (error?.code === "23505") return res.status(409).json({ message: "A pricing item with this code already exists" });
+      res.status(500).json({ message: "Failed to update pricing item" });
+    }
+  });
+
+  app.get("/api/admin/billing/pricing-history", requireAdmin, async (req: any, res) => {
+    try {
+      const { pricingChangeLogs, pricingItems, users } = await import("@shared/schema");
+      const itemId = req.query.pricingItemId ? parseInt(req.query.pricingItemId as string) : undefined;
+      const rows = await db.select({
+        log: pricingChangeLogs,
+        itemName: pricingItems.name,
+        changedByEmail: users.email,
+      }).from(pricingChangeLogs)
+        .leftJoin(pricingItems, eq(pricingChangeLogs.pricingItemId, pricingItems.id))
+        .leftJoin(users, eq(pricingChangeLogs.changedBy, users.id))
+        .where(itemId ? eq(pricingChangeLogs.pricingItemId, itemId) : undefined)
+        .orderBy(desc(pricingChangeLogs.createdAt))
+        .limit(200);
+      res.json(rows.map((r) => ({ ...r.log, itemName: r.itemName, changedByEmail: r.changedByEmail })));
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to fetch pricing history" });
+    }
+  });
+
+  // --- Billing customers ---
+  app.get("/api/admin/billing/customers", requireAdmin, async (_req: any, res) => {
+    try {
+      const { billingCustomers, students } = await import("@shared/schema");
+      const rows = await db.select({
+        customer: billingCustomers,
+        firstName: students.firstName,
+        lastName: students.lastName,
+        studentEmail: students.email,
+      }).from(billingCustomers)
+        .innerJoin(students, eq(billingCustomers.studentId, students.id))
+        .orderBy(desc(billingCustomers.updatedAt));
+      res.json(rows.map((r) => ({ ...r.customer, firstName: r.firstName, lastName: r.lastName, studentEmail: r.studentEmail })));
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to fetch billing customers" });
+    }
+  });
+
+  app.put("/api/admin/billing/customers/:id", requireAdmin, async (req: any, res) => {
+    try {
+      const { billingCustomers } = await import("@shared/schema");
+      const id = parseInt(req.params.id);
+      const allowed = ["billingName", "billingEmail", "billingPhone", "billingAddress", "notes"] as const;
+      const updates: Record<string, string | null> = {};
+      for (const key of allowed) {
+        if (key in req.body) {
+          const v = req.body[key];
+          if (v !== null && typeof v !== "string") return res.status(400).json({ message: `${key} must be a string` });
+          updates[key] = v;
+        }
+      }
+      if (Object.keys(updates).length === 0) return res.status(400).json({ message: "No valid fields to update" });
+      const [updated] = await db.update(billingCustomers)
+        .set({ ...updates, syncStatus: "pending", updatedAt: new Date() })
+        .where(eq(billingCustomers.id, id)).returning();
+      if (!updated) return res.status(404).json({ message: "Billing customer not found" });
+      // Keep Stripe in sync via a queued job.
+      await enqueueJob({ type: "billing:sync-customer", category: "billing", payload: { studentId: updated.studentId } });
+      res.json(updated);
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to update billing customer" });
+    }
+  });
+
+  app.post("/api/admin/billing/customers/:studentId/sync", requireAdmin, async (req: any, res) => {
+    try {
+      const studentId = parseInt(req.params.studentId);
+      const student = await storage.getStudent(studentId);
+      if (!student) return res.status(404).json({ message: "Student not found" });
+      await ensureBillingCustomer(studentId);
+      const job = await enqueueJob({ type: "billing:sync-customer", category: "billing", payload: { studentId } });
+      res.status(202).json({ jobId: job.id, message: "Customer sync job enqueued" });
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to enqueue customer sync" });
+    }
+  });
+
+  app.post("/api/admin/billing/customers/sync-all", requireAdmin, async (_req: any, res) => {
+    try {
+      const job = await enqueueJob({ type: "billing:sync-all-customers", category: "billing" });
+      res.status(202).json({ jobId: job.id, message: "Bulk customer sync job enqueued" });
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to enqueue bulk sync" });
+    }
+  });
+
+  // --- Invoices ---
+  app.get("/api/admin/billing/invoices", requireAdmin, async (req: any, res) => {
+    try {
+      const { invoices, students } = await import("@shared/schema");
+      const status = req.query.status as string | undefined;
+      const rows = await db.select({
+        invoice: invoices,
+        firstName: students.firstName,
+        lastName: students.lastName,
+      }).from(invoices)
+        .innerJoin(students, eq(invoices.studentId, students.id))
+        .where(status && status !== "all" ? eq(invoices.status, status) : undefined)
+        .orderBy(desc(invoices.createdAt))
+        .limit(500);
+      res.json(rows.map((r) => ({ ...r.invoice, studentName: `${r.firstName} ${r.lastName}` })));
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to fetch invoices" });
+    }
+  });
+
+  app.post("/api/admin/billing/invoices", requireAdmin, async (req: any, res) => {
+    try {
+      const { invoices } = await import("@shared/schema");
+      const { studentId, lineItems, dueDate, description, notes } = req.body;
+      if (!studentId || !Number.isInteger(studentId)) return res.status(400).json({ message: "studentId is required" });
+      const student = await storage.getStudent(studentId);
+      if (!student) return res.status(404).json({ message: "Student not found" });
+      if (!Array.isArray(lineItems) || lineItems.length === 0) {
+        return res.status(400).json({ message: "At least one line item is required" });
+      }
+      for (const li of lineItems) {
+        if (!li.description || typeof li.description !== "string") return res.status(400).json({ message: "Each line item needs a description" });
+        const qty = Number(li.quantity), unit = parseFloat(li.unitAmount);
+        if (!Number.isInteger(qty) || qty < 1 || qty > 1000) return res.status(400).json({ message: "Line item quantity must be an integer between 1 and 1000" });
+        if (!isFinite(unit) || unit < 0 || unit > 100000) return res.status(400).json({ message: "Line item unit amount must be between 0 and 100,000" });
+      }
+      if (dueDate !== undefined && dueDate !== null && dueDate !== "" && isNaN(new Date(dueDate).getTime())) {
+        return res.status(400).json({ message: "dueDate must be a valid date" });
+      }
+      const rates = await getTaxRates();
+      const totals = computeInvoiceTotals(lineItems, rates);
+      if (parseFloat(totals.total) <= 0) return res.status(400).json({ message: "Invoice total must be greater than zero" });
+      await ensureBillingCustomer(studentId);
+      const invoice = await createInvoiceWithNumber({
+        studentId,
+        amount: totals.total,
+        subtotal: totals.subtotal,
+        gst: totals.gst,
+        qst: totals.qst,
+        lineItems,
+        dueDate: dueDate || null,
+        status: "draft",
+        description: description || lineItems.map((li: any) => li.description).join(", "),
+        notes: notes || null,
+        createdBy: req.user?.id ?? null,
+      });
+      res.status(201).json(invoice);
+    } catch (error) {
+      captureRequestError(error);
+      console.error("Error creating invoice:", error);
+      res.status(500).json({ message: "Failed to create invoice" });
+    }
+  });
+
+  app.post("/api/admin/billing/invoices/:id/submit", requireAdmin, async (req: any, res) => {
+    try {
+      const { invoices } = await import("@shared/schema");
+      const id = parseInt(req.params.id);
+      const method = req.body?.method === "email" ? "email" : "charge_card";
+      const [invoice] = await db.select().from(invoices).where(eq(invoices.id, id));
+      if (!invoice) return res.status(404).json({ message: "Invoice not found" });
+      // Atomically claim the transition to "submitted" so a double-click or a
+      // concurrent submit cannot enqueue two jobs for the same invoice.
+      const { inArray } = await import("drizzle-orm");
+      const [claimed] = await db.update(invoices)
+        .set({ status: "submitted", submissionMethod: method, updatedAt: new Date() })
+        .where(and(eq(invoices.id, id), inArray(invoices.status, ["draft", "failed", "unpaid", "overdue"])))
+        .returning();
+      if (!claimed) {
+        return res.status(409).json({ message: `Invoice cannot be submitted from status "${invoice.status}"` });
+      }
+      const job = await enqueueJob({ type: "billing:submit-invoice", category: "billing", payload: { invoiceId: id, method } });
+      res.status(202).json({ jobId: job.id, message: `Invoice submission job enqueued (${method})` });
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to enqueue invoice submission" });
+    }
+  });
+
+  app.post("/api/admin/billing/invoices/:id/void", requireAdmin, async (req: any, res) => {
+    try {
+      const { invoices } = await import("@shared/schema");
+      const id = parseInt(req.params.id);
+      const [invoice] = await db.select().from(invoices).where(eq(invoices.id, id));
+      if (!invoice) return res.status(404).json({ message: "Invoice not found" });
+      if (invoice.status === "paid") return res.status(409).json({ message: "Paid invoices cannot be voided" });
+      if (invoice.status === "void") return res.status(409).json({ message: "Invoice is already void" });
+      if (invoice.status === "charging") {
+        // A pending 3DS flow holds the claim with a persisted PaymentIntent.
+        // Void is allowed only if we can cancel that intent first; a charge job
+        // mid-flight (no intent yet, or an uncancellable one) blocks the void.
+        if (invoice.stripePaymentIntentId && stripe) {
+          const pi = await stripe.paymentIntents.retrieve(invoice.stripePaymentIntentId);
+          if (pi.status === "succeeded") return res.status(409).json({ message: "This invoice was just charged — it cannot be voided" });
+          if (pi.status !== "canceled") {
+            try {
+              await stripe.paymentIntents.cancel(pi.id);
+            } catch {
+              return res.status(409).json({ message: "A charge is in progress — try again shortly" });
+            }
+          }
+          // Intent is dead — void conditionally on the exact claim we cancelled.
+          const [voided] = await db.update(invoices)
+            .set({ status: "void", voidedAt: new Date(), updatedAt: new Date() })
+            .where(and(eq(invoices.id, id), eq(invoices.status, "charging"), eq(invoices.stripePaymentIntentId, pi.id)))
+            .returning();
+          if (!voided) return res.status(409).json({ message: "Invoice state changed — refresh and try again" });
+          return res.json(voided);
+        } else {
+          return res.status(409).json({ message: "A charge is in progress — try again shortly" });
+        }
+      }
+      // Conditional update so a void can never overwrite a concurrent payment or charge.
+      const { notInArray } = await import("drizzle-orm");
+      const [updated] = await db.update(invoices)
+        .set({ status: "void", voidedAt: new Date(), updatedAt: new Date() })
+        .where(and(eq(invoices.id, id), notInArray(invoices.status, ["paid", "void", "cancelled", "charging"])))
+        .returning();
+      if (!updated) return res.status(409).json({ message: "Invoice state changed — refresh and try again" });
+      res.json(updated);
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to void invoice" });
+    }
+  });
+
+  // --- Reporting ---
+  app.get("/api/admin/billing/report", requireAdmin, async (req: any, res) => {
+    try {
+      const report = await computeBillingReport(req.query.startDate as string | undefined, req.query.endDate as string | undefined);
+      res.json(report);
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to compute billing report" });
+    }
+  });
+
+  app.get("/api/admin/billing/report.csv", requireAdmin, async (req: any, res) => {
+    try {
+      const report = await computeBillingReport(req.query.startDate as string | undefined, req.query.endDate as string | undefined);
+      const lines = [
+        "Metric,Count,Amount",
+        `Revenue (payments),${report.paymentCount},${report.revenue.toFixed(2)}`,
+        `Refunds,,${report.refunds.toFixed(2)}`,
+        `Net revenue,,${report.netRevenue.toFixed(2)}`,
+        `Invoices paid,${report.invoicesPaid},${report.invoicesPaidAmount.toFixed(2)}`,
+        `Outstanding invoices,${report.outstandingCount},${report.outstandingAmount.toFixed(2)}`,
+        `Failed charges,${report.failedCount},${report.failedAmount.toFixed(2)}`,
+        `Aging 0-30 days,${report.aging.current},${report.agingAmounts.current.toFixed(2)}`,
+        `Aging 31-60 days,${report.aging.days31to60},${report.agingAmounts.days31to60.toFixed(2)}`,
+        `Aging 61-90 days,${report.aging.days61to90},${report.agingAmounts.days61to90.toFixed(2)}`,
+        `Aging 90+ days,${report.aging.over90},${report.agingAmounts.over90.toFixed(2)}`,
+      ];
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", `attachment; filename="billing-report-${report.startDate}-to-${report.endDate}.csv"`);
+      res.send(lines.join("\n"));
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to export billing report" });
+    }
+  });
+
+  app.post("/api/admin/billing/report-job", requireAdmin, async (req: any, res) => {
+    try {
+      const { startDate, endDate } = req.body || {};
+      for (const d of [startDate, endDate]) {
+        if (d !== undefined && d !== null && d !== "" && isNaN(new Date(d).getTime())) {
+          return res.status(400).json({ message: "Dates must be valid" });
+        }
+      }
+      const job = await enqueueJob({ type: "billing:report", category: "billing", payload: { startDate, endDate } });
+      res.status(202).json({ jobId: job.id, message: "Report job enqueued — output will appear in Job Control" });
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to enqueue report job" });
+    }
+  });
+
+  // --- Student: view & pay invoices in-app ---
+  app.get("/api/student/billing/invoices", isStudentAuthenticated, async (req: any, res) => {
+    try {
+      const { invoices } = await import("@shared/schema");
+      const rows = await db.select().from(invoices)
+        .where(eq(invoices.studentId, req.student.id))
+        .orderBy(desc(invoices.createdAt));
+      // Students never see drafts.
+      res.json(rows.filter((i) => i.status !== "draft"));
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to fetch invoices" });
+    }
+  });
+
+  app.post("/api/student/billing/invoices/:id/pay", isStudentAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) return res.status(500).json({ message: "Payment system is not configured" });
+      const { invoices, studentPaymentMethods } = await import("@shared/schema");
+      const student = req.student;
+      const id = parseInt(req.params.id);
+      const [invoice] = await db.select().from(invoices)
+        .where(and(eq(invoices.id, id), eq(invoices.studentId, student.id)));
+      if (!invoice) return res.status(404).json({ message: "Invoice not found" });
+      if (invoice.status === "paid") return res.status(409).json({ message: "Invoice is already paid" });
+      if (invoice.status === "charging") {
+        // A claim is live (admin job, another tab, or a pending 3DS flow).
+        // Reconcile against the persisted PaymentIntent instead of guessing.
+        if (invoice.stripePaymentIntentId) {
+          const pi = await stripe.paymentIntents.retrieve(invoice.stripePaymentIntentId);
+          if (pi.status === "succeeded") {
+            const outcome = await recordInvoicePayment(invoice, pi.id, null);
+            if (outcome === "voided") {
+              await refundVoidedInvoiceCharge(invoice, pi.id);
+              return res.status(409).json({ message: "This invoice was voided — your payment has been refunded" });
+            }
+            return res.json({ status: "paid", invoiceId: invoice.id });
+          }
+          if (pi.status === "requires_action") {
+            return res.status(202).json({ status: "requires_action", clientSecret: pi.client_secret, paymentIntentId: pi.id });
+          }
+          if (["canceled", "requires_payment_method"].includes(pi.status)) {
+            // Dead intent from an abandoned/failed attempt — release the claim.
+            await db.update(invoices).set({ status: "failed", failureReason: `Previous payment attempt ${pi.status}`, updatedAt: new Date() })
+              .where(and(eq(invoices.id, id), eq(invoices.status, "charging")));
+            return res.status(409).json({ message: "Previous payment attempt expired — please try again" });
+          }
+        }
+        return res.status(409).json({ message: "A payment for this invoice is already in progress" });
+      }
+      if (!["submitted", "failed", "unpaid", "overdue"].includes(invoice.status)) {
+        return res.status(409).json({ message: "This invoice cannot be paid right now" });
+      }
+      const { paymentMethodId } = req.body;
+      const methods = await db.select().from(studentPaymentMethods).where(eq(studentPaymentMethods.studentId, student.id));
+      const card = paymentMethodId ? methods.find((m) => m.id === paymentMethodId) : (methods.find((m) => m.isDefault) || methods[0]);
+      if (!card) return res.status(400).json({ message: "No saved payment method — please add a card first" });
+
+      // Atomically claim the invoice ("charging") so an admin charge job or a
+      // duplicate click cannot charge it at the same time.
+      const { inArray: inArr } = await import("drizzle-orm");
+      const [claimed] = await db.update(invoices)
+        .set({ status: "charging", updatedAt: new Date() })
+        .where(and(eq(invoices.id, id), inArr(invoices.status, ["submitted", "failed", "unpaid", "overdue"])))
+        .returning();
+      if (!claimed) return res.status(409).json({ message: "Invoice state changed — refresh and try again" });
+
+      try {
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: Math.round(parseFloat(invoice.amount) * 100),
+          currency: "cad",
+          customer: student.stripeCustomerId || undefined,
+          payment_method: card.stripePaymentMethodId,
+          confirm: true,
+          description: `Invoice ${invoice.invoiceNumber}: ${invoice.description}`,
+          metadata: { invoiceId: String(invoice.id), studentId: String(student.id), purpose: "invoice" },
+          return_url: `${process.env.APP_URL || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'http://localhost:5000')}/student/billing`,
+        }, { idempotencyKey: `invoice-pay-${invoice.id}-${claimed.updatedAt?.getTime() ?? Date.now()}` });
+
+        if (paymentIntent.status === "requires_action") {
+          // Keep the "charging" claim alive during 3DS so a void cannot race
+          // the pending authorization; persist the intent so /confirm, retries,
+          // and void can all reconcile against it.
+          await db.update(invoices).set({ stripePaymentIntentId: paymentIntent.id, updatedAt: new Date() })
+            .where(and(eq(invoices.id, id), eq(invoices.status, "charging")));
+          return res.status(202).json({ status: "requires_action", clientSecret: paymentIntent.client_secret, paymentIntentId: paymentIntent.id });
+        }
+        if (paymentIntent.status !== "succeeded") {
+          await db.update(invoices).set({ status: "failed", failureReason: paymentIntent.last_payment_error?.message || paymentIntent.status, updatedAt: new Date() })
+            .where(and(eq(invoices.id, id), eq(invoices.status, "charging")));
+          return res.status(400).json({ message: "Payment failed", status: paymentIntent.status, details: paymentIntent.last_payment_error?.message });
+        }
+        const outcome = await recordInvoicePayment(claimed, paymentIntent.id, card.cardBrand);
+        if (outcome === "voided") {
+          await refundVoidedInvoiceCharge(claimed, paymentIntent.id);
+          return res.status(409).json({ message: "This invoice was voided — your payment has been refunded" });
+        }
+        res.json({ status: "paid", invoiceId: invoice.id });
+      } catch (chargeError: any) {
+        await db.update(invoices).set({ status: "failed", failureReason: chargeError?.message || String(chargeError), updatedAt: new Date() })
+          .where(and(eq(invoices.id, id), eq(invoices.status, "charging")));
+        throw chargeError;
+      }
+    } catch (error: any) {
+      captureRequestError(error);
+      console.error("Error paying invoice:", error);
+      if (error.type === "StripeCardError") return res.status(400).json({ message: error.message || "Card declined" });
+      res.status(500).json({ message: error.message || "Failed to pay invoice" });
+    }
+  });
+
+  app.post("/api/student/billing/invoices/:id/confirm", isStudentAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) return res.status(500).json({ message: "Payment system is not configured" });
+      const { invoices } = await import("@shared/schema");
+      const student = req.student;
+      const id = parseInt(req.params.id);
+      const { paymentIntentId } = req.body;
+      if (!paymentIntentId) return res.status(400).json({ message: "paymentIntentId is required" });
+      const [invoice] = await db.select().from(invoices)
+        .where(and(eq(invoices.id, id), eq(invoices.studentId, student.id)));
+      if (!invoice) return res.status(404).json({ message: "Invoice not found" });
+      if (invoice.status === "paid") return res.json({ status: "paid", invoiceId: invoice.id });
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      if (paymentIntent.metadata.invoiceId !== String(invoice.id) || paymentIntent.metadata.studentId !== String(student.id)) {
+        return res.status(403).json({ message: "Payment does not belong to this invoice" });
+      }
+      if (invoice.status === "void" || invoice.status === "cancelled") {
+        // Void raced the 3DS flow: if the charge went through, refund it now.
+        if (paymentIntent.status === "succeeded") {
+          await refundVoidedInvoiceCharge(invoice, paymentIntent.id);
+          return res.status(409).json({ message: "This invoice was voided — your payment has been refunded" });
+        }
+        return res.status(409).json({ message: "This invoice was voided — no payment was taken" });
+      }
+      if (paymentIntent.status !== "succeeded") {
+        return res.status(400).json({ message: "Payment not yet completed", status: paymentIntent.status });
+      }
+      const methods = await storage.getStudentPaymentMethods(student.id);
+      const card = methods.find((m: any) => m.stripePaymentMethodId === paymentIntent.payment_method) || null;
+      const outcome = await recordInvoicePayment(invoice, paymentIntent.id, card?.cardBrand ?? null);
+      if (outcome === "voided") {
+        await refundVoidedInvoiceCharge(invoice, paymentIntent.id);
+        return res.status(409).json({ message: "This invoice was voided — your payment has been refunded" });
+      }
+      res.json({ status: "paid", invoiceId: invoice.id });
+    } catch (error: any) {
+      captureRequestError(error);
+      res.status(500).json({ message: error.message || "Failed to confirm invoice payment" });
     }
   });
 
@@ -11534,6 +12079,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Determine amount and description BEFORE charging
         let finalAmount = 0;
         let finalDescription = description || "";
+        // Tax breakdown (only applied when a taxable pricing-catalog override
+        // drives the price; legacy package prices remain tax-inclusive as before)
+        let checkoutBase = 0;
+        let checkoutGst = 0;
+        let checkoutQst = 0;
 
         if (type === "package") {
           if (!packageId) {
@@ -11544,7 +12094,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (!pkg || !pkg.isActive) {
             return res.status(404).json({ message: "Package not found or inactive" });
           }
-          finalAmount = parseFloat(pkg.price?.toString() || '0');
+          // Pricing catalog override: if an active, effective pricing item is
+          // linked to this package, its amount + tax flags win over the package's price.
+          const priceOverride = await getEffectivePackagePrice(pkg.id);
+          if (priceOverride) {
+            const rates = await getTaxRates();
+            checkoutBase = priceOverride.amount;
+            checkoutGst = priceOverride.gstApplicable ? Math.round(checkoutBase * rates.gstRate) / 100 : 0;
+            checkoutQst = priceOverride.qstApplicable ? Math.round(checkoutBase * rates.qstRate) / 100 : 0;
+            finalAmount = Math.round((checkoutBase + checkoutGst + checkoutQst) * 100) / 100;
+          } else {
+            finalAmount = parseFloat(pkg.price?.toString() || '0');
+            checkoutBase = finalAmount;
+          }
           finalDescription = `${pkg.name} - ${pkg.lessonCount} lessons`;
         } else if (type === "balance" || type === "lesson") {
           if (!amount || amount <= 0) {
@@ -11575,6 +12137,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             packageId: packageId ? String(packageId) : '',
             finalAmount: String(finalAmount),
             finalDescription,
+            checkoutBase: String(checkoutBase),
+            checkoutGst: String(checkoutGst),
+            checkoutQst: String(checkoutQst),
             paymentMethodId: String(paymentMethodId),
             cardBrand: method.cardBrand || "card",
           },
@@ -11603,9 +12168,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           studentId: student.id,
           date: new Date().toISOString().split('T')[0],
           description: finalDescription,
-          amount: String(finalAmount),
-          gst: "0.00",
-          pst: "0.00",
+          amount: String(checkoutBase || finalAmount),
+          gst: checkoutGst.toFixed(2),
+          pst: checkoutQst.toFixed(2),
           total: String(finalAmount),
           transactionType: "payment",
           paymentMethod: method.cardBrand || "card",
@@ -11690,14 +12255,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const finalAmount = parseFloat(paymentIntent.metadata.finalAmount || "0");
         const finalDescription = paymentIntent.metadata.finalDescription || "Payment";
         const cardBrand = paymentIntent.metadata.cardBrand || "card";
+        const metaBase = parseFloat(paymentIntent.metadata.checkoutBase || "0") || finalAmount;
+        const metaGst = parseFloat(paymentIntent.metadata.checkoutGst || "0") || 0;
+        const metaQst = parseFloat(paymentIntent.metadata.checkoutQst || "0") || 0;
 
         const transaction = await storage.createStudentTransaction({
           studentId: student.id,
           date: new Date().toISOString().split('T')[0],
           description: finalDescription,
-          amount: String(finalAmount),
-          gst: "0.00",
-          pst: "0.00",
+          amount: String(metaBase),
+          gst: metaGst.toFixed(2),
+          pst: metaQst.toFixed(2),
           total: String(finalAmount),
           transactionType: "payment",
           paymentMethod: cardBrand,

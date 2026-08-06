@@ -29,6 +29,7 @@ import BookingPolicies from "@/pages/booking-policies";
 import OverrideAuditLogs from "@/pages/override-audit-logs";
 import AttendanceAuditLogs from "@/pages/attendance-audit-logs";
 import JobControl from "@/pages/job-control";
+import BillingAdmin from "@/pages/billing-admin";
 import DocumentVerification from "@/pages/document-verification";
 import PaymentReconciliation from "@/pages/payment-reconciliation";
 import TransactionAudit from "@/pages/transaction-audit";
@@ -220,6 +221,7 @@ function Router() {
           <Route path="/override-audit-logs" component={OverrideAuditLogs} />
           <Route path="/attendance-audit-logs" component={AttendanceAuditLogs} />
           <Route path="/job-control" component={JobControl} />
+          <Route path="/billing-admin" component={BillingAdmin} />
           <Route path="/payment-reconciliation" component={PaymentReconciliation} />
           <Route path="/transaction-audit" component={TransactionAudit} />
           <Route path="/refund-requests" component={RefundRequests} />

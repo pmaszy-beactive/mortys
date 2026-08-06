@@ -53,6 +53,19 @@ interface LessonPackage {
   isActive: boolean;
 }
 
+interface StudentInvoice {
+  id: number;
+  invoiceNumber: string;
+  amount: string;
+  subtotal: string | null;
+  gst: string | null;
+  qst: string | null;
+  status: string;
+  description: string;
+  dueDate: string | null;
+  createdAt: string | null;
+}
+
 interface Transaction {
   id: number | string;
   date: string;
@@ -191,6 +204,32 @@ function BillingContent() {
     queryKey: ["/api/student/billing/methods"],
     enabled: isAuthenticated,
   });
+
+  const { data: invoices = [], isLoading: invoicesLoading } = useQuery<StudentInvoice[]>({
+    queryKey: ["/api/student/billing/invoices"],
+  });
+
+  const [payingInvoiceId, setPayingInvoiceId] = useState<number | null>(null);
+  const payInvoice = async (invoice: StudentInvoice) => {
+    setPayingInvoiceId(invoice.id);
+    try {
+      const result: any = await apiRequest("POST", `/api/student/billing/invoices/${invoice.id}/pay`, {});
+      if (result?.status === "requires_action" && result.clientSecret) {
+        if (!stripe) throw new Error("Payment system not ready — please try again");
+        const { error } = await stripe.confirmCardPayment(result.clientSecret);
+        if (error) throw new Error(error.message || "Card authentication failed");
+        await apiRequest("POST", `/api/student/billing/invoices/${invoice.id}/confirm`, { paymentIntentId: result.paymentIntentId });
+      }
+      toast({ title: "Invoice paid", description: `${invoice.invoiceNumber} — $${parseFloat(invoice.amount).toFixed(2)}` });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/billing/invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/billing/history"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/billing/overview"] });
+    } catch (e: any) {
+      toast({ title: "Payment failed", description: e.message, variant: "destructive" });
+    } finally {
+      setPayingInvoiceId(null);
+    }
+  };
 
   const { data: transactions = [], isLoading: historyLoading } = useQuery<Transaction[]>({
     queryKey: ["/api/student/billing/history"],
@@ -535,6 +574,62 @@ function BillingContent() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Invoices */}
+        <Card className="bg-white border border-gray-200 rounded-md shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-900">Invoices</CardTitle>
+            <CardDescription>Invoices from the school — pay securely with your saved card</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {invoicesLoading ? (
+              <Skeleton className="h-10 w-full" />
+            ) : invoices.length === 0 ? (
+              <div className="text-center py-6 text-gray-500">
+                <Receipt className="h-10 w-10 mx-auto mb-2 opacity-20" />
+                <p>No invoices</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {invoices.map((inv) => {
+                  const payable = ["submitted", "failed", "unpaid", "overdue"].includes(inv.status);
+                  return (
+                    <div key={inv.id} className="flex items-center justify-between border rounded-md p-3" data-testid={`row-student-invoice-${inv.id}`}>
+                      <div>
+                        <p className="font-medium text-gray-900">{inv.description}</p>
+                        <p className="text-xs text-gray-500">
+                          {inv.invoiceNumber}
+                          {inv.dueDate ? ` · due ${inv.dueDate}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono font-semibold">${parseFloat(inv.amount).toFixed(2)}</span>
+                        <Badge className={
+                          inv.status === "paid" ? "bg-green-100 text-green-800" :
+                          inv.status === "failed" ? "bg-red-100 text-red-800" :
+                          inv.status === "void" || inv.status === "cancelled" ? "bg-gray-200 text-gray-500" :
+                          "bg-yellow-100 text-yellow-800"
+                        } data-testid={`badge-invoice-status-${inv.id}`}>{inv.status}</Badge>
+                        {payable && (
+                          <Button
+                            size="sm"
+                            className="bg-[#ECC462] text-[#111111] hover:bg-[#dbb655]"
+                            onClick={() => payInvoice(inv)}
+                            disabled={payingInvoiceId === inv.id || paymentMethods.length === 0}
+                            title={paymentMethods.length === 0 ? "Add a payment method first" : undefined}
+                            data-testid={`button-pay-invoice-${inv.id}`}
+                          >
+                            {payingInvoiceId === inv.id ? "Paying…" : "Pay"}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </CardContent>

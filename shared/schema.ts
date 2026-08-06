@@ -962,19 +962,100 @@ export const studentPaymentMethods = pgTable("student_payment_methods", {
   index("idx_student_payment_methods_student").on(table.studentId)
 ]);
 
-// Invoices for outstanding balances
+// Invoices for outstanding balances — extended with a full lifecycle
+// (draft -> submitted -> paid/failed/void) and line items for in-house billing.
+// Legacy statuses (unpaid, overdue, cancelled) may exist on old rows.
+export const INVOICE_STATUSES = ["draft", "submitted", "charging", "paid", "failed", "void", "unpaid", "overdue", "cancelled"] as const;
+export type InvoiceLineItem = {
+  description: string;
+  quantity: number;
+  unitAmount: string; // decimal string
+  amount: string; // quantity * unitAmount, decimal string
+  pricingItemId?: number | null;
+  gstApplicable?: boolean;
+  qstApplicable?: boolean;
+};
 export const invoices = pgTable("invoices", {
   id: serial("id").primaryKey(),
   studentId: integer("student_id").references(() => students.id).notNull(),
   invoiceNumber: text("invoice_number").notNull().unique(),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(), // grand total (kept for legacy compatibility)
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }),
+  gst: decimal("gst", { precision: 10, scale: 2 }).default("0.00"),
+  qst: decimal("qst", { precision: 10, scale: 2 }).default("0.00"),
+  lineItems: json("line_items").$type<InvoiceLineItem[]>(),
   dueDate: text("due_date"),
-  status: text("status").notNull().default("unpaid"), // unpaid, paid, overdue, cancelled
+  status: text("status").notNull().default("draft"), // draft, submitted, paid, failed, void (+legacy: unpaid, paid, overdue, cancelled)
   description: text("description").notNull(),
+  submissionMethod: text("submission_method"), // charge_card | email
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  transactionId: integer("transaction_id").references(() => studentTransactions.id),
+  failureReason: text("failure_reason"),
+  emailSentAt: timestamp("email_sent_at"),
+  paidAt: timestamp("paid_at"),
+  voidedAt: timestamp("voided_at"),
+  createdBy: varchar("created_by").references(() => users.id),
+  notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => [
   index("idx_invoices_student_status").on(table.studentId, table.status)
+]);
+
+// Billing customer records: one per student with billing activity, kept in
+// sync with the Stripe customer via queued billing jobs.
+export const billingCustomers = pgTable("billing_customers", {
+  id: serial("id").primaryKey(),
+  studentId: integer("student_id").references(() => students.id).notNull().unique(),
+  stripeCustomerId: text("stripe_customer_id"),
+  billingName: text("billing_name"),
+  billingEmail: text("billing_email"),
+  billingPhone: text("billing_phone"),
+  billingAddress: text("billing_address"),
+  notes: text("notes"),
+  syncStatus: text("sync_status").notNull().default("pending"), // pending, synced, error
+  lastSyncedAt: timestamp("last_synced_at"),
+  lastSyncError: text("last_sync_error"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_billing_customers_sync_status").on(table.syncStatus),
+]);
+
+// In-app pricing catalog: all checkout/invoicing amounts come from here —
+// nothing is priced in Stripe.
+export const PRICING_ITEM_TYPES = ["course_package", "lesson", "fee", "other"] as const;
+export const pricingItems = pgTable("pricing_items", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  code: text("code").notNull().unique(), // stable identifier, e.g. package:3 or fee:reschedule
+  itemType: text("item_type").notNull(), // course_package, lesson, fee, other
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  gstApplicable: boolean("gst_applicable").notNull().default(true),
+  qstApplicable: boolean("qst_applicable").notNull().default(true),
+  lessonPackageId: integer("lesson_package_id").references(() => lessonPackages.id), // optional link: overrides package price at checkout
+  effectiveFrom: text("effective_from"), // yyyy-mm-dd; null = immediately
+  effectiveTo: text("effective_to"), // yyyy-mm-dd; null = open-ended
+  isActive: boolean("is_active").notNull().default(true),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_pricing_items_type_active").on(table.itemType, table.isActive),
+]);
+
+// Audit trail of pricing changes.
+export const pricingChangeLogs = pgTable("pricing_change_logs", {
+  id: serial("id").primaryKey(),
+  pricingItemId: integer("pricing_item_id").references(() => pricingItems.id),
+  settingKey: text("setting_key"), // for tax-rate changes (gstRate/qstRate) not tied to an item
+  action: text("action").notNull(), // created, updated, deactivated, activated
+  before: json("before"),
+  after: json("after"),
+  changedBy: varchar("changed_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_pricing_change_logs_item").on(table.pricingItemId),
 ]);
 
 // Student credits for future use
@@ -1163,6 +1244,28 @@ export const insertInvoiceSchema = createInsertSchema(invoices).omit({
   createdAt: true,
   updatedAt: true,
 });
+
+export const insertBillingCustomerSchema = createInsertSchema(billingCustomers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type BillingCustomer = typeof billingCustomers.$inferSelect;
+export type InsertBillingCustomer = z.infer<typeof insertBillingCustomerSchema>;
+
+export const insertPricingItemSchema = createInsertSchema(pricingItems).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type PricingItem = typeof pricingItems.$inferSelect;
+export type InsertPricingItem = z.infer<typeof insertPricingItemSchema>;
+
+export const insertPricingChangeLogSchema = createInsertSchema(pricingChangeLogs).omit({
+  id: true,
+  createdAt: true,
+});
+export type PricingChangeLog = typeof pricingChangeLogs.$inferSelect;
 
 export const insertStudentCreditSchema = createInsertSchema(studentCredits).omit({
   id: true,

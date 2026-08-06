@@ -49,6 +49,7 @@ const navigation: NavItem[] = [
       { name: "Override Audit Logs", href: "/override-audit-logs", icon: Shield },
       { name: "Attendance Audit Logs", href: "/attendance-audit-logs", icon: ClipboardCheck },
       { name: "Data Migration", href: "/data-migration", icon: Database },
+      { name: "Billing", href: "/billing-admin", icon: Receipt },
       { name: "Job Control", href: "/job-control", icon: ListChecks },
       { name: "System Settings", href: "/settings", icon: Settings },
     ]
