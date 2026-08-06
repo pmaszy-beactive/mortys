@@ -2,6 +2,7 @@ import { db } from "../db";
 import { classes, students, classEnrollments, type CourseStartDate } from "@shared/schema";
 import { and, eq, gte, isNull, sql, isNotNull, inArray } from "drizzle-orm";
 import { storage } from "../storage";
+import { validateProgressionForStudent, withStudentBookingLock } from "./booking-validation";
 import {
   notifyAutoEnrollFailure,
   notifyStartDateReschedule,
@@ -110,7 +111,26 @@ export async function autoEnrollStudentFromStartDate(
       );
     }
 
-    const result = await storage.bookClass(studentId, matchingClass.id);
+    // Strict progression rules apply here too (duplicate/completed class
+    // numbers, sequence, phase gates) — never create an enrollment the
+    // student-facing booking flow would reject. Validation + booking run
+    // under the per-student lock so this can't race a parallel booking.
+    const outcome = await withStudentBookingLock(studentId, async (bookingTx) => {
+      const progression = await validateProgressionForStudent(studentId, matchingClass);
+      if (!progression.allowed) {
+        return {
+          blocked: `Booking the Theory 1 class on ${matchingClass.date} at ${matchingClass.time} was blocked by booking rules: ${progression.reason ?? progression.blockingRule ?? "not allowed"}`,
+        } as const;
+      }
+      return { result: await storage.bookClass(studentId, matchingClass.id, bookingTx) } as const;
+    });
+    if ("blocked" in outcome && outcome.blocked) {
+      return await fail(outcome.blocked, startDate);
+    }
+    if (!("result" in outcome)) {
+      return await fail("Auto-enrollment could not be completed.", startDate);
+    }
+    const result = outcome.result;
     if (!result.success) {
       // Already enrolled counts as success for our purposes — the class is on
       // the student's calendar either way.
@@ -283,19 +303,57 @@ export async function handleStartDateChange(
     for (const e of enrollments) {
       const name = `${e.firstName} ${e.lastName}`;
       try {
-        const result = await storage.bookClass(e.studentId!, newClass.id);
-        const alreadyEnrolled = !result.success && result.message?.includes("already enrolled");
-        if (result.success || alreadyEnrolled) {
-          await db
+        // The whole move runs under the per-student lock so it cannot race a
+        // parallel booking/reschedule. The old enrollment is cancelled FIRST
+        // (atomic move semantics — the replacement never double-counts
+        // against daily limits or duplicate-number rules); if the rebooking
+        // then fails, the cancellation is rolled back.
+        const moveOutcome = await withStudentBookingLock(e.studentId!, async (bookingTx) => {
+          // Start-date migration is a like-for-like move (Theory 1 → Theory 1
+          // on the new date), so the student's position doesn't change and no
+          // progression re-check is needed. Guard anyway in case the matched
+          // class ever differs in type/number from the one being replaced.
+          const likeForLike =
+            newClass.classType === oldClass.classType && newClass.classNumber === oldClass.classNumber;
+          if (!likeForLike) {
+            const progression = await validateProgressionForStudent(e.studentId!, newClass, {
+              excludeEnrollmentId: e.enrollmentId,
+            });
+            if (!progression.allowed) {
+              return {
+                ok: false as const,
+                note: `Could not be moved to the new class — blocked by booking rules: ${progression.reason ?? progression.blockingRule ?? "not allowed"}`,
+              };
+            }
+          }
+          // Atomic move: cancel + rebook run in the SAME transaction as the
+          // lock, so a crash or failure between the two rolls both back.
+          await bookingTx
             .update(classEnrollments)
             .set({ cancelledAt: new Date() })
             .where(eq(classEnrollments.id, e.enrollmentId));
+          const result = await storage.bookClass(e.studentId!, newClass.id, bookingTx);
+          const alreadyEnrolled = !result.success && result.message?.includes("already enrolled");
+          if (result.success || alreadyEnrolled) {
+            return { ok: true as const };
+          }
+          // Rebooking failed — undo the cancellation within the transaction.
+          await bookingTx
+            .update(classEnrollments)
+            .set({ cancelledAt: null })
+            .where(eq(classEnrollments.id, e.enrollmentId));
+          return {
+            ok: false as const,
+            note: `Could not be moved to the new class: ${result.message || "unknown error"}`,
+          };
+        });
+        if (moveOutcome.ok) {
           report.moved.push({ studentId: e.studentId!, studentName: name });
         } else {
           report.needsAttention.push({
             studentId: e.studentId!,
             studentName: name,
-            note: `Could not be moved to the new class: ${result.message || "unknown error"}`,
+            note: moveOutcome.note,
           });
         }
       } catch (err: any) {

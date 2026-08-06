@@ -309,10 +309,14 @@ export default function BookClasses() {
             {/* Right Section - Booking Button */}
             <div className="flex flex-col items-end gap-2 shrink-0">
               {isBlocked ? (
-                <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-gray-100 border border-gray-200 text-sm text-gray-400 font-medium" data-testid={`status-blocked-${classItem.id}`}>
-                  <AlertCircle className="h-4 w-4" />
-                  {classItem.blockingRule === "class_already_started" ? "No Longer Available" : "Not Yet Available"}
-                </div>
+                <Button
+                  disabled
+                  className="bg-gray-100 text-gray-400 border border-gray-200 shadow-none cursor-not-allowed"
+                  data-testid={`status-blocked-${classItem.id}`}
+                >
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  {classItem.blockingRule === "class_already_started" ? "No Longer Available" : "Locked"}
+                </Button>
               ) : (
                 <Button
                   onClick={() => handleBookClass(classItem)}

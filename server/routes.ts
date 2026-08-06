@@ -13,6 +13,7 @@ import {
 import { storage } from "./storage";
 import { captureRequestError } from "./services/error-logger";
 import { checkClassStart, getClassStartTime, formatClassSchedule } from "./services/class-time";
+import { validateProgressionForStudent, withStudentBookingLock } from "./services/booking-validation";
 import { db } from "./db";
 import { sql, eq, and, not, isNull, isNotNull, ne, count } from "drizzle-orm";
 import {
@@ -47,7 +48,7 @@ import {
 } from "@shared/examData";
 import { PHASE_DEFINITIONS } from "@shared/phaseConfig";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
-import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts } from "@shared/bookingRules";
+import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, type BookingValidationResult } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { loginUser, isAuthenticatedTraditional } from "./auth";
 import { loginInstructor, isInstructorAuthenticated } from "./instructor-auth";
@@ -488,6 +489,114 @@ function resolveDailyLimit(
   return { limit: policy?.value ?? MAX_CLASSES_PER_DAY, policy };
 }
 
+/**
+ * Upcoming (held) bookings for the strict-progression layer: enrollments
+ * that are not cancelled, not yet attended, whose class is still scheduled
+ * and has not started yet (school-local time).
+ */
+function computeUpcomingBookings(
+  enrollments: { classId: number | null; cancelledAt: Date | string | null; attendanceStatus: string | null }[],
+  allClasses: { id: number; classType: string | null; classNumber: number | null; date: string | null; time: string | null; status: string | null; isExtra?: boolean | null }[],
+): { classType: "theory" | "driving"; classNumber: number }[] {
+  const result: { classType: "theory" | "driving"; classNumber: number }[] = [];
+  for (const e of enrollments) {
+    if (e.cancelledAt || e.attendanceStatus === 'attended' || e.attendanceStatus === 'absent' || e.attendanceStatus === 'no-show') continue;
+    const cls = allClasses.find(c => c.id === e.classId);
+    if (!cls || cls.status !== 'scheduled') continue;
+    if (cls.isExtra) continue; // extra lessons never count toward numbered progression
+    if (!cls.classType || cls.classNumber == null || !cls.date) continue;
+    if (hasClassStarted({ date: cls.date, time: cls.time || "00:00" })) continue;
+    result.push({ classType: cls.classType as "theory" | "driving", classNumber: cls.classNumber });
+  }
+  return result;
+}
+
+/**
+ * Authoritative eligibility check for moving an enrollment to a new class.
+ * Runs the same booking-rule engine as direct booking (strict progression,
+ * duplicate class numbers, in-car concurrency, daily limit), excluding the
+ * enrollment being moved. Used by the reschedule endpoint, the reschedule
+ * fee payment-intent creation, and the Stripe webhook — all three paths must
+ * agree before a move happens or a fee is charged.
+ */
+type RescheduleTargetClass = {
+  classType: string | null; classNumber: number | null; date: string | null;
+  time: string | null; duration: number | null; maxStudents: number | null;
+  courseType: string | null;
+};
+
+/** Fetches the student's booking state once so many candidate targets can be validated cheaply. */
+async function buildRescheduleContext(studentId: number, enrollmentId: number) {
+  const enrollments = (await storage.getClassEnrollmentsByStudent(studentId))
+    .filter(e => e.id !== enrollmentId);
+  const allClasses = await storage.getClasses();
+  const enrollmentDetails = enrollments
+    .filter(e => !e.cancelledAt)
+    .map(e => {
+      const cls = allClasses.find(c => c.id === e.classId);
+      return {
+        attendanceStatus: e.attendanceStatus,
+        classType: cls?.classType ?? null,
+        classNumber: cls?.classNumber ?? null,
+        date: cls?.date ?? null,
+        duration: cls?.duration ?? null,
+        classStatus: cls?.status ?? null,
+      };
+    });
+  return {
+    enrollmentDetails,
+    completed: buildCompletedClasses(enrollmentDetails),
+    upcomingBookings: computeUpcomingBookings(enrollments, allClasses),
+  };
+}
+
+function validateRescheduleTargetWithContext(
+  ctx: Awaited<ReturnType<typeof buildRescheduleContext>>,
+  courseType: string | null | undefined,
+  newClass: RescheduleTargetClass,
+  dailyLimit: number,
+): BookingValidationResult {
+  // A reschedule can never move a student into a different course's class.
+  if (
+    newClass.courseType &&
+    (courseType || 'auto').toLowerCase() !== newClass.courseType.toLowerCase()
+  ) {
+    return { allowed: false, reason: "You can only reschedule into classes from your own course.", blockingRule: "course_type_mismatch" };
+  }
+  if (newClass.date && hasClassStarted({ date: newClass.date, time: newClass.time || "00:00" })) {
+    return { allowed: false, reason: "The selected class has already started and can no longer be booked.", blockingRule: "class_started" };
+  }
+  const newClassDate = newClass.date ?? new Date().toISOString().slice(0, 10);
+  const sameDayBooked = ctx.enrollmentDetails.filter(
+    d => d.date === newClassDate && d.classStatus === 'scheduled'
+  ).length;
+  return validateClassBooking(
+    {
+      classType: newClass.classType as "theory" | "driving",
+      classNumber: newClass.classNumber ?? 0,
+      date: newClassDate,
+      duration: newClass.duration ?? undefined,
+      maxStudents: newClass.maxStudents ?? undefined,
+      sameDayAlreadyBookedCount: sameDayBooked,
+      maxClassesPerDay: dailyLimit,
+      upcomingBookings: ctx.upcomingBookings,
+    },
+    ctx.completed,
+    (courseType || 'auto').toLowerCase(),
+  );
+}
+
+async function validateRescheduleTarget(
+  studentId: number,
+  courseType: string | null | undefined,
+  enrollmentId: number,
+  newClass: RescheduleTargetClass,
+): Promise<BookingValidationResult> {
+  const ctx = await buildRescheduleContext(studentId, enrollmentId);
+  const policies = await storage.getActiveBookingPolicies(newClass.courseType || undefined, newClass.classType || undefined);
+  return validateRescheduleTargetWithContext(ctx, courseType, newClass, resolveDailyLimit(policies).limit);
+}
+
 function effectiveDailyLimit(
   policies: DailyLimitPolicyLike[],
   scope?: { courseType?: string | null; classType?: string | null },
@@ -724,17 +833,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const enrollmentRec = await storage.getClassEnrollment(parseInt(enrollmentId));
               if (enrollmentRec && !enrollmentRec.cancelledAt) {
                 const newCid = parseInt(newClassIdMeta);
-                // Re-run availability/eligibility check identical to /reschedule endpoint
+                // Re-run availability/eligibility check identical to /reschedule endpoint,
+                // plus the authoritative booking-rule validation (strict progression,
+                // duplicates, in-car concurrency). The webhook must never move an
+                // enrollment the browser endpoint would reject.
+                // Validation + move run under the per-student lock so the
+                // webhook can't race a parallel booking/reschedule request.
+                await withStudentBookingLock(parseInt(studentIdForReschedule), async (bookingTx) => {
                 const availableClasses = await storage.getAvailableClasses(parseInt(studentIdForReschedule), {});
-                if (availableClasses.find(c => c.id === newCid)) {
+                const webhookTarget = await storage.getClass(newCid);
+                const webhookStudent = await storage.getStudent(parseInt(studentIdForReschedule));
+                const webhookValidation = webhookTarget
+                  ? await validateRescheduleTarget(parseInt(studentIdForReschedule), webhookStudent?.courseType, parseInt(enrollmentId), webhookTarget)
+                  : { allowed: false as const, reason: "Class not found" };
+                // Any failure to execute the paid move — rule rejection OR the
+                // class no longer being available (full, cancelled, removed) —
+                // means the student must not stay charged. Refund idempotently.
+                const refundFailedMove = async (why: string) => {
+                  console.warn(`[webhook] Reschedule to class ${newCid} for student ${studentIdForReschedule} not executed (${why}) — refunding fee`);
+                  try {
+                    await stripeInstance.refunds.create(
+                      { payment_intent: pi.id, reason: 'requested_by_customer' },
+                      { idempotencyKey: `reschedule-invalid-refund-${pi.id}` },
+                    );
+                    await db.update(pfp).set({ status: 'reschedule_refunded' }).where(eq(pfp.paymentIntentId, pi.id));
+                    console.log(`[webhook] Reschedule fee refunded for enrollment ${enrollmentId} (target ${newCid}: ${why})`);
+                  } catch (refundErr) {
+                    captureRequestError(refundErr);
+                    console.error(`[webhook] FAILED to auto-refund reschedule fee ${pi.id} — needs manual refund:`, refundErr);
+                  }
+                };
+                if (!webhookValidation.allowed) {
+                  await refundFailedMove(webhookValidation.reason ?? 'rejected by booking rules');
+                } else if (availableClasses.find(c => c.id === newCid)) {
                   await storage.updateClassEnrollment(parseInt(enrollmentId), {
                     classId: newCid,
                     lastPaymentIntentId: pi.id,
-                  });
+                  }, bookingTx);
                   console.log(`[webhook] Reschedule executed: enrollment ${enrollmentId} → class ${newCid}`);
                 } else {
-                  console.warn(`[webhook] Class ${newCid} not available/eligible for student ${studentIdForReschedule} — fee recorded, reschedule deferred to browser call`);
+                  await refundFailedMove('class no longer available');
                 }
+                });
               }
             }
           }
@@ -760,6 +900,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 lastPaymentIntentId: pi.id,
               });
               console.log(`[webhook] Cancellation executed for enrollment ${enrollmentId}`);
+              // A cancelled in-car lesson frees the student's slot #1 —
+              // notify them their remaining upcoming in-car booking (if any)
+              // is now their next lesson, same as the browser cancel route.
+              if (enrollment.studentId && enrollment.classId) {
+                const cancelledClass = await storage.getClass(enrollment.classId);
+                if (cancelledClass?.classType === 'driving') {
+                  notifyInCarSlotPromotion(enrollment.studentId).catch((err) => {
+                    captureRequestError(err);
+                    console.error("[in-car slots] Failed to send promotion email after webhook cancellation:", err);
+                  });
+                }
+              }
             }
           }
         }
@@ -2973,7 +3125,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
             continue;
           }
           try {
-            const result = await storage.bookClass(s.id, dest.id);
+            // Schedule-driven moves keep the student's existing position when
+            // the replacement is the same class (type + number) on a new date
+            // — no progression re-check needed. If the destination would
+            // change the student's class number/type, the strict progression
+            // rules apply (excluding the enrollment on the removed class).
+            // Validation + booking run under the per-student lock so they
+            // cannot race a parallel booking or reschedule.
+            const moveResult = await withStudentBookingLock(s.id, async (bookingTx) => {
+              const destClass = await storage.getClass(dest.id);
+              if (!destClass) {
+                return { blocked: `Was enrolled on ${cls.date} — replacement class not found` } as const;
+              }
+              const likeForLike = destClass.classType === cls.classType && destClass.classNumber === cls.classNumber;
+              if (!likeForLike) {
+                const progression = await validateProgressionForStudent(s.id, destClass, { excludeClassId: cls.id });
+                if (!progression.allowed) {
+                  return { blocked: `Was enrolled on ${cls.date} — move to ${dest.date} blocked by booking rules: ${progression.reason || 'not allowed'}` } as const;
+                }
+              }
+              return { result: await storage.bookClass(s.id, dest.id, bookingTx) } as const;
+            });
+            if ('blocked' in moveResult) {
+              stuckHere.push(s);
+              needsAttention.push({ studentId: s.id, studentName: s.name, note: moveResult.blocked });
+              continue;
+            }
+            const result = moveResult.result;
             const alreadyEnrolled = !result.success && result.message?.includes("already enrolled");
             if (result.success || alreadyEnrolled) {
               movedHere.push(s.id);
@@ -3335,6 +3513,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { overridePolicy, overrideReason, ...enrollmentBody } = req.body;
       const enrollmentData = insertClassEnrollmentSchema.parse(enrollmentBody);
 
+      // Validation + creation run under the per-student lock so parallel
+      // enrollments can't race the progression/concurrency checks.
+      return await withStudentBookingLock(enrollmentData.studentId ?? 0, async (bookingTx) => {
+
       // Check if user has permission to override booking policies
       const canOverride = req.user?.canOverrideBookingPolicies === true;
 
@@ -3376,6 +3558,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               date: targetDatePhase,
               duration: classData.duration ?? undefined,
               maxStudents: classData.maxStudents ?? undefined,
+              upcomingBookings: computeUpcomingBookings(studentEnrollmentsPhase, allClassesPhase),
             };
             const phaseCheck = validateClassBooking(
               targetForPhase,
@@ -3591,7 +3774,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create the enrollment
-      const enrollment = await storage.createClassEnrollment(enrollmentData);
+      const enrollment = await storage.createClassEnrollment(enrollmentData, bookingTx);
 
       // Log policy overrides and send notifications if any occurred
       if (policyViolations.length > 0 && req.user?.id && classData) {
@@ -3653,8 +3836,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Also send in-app notification via unified notification service
           try {
             await notificationService.notifyPolicyOverride({
-              studentId: enrollmentData.studentId,
-              classId: enrollmentData.classId,
+              studentId: enrollmentData.studentId ?? undefined,
+              classId: enrollmentData.classId ?? undefined,
               policyType: violation.policyType,
               reason: overrideReason,
               staffName,
@@ -3700,6 +3883,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.status(201).json(enrollment);
+      });
     } catch (error) {
       captureRequestError(error);
       console.error("Error creating enrollment:", error);
@@ -3736,13 +3920,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }
 
-  app.put("/api/class-enrollments/:id", async (req, res) => {
+  // Notify a student that an upcoming in-car booking has become their next
+  // lesson (slot #1) — triggered when their previous next in-car booking is
+  // cancelled or missed. The student can keep the promoted booking or cancel
+  // it from My Classes. Class-related mail: subject to UAT redirection.
+  async function notifyInCarSlotPromotion(studentId: number) {
+    const student = await storage.getStudent(studentId);
+    if (!student?.email) return;
+    const enrollments = await storage.getClassEnrollmentsByStudent(studentId);
+    const allClasses = await storage.getClasses();
+    const upcomingInCar = enrollments
+      .filter(e => !e.cancelledAt && e.attendanceStatus !== 'attended' && e.attendanceStatus !== 'absent' && e.attendanceStatus !== 'no-show')
+      .map(e => allClasses.find(c => c.id === e.classId))
+      .filter((c): c is NonNullable<typeof c> =>
+        !!c && c.status === 'scheduled' && c.classType === 'driving' && !!c.date &&
+        !hasClassStarted({ date: c.date, time: c.time || "00:00" }))
+      .sort((a, b) => `${a.date}T${a.time || ''}`.localeCompare(`${b.date}T${b.time || ''}`));
+    if (upcomingInCar.length === 0) return;
+    const next = upcomingInCar[0];
+    const when = `${next.date} at ${next.time || ''}`.trim();
+    const { sendEmail } = await import("./services/sendgrid");
+    await sendEmail({
+      to: [student.email],
+      from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
+      subject: "Your in-car lesson is now your next lesson",
+      text: `Hi ${student.firstName || ''},\n\nYour in-car lesson scheduled for ${when} has moved up: it is now your next in-car lesson (#1).\n\nIf this time still works for you, no action is needed. If not, you can cancel this appointment from the My Classes page in your student portal.\n\nMorty's Driving School`,
+      html: `<p>Hi ${student.firstName || ''},</p><p>Your in-car lesson scheduled for <strong>${when}</strong> has moved up: it is now your <strong>next in-car lesson (#1)</strong>.</p><p>If this time still works for you, no action is needed. If not, you can cancel this appointment from the <em>My Classes</em> page in your student portal.</p><p>Morty's Driving School</p>`,
+    });
+    console.log(`[in-car slots] Promotion email sent to student ${studentId} for class on ${when}`);
+  }
+
+  app.put("/api/class-enrollments/:id", isAdminOrInstructor, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const updateData = req.body;
+      // Whitelist updatable fields. Moving an enrollment to a different class
+      // (classId) is deliberately NOT allowed here — moves must go through the
+      // validated booking/reschedule paths so progression rules always apply.
+      const allowedFields = ["attendanceStatus", "testScore", "paymentStatus", "paidAmount"] as const;
+      const updateData: Record<string, any> = {};
+      for (const field of allowedFields) {
+        if (req.body[field] !== undefined) updateData[field] = req.body[field];
+      }
+      const rejected = Object.keys(req.body).filter(k => !(allowedFields as readonly string[]).includes(k));
+      if (rejected.length > 0) {
+        return res.status(400).json({ message: `Fields not updatable via this endpoint: ${rejected.join(", ")}` });
+      }
+      if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({ message: "No updatable fields provided" });
+      }
       const enrollment = await storage.updateClassEnrollment(id, updateData);
       if (updateData.attendanceStatus === "attended" && enrollment.studentId && enrollment.classId) {
         await autoContractOnClass1(enrollment.studentId, enrollment.classId);
+      }
+      // A missed in-car lesson promotes the student's other upcoming in-car
+      // booking (if any) to slot #1 — notify them to confirm or cancel it.
+      if ((updateData.attendanceStatus === "absent" || updateData.attendanceStatus === "no-show") && enrollment.studentId && enrollment.classId) {
+        const missedClass = await storage.getClass(enrollment.classId);
+        if (missedClass?.classType === 'driving') {
+          notifyInCarSlotPromotion(enrollment.studentId).catch(err => {
+            captureRequestError(err);
+            console.error("In-car slot promotion email failed (non-critical):", err);
+          });
+        }
       }
       res.json(enrollment);
     } catch (error) {
@@ -3984,7 +4223,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         instructorId: noShowClass.instructorId,
         previousStatus: existingEnrollment.attendanceStatus, newStatus: "no-show",
       });
-      
+
+      // A missed in-car lesson frees the student's slot #1 — notify them that
+      // their remaining upcoming in-car booking (if any) is now their next lesson.
+      if (noShowClass.classType === 'driving' && existingEnrollment.studentId) {
+        notifyInCarSlotPromotion(existingEnrollment.studentId).catch((err) => {
+          captureRequestError(err);
+          console.error("[in-car slots] Failed to send promotion email after no-show:", err);
+        });
+      }
+
       res.json(enrollment);
     } catch (error) {
       captureRequestError(error);
@@ -9727,6 +9975,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const completedClassesAvail = buildCompletedClasses(enrollmentDetailsAvail);
         const studentCourseTypeAvail = (student.courseType || 'auto').toLowerCase();
 
+        // Upcoming (held) bookings for the strict-progression layer.
+        const upcomingBookingsAvail = computeUpcomingBookings(enrollments, allClasses);
+
         // Count for legacy phase display info
         const completedTheoryClasses = completedClassesAvail.filter(c => c.classType === 'theory').length;
         const completedInCarSessions = completedClassesAvail.filter(c => c.classType === 'driving').length;
@@ -9790,6 +10041,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 courseType: classItem.courseType ?? undefined,
                 classType: classItem.classType ?? undefined,
               }),
+              upcomingBookings: upcomingBookingsAvail,
             };
             const validation = validateClassBooking(target, completedClassesAvail, studentCourseTypeAvail);
             if (!validation.allowed) {
@@ -9957,7 +10209,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!classData.isExtra) {
           return res.status(400).json({ message: "This is not an extra lesson. Use the regular booking flow." });
         }
-        
+
+        // Extra lessons are excluded from numbered progression (authoritative
+        // predicate: isExtra), but duplicate/capacity checks and enrollment
+        // creation still run under the per-student lock so concurrent
+        // requests cannot double-book or oversubscribe the lesson.
+        return await withStudentBookingLock(student.id, async (bookingTx) => {
+
         // Check if already booked
         const existingEnrollments = await storage.getClassEnrollmentsByStudent(student.id);
         const alreadyBooked = existingEnrollments.some(
@@ -10007,7 +10265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             attendanceStatus: 'registered',
             paymentStatus: 'pending',
             lastPaymentIntentId: paymentIntent.id
-          });
+          }, bookingTx);
           
           res.json({
             enrollmentId: enrollment.id,
@@ -10023,7 +10281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             studentId: student.id,
             attendanceStatus: 'registered',
             paymentStatus: 'not_required'
-          });
+          }, bookingTx);
           
           res.json({
             enrollmentId: enrollment.id,
@@ -10031,6 +10289,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             message: 'Successfully booked the free extra lesson'
           });
         }
+        });
       } catch (error) {
         captureRequestError(error);
         console.error("Error booking extra lesson:", error);
@@ -10115,6 +10374,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     isStudentAuthenticated,
     async (req: any, res) => {
       try {
+        // All validation + booking runs under a per-student lock so parallel
+        // requests can't both pass the progression/concurrency checks.
+        return await withStudentBookingLock(req.student.id, async (bookingTx) => {
         const student = req.student;
         const classId = parseInt(req.params.classId);
 
@@ -10122,6 +10384,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const classData = await storage.getClass(classId);
         if (!classData) {
           return res.status(404).json({ message: "Class not found" });
+        }
+
+        // Extra lessons have their own booking (and payment) flow — they are
+        // excluded from numbered progression and must not enter it here.
+        if (classData.isExtra) {
+          return res.status(400).json({ message: "Extra lessons must be booked through the extra-lessons flow." });
         }
 
         // Students may only book classes for their own course type — mirrors
@@ -10200,6 +10468,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           maxStudents: classData.maxStudents ?? undefined,
           sameDayAlreadyBookedCount: sameDayAlreadyBookedBook,
           maxClassesPerDay: dailyLimit.limit,
+          upcomingBookings: computeUpcomingBookings(studentEnrollmentsForRules, allClassesForRules),
         };
 
         // For shared session check on In-Car 12/13, count current non-cancelled enrollments
@@ -10324,7 +10593,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
 
-        const result = await storage.bookClass(student.id, classId);
+        const result = await storage.bookClass(student.id, classId, bookingTx);
 
         if (result.success) {
           logBookingDecision('allow');
@@ -10336,6 +10605,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           logBookingDecision('deny rule=book_class', result.message);
           res.status(400).json({ message: result.message });
         }
+        });
       } catch (error) {
         captureRequestError(error);
         console.error("Error booking class:", error);
@@ -10380,10 +10650,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const withinRestrictedWindow = hoursUntilClass < rescheduleWindowHours;
         const feeRequired = withinRestrictedWindow;
 
-        // Get available slots - simplified query
-        let availableClasses = await storage.getAvailableClasses(student.id, {
+        // Get available slots, then keep only targets the booking rules
+        // would actually accept (strict progression, duplicate numbers,
+        // in-car concurrency, daily limit) — so the picker never offers a
+        // slot that the reschedule endpoint would reject after payment.
+        const allSlots = await storage.getAvailableClasses(student.id, {
           courseType: classData.courseType,
         });
+        const rescheduleCtx = await buildRescheduleContext(student.id, enrollmentId);
+        const dailyLimitCache = new Map<string, number>();
+        const availableClasses = [];
+        for (const slot of allSlots) {
+          const scopeKey = `${slot.courseType ?? ''}|${slot.classType ?? ''}`;
+          let dailyLimit = dailyLimitCache.get(scopeKey);
+          if (dailyLimit === undefined) {
+            const policies = await storage.getActiveBookingPolicies(slot.courseType || undefined, slot.classType || undefined);
+            dailyLimit = resolveDailyLimit(policies).limit;
+            dailyLimitCache.set(scopeKey, dailyLimit);
+          }
+          const slotValidation = validateRescheduleTargetWithContext(rescheduleCtx, student.courseType, slot, dailyLimit);
+          if (slotValidation.allowed) availableClasses.push(slot);
+        }
 
         res.json({
           currentClass: classData,
@@ -10439,6 +10726,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         if (!feeRequired) {
           return res.status(400).json({ message: "No fee required for this reschedule" });
+        }
+
+        // Never charge a fee for a target the booking rules would reject.
+        if (newClassId) {
+          const targetClass = await storage.getClass(parseInt(newClassId));
+          if (!targetClass) {
+            return res.status(404).json({ message: "New class not found" });
+          }
+          const feeValidation = await validateRescheduleTarget(student.id, student.courseType, enrollmentId, targetClass);
+          if (!feeValidation.allowed) {
+            return res.status(400).json({
+              message: feeValidation.reason ?? "This class cannot be selected at this stage of your training.",
+              policyViolation: feeValidation.blockingRule ?? 'phase_ordering',
+              detail: feeValidation.detail,
+            });
+          }
         }
 
         // Create payment intent — include newClassId so the webhook can execute the reschedule
@@ -10501,6 +10804,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const now = new Date();
         if (classDateTime < now) {
           return res.status(400).json({ message: "Cannot reschedule a class that has already started" });
+        }
+
+        // The target class must pass the same booking rules as a direct
+        // booking (strict progression, duplicate numbers, in-car concurrency,
+        // daily limit) — excluding the enrollment being moved. Validate
+        // BEFORE any fee is charged. The remainder of the handler runs under
+        // the per-student lock so parallel moves can't race the validation.
+        return await withStudentBookingLock(student.id, async (bookingTx) => {
+        const rescheduleValidation = await validateRescheduleTarget(student.id, student.courseType, enrollmentId, newClass);
+        if (!rescheduleValidation.allowed) {
+          return res.status(400).json({
+            message: rescheduleValidation.reason ?? "This class cannot be selected at this stage of your training.",
+            policyViolation: rescheduleValidation.blockingRule ?? 'phase_ordering',
+            detail: rescheduleValidation.detail,
+          });
         }
 
         // Enforce policy - check if within restricted window
@@ -10591,12 +10909,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateClassEnrollment(enrollmentId, {
           classId: newClassId,
           ...(paymentIntentId ? { lastPaymentIntentId: paymentIntentId } : {}),
-        });
+        }, bookingTx);
 
         res.json({
           success: true,
           message: "Class rescheduled successfully",
           newClass,
+        });
         });
       } catch (error) {
         captureRequestError(error);
@@ -10853,6 +11172,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           cancelledAt: new Date(),
           ...(paymentIntentId ? { lastPaymentIntentId: paymentIntentId } : {}),
         });
+
+        // If an in-car booking was cancelled and the student still holds
+        // another upcoming in-car booking, that booking becomes their next
+        // lesson (slot #1) — notify them so they can keep or cancel it.
+        if (classData.classType === 'driving') {
+          notifyInCarSlotPromotion(student.id).catch(err => {
+            captureRequestError(err);
+            console.error("In-car slot promotion email failed (non-critical):", err);
+          });
+        }
 
         res.json({
           success: true,
@@ -13130,6 +13459,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             instructorId: classData.instructorId,
             previousStatus: prevEnrollment?.attendanceStatus ?? null, newStatus,
           });
+          // A missed in-car lesson frees the student's slot #1 — notify them
+          // their remaining upcoming in-car booking (if any) is now next.
+          // Only on a transition INTO absent for a driving class.
+          if (
+            newStatus === 'absent' &&
+            prevEnrollment?.attendanceStatus !== 'absent' &&
+            classData.classType === 'driving' &&
+            prevEnrollment?.studentId
+          ) {
+            notifyInCarSlotPromotion(prevEnrollment.studentId).catch((err) => {
+              captureRequestError(err);
+              console.error("[in-car slots] Failed to send promotion email after bulk-attendance absence:", err);
+            });
+          }
         }
 
         // Mark the class as completed with the attendance signature

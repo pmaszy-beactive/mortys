@@ -1406,10 +1406,11 @@ export default function StudentClasses() {
           )}
         </section>
 
-        {/* Book a Class Button */}
+        {/* Book a Class — navigates to the per-class booking page where each
+            class has its own phase-gated Book button */}
         <section>
           <Button
-            onClick={openBookingWizard}
+            onClick={() => setLocation("/student/book")}
             className="w-full py-6 text-lg font-semibold bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] rounded-xl shadow-lg hover:shadow-xl transition-all"
             data-testid="button-book-class"
           >

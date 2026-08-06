@@ -58,6 +58,7 @@ import StudentForgotPassword from "@/pages/student/student-forgot-password";
 import StudentResetPassword from "@/pages/student/student-reset-password";
 import StudentOwnProfile from "@/pages/student/student-profile";
 import StudentClasses from "@/pages/student/student-classes";
+import BookClasses from "@/pages/student/book-classes";
 import StudentParents from "@/pages/student/student-parents";
 import StudentBilling from "@/pages/student/student-billing";
 import StudentEvaluations from "@/pages/student/student-evaluations";
@@ -156,7 +157,7 @@ function Router() {
         <StudentPortalLayout><StudentClasses /></StudentPortalLayout>
       </Route>
       <Route path="/student/book">
-        <StudentPortalLayout><StudentClasses /></StudentPortalLayout>
+        <StudentPortalLayout><BookClasses /></StudentPortalLayout>
       </Route>
       <Route path="/student/parents">
         <StudentPortalLayout><StudentParents /></StudentPortalLayout>

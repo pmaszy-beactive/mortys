@@ -43,6 +43,10 @@ import {
   bugReports, type BugReport, type InsertBugReport
 } from "@shared/schema";
 import { db } from "./db";
+
+/** Drizzle transaction handle — lets callers run storage mutations inside an
+ * externally-owned transaction (e.g. the per-student booking lock). */
+export type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 import { eq, and, sql, gte, lte, isNotNull, isNull, inArray } from "drizzle-orm";
 import { isTheoryClass } from "@shared/bookingRules";
 
@@ -222,13 +226,13 @@ export interface IStorage {
   getClassEnrollmentsByClass(classId: number): Promise<ClassEnrollment[]>;
   countClassEnrollmentHistory(classId: number): Promise<number>;
   getClassEnrollmentsByStudent(studentId: number): Promise<ClassEnrollment[]>;
-  createClassEnrollment(enrollment: InsertClassEnrollment): Promise<ClassEnrollment>;
-  updateClassEnrollment(id: number, enrollment: Partial<InsertClassEnrollment>): Promise<ClassEnrollment>;
+  createClassEnrollment(enrollment: InsertClassEnrollment, txc?: DbTx): Promise<ClassEnrollment>;
+  updateClassEnrollment(id: number, enrollment: Partial<InsertClassEnrollment>, txc?: DbTx): Promise<ClassEnrollment>;
   deleteClassEnrollment(id: number): Promise<void>;
   
   // Class Booking
   getAvailableClasses(studentId: number, filters?: { courseType?: string; instructorId?: number; startDate?: string; endDate?: string }): Promise<Array<Class & { instructorName: string; enrolledCount: number; spotsRemaining: number }>>;
-  bookClass(studentId: number, classId: number): Promise<{ success: boolean; message?: string; enrollment?: ClassEnrollment }>;
+  bookClass(studentId: number, classId: number, txc?: DbTx): Promise<{ success: boolean; message?: string; enrollment?: ClassEnrollment }>;
   
   // Contract Templates
   getContractTemplates(): Promise<ContractTemplate[]>;
@@ -2684,16 +2688,16 @@ export class DatabaseStorage implements IStorage {
     );
   }
 
-  async createClassEnrollment(insertEnrollment: InsertClassEnrollment): Promise<ClassEnrollment> {
-    const [enrollment] = await db
+  async createClassEnrollment(insertEnrollment: InsertClassEnrollment, txc?: DbTx): Promise<ClassEnrollment> {
+    const [enrollment] = await (txc ?? db)
       .insert(classEnrollments)
       .values(insertEnrollment)
       .returning();
     return enrollment;
   }
 
-  async updateClassEnrollment(id: number, updateData: Partial<InsertClassEnrollment>): Promise<ClassEnrollment> {
-    const [enrollment] = await db
+  async updateClassEnrollment(id: number, updateData: Partial<InsertClassEnrollment>, txc?: DbTx): Promise<ClassEnrollment> {
+    const [enrollment] = await (txc ?? db)
       .update(classEnrollments)
       .set(updateData)
       .where(eq(classEnrollments.id, id))
@@ -2787,9 +2791,10 @@ export class DatabaseStorage implements IStorage {
 
   async bookClass(
     studentId: number, 
-    classId: number
+    classId: number,
+    txc?: DbTx,
   ): Promise<{ success: boolean; message?: string; enrollment?: ClassEnrollment }> {
-    return db.transaction(async (tx) => {
+    const run = async (tx: DbTx) => {
       // Lock the class row so concurrent bookings for the same class are
       // serialized: the second transaction waits here until the first
       // commits, then sees the up-to-date enrollment count.
@@ -2877,7 +2882,10 @@ export class DatabaseStorage implements IStorage {
         message: 'Successfully enrolled in class',
         enrollment: newEnrollment 
       };
-    });
+    };
+    // Join the caller's transaction when provided (per-student booking lock),
+    // otherwise run in a dedicated transaction.
+    return txc ? run(txc) : db.transaction(run);
   }
 
   // Contract Templates

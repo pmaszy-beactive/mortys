@@ -52,7 +52,25 @@ export interface TargetClassInfo {
    * omitted, the built-in default applies.
    */
   maxClassesPerDay?: number;
+  /**
+   * The student's current upcoming (not cancelled, not yet attended, class
+   * still scheduled) bookings. Used for strict progression gating: the next
+   * theory unlocks only when the previous one is completed, in-car lessons
+   * may be held two-at-a-time (next number bookable while the previous one
+   * is merely booked), duplicates of an already-booked class number are
+   * blocked, and at most MAX_CONCURRENT_INCAR_BOOKINGS in-car bookings may
+   * be held at once. When omitted, these checks are skipped (legacy callers).
+   */
+  upcomingBookings?: UpcomingBookingRecord[];
 }
+
+export interface UpcomingBookingRecord {
+  classType: "theory" | "driving";
+  classNumber: number;
+}
+
+/** Maximum number of upcoming in-car bookings a student may hold at once. */
+export const MAX_CONCURRENT_INCAR_BOOKINGS = 2;
 
 export interface BookingValidationResult {
   allowed: boolean;
@@ -75,6 +93,17 @@ function daysBetween(earlier: string, later: string): number {
   const a = new Date(earlier);
   const b = new Date(later);
   return Math.floor((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+/** Does the student currently hold an upcoming booking for this class? */
+function hasUpcomingBooking(
+  target: TargetClassInfo,
+  classType: "theory" | "driving",
+  classNumber: number,
+): boolean {
+  return (target.upcomingBookings ?? []).some(
+    (b) => b.classType === classType && b.classNumber === classNumber,
+  );
 }
 
 function hasCompleted(
@@ -179,12 +208,97 @@ export function validateClassBooking(
   const dailyLimitCheck = checkMaxClassesPerDay(target);
   if (dailyLimitCheck) return dailyLimitCheck;
 
+  // Strict per-class progression gating (skipped when the caller did not
+  // provide the student's upcoming bookings).
+  if (target.upcomingBookings) {
+    const seqCheck = validateSequentialProgression(target, completed, courseType);
+    if (seqCheck) return seqCheck;
+  }
+
   // For non-auto courses apply simplified rules
   if (courseType !== "auto") {
     return validateSimplifiedRules(target, completed, courseType);
   }
 
   return validateAutoRules(target, completed);
+}
+
+/**
+ * Strict progression layer applied on top of the per-course rules:
+ * - a class number already held as an upcoming booking cannot be booked again;
+ * - theory classes unlock strictly one at a time — Theory #n requires
+ *   Theory #(n-1) to be completed (attended), which also gates crossing into
+ *   the next phase (e.g. Theory #7 stays locked until Theory #6 is done);
+ * - in-car lessons unlock sequentially too, but a student may hold up to
+ *   MAX_CONCURRENT_INCAR_BOOKINGS upcoming in-car bookings: In-Car #n is
+ *   bookable when #(n-1) is completed OR currently booked;
+ * - no more than MAX_CONCURRENT_INCAR_BOOKINGS upcoming in-car bookings.
+ * Returns null when the target passes this layer.
+ */
+function validateSequentialProgression(
+  target: TargetClassInfo,
+  completed: CompletedClassRecord[],
+  courseType: string,
+): BookingValidationResult | null {
+  const { classType, classNumber } = target;
+  const upcoming = target.upcomingBookings ?? [];
+  const label = classType === "driving" ? "In-Car" : "Theory";
+
+  const isBooked = (type: "theory" | "driving", n: number) =>
+    upcoming.some((b) => b.classType === type && b.classNumber === n);
+
+  // Already-completed classes are not bookable again.
+  if (hasCompleted(completed, classType, classNumber)) {
+    return {
+      allowed: false,
+      reason: `You have already completed ${label} #${classNumber}.`,
+      blockingRule: "class_number_already_completed",
+    };
+  }
+
+  // Duplicate guard — one upcoming booking per class number.
+  if (isBooked(classType, classNumber)) {
+    return {
+      allowed: false,
+      reason: `You already have ${label} #${classNumber} booked. It will unlock again only if that booking is cancelled.`,
+      blockingRule: "class_number_already_booked",
+    };
+  }
+
+  if (classType === "theory") {
+    if (classNumber > 1 && !hasCompleted(completed, "theory", classNumber - 1)) {
+      return {
+        allowed: false,
+        reason: `Theory #${classNumber} unlocks after you complete Theory #${classNumber - 1}.`,
+        blockingRule: "previous_class_incomplete",
+        detail: { prerequisitesNeeded: [`Theory #${classNumber - 1}`] },
+      };
+    }
+    return null;
+  }
+
+  // In-car lessons
+  const upcomingInCar = upcoming.filter((b) => b.classType === "driving").length;
+  if (upcomingInCar >= MAX_CONCURRENT_INCAR_BOOKINGS) {
+    return {
+      allowed: false,
+      reason: `You already hold ${MAX_CONCURRENT_INCAR_BOOKINGS} upcoming in-car bookings. Complete or cancel one before booking another.`,
+      blockingRule: "max_concurrent_incar_bookings",
+    };
+  }
+  if (
+    classNumber > 1 &&
+    !hasCompleted(completed, "driving", classNumber - 1) &&
+    !isBooked("driving", classNumber - 1)
+  ) {
+    return {
+      allowed: false,
+      reason: `In-Car #${classNumber} unlocks after In-Car #${classNumber - 1} is completed or booked.`,
+      blockingRule: "previous_class_incomplete",
+      detail: { prerequisitesNeeded: [`In-Car #${classNumber - 1}`] },
+    };
+  }
+  return null;
 }
 
 /**
@@ -418,9 +532,10 @@ function validateAutoRules(
         return { allowed: true };
       }
 
-      // In-Car 2: In-Car 1 completed
+      // In-Car 2: In-Car 1 completed (or currently booked — students may hold
+      // two consecutive in-car bookings at once)
       if (classNumber === 2) {
-        if (!hasCompleted(completed, "driving", 1)) {
+        if (!hasCompleted(completed, "driving", 1) && !hasUpcomingBooking(target, "driving", 1)) {
           return {
             allowed: false,
             reason: "In-Car #2 requires In-Car #1 to be completed first. Phase 2 in-car sessions must be done in order.",
@@ -431,9 +546,9 @@ function validateAutoRules(
         return { allowed: true };
       }
 
-      // In-Car 3: In-Car 2 completed
+      // In-Car 3: In-Car 2 completed (or currently booked)
       if (classNumber === 3) {
-        if (!hasCompleted(completed, "driving", 2)) {
+        if (!hasCompleted(completed, "driving", 2) && !hasUpcomingBooking(target, "driving", 2)) {
           return {
             allowed: false,
             reason: "In-Car #3 requires In-Car #2 to be completed first. Phase 2 in-car sessions must be done in order.",
@@ -444,9 +559,9 @@ function validateAutoRules(
         return { allowed: true };
       }
 
-      // In-Car 4: In-Car 3 completed + 28 days since Theory 6
+      // In-Car 4: In-Car 3 completed (or currently booked) + 28 days since Theory 6
       if (classNumber === 4) {
-        if (!hasCompleted(completed, "driving", 3)) {
+        if (!hasCompleted(completed, "driving", 3) && !hasUpcomingBooking(target, "driving", 3)) {
           return {
             allowed: false,
             reason: "In-Car #4 requires In-Car #3 to be completed first. Phase 2 in-car sessions must be done in order.",
