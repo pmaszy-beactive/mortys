@@ -96,6 +96,11 @@ export default function BookClasses() {
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
 
+  const { data: policySettings } = useQuery<{ cancelWindowHours: number }>({
+    queryKey: ["/api/student/policy-settings"],
+  });
+  const cancelWindowHours = policySettings?.cancelWindowHours ?? 24;
+
   const { data: classesResponse, isLoading: classesLoading } = useQuery<AvailableClassesResponse>({
     queryKey: ["/api/student/classes/available"],
     enabled: isAuthenticated,
@@ -487,11 +492,11 @@ export default function BookClasses() {
                     <ul className="space-y-2 text-gray-600">
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span>Free cancellation up to 48 hours before class</span>
+                        <span>Free cancellation up to {cancelWindowHours} hours before class</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                        <span>Cancellation fee applies within 48 hours of class</span>
+                        <span>Cancellation fee applies within {cancelWindowHours} hours of class</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />

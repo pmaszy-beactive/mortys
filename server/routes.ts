@@ -10372,9 +10372,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "Cannot reschedule past classes" });
         }
 
-        // SIMPLE HARDCODED POLICY FOR TESTING
-        const rescheduleWindowHours = 24;
-        const rescheduleFee = 25.00;
+        const rescheduleWindowHours = parseInt(await storage.getSetting('rescheduleWindowHours') || '24');
+        const rescheduleFee = parseFloat(await storage.getSetting('rescheduleFee') || '25.00');
 
         // Check if within restricted window
         const hoursUntilClass = (classDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
@@ -10603,6 +10602,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         captureRequestError(error);
         console.error("Error rescheduling class:", error);
         res.status(500).json({ message: "Failed to reschedule class" });
+      }
+    },
+  );
+
+  // Policy settings for student-facing copy (cancellation/reschedule windows
+  // and fees) — keeps UI text in sync with the enforced values.
+  app.get(
+    "/api/student/policy-settings",
+    isStudentAuthenticated,
+    async (_req: any, res) => {
+      try {
+        const [cancelWindowHours, cancelFee, rescheduleWindowHours, rescheduleFee] = await Promise.all([
+          storage.getSetting('cancelWindowHours'),
+          storage.getSetting('cancelFee'),
+          storage.getSetting('rescheduleWindowHours'),
+          storage.getSetting('rescheduleFee'),
+        ]);
+        res.json({
+          cancelWindowHours: parseInt(cancelWindowHours || '24'),
+          cancelFee: parseFloat(cancelFee || '25.00'),
+          rescheduleWindowHours: parseInt(rescheduleWindowHours || '24'),
+          rescheduleFee: parseFloat(rescheduleFee || '25.00'),
+        });
+      } catch (error) {
+        captureRequestError(error);
+        console.error("Error fetching policy settings:", error);
+        res.status(500).json({ message: "Failed to fetch policy settings" });
       }
     },
   );
