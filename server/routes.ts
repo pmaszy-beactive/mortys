@@ -14,6 +14,9 @@ import { storage } from "./storage";
 import { captureRequestError } from "./services/error-logger";
 import { checkClassStart, getClassStartTime, formatClassSchedule } from "./services/class-time";
 import { validateProgressionForStudent, withStudentBookingLock } from "./services/booking-validation";
+import { enqueueJob, retryJob, cancelJob as cancelQueueJob, runJobNow, getBillingHoldUntil, isBillingHoldActive, getRegisteredJobTypes, validateEnqueueInput } from "./job-queue";
+import { jobs as jobsTable, JOB_STATUSES, JOB_CATEGORIES, type JobCategory } from "@shared/schema";
+import { desc as descOrder } from "drizzle-orm";
 import { db } from "./db";
 import { sql, eq, and, not, isNull, isNotNull, ne, count } from "drizzle-orm";
 import {
@@ -1778,6 +1781,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
       captureRequestError(error);
       console.error("Error fetching policy override log:", error);
       res.status(500).json({ message: "Failed to fetch policy override log" });
+    }
+  });
+
+  // ============================================================
+  // Job Control — admin management of the background job queue
+  // ============================================================
+  app.get("/api/admin/jobs", requireAdmin, async (req: any, res) => {
+    try {
+      const { status, category } = req.query;
+      const conditions = [];
+      if (status && JOB_STATUSES.includes(status)) conditions.push(eq(jobsTable.status, status));
+      if (category && JOB_CATEGORIES.includes(category)) conditions.push(eq(jobsTable.category, category));
+      const rows = await db.select().from(jobsTable)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(descOrder(jobsTable.id))
+        .limit(200);
+      const holdUntil = getBillingHoldUntil();
+      const holdActive = isBillingHoldActive();
+      res.json({
+        billingHoldUntil: holdUntil ? holdUntil.toISOString() : null,
+        billingHoldActive: holdActive,
+        jobs: rows.map((j) => ({
+          ...j,
+          // A queued billing job during the startup hold is "held": it will
+          // not run until the hold ends, regardless of its scheduled time.
+          held: holdActive && j.status === "queued" && j.category === "billing",
+        })),
+      });
+    } catch (error) {
+      captureRequestError(error);
+      console.error("Error fetching jobs:", error);
+      res.status(500).json({ message: "Failed to fetch jobs" });
+    }
+  });
+
+  app.post("/api/admin/jobs", requireAdmin, async (req: any, res) => {
+    try {
+      const { type, category, payload, scheduledFor, maxAttempts } = req.body || {};
+      if (!type || typeof type !== "string") {
+        return res.status(400).json({ message: "Job type is required" });
+      }
+      if (!getRegisteredJobTypes().includes(type)) {
+        return res.status(400).json({ message: `Unknown job type "${type}". Registered types: ${getRegisteredJobTypes().join(", ")}` });
+      }
+      if (category && !JOB_CATEGORIES.includes(category)) {
+        return res.status(400).json({ message: `Invalid category. Must be one of: ${JOB_CATEGORIES.join(", ")}` });
+      }
+      const validationError = validateEnqueueInput({ scheduledFor, maxAttempts });
+      if (validationError) {
+        return res.status(400).json({ message: validationError });
+      }
+      const job = await enqueueJob({
+        type,
+        category: category as JobCategory | undefined,
+        payload,
+        scheduledFor: scheduledFor ? new Date(scheduledFor) : undefined,
+        maxAttempts: typeof maxAttempts === "number" ? maxAttempts : undefined,
+      });
+      res.status(201).json(job);
+    } catch (error) {
+      captureRequestError(error);
+      console.error("Error enqueuing job:", error);
+      res.status(500).json({ message: "Failed to enqueue job" });
+    }
+  });
+
+  app.post("/api/admin/jobs/:id/retry", requireAdmin, async (req: any, res) => {
+    try {
+      const job = await retryJob(parseInt(req.params.id));
+      if (!job) return res.status(409).json({ message: "Job cannot be retried — it must be failed, cancelled, or succeeded, and any still-active run must finish winding down first (wait a minute and try again)" });
+      res.json(job);
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to retry job" });
+    }
+  });
+
+  app.post("/api/admin/jobs/:id/cancel", requireAdmin, async (req: any, res) => {
+    try {
+      const job = await cancelQueueJob(parseInt(req.params.id));
+      if (!job) return res.status(409).json({ message: "Job cannot be cancelled (must be queued or running)" });
+      res.json(job);
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to cancel job" });
+    }
+  });
+
+  app.post("/api/admin/jobs/:id/run-now", requireAdmin, async (req: any, res) => {
+    try {
+      const job = await runJobNow(parseInt(req.params.id));
+      if (!job) return res.status(409).json({ message: "Job cannot be run now (must be queued)" });
+      res.json(job);
+    } catch (error) {
+      captureRequestError(error);
+      res.status(500).json({ message: "Failed to run job" });
     }
   });
 

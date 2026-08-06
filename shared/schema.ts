@@ -1557,6 +1557,44 @@ export type InsertBugReport = z.infer<typeof insertBugReportSchema>;
 
 export const BUG_REPORT_CATEGORIES = ["technical_support", "billing"] as const;
 
+// ============================================================
+// Background job queue (billing sync, invoice generation, reporting)
+// ============================================================
+export const JOB_STATUSES = ["queued", "running", "succeeded", "failed", "cancelled"] as const;
+export type JobStatus = (typeof JOB_STATUSES)[number];
+
+export const JOB_CATEGORIES = ["billing", "general"] as const;
+export type JobCategory = (typeof JOB_CATEGORIES)[number];
+
+export const jobs = pgTable("jobs", {
+  id: serial("id").primaryKey(),
+  type: text("type").notNull(), // registered handler name, e.g. "billing:customer-sync"
+  category: text("category").notNull().default("general"), // billing | general
+  payload: jsonb("payload"), // handler-specific input
+  status: text("status").notNull().default("queued"), // queued, running, succeeded, failed, cancelled
+  attempts: integer("attempts").notNull().default(0),
+  maxAttempts: integer("max_attempts").notNull().default(3),
+  scheduledFor: timestamp("scheduled_for").notNull().defaultNow(), // don't run before this time
+  output: text("output").notNull().default(""), // appendable captured log
+  holdOverride: boolean("hold_override").notNull().default(false), // admin run-now: bypass the billing startup hold for this job
+  lockedBy: text("locked_by"), // worker instance id that owns the running job
+  leaseExpiresAt: timestamp("lease_expires_at"), // heartbeat lease; expired running jobs are reclaimed
+  lastError: text("last_error"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  startedAt: timestamp("started_at"),
+  finishedAt: timestamp("finished_at"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("IDX_jobs_status_scheduled").on(table.status, table.scheduledFor),
+]);
+
+export const insertJobSchema = createInsertSchema(jobs).omit({
+  id: true, status: true, attempts: true, output: true, lastError: true,
+  createdAt: true, startedAt: true, finishedAt: true, updatedAt: true,
+});
+export type Job = typeof jobs.$inferSelect;
+export type InsertJob = z.infer<typeof insertJobSchema>;
+
 // Auth types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;

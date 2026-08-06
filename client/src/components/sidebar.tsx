@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Car, Users, Presentation, Calendar, ClipboardCheck, Mail, BarChart3, Menu, X, Video, FileText, CreditCard, MapPin, TrendingUp, Settings, LogOut, Shield, Receipt, DollarSign, ChevronDown, ChevronRight, Wallet, RotateCcw, Database } from "lucide-react";
+import { Car, Users, Presentation, Calendar, ClipboardCheck, Mail, BarChart3, Menu, X, Video, FileText, CreditCard, MapPin, TrendingUp, Settings, LogOut, Shield, Receipt, DollarSign, ChevronDown, ChevronRight, Wallet, RotateCcw, Database, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -49,6 +49,7 @@ const navigation: NavItem[] = [
       { name: "Override Audit Logs", href: "/override-audit-logs", icon: Shield },
       { name: "Attendance Audit Logs", href: "/attendance-audit-logs", icon: ClipboardCheck },
       { name: "Data Migration", href: "/data-migration", icon: Database },
+      { name: "Job Control", href: "/job-control", icon: ListChecks },
       { name: "System Settings", href: "/settings", icon: Settings },
     ]
   },

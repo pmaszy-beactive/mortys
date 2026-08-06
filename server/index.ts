@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./init-db";
 import { startScheduledMessageWorker } from "./scheduled-message-sender";
+import { startJobQueueWorker } from "./job-queue";
 import { errorCaptureMiddleware, captureRequestError, startErrorLogCleanup } from "./services/error-logger";
 import { readFileSync } from "fs";
 import { resolve } from "path";
@@ -118,6 +119,9 @@ app.use((req, res, next) => {
     
     // Start the scheduled message worker
     startScheduledMessageWorker();
+
+    // Start the background job queue worker (billing jobs held 4h after startup)
+    startJobQueueWorker();
 
     // Daily cleanup of error logs older than 30 days
     startErrorLogCleanup();

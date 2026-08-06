@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { initializeDatabase } from "./init-db";
 import { startScheduledMessageWorker } from "./scheduled-message-sender";
+import { startJobQueueWorker } from "./job-queue";
 import { errorCaptureMiddleware, captureRequestError, startErrorLogCleanup } from "./services/error-logger";
 import { readFileSync, existsSync } from "fs";
 import { resolve } from "path";
@@ -121,6 +122,7 @@ app.use((req, res, next) => {
   server.listen({ port, host: "0.0.0.0", reusePort: true }, () => {
     log(`serving on port ${port}`);
     startScheduledMessageWorker();
+    startJobQueueWorker();
     startErrorLogCleanup();
   });
 })();
