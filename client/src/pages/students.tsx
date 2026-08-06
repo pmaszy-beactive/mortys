@@ -368,9 +368,9 @@ export default function Students() {
               <CardContent className="pt-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Name / Email</label>
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Name / Email / Attestation / Contract #</label>
                     <Input
-                      placeholder="Search by name or email..."
+                      placeholder="Name, email, attestation or contract #..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleSearch()}

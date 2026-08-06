@@ -3899,7 +3899,13 @@ export class DatabaseStorage implements IStorage {
         ${students.phone} LIKE ${searchTerm} OR
         LOWER(${students.attestationNumber}) LIKE ${searchTerm} OR
         ${students.legacyId} LIKE ${searchTerm} OR
-        LOWER(${students.transferredFrom}) LIKE ${searchTerm}
+        LOWER(${students.transferredFrom}) LIKE ${searchTerm} OR
+        LOWER(${students.contractNumber}) LIKE ${searchTerm} OR
+        EXISTS (
+          SELECT 1 FROM contracts
+          WHERE contracts.student_id = ${students.id}
+          AND LOWER(contracts.contract_number) LIKE ${searchTerm}
+        )
       )`);
     }
 
