@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { getCourseClassCounts } from "@shared/bookingRules";
 import { Plus, Calendar, ChevronLeft, ChevronRight, Car, Bike, Users, Edit, Eye, X, Sparkles, CalendarClock, BookOpen, MapPin, AlertTriangle, Clock, GripVertical, Wand2, Loader2 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -43,7 +44,7 @@ export default function Scheduling() {
   const [genForm, setGenForm] = useState({
     courseType: 'auto',
     classType: 'theory',
-    classNumber: 1,
+    classNumber: '1',
     daysOfWeek: [] as number[], // 0=Sun, 1=Mon, ...6=Sat
     time: '09:00',
     duration: 120,
@@ -54,6 +55,7 @@ export default function Scheduling() {
     endDate: oneYearLater,
     hasTest: false,
     zoomLink: '',
+    progressive: false,
   });
 
   // Reschedule class mutation
@@ -125,8 +127,14 @@ export default function Scheduling() {
     },
   });
 
+  // Class number must be a whole number >= 1 (digit-only string; no
+  // decimals/suffixes — matches the server's strict validation).
+  const classNumberValid = /^\d+$/.test(genForm.classNumber.trim()) && parseInt(genForm.classNumber, 10) >= 1;
+  const classNumberInt = classNumberValid ? parseInt(genForm.classNumber, 10) : 1;
+
   // Preview: count how many dates will be created
   const previewCount = useMemo(() => {
+    if (!classNumberValid) return 0;
     if (!genForm.startDate || !genForm.endDate || genForm.daysOfWeek.length === 0) return 0;
     const start = new Date(genForm.startDate + "T00:00:00");
     const end = new Date(genForm.endDate + "T00:00:00");
@@ -137,8 +145,13 @@ export default function Scheduling() {
       if (genForm.daysOfWeek.includes(cur.getDay())) count++;
       cur.setDate(cur.getDate() + 1);
     }
+    if (genForm.progressive) {
+      const counts = getCourseClassCounts(genForm.courseType);
+      const maxNumber = genForm.classType === 'driving' ? counts.drivingCount : counts.theoryCount;
+      count = Math.max(0, Math.min(count, maxNumber - classNumberInt + 1));
+    }
     return count;
-  }, [genForm.startDate, genForm.endDate, genForm.daysOfWeek]);
+  }, [genForm.startDate, genForm.endDate, genForm.daysOfWeek, genForm.progressive, genForm.courseType, genForm.classType, classNumberValid, classNumberInt]);
 
   const toggleGenDay = (day: number) => {
     setGenForm(prev => ({
@@ -1162,9 +1175,14 @@ export default function Scheduling() {
                     type="number"
                     min={1}
                     max={15}
+                    step={1}
                     value={genForm.classNumber}
-                    onChange={e => setGenForm(p => ({ ...p, classNumber: parseInt(e.target.value) || 1 }))}
+                    onChange={e => setGenForm(p => ({ ...p, classNumber: e.target.value }))}
+                    className={classNumberValid ? undefined : 'border-red-400 focus-visible:ring-red-400'}
                   />
+                  {!classNumberValid && (
+                    <p className="text-xs text-red-500">Enter a whole number (1 or higher)</p>
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <Label>Duration</Label>
@@ -1178,6 +1196,22 @@ export default function Scheduling() {
                       <SelectItem value="240">240 min</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+              </div>
+
+              {/* Progressive series */}
+              <div className="flex items-start gap-2 rounded-md border border-gray-200 p-3">
+                <Checkbox
+                  id="gen-progressive"
+                  checked={genForm.progressive}
+                  onCheckedChange={v => setGenForm(p => ({ ...p, progressive: v === true }))}
+                  data-testid="checkbox-progressive"
+                />
+                <div className="space-y-0.5">
+                  <Label htmlFor="gen-progressive" className="cursor-pointer">Progress through class numbers</Label>
+                  <p className="text-xs text-gray-500">
+                    Each date gets the next class number ({genForm.classType === 'driving' ? 'Driving' : 'Theory'} {classNumberInt}, {classNumberInt + 1}, …) up to the last session of the {genForm.courseType} course, instead of repeating the same class every time.
+                  </p>
                 </div>
               </div>
 

@@ -47,7 +47,7 @@ import {
 } from "@shared/examData";
 import { PHASE_DEFINITIONS } from "@shared/phaseConfig";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
-import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass } from "@shared/bookingRules";
+import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { loginUser, isAuthenticatedTraditional } from "./auth";
 import { loginInstructor, isInstructorAuthenticated } from "./instructor-auth";
@@ -2426,7 +2426,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const {
         courseType, classType, classNumber, daysOfWeek, time, duration,
-        instructorId, maxStudents, lessonType, startDate, endDate, hasTest, zoomLink
+        instructorId, maxStudents, lessonType, startDate, endDate, hasTest, zoomLink,
+        progressive
       } = req.body;
 
       if (!courseType || !classType || !classNumber || !daysOfWeek?.length || !time || !startDate || !endDate) {
@@ -2451,6 +2452,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (dates.length === 0) return res.status(400).json({ message: "No dates match the selected days of week in this range" });
 
+      // Progressive series: instead of repeating the same class on every
+      // date, assign incrementing class numbers (Class 1, 2, ... n) across
+      // consecutive dates, capped at the course's session count. Extra dates
+      // beyond the final class number are not created.
+      // Strict validation: only an integer primitive or a digit-only string.
+      // Number()/parseInt coercion would silently accept "1.5", "1abc",
+      // booleans, or arrays.
+      const isValidClassNumber =
+        (typeof classNumber === 'number' && Number.isInteger(classNumber)) ||
+        (typeof classNumber === 'string' && /^\d+$/.test(classNumber.trim()));
+      const startNumber = isValidClassNumber ? Number(classNumber) : NaN;
+      if (!isValidClassNumber || startNumber < 1) {
+        return res.status(400).json({ message: "Class number must be a positive integer" });
+      }
+      let progressiveDates = dates;
+      if (progressive) {
+        const counts = getCourseClassCounts(courseType);
+        const maxNumber = classType === 'driving' ? counts.drivingCount : counts.theoryCount;
+        if (startNumber > maxNumber) {
+          return res.status(400).json({
+            message: `Class number ${startNumber} exceeds the ${maxNumber} ${classType} sessions for the ${courseType} course.`,
+          });
+        }
+        progressiveDates = dates.slice(0, maxNumber - startNumber + 1);
+      }
+
       // Pre-validate every date against the instructor's availability before
       // creating anything (no partial creation).
       if (instructorId) {
@@ -2458,7 +2485,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const dur = parseInt(duration) || 120;
         const availabilityViolations: string[] = [];
         const checkedDays = new Set<number>();
-        for (const date of dates) {
+        for (const date of progressiveDates) {
           const dow = new Date(date + "T00:00:00").getDay();
           if (checkedDays.has(dow)) continue;
           checkedDays.add(dow);
@@ -2476,11 +2503,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const seriesId = randomUUID();
       const created = [];
-      for (const date of dates) {
+      for (let i = 0; i < progressiveDates.length; i++) {
+        const date = progressiveDates[i];
         const cls = await storage.createClass({
           courseType,
           classType,
-          classNumber: parseInt(classNumber),
+          classNumber: progressive ? startNumber + i : startNumber,
           date,
           time,
           duration: parseInt(duration) || 120,
@@ -2495,7 +2523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         created.push(cls);
       }
 
-      res.status(201).json({ created: created.length, dates, seriesId });
+      res.status(201).json({ created: created.length, dates: progressiveDates, seriesId, progressive: !!progressive });
     } catch (error) {
       captureRequestError(error);
       console.error("Bulk class creation error:", error);

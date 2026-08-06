@@ -193,6 +193,19 @@ export function validateClassBooking(
  */
 export const MAX_CLASSES_PER_DAY = 2;
 
+// Number of theory/driving sessions per course type. Shared by the booking
+// rules below and the recurring-schedule generator (progressive series).
+// Auto follows the full phased curriculum (Theory 1–12, In-Car 1–15); the
+// fallback covers unknown course types under the simplified rules.
+export function getCourseClassCounts(courseType: string): { theoryCount: number; drivingCount: number } {
+  const config: Record<string, { theoryCount: number; drivingCount: number }> = {
+    auto: { theoryCount: 12, drivingCount: 15 },
+    moto: { theoryCount: 8, drivingCount: 10 },
+    scooter: { theoryCount: 6, drivingCount: 8 },
+  };
+  return config[(courseType || '').toLowerCase()] ?? { theoryCount: 5, drivingCount: 10 };
+}
+
 function checkMaxClassesPerDay(
   target: TargetClassInfo
 ): BookingValidationResult | null {
@@ -569,11 +582,7 @@ function validateSimplifiedRules(
   const { classType, classNumber } = target;
 
   // Config per course
-  const config: Record<string, { theoryCount: number; drivingCount: number }> = {
-    moto: { theoryCount: 8, drivingCount: 10 },
-    scooter: { theoryCount: 6, drivingCount: 8 },
-  };
-  const c = config[courseType] ?? { theoryCount: 5, drivingCount: 10 };
+  const c = getCourseClassCounts(courseType);
 
   const completedTheory = completed.filter((x) => x.classType === "theory").length;
   const completedDriving = completed.filter((x) => x.classType === "driving").length;
