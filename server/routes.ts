@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { randomUUID } from "crypto";
+import { randomUUID, timingSafeEqual } from "crypto";
 import Stripe from "stripe";
 import {
   isS3Configured,
@@ -7378,6 +7378,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (courseType) seedData.courseType = courseType;
       if (selectedStartDateId) seedData.selectedStartDateId = String(selectedStartDateId);
 
+      // High-entropy capability token: required by the pre-verification card
+      // endpoints so a numeric registration ID alone can't be used to attach
+      // or poison a card on someone else's registration.
+      const cardCaptureToken = crypto.randomBytes(24).toString("hex");
+      seedData.cardCaptureToken = cardCaptureToken;
+
       const [registration] = await db.insert(studentRegistrations).values({
         email,
         passwordHash: hashedPassword,
@@ -7416,6 +7422,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         message: "Verification code sent to your email",
         registrationId: registration.id,
+        cardToken: cardCaptureToken,
         step: "verify",
         expiresAt: expiresAt.toISOString()
       });
@@ -7704,6 +7711,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Carry the card captured during sign-up onto the real student record:
+      // the registration's Stripe customer becomes the student's customer and
+      // the saved payment method becomes their default card. Never blocks
+      // registration — failures are logged for the office to reconcile.
+      try {
+        const regData: any = data;
+        if (regData.stripeCustomerId) {
+          // Atomic DB transfer: customer id + card row land together or not at
+          // all, so a partial failure can't leave a student with a customer but
+          // no bookable card. If it does fail, booking enforcement still holds —
+          // the student is prompted to add a card in the booking drawer.
+          await db.transaction(async (tx) => {
+            await tx.update(students)
+              .set({ stripeCustomerId: regData.stripeCustomerId })
+              .where(eq(students.id, newStudent.id));
+            if (regData.pendingCard?.stripePaymentMethodId) {
+              const { studentPaymentMethods: spmTable } = await import("@shared/schema");
+              await tx.insert(spmTable).values({
+                studentId: newStudent.id,
+                stripePaymentMethodId: regData.pendingCard.stripePaymentMethodId,
+                cardBrand: regData.pendingCard.cardBrand ?? null,
+                last4: regData.pendingCard.last4 ?? null,
+                expiryMonth: regData.pendingCard.expiryMonth ?? null,
+                expiryYear: regData.pendingCard.expiryYear ?? null,
+                isDefault: true,
+              });
+            }
+          });
+          // Cosmetic Stripe update — never blocks the transfer.
+          if (stripe) {
+            try {
+              await stripe.customers.update(regData.stripeCustomerId, {
+                name: `${newStudent.firstName} ${newStudent.lastName}`,
+                metadata: { studentId: String(newStudent.id) },
+              });
+            } catch (stripeErr) {
+              captureRequestError(stripeErr);
+              console.error("[STUDENT-COMPLETE] Stripe customer update failed (non-blocking):", stripeErr);
+            }
+          }
+        }
+      } catch (cardErr) {
+        captureRequestError(cardErr);
+        console.error("[STUDENT-COMPLETE] Failed to attach sign-up card to student:", cardErr);
+      }
+
       // Update registration as completed
       await db.update(studentRegistrations)
         .set({
@@ -7737,6 +7790,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
       captureRequestError(error);
       console.error("[STUDENT-COMPLETE] Error:", error);
       res.status(500).json({ message: "Failed to complete registration" });
+    }
+  });
+
+  // ---------------------------------------------------------------------
+  // Registration card capture (sign-up card step, before email verification)
+  // Card is saved via a SetupIntent against a Stripe customer created for the
+  // registration; the customer + payment method are attached to the real
+  // student record when onboarding completes.
+  // ---------------------------------------------------------------------
+
+  // Capability check for the pre-verification card endpoints: numeric
+  // registration IDs are guessable, so callers must present the high-entropy
+  // token issued only in the register response. Constant-time comparison.
+  const hasValidCardCaptureToken = (onboardingData: any, provided: unknown): boolean => {
+    const expected = onboardingData?.cardCaptureToken;
+    if (typeof expected !== "string" || typeof provided !== "string") return false;
+    const a = Buffer.from(expected);
+    const b = Buffer.from(provided);
+    if (a.length !== b.length) return false;
+    return timingSafeEqual(a, b);
+  };
+
+  // Create (or reuse) a Stripe customer for the registration and return a
+  // SetupIntent client secret for the branded in-app card form.
+  app.post("/api/student/registration/:registrationId/setup-intent", async (req, res) => {
+    try {
+      if (!stripe) return res.status(500).json({ message: "Payment system is not configured" });
+      const registrationId = parseInt(req.params.registrationId);
+      const [registration] = await db.select().from(studentRegistrations)
+        .where(eq(studentRegistrations.id, registrationId)).limit(1);
+      if (!registration) return res.status(404).json({ message: "Registration not found" });
+      if (registration.onboardingCompleted) return res.status(400).json({ message: "Registration already completed" });
+
+      const data: any = registration.onboardingData || {};
+      if (!hasValidCardCaptureToken(data, req.body?.cardToken)) {
+        return res.status(403).json({ message: "Not authorized for this registration" });
+      }
+      let stripeCustomerId: string | undefined = data.stripeCustomerId;
+      if (!stripeCustomerId) {
+        const customer = await stripe.customers.create({
+          email: registration.email,
+          metadata: { registrationId: String(registrationId) },
+        });
+        stripeCustomerId = customer.id;
+        await db.update(studentRegistrations)
+          .set({ onboardingData: { ...data, stripeCustomerId }, updatedAt: new Date() })
+          .where(eq(studentRegistrations.id, registrationId));
+      }
+
+      const setupIntent = await stripe.setupIntents.create({
+        customer: stripeCustomerId,
+        usage: "off_session",
+        payment_method_types: ["card"],
+        metadata: { registrationId: String(registrationId) },
+      });
+      res.json({ clientSecret: setupIntent.client_secret, setupIntentId: setupIntent.id });
+    } catch (error: any) {
+      captureRequestError(error);
+      console.error("Error creating registration setup intent:", error);
+      res.status(500).json({ message: error.message || "Failed to prepare card form" });
+    }
+  });
+
+  // After the client confirms the SetupIntent, verify it and stash the saved
+  // card on the registration so it can be carried onto the student record.
+  app.post("/api/student/registration/:registrationId/save-card", async (req, res) => {
+    try {
+      if (!stripe) return res.status(500).json({ message: "Payment system is not configured" });
+      const registrationId = parseInt(req.params.registrationId);
+      const { setupIntentId } = req.body;
+      if (!setupIntentId) return res.status(400).json({ message: "setupIntentId is required" });
+
+      const [registration] = await db.select().from(studentRegistrations)
+        .where(eq(studentRegistrations.id, registrationId)).limit(1);
+      if (!registration) return res.status(404).json({ message: "Registration not found" });
+      if (registration.onboardingCompleted) return res.status(400).json({ message: "Registration already completed" });
+
+      const data: any = registration.onboardingData || {};
+      if (!hasValidCardCaptureToken(data, req.body?.cardToken)) {
+        return res.status(403).json({ message: "Not authorized for this registration" });
+      }
+      const setupIntent = await stripe.setupIntents.retrieve(setupIntentId);
+      if (setupIntent.metadata?.registrationId !== String(registrationId) || setupIntent.customer !== data.stripeCustomerId) {
+        return res.status(403).json({ message: "Card setup does not belong to this registration" });
+      }
+      if (setupIntent.status !== "succeeded" || !setupIntent.payment_method) {
+        return res.status(400).json({ message: "Card setup is not complete yet" });
+      }
+
+      const pmId = typeof setupIntent.payment_method === "string" ? setupIntent.payment_method : setupIntent.payment_method.id;
+      const paymentMethod = await stripe.paymentMethods.retrieve(pmId);
+      const pendingCard = {
+        stripePaymentMethodId: pmId,
+        cardBrand: paymentMethod.card?.brand || null,
+        last4: paymentMethod.card?.last4 || null,
+        expiryMonth: paymentMethod.card?.exp_month || null,
+        expiryYear: paymentMethod.card?.exp_year || null,
+      };
+      await db.update(studentRegistrations)
+        .set({ onboardingData: { ...data, pendingCard }, updatedAt: new Date() })
+        .where(eq(studentRegistrations.id, registrationId));
+      res.json({ saved: true, cardBrand: pendingCard.cardBrand, last4: pendingCard.last4 });
+    } catch (error: any) {
+      captureRequestError(error);
+      console.error("Error saving registration card:", error);
+      res.status(500).json({ message: error.message || "Failed to save card" });
     }
   });
   
@@ -11235,6 +11394,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             message: wnpViolation.message,
             policyViolation: wnpViolation.policyType,
           });
+        }
+
+        // Card-on-file requirement: any class past #1 needs a saved payment
+        // method. Class #1 stays bookable without a card. Server-side so the
+        // client cannot bypass; the UI maps `card_required` to the card drawer.
+        if ((classData.classNumber ?? 0) > 1) {
+          const savedCards = await storage.getStudentPaymentMethods(student.id);
+          if (savedCards.length === 0) {
+            logBookingDecision('deny rule=card_required', 'no saved payment method');
+            return res.status(400).json({
+              message: "A payment card on file is required to book classes beyond Class #1. Please add a card to continue.",
+              policyViolation: "card_required",
+            });
+          }
         }
 
         const result = await storage.bookClass(student.id, classId, bookingTx);

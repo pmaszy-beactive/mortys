@@ -17,8 +17,9 @@ import { useLocation, Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import type { CourseStartDate } from "@shared/schema";
+import { CardCaptureForm } from "@/components/student/card-capture-form";
 
-type FlowStep = "courseType" | "startDate" | "account" | "verify" | "redirect";
+type FlowStep = "courseType" | "startDate" | "account" | "card" | "verify" | "redirect";
 
 const COURSE_TYPES = [
   {
@@ -55,6 +56,7 @@ export default function StudentRegister() {
   const [selectedCourseType, setSelectedCourseType] = useState<string | null>(null);
   const [selectedStartDateId, setSelectedStartDateId] = useState<number | null>(null);
   const [registrationId, setRegistrationId] = useState<number | null>(null);
+  const [cardToken, setCardToken] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [expiresAt, setExpiresAt] = useState<Date | null>(null);
@@ -116,11 +118,13 @@ export default function StudentRegister() {
       if (response.step === "verify") {
         if (response.expiresAt) setExpiresAt(new Date(response.expiresAt));
         setVerificationCode("");
-        setFlowStep("verify");
-        toast({
-          title: "Check your email",
-          description: "We sent a 6-digit verification code. It expires in 2 minutes.",
-        });
+        if (response.cardToken) {
+          setCardToken(response.cardToken);
+          setFlowStep("card");
+        } else {
+          // No card capability issued (e.g. resumed registration) — go verify.
+          goToVerify();
+        }
       } else if (response.step === "onboarding") {
         setLocation(`/student/onboarding/${response.registrationId}`);
       }
@@ -182,12 +186,21 @@ export default function StudentRegister() {
   const selectedDate = startDates.find((d) => d.id === selectedStartDateId);
   const selectedCourseInfo = COURSE_TYPES.find((c) => c.value === selectedCourseType);
 
-  const STEPS = ["Course", "Start Date", "Account", "Verify"];
+  const STEPS = ["Course", "Start Date", "Account", "Card", "Verify"];
   const stepIndex =
     flowStep === "courseType" ? 0
     : flowStep === "startDate" ? 1
     : flowStep === "account" ? 2
-    : 3;
+    : flowStep === "card" ? 3
+    : 4;
+
+  const goToVerify = () => {
+    setFlowStep("verify");
+    toast({
+      title: "Check your email",
+      description: "We sent a 6-digit verification code. If it expired, tap Resend.",
+    });
+  };
 
   if (flowStep === "redirect") {
     return (
@@ -494,7 +507,31 @@ export default function StudentRegister() {
               </div>
             )}
 
-            {/* ── STEP 4: Verify email ─────────────────────────── */}
+            {/* ── STEP 4: Card on file ─────────────────────────── */}
+            {flowStep === "card" && (
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-xl font-bold text-[#111111]">Add a Payment Card</h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    A card on file is required to book classes beyond Class #1. You won't be charged now.
+                  </p>
+                </div>
+                {registrationId && cardToken && (
+                  <CardCaptureForm
+                    registrationId={registrationId}
+                    cardToken={cardToken}
+                    saveLabel="Save Card & Continue"
+                    onSaved={() => {
+                      toast({ title: "Card saved", description: "Your card is securely on file." });
+                      goToVerify();
+                    }}
+                    onSkip={goToVerify}
+                  />
+                )}
+              </div>
+            )}
+
+            {/* ── STEP 5: Verify email ─────────────────────────── */}
             {flowStep === "verify" && (
               <div className="space-y-5">
                 <div className="text-center">

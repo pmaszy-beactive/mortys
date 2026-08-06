@@ -32,6 +32,20 @@ import { useStudentAuth } from "@/hooks/useStudentAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isPermitExpired, isPermitExpiringSoon, formatDate } from "@/lib/utils";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { CardCaptureForm } from "@/components/student/card-capture-form";
+
+interface StudentPaymentMethodSummary {
+  id: number;
+  cardBrand: string | null;
+  last4: string | null;
+}
 
 interface AvailableClass {
   id: number;
@@ -93,6 +107,8 @@ export default function BookClasses() {
   const { toast } = useToast();
   const [selectedClass, setSelectedClass] = useState<AvailableClass | null>(null);
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
+  const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
+  const [pendingCardClass, setPendingCardClass] = useState<AvailableClass | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
 
@@ -115,6 +131,12 @@ export default function BookClasses() {
     enabled: isAuthenticated,
   });
 
+  const { data: paymentMethods = [] } = useQuery<StudentPaymentMethodSummary[]>({
+    queryKey: ["/api/student/billing/methods"],
+    enabled: isAuthenticated,
+  });
+  const hasSavedCard = paymentMethods.length > 0;
+
   const bookClassMutation = useMutation({
     mutationFn: async (classId: number) => {
       return await apiRequest("POST", `/api/student/classes/${classId}/book`);
@@ -133,6 +155,14 @@ export default function BookClasses() {
       });
     },
     onError: (error: any) => {
+      // Server-side card enforcement: open the card drawer instead of a toast
+      // so the student can add a card and resume the booking.
+      if (error?.data?.policyViolation === "card_required" && selectedClass) {
+        setIsBookingDialogOpen(false);
+        setPendingCardClass(selectedClass);
+        setIsCardDrawerOpen(true);
+        return;
+      }
       toast({
         title: "Booking Failed",
         description: error?.message || "Failed to book class. Please try again.",
@@ -174,8 +204,30 @@ export default function BookClasses() {
   }
 
   const handleBookClass = (classItem: AvailableClass) => {
+    // Classes beyond #1 require a card on file (also enforced server-side).
+    if (classItem.classNumber > 1 && !hasSavedCard) {
+      setPendingCardClass(classItem);
+      setIsCardDrawerOpen(true);
+      return;
+    }
     setSelectedClass(classItem);
     setIsBookingDialogOpen(true);
+  };
+
+  const handleCardSaved = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/student/billing/methods"] });
+    setIsCardDrawerOpen(false);
+    toast({
+      title: "Card saved",
+      description: "Your card is securely on file. You can now book this class.",
+      variant: "success",
+    });
+    // Resume the booking the student was attempting.
+    if (pendingCardClass) {
+      setSelectedClass(pendingCardClass);
+      setIsBookingDialogOpen(true);
+      setPendingCardClass(null);
+    }
   };
 
   const confirmBooking = () => {
@@ -682,6 +734,26 @@ export default function BookClasses() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Card capture drawer — required before booking classes beyond #1 */}
+      <Sheet open={isCardDrawerOpen} onOpenChange={(open) => {
+        setIsCardDrawerOpen(open);
+        if (!open) setPendingCardClass(null);
+      }}>
+        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto" data-testid="sheet-card-required">
+          <SheetHeader>
+            <SheetTitle className="text-[#111111]">Add a Payment Card</SheetTitle>
+            <SheetDescription>
+              A card on file is required to book classes beyond Class #1
+              {pendingCardClass ? ` (you're booking Class #${pendingCardClass.classNumber})` : ""}.
+              You won't be charged now — your booking will continue once the card is saved.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <CardCaptureForm onSaved={handleCardSaved} saveLabel="Save Card & Continue Booking" />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
