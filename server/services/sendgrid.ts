@@ -34,6 +34,13 @@ export interface UatOverrideResult {
   blocked: boolean;
   to: string[];
   subject: string;
+  // True when recipients were rewritten to the UAT override address(es).
+  redirected?: boolean;
+}
+
+// Exposed for audit logging in sendEmail.
+export function isUatOverrideEnabledForAudit(): boolean {
+  return isUatOverrideEnabled();
 }
 
 // Central helper: applies the UAT recipient override to a single outgoing email.
@@ -62,6 +69,7 @@ export function applyUatEmailOverride(to: string[], subject: string, bypass?: bo
     console.warn(
       `[UAT EMAIL OVERRIDE] BLOCKED email "${subject}" to [${originalRecipients}] — UAT_EMAIL_OVERRIDE is on but OFFICE_NOTIFICATION_EMAILS is empty/unset. Email NOT sent.`,
     );
+    console.log(`[EMAIL-AUDIT] NOT SENT (UAT override on, no override recipients configured) — intended for [${originalRecipients}], subject "${subject}"`);
     return { blocked: true, to: [], subject };
   }
 
@@ -69,7 +77,7 @@ export function applyUatEmailOverride(to: string[], subject: string, bypass?: bo
   console.log(
     `[UAT EMAIL OVERRIDE] Redirecting email "${subject}" from [${originalRecipients}] to [${overrideRecipients.join(", ")}]`,
   );
-  return { blocked: false, to: overrideRecipients, subject: newSubject };
+  return { blocked: false, to: overrideRecipients, subject: newSubject, redirected: true };
 }
 
 interface EmailParams {
@@ -96,6 +104,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
   // Mock mode - log and return success
   if (!isConfigured || !mailService) {
     console.log(`[MOCK EMAIL] To: ${to.join(', ')}, From: ${params.from}, Subject: ${subject}`);
+    console.log(`[EMAIL-AUDIT] NOT SENT (mock mode, no SendGrid key) — would deliver to [${to.join(", ")}], subject "${subject}"`);
     return true;
   }
 
@@ -111,9 +120,13 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     if (params.html) emailData.html = params.html;
     
     await mailService.send({ ...emailData, trackingSettings: { clickTracking: { enable: false, enableText: false } } });
+    console.log(
+      `[EMAIL-AUDIT] SENT to [${to.join(", ")}]${override.redirected ? ` (UAT-redirected from [${params.to.join(", ")}])` : params.uatBypass && isUatOverrideEnabledForAudit() ? " (UAT bypass — real recipient)" : ""} — subject "${subject}"`,
+    );
     return true;
   } catch (error) {
     console.error("SendGrid email error:", error);
+    console.log(`[EMAIL-AUDIT] NOT SENT (SendGrid error) — intended for [${to.join(", ")}], subject "${subject}"`);
     return false;
   }
 }
@@ -175,6 +188,7 @@ export async function sendBulkEmail(
     console.log(`  From: ${from}`);
     console.log(`  Subject: ${subject}`);
     console.log(`  Recipients: ${recipients.join(', ')}`);
+    console.log(`[EMAIL-AUDIT] NOT SENT (mock mode, no SendGrid key) — bulk email would deliver to [${recipients.join(", ")}], subject "${subject}"`);
     results.sentCount = recipients.length;
     return results;
   }
@@ -206,9 +220,11 @@ export async function sendBulkEmail(
       });
       results.sentCount++;
       console.log(`✓ Email ${i + 1}/${recipients.length} sent successfully to ${recipient}`);
+      console.log(`[EMAIL-AUDIT] SENT to [${override.to.join(", ")}]${override.redirected ? ` (UAT-redirected from [${recipient}])` : ""} — bulk email, subject "${override.subject}"`);
     } catch (error: any) {
       const errorMessage = error?.response?.body?.errors?.[0]?.message || error?.message || String(error);
       console.error(`✗ Failed to send email to ${recipient}:`, errorMessage);
+      console.log(`[EMAIL-AUDIT] NOT SENT (SendGrid error) — bulk email intended for [${override.to.join(", ")}] (original recipient ${recipient}), subject "${override.subject}"`);
       results.errors.push(`Failed to send to ${recipient}: ${errorMessage}`);
       results.success = false;
     }

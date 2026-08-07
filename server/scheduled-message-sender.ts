@@ -34,6 +34,7 @@ async function processScheduledMessages() {
         // Get recipient emails (for now, skip if recipients is not an array)
         if (!Array.isArray(message.recipients) || message.recipients.length === 0) {
           console.log(`[SCHEDULED-MESSAGES] No recipients for message ${message.id}, skipping`);
+          console.log(`[EMAIL-AUDIT] NOT SENT (no recipients) — scheduled message ${message.id}, subject "${message.subject}"`);
           continue;
         }
         
@@ -43,6 +44,7 @@ async function processScheduledMessages() {
         
         if (recipientEmails.length === 0) {
           console.log(`[SCHEDULED-MESSAGES] No valid email addresses for message ${message.id}, skipping`);
+          console.log(`[EMAIL-AUDIT] NOT SENT (no valid email addresses) — scheduled message ${message.id}, subject "${message.subject}"`);
           continue;
         }
         
@@ -51,6 +53,12 @@ async function processScheduledMessages() {
         
         const override = applyUatEmailOverride(recipientEmails, message.subject);
         if (override.blocked) {
+          await storage.updateCommunication(message.id, { status: 'failed' });
+          continue;
+        }
+
+        if (!process.env.SENDGRID_API_KEY) {
+          console.log(`[EMAIL-AUDIT] NOT SENT (mock mode, no SendGrid key) — scheduled message ${message.id} would deliver to [${override.to.join(", ")}], subject "${override.subject}"`);
           await storage.updateCommunication(message.id, { status: 'failed' });
           continue;
         }
@@ -84,9 +92,11 @@ async function processScheduledMessages() {
           status: 'sent',
         });
         
+        console.log(`[EMAIL-AUDIT] SENT to [${override.to.join(", ")}]${override.redirected ? ` (UAT-redirected from [${recipientEmails.join(", ")}])` : ""} — scheduled message ${message.id}, subject "${override.subject}"`);
         console.log(`[SCHEDULED-MESSAGES] Successfully sent message ${message.id} to ${recipientEmails.length} recipients`);
       } catch (error) {
         console.error(`[SCHEDULED-MESSAGES] Error sending message ${message.id}:`, error);
+        console.log(`[EMAIL-AUDIT] NOT SENT (send error) — scheduled message ${message.id}, subject "${message.subject}"`);
         
         // Mark as failed
         await storage.updateCommunication(message.id, {
@@ -144,7 +154,7 @@ async function processUpcomingClassReminders() {
         const endDate = new Date(startDate.getTime() + (cls.duration * 60 * 1000));
         const endTime = endDate.toTimeString().slice(0, 5);
         
-        await notificationService.notifyUpcomingClass({
+        const outcome = await notificationService.notifyUpcomingClass({
           id: cls.id,
           title: classTitle,
           scheduledDate: cls.date,
@@ -154,7 +164,13 @@ async function processUpcomingClassReminders() {
           location: cls.room || undefined,
         });
         
-        console.log(`[SCHEDULED-MESSAGES] Sent reminder for class ${cls.id}: ${classTitle}`);
+        if (outcome === "sent") {
+          console.log(`[SCHEDULED-MESSAGES] Queued reminder notification for class ${cls.id}: ${classTitle} (see [EMAIL-AUDIT] lines for actual email delivery)`);
+        } else if (outcome === "deduped") {
+          console.log(`[SCHEDULED-MESSAGES] Skipped reminder for class ${cls.id} (${classTitle}) — already notified. No email sent.`);
+        } else {
+          console.log(`[SCHEDULED-MESSAGES] Skipped reminder for class ${cls.id} (${classTitle}) — no enrolled recipients. No email sent.`);
+        }
       } catch (error) {
         console.error(`[SCHEDULED-MESSAGES] Error sending reminder for class ${cls.id}:`, error);
       }

@@ -123,8 +123,16 @@ async function processEmailDeliveries(notificationId: number, subject: string, b
       eq(notificationDeliveries.status, 'pending')
     ));
 
+  if (pendingEmailDeliveries.length === 0) {
+    console.log(`[EMAIL-AUDIT] NOT SENT (no email deliveries queued — recipients missing or email disabled by preferences) — notification ${notificationId}, subject "${subject}"`);
+    return;
+  }
+
   for (const delivery of pendingEmailDeliveries) {
-    if (!delivery.recipientEmail) continue;
+    if (!delivery.recipientEmail) {
+      console.log(`[EMAIL-AUDIT] NOT SENT (recipient has no email address) — notification ${notificationId} delivery ${delivery.id} (${delivery.recipientType} ${delivery.recipientId}), subject "${subject}"`);
+      continue;
+    }
 
     try {
       const success = await sendEmail({
@@ -594,7 +602,7 @@ export async function notifyUpcomingClass(classData: {
   endTime: string;
   instructorName?: string;
   location?: string;
-}): Promise<void> {
+}): Promise<"sent" | "deduped" | "no_recipients"> {
   const existingNotification = await db.select({ id: notifications.id })
     .from(notifications)
     .where(and(
@@ -605,11 +613,11 @@ export async function notifyUpcomingClass(classData: {
     .limit(1);
 
   if (existingNotification.length > 0) {
-    return;
+    return "deduped";
   }
 
   const recipients = await getClassRecipients(classData.id);
-  if (recipients.length === 0) return;
+  if (recipients.length === 0) return "no_recipients";
 
   const message = `You have an upcoming class scheduled:\n\n` +
     `Class: ${classData.title}\n` +
@@ -625,6 +633,7 @@ export async function notifyUpcomingClass(classData: {
     payload: { classId: classData.id },
     recipients,
   });
+  return "sent";
 }
 
 export async function notifyScheduleChange(classData: {

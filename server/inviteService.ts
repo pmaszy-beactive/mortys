@@ -25,9 +25,11 @@ async function deliverMail(msg: { to: string; from: string; subject: string; [ke
   const finalMsg = { ...msg, to: override.to, subject: override.subject };
   if (!isEmailConfigured) {
     console.log(`[MOCK EMAIL] To: ${finalMsg.to.join(", ")}, Subject: ${finalMsg.subject}`);
+    console.log(`[EMAIL-AUDIT] NOT SENT (mock mode, no SendGrid key) — would deliver to [${finalMsg.to.join(", ")}], subject "${finalMsg.subject}"`);
     return;
   }
   await sgMail.send({ replyTo: process.env.SENDGRID_REPLY_TO || "info@mortys.ca", trackingSettings: { clickTracking: { enable: false, enableText: false } }, ...finalMsg } as sgMail.MailDataRequired);
+  console.log(`[EMAIL-AUDIT] SENT to [${finalMsg.to.join(", ")}] (account/staff email — UAT bypass, real recipient) — subject "${finalMsg.subject}"`);
 }
 
 export function generateInviteToken(): string {
