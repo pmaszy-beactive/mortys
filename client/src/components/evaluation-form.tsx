@@ -495,7 +495,7 @@ export default function EvaluationForm({ evaluation, onSuccess, prefilledData }:
                 <FormLabel>Session Type</FormLabel>
                 {isClassContext ? (
                   <div className="flex items-center h-10 px-3 py-2 rounded-md border border-gray-200 bg-gray-50 text-gray-700">
-                    <span className="font-medium" data-testid="text-locked-session-type">In-Car Session</span>
+                    <span className="font-medium" data-testid="text-locked-session-type">{field.value === "theory" ? "Theory Session" : "In-Car Session"}</span>
                   </div>
                 ) : (
                   <Select onValueChange={field.onChange} defaultValue={field.value}>

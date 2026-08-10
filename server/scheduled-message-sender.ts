@@ -2,6 +2,7 @@ import { storage } from "./storage";
 import sgMail from "@sendgrid/mail";
 import * as notificationService from "./services/notifications";
 import { applyUatEmailOverride } from "./services/sendgrid";
+import { getClassStartTime } from "./services/class-time";
 
 const CHECK_INTERVAL = 60000; // Check every minute
 const REMINDER_HOURS_BEFORE = 24; // Send reminder 24 hours before class
@@ -121,8 +122,9 @@ async function processUpcomingClassReminders() {
     const upcomingClasses = classes.filter(cls => {
       if (!cls.date || !cls.time) return false;
       
-      // Parse the scheduled date and time
-      const classDateTime = new Date(`${cls.date}T${cls.time}`);
+      // Parse the scheduled date and time (school-local wall clock, NOT server-local)
+      const classDateTime = getClassStartTime(cls);
+      if (!classDateTime) return false;
       
       // Check if class is within reminder window and in the future
       return classDateTime > now && classDateTime <= reminderWindow && cls.status === 'scheduled';

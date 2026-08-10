@@ -84,10 +84,8 @@ export async function sendInstructorInviteEmail(
             <p>You've been invited to join <span class="highlight">Morty's Driving School</span> as an instructor. We're excited to have you on our team!</p>
             <p>To get started, please click the button below to set up your account:</p>
             <div style="text-align: center;">
-              <a href="${inviteLink}" class="button">Accept Invitation</a>
+              <a href="${inviteLink}" style="display: inline-block; background-color: #ECC462; color: #111111; padding: 14px 35px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; font-size: 16px;">Accept Invitation</a>
             </div>
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #ECC462;">${inviteLink}</p>
             <p><strong>⏰ This invitation link will expire in 7 days.</strong></p>
             <p>During the setup process, you'll be asked to:</p>
             <ul>
@@ -175,10 +173,8 @@ export async function sendPasswordResetEmail(
             <p>We received a request to reset your password for your <span class="highlight">Morty's Driving School</span> student account.</p>
             <p>Click the button below to create a new password:</p>
             <div style="text-align: center;">
-              <a href="${resetLink}" class="button">Reset My Password</a>
+              <a href="${resetLink}" style="display: inline-block; background-color: #ECC462; color: #111111; padding: 14px 35px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; font-size: 16px;">Reset My Password</a>
             </div>
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #ECC462;">${resetLink}</p>
             <div class="warning">
               <p style="margin: 0;"><strong>⏰ This link will expire in 1 hour for security reasons.</strong></p>
             </div>
@@ -267,10 +263,8 @@ export async function sendStudentInviteEmail(
             <p>Congratulations on taking the first step toward getting your driver's license! We're thrilled to have you join <span class="highlight">Morty's Driving School</span>.</p>
             <p>To access your student portal and get started with your driving courses, please click the button below to set up your account:</p>
             <div style="text-align: center;">
-              <a href="${inviteLink}" class="button">Set Up My Account</a>
+              <a href="${inviteLink}" style="display: inline-block; background-color: #ECC462; color: #111111; padding: 14px 35px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; font-size: 16px;">Set Up My Account</a>
             </div>
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #ECC462;">${inviteLink}</p>
             <p><strong>⏰ This invitation link will expire in 7 days.</strong></p>
             <p>During the setup process, you'll:</p>
             <ul>
@@ -374,10 +368,8 @@ export async function sendParentInviteEmail(
             <p>This gives you access to monitor their driving education progress, view their schedule, and manage their account based on the permissions they've granted you.</p>
             <p>To get started, please click the button below to set up your parent portal account:</p>
             <div style="text-align: center;">
-              <a href="${inviteLink}" class="button">Accept Invitation</a>
+              <a href="${inviteLink}" style="display: inline-block; background-color: #ECC462; color: #111111; padding: 14px 35px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; font-size: 16px;">Accept Invitation</a>
             </div>
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #ECC462;">${inviteLink}</p>
             <p><strong>⏰ This invitation link will expire in 7 days.</strong></p>
             <p>During the setup process, you'll:</p>
             <ul>

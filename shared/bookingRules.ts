@@ -314,7 +314,7 @@ export const MAX_CLASSES_PER_DAY = 2;
 export function getCourseClassCounts(courseType: string): { theoryCount: number; drivingCount: number } {
   const config: Record<string, { theoryCount: number; drivingCount: number }> = {
     auto: { theoryCount: 12, drivingCount: 15 },
-    moto: { theoryCount: 8, drivingCount: 10 },
+    moto: { theoryCount: 7, drivingCount: 10 },
     scooter: { theoryCount: 6, drivingCount: 8 },
   };
   return config[(courseType || '').toLowerCase()] ?? { theoryCount: 5, drivingCount: 10 };

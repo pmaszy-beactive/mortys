@@ -37,6 +37,24 @@ export default function Scheduling() {
   const [seriesAction, setSeriesAction] = useState<{ mode: "edit" | "delete" | "days"; anchorClass: Class } | null>(null);
   const { toast } = useToast();
 
+  // Enrolled students for the class being edited
+  interface EnrolledStudentRow {
+    enrollmentId: number;
+    studentId: number;
+    firstName: string;
+    lastName: string;
+    attendanceStatus: string | null;
+  }
+  const { data: enrolledStudents = [], isLoading: enrolledStudentsLoading } = useQuery<EnrolledStudentRow[]>({
+    queryKey: ["/api/classes", editingClass?.id, "enrolled-students"],
+    queryFn: () => apiRequest("GET", `/api/classes/${editingClass!.id}/enrolled-students`),
+    enabled: !!editingClass,
+    // Enrollments change outside this screen (bookings, cancellations,
+    // attendance) — always fetch a fresh roster when the dialog opens.
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
+
   // Generate Schedule dialog state
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
   const todayStr = format(new Date(), 'yyyy-MM-dd');
@@ -1020,6 +1038,28 @@ export default function Scheduling() {
                   <span className="font-semibold">{editingClass.enrolledCount ?? 0} / {editingClass.maxStudents}</span>
                   <span className="text-gray-500">students enrolled</span>
                 </div>
+                {(editingClass.enrolledCount ?? 0) > 0 && (
+                  <div className="rounded-md border border-gray-200 bg-gray-50 p-2.5 mt-1" data-testid="list-enrolled-students">
+                    {enrolledStudentsLoading ? (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading enrolled students…
+                      </div>
+                    ) : enrolledStudents.length === 0 ? (
+                      <p className="text-sm text-gray-500">No active enrollments.</p>
+                    ) : (
+                      <ul className="space-y-1">
+                        {enrolledStudents.map((s) => (
+                          <li key={s.enrollmentId} className="flex items-center justify-between text-sm" data-testid={`enrolled-student-${s.studentId}`}>
+                            <span className="text-gray-800">{s.firstName} {s.lastName}</span>
+                            {s.attendanceStatus && s.attendanceStatus !== "pending" && (
+                              <Badge variant="outline" className="text-xs capitalize">{s.attendanceStatus.replace(/_/g, " ")}</Badge>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
               </DialogHeader>
               {editingClass.seriesId && (
                 <div className="rounded-md border border-[#ECC462] bg-amber-50 p-3 flex items-center justify-between gap-3 flex-wrap" data-testid="banner-series-membership">

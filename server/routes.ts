@@ -53,7 +53,7 @@ import {
   testCodeForAttempt,
   questionImagePath,
 } from "@shared/examData";
-import { PHASE_DEFINITIONS } from "@shared/phaseConfig";
+import { getPhaseDefinitionsForCourse } from "@shared/phaseConfig";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
 import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, type BookingValidationResult } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -127,16 +127,17 @@ const COURSE_PHASES: Record<string, PhaseDefinition[]> = {
     { name: "Road Test Prep", order: 3, description: "Prepare for your road test", requiredTheoryClasses: 5, requiredInCarSessions: 15, estimatedDays: 30 },
     { name: "Completed", order: 4, description: "Graduation!", requiredTheoryClasses: 5, requiredInCarSessions: 15, estimatedDays: 0 },
   ],
+  // Counts must match getCourseClassCounts in shared/bookingRules.ts
   moto: [
-    { name: "Theory Phase", order: 1, description: "Complete motorcycle theory", requiredTheoryClasses: 3, requiredInCarSessions: 0, estimatedDays: 14 },
-    { name: "Practical Training", order: 2, description: "Complete riding sessions", requiredTheoryClasses: 3, requiredInCarSessions: 8, estimatedDays: 45 },
-    { name: "Road Test Prep", order: 3, description: "Prepare for your road test", requiredTheoryClasses: 3, requiredInCarSessions: 10, estimatedDays: 14 },
-    { name: "Completed", order: 4, description: "Graduation!", requiredTheoryClasses: 3, requiredInCarSessions: 10, estimatedDays: 0 },
+    { name: "Theory Phase", order: 1, description: "Complete motorcycle theory", requiredTheoryClasses: 7, requiredInCarSessions: 0, estimatedDays: 30 },
+    { name: "Practical Training", order: 2, description: "Complete riding sessions", requiredTheoryClasses: 7, requiredInCarSessions: 8, estimatedDays: 45 },
+    { name: "Road Test Prep", order: 3, description: "Prepare for your road test", requiredTheoryClasses: 7, requiredInCarSessions: 10, estimatedDays: 14 },
+    { name: "Completed", order: 4, description: "Graduation!", requiredTheoryClasses: 7, requiredInCarSessions: 10, estimatedDays: 0 },
   ],
   scooter: [
-    { name: "Theory Phase", order: 1, description: "Complete scooter theory", requiredTheoryClasses: 2, requiredInCarSessions: 0, estimatedDays: 7 },
-    { name: "Practical Training", order: 2, description: "Complete riding sessions", requiredTheoryClasses: 2, requiredInCarSessions: 4, estimatedDays: 14 },
-    { name: "Completed", order: 3, description: "Graduation!", requiredTheoryClasses: 2, requiredInCarSessions: 4, estimatedDays: 0 },
+    { name: "Theory Phase", order: 1, description: "Complete scooter theory", requiredTheoryClasses: 6, requiredInCarSessions: 0, estimatedDays: 21 },
+    { name: "Practical Training", order: 2, description: "Complete riding sessions", requiredTheoryClasses: 6, requiredInCarSessions: 8, estimatedDays: 30 },
+    { name: "Completed", order: 3, description: "Graduation!", requiredTheoryClasses: 6, requiredInCarSessions: 8, estimatedDays: 0 },
   ],
 };
 
@@ -314,6 +315,12 @@ if (process.env.STRIPE_SECRET_KEY) {
 
 
 async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData> {
+  // Course-aware curriculum: moto/scooter students follow a simplified
+  // two-phase structure (all theory, then practical), matching the booking
+  // rules — never the auto 4-phase curriculum.
+  const studentRow = await storage.getStudent(studentId);
+  const phaseDefinitions = getPhaseDefinitionsForCourse(studentRow?.courseType);
+
   const enrollmentRows = await db
     .select({
       enrollmentId: classEnrollments.id,
@@ -346,11 +353,11 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
     }
   }
 
-  let currentPhase = 4;
+  let currentPhase = phaseDefinitions[phaseDefinitions.length - 1].phase;
   const phases: PhaseProgress[] = [];
 
-  for (let i = 0; i < PHASE_DEFINITIONS.length; i++) {
-    const phaseDef = PHASE_DEFINITIONS[i];
+  for (let i = 0; i < phaseDefinitions.length; i++) {
+    const phaseDef = phaseDefinitions[i];
     const phaseClasses: PhaseClassProgress[] = [];
     let completedCount = 0;
     let earliestDate: string | null = null;
@@ -421,7 +428,7 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
   }
   if (!foundCurrent) {
     phases[phases.length - 1].isCurrent = true;
-    currentPhase = 4;
+    currentPhase = phases[phases.length - 1].phase;
   }
 
   return { currentPhase, phases };
@@ -4136,6 +4143,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         captureRequestError(error);
         res.status(500).json({ message: "Failed to fetch class enrollments" });
+      }
+    },
+  );
+
+  // Enrolled students (with names) for a class — used by the admin
+  // scheduling screen to show who is behind the "X/Y" enrollment count.
+  app.get(
+    "/api/classes/:classId/enrolled-students",
+    authMiddleware,
+    async (req, res) => {
+      try {
+        const classId = parseInt(req.params.classId);
+        if (isNaN(classId)) {
+          return res.status(400).json({ message: "Invalid class id" });
+        }
+        const rows = await db
+          .select({
+            enrollmentId: classEnrollments.id,
+            studentId: students.id,
+            firstName: students.firstName,
+            lastName: students.lastName,
+            attendanceStatus: classEnrollments.attendanceStatus,
+            cancelledAt: classEnrollments.cancelledAt,
+          })
+          .from(classEnrollments)
+          .innerJoin(students, eq(classEnrollments.studentId, students.id))
+          .where(eq(classEnrollments.classId, classId));
+        const active = rows
+          .filter((r) => !r.cancelledAt)
+          .map(({ cancelledAt, ...r }) => r)
+          .sort((a, b) =>
+            `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`)
+          );
+        res.json(active);
+      } catch (error) {
+        captureRequestError(error);
+        res.status(500).json({ message: "Failed to fetch enrolled students" });
       }
     },
   );
@@ -8225,12 +8269,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Camera/monitoring is handled via Zoom only (no in-app proctoring).
   // ============================================================
 
-  // Parse a class date ("YYYY-MM-DD") + time ("HH:MM") into a Date (server local time).
+  // Parse a class date ("YYYY-MM-DD") + time ("HH:MM") into a real instant,
+  // interpreting the stored wall-clock values in the school timezone (the
+  // server runs in UTC — server-local parsing shifted exam windows by hours).
   const parseClassDateTime = (date: string, time: string): Date | null => {
     if (!date) return null;
     const t = time && /^\d{1,2}:\d{2}/.test(time) ? time.slice(0, 5) : "00:00";
-    const d = new Date(`${date}T${t}:00`);
-    return isNaN(d.getTime()) ? null : d;
+    return getClassStartTime({ date, time: t });
   };
 
   // Find the student's Theory 5 (Module 5) class enrollment.
@@ -10185,7 +10230,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!enrollment) continue;
 
         const instructor = classItem.instructorId ? instructorMap.get(classItem.instructorId) : null;
-        const classDateTime = new Date(`${classItem.date}T${classItem.time}`);
+        // School-timezone start instant; null when the stored schedule is malformed.
+        const classStart = getClassStartTime(classItem);
         const isTheory = isTheoryClass(classItem.classType, classItem.classNumber);
         
         // Determine lesson status
@@ -10196,7 +10242,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lessonStatus = 'completed';
         } else if (enrollment.attendanceStatus === 'absent' || enrollment.attendanceStatus === 'no-show') {
           lessonStatus = 'missed';
-        } else if (classDateTime < new Date()) {
+        } else if (classStart && classStart < new Date()) {
           lessonStatus = 'past';
         }
 
@@ -10205,7 +10251,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           type: 'lesson',
           date: classItem.date,
           time: classItem.time,
-          timestamp: classDateTime.toISOString(),
+          timestamp: classStart ? classStart.toISOString() : `${classItem.date}T${classItem.time || "00:00"}`,
           title: `${classItem.courseType || 'Auto'} - Class ${classItem.classNumber || 'N/A'}`,
           description: classItem.topic || (isTheory ? 'Theory Class' : 'Driving Class'),
           classType: isTheory ? 'theory' : 'driving',
@@ -10698,11 +10744,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           classIds.includes(c.id),
         );
 
-        // Filter out past classes - only show upcoming classes
+        // Filter out past classes - only show upcoming classes.
+        // Class date/time are school-local wall-clock strings and MUST be
+        // interpreted in SCHOOL_TIMEZONE (the server runs in UTC): parsing
+        // them as server-local made classes vanish from the student's
+        // calendar hours before they actually started.
         const now = new Date();
         const upcomingClasses = studentClasses.filter((c) => {
-          const classDateTime = new Date(`${c.date}T${c.time}`);
-          return classDateTime >= now;
+          const start = getClassStartTime(c);
+          // Keep classes with unparseable schedules visible rather than
+          // silently hiding a booked class.
+          if (!start) return true;
+          return start >= now;
         });
 
         // Get all instructors to populate instructor names
@@ -10931,8 +10984,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (!c.isExtra) return false;
           if (c.status === 'cancelled') return false;
           
-          const classDateTime = new Date(`${c.date}T${c.time}`);
-          if (classDateTime <= now) return false;
+          // Exclude extras with malformed schedules from the bookable list.
+          const classStart = getClassStartTime(c);
+          if (!classStart || classStart <= now) return false;
           
           if (courseType && c.courseType !== courseType) return false;
           
@@ -10980,9 +11034,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             };
           })
           .sort((a: any, b: any) => {
-            const dateA = new Date(`${a.date}T${a.time}`);
-            const dateB = new Date(`${b.date}T${b.time}`);
-            return dateA.getTime() - dateB.getTime();
+            const dateA = getClassStartTime(a);
+            const dateB = getClassStartTime(b);
+            return (dateA?.getTime() ?? 0) - (dateB?.getTime() ?? 0);
           });
 
         res.json(enrichedLessons);
@@ -11037,7 +11091,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         // Check if class is in the future
-        const classDateTime = new Date(`${classData.date}T${classData.time}`);
+        const classDateTime = getClassStartTime(classData);
+        if (!classDateTime) {
+          // Malformed schedule data must fail closed for actions/policy —
+          // never fall back to a server-local or Invalid Date comparison.
+          console.error(`[CLASS-TIME] Invalid schedule on class #${classData.id}: date="${classData.date}" time="${classData.time}"`);
+          return res.status(400).json({ message: "This class has an invalid schedule. Please contact the office." });
+        }
         if (classDateTime <= new Date()) {
           return res.status(400).json({ message: "This lesson has already started or passed" });
         }
@@ -11453,7 +11513,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Check if class is in the future
-        const classDateTime = new Date(`${classData.date}T${classData.time}`);
+        const classDateTime = getClassStartTime(classData);
+        if (!classDateTime) {
+          // Malformed schedule data must fail closed for actions/policy —
+          // never fall back to a server-local or Invalid Date comparison.
+          console.error(`[CLASS-TIME] Invalid schedule on class #${classData.id}: date="${classData.date}" time="${classData.time}"`);
+          return res.status(400).json({ message: "This class has an invalid schedule. Please contact the office." });
+        }
         const now = new Date();
         if (classDateTime <= now) {
           return res.status(400).json({ message: "Cannot reschedule past classes" });
@@ -11534,7 +11600,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Check policy
-        const classDateTime = new Date(`${classData.date}T${classData.time}`);
+        const classDateTime = getClassStartTime(classData);
+        if (!classDateTime) {
+          // Malformed schedule data must fail closed for actions/policy —
+          // never fall back to a server-local or Invalid Date comparison.
+          console.error(`[CLASS-TIME] Invalid schedule on class #${classData.id}: date="${classData.date}" time="${classData.time}"`);
+          return res.status(400).json({ message: "This class has an invalid schedule. Please contact the office." });
+        }
         const now = new Date();
         const hoursUntilClass = (classDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
         const rescheduleWindowHours = parseInt(await storage.getSetting('rescheduleWindowHours') || '24');
@@ -11617,7 +11689,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Check if class has already started or is in the past
-        const classDateTime = new Date(`${oldClass.date}T${oldClass.time}`);
+        const classDateTime = getClassStartTime(oldClass);
+        if (!classDateTime) {
+          console.error(`[CLASS-TIME] Invalid schedule on class #${oldClass.id}: date="${oldClass.date}" time="${oldClass.time}"`);
+          return res.status(400).json({ message: "This class has an invalid schedule. Please contact the office." });
+        }
         const now = new Date();
         if (classDateTime < now) {
           return res.status(400).json({ message: "Cannot reschedule a class that has already started" });
@@ -11791,7 +11867,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Check if class is in the future
-        const classDateTime = new Date(`${classData.date}T${classData.time}`);
+        const classDateTime = getClassStartTime(classData);
+        if (!classDateTime) {
+          // Malformed schedule data must fail closed for actions/policy —
+          // never fall back to a server-local or Invalid Date comparison.
+          console.error(`[CLASS-TIME] Invalid schedule on class #${classData.id}: date="${classData.date}" time="${classData.time}"`);
+          return res.status(400).json({ message: "This class has an invalid schedule. Please contact the office." });
+        }
         const now = new Date();
         if (classDateTime <= now) {
           return res.status(400).json({ message: "Cannot cancel past classes" });
@@ -11848,7 +11930,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Check policy
-        const classDateTime = new Date(`${classData.date}T${classData.time}`);
+        const classDateTime = getClassStartTime(classData);
+        if (!classDateTime) {
+          // Malformed schedule data must fail closed for actions/policy —
+          // never fall back to a server-local or Invalid Date comparison.
+          console.error(`[CLASS-TIME] Invalid schedule on class #${classData.id}: date="${classData.date}" time="${classData.time}"`);
+          return res.status(400).json({ message: "This class has an invalid schedule. Please contact the office." });
+        }
         const now = new Date();
         const hoursUntilClass = (classDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
         const cancelWindowHours = parseInt(await storage.getSetting('cancelWindowHours') || '24');
@@ -11907,7 +11995,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Check if class has already started or is in the past
-        const classDateTime = new Date(`${classData.date}T${classData.time}`);
+        const classDateTime = getClassStartTime(classData);
+        if (!classDateTime) {
+          // Malformed schedule data must fail closed for actions/policy —
+          // never fall back to a server-local or Invalid Date comparison.
+          console.error(`[CLASS-TIME] Invalid schedule on class #${classData.id}: date="${classData.date}" time="${classData.time}"`);
+          return res.status(400).json({ message: "This class has an invalid schedule. Please contact the office." });
+        }
         const now = new Date();
         if (classDateTime < now) {
           return res.status(400).json({ message: "Cannot cancel a class that has already started" });
@@ -13722,7 +13816,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Housekeeping tasks
         const pendingConfirmations = classes.filter((c) => 
           c.confirmationStatus === 'pending' && 
-          new Date(`${c.date}T${c.time}`) > new Date()
+          (getClassStartTime(c) ?? new Date(`${c.date}T${c.time}`)) > new Date()
         ).length;
         
         const pendingEvaluations = evaluations.filter(
@@ -13731,7 +13825,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const pendingVehicleConfirmations = classes.filter((c) => 
           c.vehicleId && !c.vehicleConfirmed && 
-          new Date(`${c.date}T${c.time}`) > new Date()
+          (getClassStartTime(c) ?? new Date(`${c.date}T${c.time}`)) > new Date()
         ).length;
 
         const housekeepingTasks = [];

@@ -84,6 +84,70 @@ export const PHASE_DEFINITIONS: PhaseDefinition[] = [
   },
 ];
 
+/**
+ * Simplified two-phase curriculum for moto/scooter courses, generated from
+ * the same class counts the booking rules and schedule generator use
+ * (getCourseClassCounts). Booking rules for these courses require ALL theory
+ * classes before any practical session, so the progress display must show
+ * the same structure — never the auto 4-phase curriculum.
+ */
+function buildSimplifiedPhases(theoryCount: number, drivingCount: number, practicalLabel: string): PhaseDefinition[] {
+  const theoryClasses: PhaseClassItem[] = [];
+  for (let n = 1; n <= theoryCount; n++) {
+    theoryClasses.push({
+      id: `theory_${n}`,
+      label: `Theory #${n}`,
+      classType: "theory",
+      classNumber: n,
+      mustBeFirst: n === 1,
+    });
+  }
+  const drivingClasses: PhaseClassItem[] = [];
+  for (let n = 1; n <= drivingCount; n++) {
+    drivingClasses.push({
+      id: `driving_${n}`,
+      label: `${practicalLabel} #${n}`,
+      classType: "driving",
+      classNumber: n,
+    });
+  }
+  return [
+    {
+      phase: 1,
+      label: "Phase 1",
+      minimumDays: 0,
+      classes: theoryClasses,
+      notes: `This phase MUST begin with Theory #1. All ${theoryCount} theory classes must be completed before any ${practicalLabel.toLowerCase()} can be booked.`,
+      orderingRule: "flexible_after_first",
+    },
+    {
+      phase: 2,
+      label: "Phase 2",
+      minimumDays: 0,
+      classes: drivingClasses,
+      notes: `Practical sessions unlock once all ${theoryCount} theory classes are completed.`,
+      orderingRule: "flexible_after_first",
+    },
+  ];
+}
+
+// Counts must stay in sync with getCourseClassCounts in shared/bookingRules.ts
+// (moto: 7 theory / 10 practical, scooter: 6 theory / 8 practical).
+const MOTO_PHASE_DEFINITIONS = buildSimplifiedPhases(7, 10, "Riding Session");
+const SCOOTER_PHASE_DEFINITIONS = buildSimplifiedPhases(6, 8, "Riding Session");
+
+/** Course-aware phase definitions. Auto uses the full 4-phase curriculum. */
+export function getPhaseDefinitionsForCourse(courseType: string | null | undefined): PhaseDefinition[] {
+  switch ((courseType || "auto").toLowerCase()) {
+    case "moto":
+      return MOTO_PHASE_DEFINITIONS;
+    case "scooter":
+      return SCOOTER_PHASE_DEFINITIONS;
+    default:
+      return PHASE_DEFINITIONS;
+  }
+}
+
 export interface PhaseClassProgress {
   id: string;
   label: string;
