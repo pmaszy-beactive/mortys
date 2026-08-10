@@ -169,6 +169,120 @@ export async function sendAdminPasswordResetEmail(
   });
 }
 
+// ---------------- No-show (missed-class) fee notifications ----------------
+
+const FROM_EMAIL = () => process.env.SENDGRID_FROM_EMAIL || "billing@mortys.ca";
+
+function getOfficeRecipients(): string[] {
+  return (process.env.OFFICE_NOTIFICATION_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter((e) => e.includes("@"));
+}
+
+export interface NoShowFeeEmailDetails {
+  studentEmail: string;
+  studentFirstName: string;
+  invoiceNumber: string;
+  amount: string; // "50.00"
+  classLabel: string; // e.g. "Theory class #3" or "Driving session"
+  classSchedule: string; // formatted date/time
+}
+
+function noShowEmailShell(inner: string): string {
+  return `
+  <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;border:1px solid #e5e5e5;border-radius:8px;overflow:hidden;">
+    <div style="background:#111111;padding:24px;text-align:center;">
+      <h1 style="color:#ECC462;margin:0;font-size:22px;">Morty's Driving School</h1>
+    </div>
+    <div style="padding:24px;">${inner}</div>
+    <div style="background:#f7f7f7;padding:16px;text-align:center;color:#999;font-size:11px;">
+      This is an automated message from Morty's Driving School. Please do not reply to this email.
+    </div>
+  </div>`;
+}
+
+/** Notify the student that the missed-class fee was charged to their card. */
+export async function sendNoShowFeeChargedEmail(d: NoShowFeeEmailDetails, appUrl: string): Promise<boolean> {
+  const inner = `
+    <p style="color:#333;">Hi ${d.studentFirstName},</p>
+    <p style="color:#333;">You were marked absent for the following class, and per your contract (clause T01731) a missed-class fee was charged to your card on file:</p>
+    <table style="width:100%;font-size:14px;color:#333;border-collapse:collapse;margin:16px 0;">
+      <tr><td style="padding:6px 12px;color:#666;">Class:</td><td style="padding:6px 12px;">${d.classLabel}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;">Scheduled:</td><td style="padding:6px 12px;">${d.classSchedule}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;">Invoice:</td><td style="padding:6px 12px;">${d.invoiceNumber}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;font-weight:bold;">Amount charged:</td><td style="padding:6px 12px;font-weight:bold;">$${d.amount}</td></tr>
+    </table>
+    <div style="text-align:center;margin:24px 0;">
+      <a href="${appUrl}/student/billing" style="background:#ECC462;color:#111111;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;display:inline-block;">View My Billing</a>
+    </div>
+    <p style="color:#999;font-size:12px;">If you believe this charge was made in error, please contact the office.</p>`;
+  return sendEmail({
+    to: [d.studentEmail],
+    from: FROM_EMAIL(),
+    subject: `Missed-class fee charged — Invoice ${d.invoiceNumber} ($${d.amount})`,
+    text: `Hi ${d.studentFirstName},\n\nYou were marked absent for ${d.classLabel} scheduled ${d.classSchedule}. Per your contract (clause T01731), a missed-class fee of $${d.amount} was charged to your card on file (Invoice ${d.invoiceNumber}).\n\nView your billing: ${appUrl}/student/billing\n\nIf you believe this charge was made in error, please contact the office.\n\nMorty's Driving School`,
+    html: noShowEmailShell(inner),
+  });
+}
+
+/**
+ * The charge failed (declined card, no card on file, etc.) — tell the student
+ * they have an outstanding balance to pay.
+ */
+export async function sendNoShowFeeUnpaidEmail(d: NoShowFeeEmailDetails, appUrl: string): Promise<boolean> {
+  const inner = `
+    <p style="color:#333;">Hi ${d.studentFirstName},</p>
+    <p style="color:#333;">You were marked absent for the following class. Per your contract (clause T01731), a missed-class fee applies, but we were unable to charge your card. You have an outstanding balance to pay:</p>
+    <table style="width:100%;font-size:14px;color:#333;border-collapse:collapse;margin:16px 0;">
+      <tr><td style="padding:6px 12px;color:#666;">Class:</td><td style="padding:6px 12px;">${d.classLabel}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;">Scheduled:</td><td style="padding:6px 12px;">${d.classSchedule}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;">Invoice:</td><td style="padding:6px 12px;">${d.invoiceNumber}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;font-weight:bold;">Amount due:</td><td style="padding:6px 12px;font-weight:bold;">$${d.amount}</td></tr>
+    </table>
+    <div style="text-align:center;margin:24px 0;">
+      <a href="${appUrl}/student/billing" style="background:#ECC462;color:#111111;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;display:inline-block;">Pay Invoice Online</a>
+    </div>
+    <p style="color:#999;font-size:12px;">Log in to your student account to pay this invoice, or contact the office to arrange payment.</p>`;
+  return sendEmail({
+    to: [d.studentEmail],
+    from: FROM_EMAIL(),
+    subject: `Missed-class fee — outstanding balance of $${d.amount} (Invoice ${d.invoiceNumber})`,
+    text: `Hi ${d.studentFirstName},\n\nYou were marked absent for ${d.classLabel} scheduled ${d.classSchedule}. Per your contract (clause T01731), a missed-class fee of $${d.amount} applies, but we were unable to charge your card. Invoice ${d.invoiceNumber} is outstanding.\n\nPay online: ${appUrl}/student/billing\n\nOr contact the office to arrange payment.\n\nMorty's Driving School`,
+    html: noShowEmailShell(inner),
+  });
+}
+
+/** Alert the office that an automatic no-show fee charge failed. */
+export async function sendNoShowFeeFailureOfficeAlert(
+  d: NoShowFeeEmailDetails & { studentName: string; failureReason: string },
+): Promise<boolean> {
+  const office = getOfficeRecipients();
+  if (office.length === 0) {
+    console.warn("[no-show fee] OFFICE_NOTIFICATION_EMAILS not configured — office failure alert not sent");
+    return false;
+  }
+  const inner = `
+    <p style="color:#333;">An automatic missed-class fee charge <strong>failed</strong> and needs follow-up:</p>
+    <table style="width:100%;font-size:14px;color:#333;border-collapse:collapse;margin:16px 0;">
+      <tr><td style="padding:6px 12px;color:#666;">Student:</td><td style="padding:6px 12px;">${d.studentName} (${d.studentEmail})</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;">Class:</td><td style="padding:6px 12px;">${d.classLabel}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;">Scheduled:</td><td style="padding:6px 12px;">${d.classSchedule}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;">Invoice:</td><td style="padding:6px 12px;">${d.invoiceNumber}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;">Amount:</td><td style="padding:6px 12px;">$${d.amount}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;">Reason:</td><td style="padding:6px 12px;">${d.failureReason}</td></tr>
+    </table>
+    <p style="color:#999;font-size:12px;">The student has been notified that they have an outstanding balance.</p>`;
+  return sendEmail({
+    to: office,
+    from: FROM_EMAIL(),
+    subject: `[Action needed] Missed-class fee charge failed — ${d.studentName}, Invoice ${d.invoiceNumber} ($${d.amount})`,
+    text: `An automatic missed-class fee charge failed.\n\nStudent: ${d.studentName} (${d.studentEmail})\nClass: ${d.classLabel}\nScheduled: ${d.classSchedule}\nInvoice: ${d.invoiceNumber}\nAmount: $${d.amount}\nReason: ${d.failureReason}\n\nThe student has been notified that they have an outstanding balance.`,
+    html: noShowEmailShell(inner),
+    uatBypass: true, // staff/office alert — always deliver to the real office inbox
+  });
+}
+
 export async function sendBulkEmail(
   recipients: string[],
   from: string,

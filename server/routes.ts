@@ -4669,7 +4669,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
    */
   async function chargeNoShowFee(
     studentId: number,
-    classData: { classType?: string | null; duration?: number | null; id?: number },
+    classData: { classType?: string | null; duration?: number | null; id?: number; classNumber?: number | null; date?: string | null; time?: string | null },
     enrollmentId?: number,
   ): Promise<void> {
     if (!stripe) {
@@ -4678,6 +4678,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     const { feeAmount, description } = computeNoShowFee(classData);
     const { studentPaymentMethods: spmTable, invoices: invoicesTable } = await import("@shared/schema");
+    const { sendNoShowFeeChargedEmail, sendNoShowFeeUnpaidEmail, sendNoShowFeeFailureOfficeAlert } = await import("./services/sendgrid");
+
+    const appBaseUrl = process.env.APP_URL
+      || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : "http://localhost:5000");
+    const classLabel = classData.classType === 'driving'
+      ? `In-car session${classData.classNumber ? ` #${classData.classNumber}` : ""}`
+      : `Theory class${classData.classNumber ? ` #${classData.classNumber}` : ""}`;
+    const classSchedule = classData.date && classData.time
+      ? formatClassSchedule({ date: classData.date, time: classData.time })
+      : "(schedule unavailable)";
+
+    const student = await storage.getStudent(studentId);
+
+    // Notify the student (and the office on failure) about the fee outcome.
+    // Fire-and-forget: notification problems must never affect the charge.
+    const notifyOutcome = async (invoiceNumber: string, charged: boolean, failureReason?: string) => {
+      if (!student?.email) {
+        console.warn(`[no-show fee] Student ${studentId} has no email — cannot send fee notification for invoice ${invoiceNumber}`);
+      }
+      const details = {
+        studentEmail: student?.email || "",
+        studentFirstName: student?.firstName || "Student",
+        invoiceNumber,
+        amount: feeAmount.toFixed(2),
+        classLabel,
+        classSchedule,
+      };
+      try {
+        if (charged) {
+          if (student?.email) await sendNoShowFeeChargedEmail(details, appBaseUrl);
+        } else {
+          if (student?.email) await sendNoShowFeeUnpaidEmail(details, appBaseUrl);
+          await sendNoShowFeeFailureOfficeAlert({
+            ...details,
+            studentName: student ? `${student.firstName} ${student.lastName}`.trim() : `Student #${studentId}`,
+            failureReason: failureReason || "Unknown error",
+          });
+        }
+      } catch (emailErr: any) {
+        console.error(`[no-show fee] Failed to send fee notification email for invoice ${invoiceNumber}:`, emailErr?.message);
+      }
+    };
 
     const rates = await getTaxRates();
     // The contract clause T01731 states flat fees ($50/$100). These amounts
@@ -4728,13 +4770,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     if (!card) {
       console.warn(`[no-show fee] Student ${studentId} has no saved card — invoice ${invoice.invoiceNumber} created as unpaid`);
+      await notifyOutcome(invoice.invoiceNumber, false, "No card on file");
       return;
     }
 
-    const student = await storage.getStudent(studentId);
     const stripeCustomerId = student?.stripeCustomerId;
     if (!stripeCustomerId) {
       console.warn(`[no-show fee] Student ${studentId} has no Stripe customer — invoice ${invoice.invoiceNumber} left unpaid`);
+      await notifyOutcome(invoice.invoiceNumber, false, "Student has no Stripe customer record");
       return;
     }
 
@@ -4768,17 +4811,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (confirmed.status === "succeeded") {
         await recordInvoicePayment(claimed, confirmed.id, card.cardBrand);
         console.log(`[no-show fee] Charged $${claimed.amount} (${confirmed.id}) to student ${studentId} for enrollment ${enrollmentId ?? "?"}`);
+        await notifyOutcome(claimed.invoiceNumber, true);
       } else {
         await db.update(invoicesTable)
           .set({ status: "failed", failureReason: `PaymentIntent status: ${confirmed.status}`, updatedAt: new Date() })
           .where(eq(invoicesTable.id, claimed.id));
         console.warn(`[no-show fee] Charge incomplete for student ${studentId}: ${confirmed.status} — invoice ${invoice.invoiceNumber} marked failed`);
+        await notifyOutcome(claimed.invoiceNumber, false, `Payment not completed (status: ${confirmed.status})`);
       }
     } catch (err: any) {
       await db.update(invoicesTable)
         .set({ status: "failed", failureReason: err?.message || String(err), updatedAt: new Date() })
         .where(eq(invoicesTable.id, claimed.id));
       console.error(`[no-show fee] Charge failed for student ${studentId} (invoice ${invoice.invoiceNumber}):`, err?.message);
+      await notifyOutcome(claimed.invoiceNumber, false, err?.message || String(err));
     }
   }
 
