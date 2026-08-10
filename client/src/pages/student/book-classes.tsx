@@ -556,7 +556,7 @@ export default function BookClasses() {
                       </li>
                       <li className="flex items-start gap-2">
                         <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                        <span>No-shows are charged full class fee</span>
+                        <span>No-shows: $50 theory / $50 single in-car / $100 double in-car (charged automatically)</span>
                       </li>
                     </ul>
                   </div>
