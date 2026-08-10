@@ -1269,7 +1269,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     });
 
-    // Admin forgot password — send reset email
+  }
+
+  // Admin forgot password — send reset email (registered for BOTH production
+  // and development auth setups; do not move inside the branches above).
     app.post("/api/auth/forgot-password", async (req, res) => {
       try {
         const { email } = req.body;
@@ -1346,7 +1349,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(500).json({ message: "Failed to reset password" });
       }
     });
-  }
 
   // Production troubleshooting endpoints
   app.post("/api/admin/create-admin-user", async (req, res) => {
