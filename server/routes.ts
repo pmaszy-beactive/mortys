@@ -54,6 +54,7 @@ import {
   questionImagePath,
 } from "@shared/examData";
 import { getPhaseDefinitionsForCourse } from "@shared/phaseConfig";
+import { buildAutoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum } from "@shared/curriculumPlanner";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
 import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, type BookingValidationResult } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -3275,84 +3276,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if ((courseType || '').toLowerCase() !== 'auto') {
           return res.status(400).json({ message: "Full curriculum planning is only available for the auto course." });
         }
-        const candidates: string[] = [];
-        const c = new Date(start);
-        const hardEnd = new Date(start); hardEnd.setDate(hardEnd.getDate() + 365);
-        while (c <= hardEnd) {
-          if (daysOfWeek.includes(c.getDay())) candidates.push(c.toISOString().slice(0, 10));
-          c.setDate(c.getDate() + 1);
+        const candidates = buildCandidateDates(startDate, daysOfWeek);
+        const plan = buildAutoCurriculumPlan(parseInt(maxStudents) || 24);
+        const planResult = scheduleAutoCurriculum(candidates, plan);
+        if (!planResult.ok) {
+          return res.status(400).json({
+            message: "Not enough matching dates within a year to fit the full curriculum with its minimum phase durations. Select more days of the week or an earlier start date.",
+          });
         }
-
-        type PlanItem = {
-          classType: 'theory' | 'driving'; classNumber: number;
-          duration: number; maxStudents: number; hasTest?: boolean;
-          // constraint: this class must be >= minDays after the anchor class
-          minDaysAfter?: { classType: 'theory' | 'driving'; classNumber: number; days: number };
-        };
-        const theoryDur = 120;
-        const theoryMax = parseInt(maxStudents) || 24;
-        const plan: PlanItem[] = [
-          // Phase 1
-          { classType: 'theory', classNumber: 1, duration: theoryDur, maxStudents: theoryMax },
-          { classType: 'theory', classNumber: 2, duration: theoryDur, maxStudents: theoryMax },
-          { classType: 'theory', classNumber: 3, duration: theoryDur, maxStudents: theoryMax },
-          { classType: 'theory', classNumber: 4, duration: theoryDur, maxStudents: theoryMax },
-          { classType: 'theory', classNumber: 5, duration: theoryDur, maxStudents: theoryMax, hasTest: true,
-            minDaysAfter: { classType: 'theory', classNumber: 1, days: 28 } },
-          // Phase 2 (strict order; in-cars single hours)
-          { classType: 'theory', classNumber: 6, duration: theoryDur, maxStudents: theoryMax },
-          { classType: 'theory', classNumber: 7, duration: theoryDur, maxStudents: theoryMax },
-          { classType: 'driving', classNumber: 1, duration: 60, maxStudents: 1 },
-          { classType: 'driving', classNumber: 2, duration: 60, maxStudents: 1 },
-          { classType: 'driving', classNumber: 3, duration: 60, maxStudents: 1 },
-          { classType: 'driving', classNumber: 4, duration: 60, maxStudents: 1,
-            minDaysAfter: { classType: 'theory', classNumber: 6, days: 28 } },
-          // Phase 3 (recommended order)
-          { classType: 'theory', classNumber: 8, duration: theoryDur, maxStudents: theoryMax },
-          { classType: 'theory', classNumber: 9, duration: theoryDur, maxStudents: theoryMax },
-          { classType: 'driving', classNumber: 5, duration: 60, maxStudents: 1 },
-          { classType: 'driving', classNumber: 6, duration: 60, maxStudents: 1 },
-          { classType: 'driving', classNumber: 7, duration: 60, maxStudents: 1 },
-          { classType: 'driving', classNumber: 8, duration: 60, maxStudents: 1 },
-          { classType: 'theory', classNumber: 10, duration: theoryDur, maxStudents: theoryMax },
-          { classType: 'driving', classNumber: 9, duration: 60, maxStudents: 1 },
-          { classType: 'driving', classNumber: 10, duration: 60, maxStudents: 1,
-            minDaysAfter: { classType: 'theory', classNumber: 8, days: 56 } },
-          // Phase 4
-          { classType: 'theory', classNumber: 11, duration: theoryDur, maxStudents: theoryMax },
-          { classType: 'theory', classNumber: 12, duration: theoryDur, maxStudents: theoryMax },
-          { classType: 'driving', classNumber: 11, duration: 60, maxStudents: 1 },
-          { classType: 'driving', classNumber: 12, duration: 60, maxStudents: 2 }, // shared session
-          { classType: 'driving', classNumber: 13, duration: 60, maxStudents: 2 }, // shared session
-          { classType: 'driving', classNumber: 14, duration: 60, maxStudents: 1 },
-          { classType: 'driving', classNumber: 15, duration: 60, maxStudents: 1,
-            minDaysAfter: { classType: 'theory', classNumber: 11, days: 56 } },
-        ];
-
-        const assignedDate: Record<string, string> = {};
-        const scheduled: Array<PlanItem & { date: string }> = [];
-        let cursor = 0;
-        for (const item of plan) {
-          let idx = cursor;
-          if (item.minDaysAfter) {
-            const anchor = assignedDate[`${item.minDaysAfter.classType}:${item.minDaysAfter.classNumber}`];
-            if (anchor) {
-              const minDate = new Date(anchor + "T00:00:00");
-              minDate.setDate(minDate.getDate() + item.minDaysAfter.days);
-              const minStr = minDate.toISOString().slice(0, 10);
-              while (idx < candidates.length && candidates[idx] < minStr) idx++;
-            }
-          }
-          if (idx >= candidates.length) {
-            return res.status(400).json({
-              message: "Not enough matching dates within a year to fit the full curriculum with its minimum phase durations. Select more days of the week or an earlier start date.",
-            });
-          }
-          const date = candidates[idx];
-          assignedDate[`${item.classType}:${item.classNumber}`] = date;
-          scheduled.push({ ...item, date });
-          cursor = idx + 1;
-        }
+        const scheduled = planResult.scheduled;
 
         // Pre-validate instructor availability (one check per weekday used).
         if (instructorId) {
