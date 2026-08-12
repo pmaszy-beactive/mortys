@@ -107,6 +107,7 @@ export async function validateProgressionForStudent(
       date: targetClass.date ?? new Date().toISOString().slice(0, 10),
       duration: targetClass.duration ?? undefined,
       maxStudents: targetClass.maxStudents ?? undefined,
+      saaq6rKnowledgePassed: !!student.saaqKnowledgeTestDate,
       upcomingBookings,
     },
     buildCompletedClasses(enrollmentDetails),

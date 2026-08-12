@@ -53,8 +53,8 @@ import {
   testCodeForAttempt,
   questionImagePath,
 } from "@shared/examData";
-import { getPhaseDefinitionsForCourse } from "@shared/phaseConfig";
-import { buildAutoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum } from "@shared/curriculumPlanner";
+import { getPhaseDefinitionsForCourse, getExternalMilestonesForCourse } from "@shared/phaseConfig";
+import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum } from "@shared/curriculumPlanner";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
 import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, type BookingValidationResult } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -130,11 +130,12 @@ const COURSE_PHASES: Record<string, PhaseDefinition[]> = {
     { name: "Completed", order: 4, description: "Graduation!", requiredTheoryClasses: 5, requiredInCarSessions: 15, estimatedDays: 0 },
   ],
   // Counts must match getCourseClassCounts in shared/bookingRules.ts
+  // (moto: Theory 1 yard prep + 4 closed-circuit, then Theory 2 road prep + 3 road sessions)
   moto: [
-    { name: "Theory Phase", order: 1, description: "Complete motorcycle theory", requiredTheoryClasses: 7, requiredInCarSessions: 0, estimatedDays: 30 },
-    { name: "Practical Training", order: 2, description: "Complete riding sessions", requiredTheoryClasses: 7, requiredInCarSessions: 8, estimatedDays: 45 },
-    { name: "Road Test Prep", order: 3, description: "Prepare for your road test", requiredTheoryClasses: 7, requiredInCarSessions: 10, estimatedDays: 14 },
-    { name: "Completed", order: 4, description: "Graduation!", requiredTheoryClasses: 7, requiredInCarSessions: 10, estimatedDays: 0 },
+    { name: "Yard Preparation", order: 1, description: "Yard-prep theory + SAAQ 6R knowledge test", requiredTheoryClasses: 1, requiredInCarSessions: 0, estimatedDays: 14 },
+    { name: "Closed-Circuit Training", order: 2, description: "Four 4-hour closed-circuit sessions", requiredTheoryClasses: 1, requiredInCarSessions: 4, estimatedDays: 30 },
+    { name: "Road Training", order: 3, description: "Road-prep theory + three road sessions", requiredTheoryClasses: 2, requiredInCarSessions: 7, estimatedDays: 30 },
+    { name: "Completed", order: 4, description: "Graduation!", requiredTheoryClasses: 2, requiredInCarSessions: 7, estimatedDays: 0 },
   ],
   scooter: [
     { name: "Theory Phase", order: 1, description: "Complete scooter theory", requiredTheoryClasses: 6, requiredInCarSessions: 0, estimatedDays: 21 },
@@ -433,7 +434,18 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
     currentPhase = phases[phases.length - 1].phase;
   }
 
-  return { currentPhase, phases };
+  // External SAAQ milestones (moto): informational steps; the 6R knowledge
+  // test shows as completed once the office has recorded the pass date.
+  const milestoneDefs = getExternalMilestonesForCourse(studentRow?.courseType);
+  const externalMilestones = milestoneDefs.length > 0
+    ? milestoneDefs.map((m) => ({
+        ...m,
+        isCompleted: m.id === "saaq_6r_knowledge_test" && !!studentRow?.saaqKnowledgeTestDate,
+        date: m.id === "saaq_6r_knowledge_test" ? (studentRow?.saaqKnowledgeTestDate ?? undefined) : undefined,
+      }))
+    : undefined;
+
+  return { currentPhase, phases, externalMilestones };
 }
 
 async function storeDocument(
@@ -559,10 +571,12 @@ async function buildRescheduleContext(studentId: number, enrollmentId: number) {
         classStatus: cls?.status ?? null,
       };
     });
+  const studentRow = await storage.getStudent(studentId);
   return {
     enrollmentDetails,
     completed: buildCompletedClasses(enrollmentDetails),
     upcomingBookings: computeUpcomingBookings(enrollments, allClasses),
+    saaq6rKnowledgePassed: !!studentRow?.saaqKnowledgeTestDate,
   };
 }
 
@@ -601,6 +615,7 @@ function validateRescheduleTargetWithContext(
       sameDayAlreadyBookedMinutes: sameDayMinutes,
       sameDayAlreadyBookedHasDriving: sameDayHasDriving,
       maxClassesPerDay: dailyLimit,
+      saaq6rKnowledgePassed: ctx.saaq6rKnowledgePassed,
       upcomingBookings: ctx.upcomingBookings,
     },
     ctx.completed,
@@ -3273,11 +3288,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // after T11. One class per date. Candidate dates extend up to a year
       // from the start date regardless of endDate so the plan always fits.
       if (req.body.fullCurriculum) {
-        if ((courseType || '').toLowerCase() !== 'auto') {
-          return res.status(400).json({ message: "Full curriculum planning is only available for the auto course." });
+        const fullCourse = (courseType || '').toLowerCase();
+        if (fullCourse !== 'auto' && fullCourse !== 'moto') {
+          return res.status(400).json({ message: "Full curriculum planning is only available for the auto and moto courses." });
         }
         const candidates = buildCandidateDates(startDate, daysOfWeek);
-        const plan = buildAutoCurriculumPlan(parseInt(maxStudents) || 24);
+        const plan = fullCourse === 'moto'
+          ? buildMotoCurriculumPlan(parseInt(maxStudents) || 24)
+          : buildAutoCurriculumPlan(parseInt(maxStudents) || 24);
         const planResult = scheduleAutoCurriculum(candidates, plan);
         if (!planResult.ok) {
           return res.status(400).json({
@@ -4336,6 +4354,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               sameDayAlreadyBookedMinutes: sameDayPhase.reduce(
                 (sum, d) => sum + (d.duration ?? (d.classType === 'theory' ? 120 : 60)), 0),
               sameDayAlreadyBookedHasDriving: sameDayPhase.some(d => d.classType === 'driving'),
+              saaq6rKnowledgePassed: !!studentForPhase.saaqKnowledgeTestDate,
               upcomingBookings: computeUpcomingBookings(studentEnrollmentsPhase, allClassesPhase),
             };
             const phaseCheck = validateClassBooking(
@@ -11028,6 +11047,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 courseType: classItem.courseType ?? undefined,
                 classType: classItem.classType ?? undefined,
               }),
+              saaq6rKnowledgePassed: !!student.saaqKnowledgeTestDate,
               upcomingBookings: upcomingBookingsAvail,
             };
             const validation = validateClassBooking(target, completedClassesAvail, studentCourseTypeAvail);
@@ -11468,6 +11488,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sameDayAlreadyBookedMinutes: sameDayMinutesBook,
           sameDayAlreadyBookedHasDriving: sameDayHasDrivingBook,
           maxClassesPerDay: dailyLimit.limit,
+          saaq6rKnowledgePassed: !!student.saaqKnowledgeTestDate,
           upcomingBookings: computeUpcomingBookings(studentEnrollmentsForRules, allClassesForRules),
         };
 

@@ -65,6 +65,27 @@ export function buildAutoCurriculumPlan(theoryMaxStudents: number): PlanItem[] {
   ];
 }
 
+/**
+ * The 9-class moto (Mortys motorcycle program) curriculum in program order:
+ * Theory 1 yard prep (3h) → 4 closed-circuit sessions (4h each) → Theory 2
+ * road prep (3h) → road sessions of 2h/4h/4h. No mandated minimum phase
+ * durations. Practical sessions are one student per bike/instructor.
+ */
+export function buildMotoCurriculumPlan(theoryMaxStudents: number): PlanItem[] {
+  const theoryMax = theoryMaxStudents;
+  return [
+    { classType: "theory", classNumber: 1, duration: 180, maxStudents: theoryMax },
+    { classType: "driving", classNumber: 1, duration: 240, maxStudents: 1 },
+    { classType: "driving", classNumber: 2, duration: 240, maxStudents: 1 },
+    { classType: "driving", classNumber: 3, duration: 240, maxStudents: 1 },
+    { classType: "driving", classNumber: 4, duration: 240, maxStudents: 1 },
+    { classType: "theory", classNumber: 2, duration: 180, maxStudents: theoryMax },
+    { classType: "driving", classNumber: 5, duration: 120, maxStudents: 1 },
+    { classType: "driving", classNumber: 6, duration: 240, maxStudents: 1 },
+    { classType: "driving", classNumber: 7, duration: 240, maxStudents: 1 },
+  ];
+}
+
 /** Candidate dates (YYYY-MM-DD) on the selected weekdays within the horizon. */
 export function buildCandidateDates(
   startDate: string,

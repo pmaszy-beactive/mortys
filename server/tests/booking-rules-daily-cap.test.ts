@@ -120,6 +120,8 @@ describe("auto 3-hour daily cap (checkMaxHoursPerDay via validateClassBooking)",
   it("exempts moto students from the cap", () => {
     const result = validateClassBooking(
       theoryTarget({
+        // Moto theory classes are fixed 3-hour classes under the real program.
+        duration: 180,
         sameDayAlreadyBookedCount: 1,
         sameDayAlreadyBookedMinutes: 120,
         sameDayAlreadyBookedHasDriving: true,

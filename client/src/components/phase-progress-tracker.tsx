@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle, Lock, BookOpen, Car, Info } from "lucide-react";
+import { CheckCircle, Lock, BookOpen, Car, Info, Landmark } from "lucide-react";
 import { formatDate, formatTime } from "@/lib/utils";
-import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
+import type { PhaseProgressData, PhaseProgress, PhaseClassProgress, ExternalMilestoneProgress } from "@shared/phaseConfig";
 
 interface PhaseProgressTrackerProps {
   phaseData: PhaseProgressData;
@@ -130,12 +130,61 @@ export function PhaseProgressTrackerSkeleton() {
   );
 }
 
-export default function PhaseProgressTracker({ phaseData, compact }: PhaseProgressTrackerProps) {
+function ExternalMilestoneRow({ milestone }: { milestone: ExternalMilestoneProgress }) {
   return (
-    <div className="flex gap-4 overflow-x-auto pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-      {phaseData.phases.map((phase) => (
-        <PhaseCard key={phase.phase} phase={phase} compact={compact} />
-      ))}
+    <div
+      className={`flex items-start gap-2 py-1.5 px-2 rounded-md ${milestone.isCompleted ? 'bg-green-50/80' : ''}`}
+      data-testid={`milestone-${milestone.id}`}
+    >
+      <div className="flex-shrink-0 mt-0.5">
+        {milestone.isCompleted ? (
+          <CheckCircle className="h-4 w-4 text-green-600" />
+        ) : (
+          <Landmark className="h-4 w-4 text-gray-400" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className={`text-sm font-medium ${milestone.isCompleted ? 'text-gray-900' : 'text-gray-600'}`}>
+            {milestone.label}
+          </span>
+          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 text-gray-500">SAAQ</Badge>
+          {milestone.isCompleted && milestone.date && (
+            <span className="text-xs text-green-700">Passed {formatDate(milestone.date)}</span>
+          )}
+        </div>
+        <p className="text-[11px] text-gray-500 leading-tight mt-0.5">{milestone.description}</p>
+      </div>
+    </div>
+  );
+}
+
+export default function PhaseProgressTracker({ phaseData, compact }: PhaseProgressTrackerProps) {
+  const milestones = phaseData.externalMilestones ?? [];
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-4 overflow-x-auto pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {phaseData.phases.map((phase) => (
+          <PhaseCard key={phase.phase} phase={phase} compact={compact} />
+        ))}
+      </div>
+      {milestones.length > 0 && (
+        <Card className="border-gray-200" data-testid="card-external-milestones">
+          <CardHeader className={compact ? 'p-3 pb-1' : 'p-4 pb-2'}>
+            <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <Landmark className="h-4 w-4 text-[#ECC462]" />
+              SAAQ Steps (outside the school)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className={`${compact ? 'px-3 pb-3' : 'px-4 pb-4'} pt-0`}>
+            <div className="grid gap-1 sm:grid-cols-2">
+              {milestones.map((m) => (
+                <ExternalMilestoneRow key={m.id} milestone={m} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

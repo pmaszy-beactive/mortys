@@ -95,6 +95,9 @@ export const students = pgTable("students", {
   
   // Academic records
   testScores: json("test_scores"),
+  // SAAQ 6R knowledge test (moto course): date the office recorded the pass.
+  // Null = not yet passed/recorded. Gates closed-circuit booking with Theory #1.
+  saaqKnowledgeTestDate: text("saaq_knowledge_test_date"),
   finalExamScore: integer("final_exam_score"),
   roadTestDate: text("road_test_date"),
   roadTestResult: text("road_test_result"),

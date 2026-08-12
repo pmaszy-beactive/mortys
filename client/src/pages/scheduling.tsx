@@ -153,7 +153,7 @@ export default function Scheduling() {
 
   // Preview: count how many dates will be created
   const previewCount = useMemo(() => {
-    if (genForm.fullCurriculum) return genForm.daysOfWeek.length > 0 && genForm.startDate ? 27 : 0;
+    if (genForm.fullCurriculum) return genForm.daysOfWeek.length > 0 && genForm.startDate ? (genForm.courseType === 'moto' ? 9 : 27) : 0;
     if (!classNumberValid) return 0;
     if (!genForm.startDate || !genForm.endDate || genForm.daysOfWeek.length === 0) return 0;
     const start = new Date(genForm.startDate + "T00:00:00");
@@ -1241,8 +1241,8 @@ export default function Scheduling() {
                 </div>
               </div>
 
-              {/* Full curriculum plan (auto course) */}
-              {genForm.courseType === 'auto' && (
+              {/* Full curriculum plan (auto & moto courses) */}
+              {(genForm.courseType === 'auto' || genForm.courseType === 'moto') && (
                 <div className="flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 p-3">
                   <Checkbox
                     id="gen-full-curriculum"
@@ -1251,9 +1251,13 @@ export default function Scheduling() {
                     data-testid="checkbox-full-curriculum"
                   />
                   <div className="space-y-0.5">
-                    <Label htmlFor="gen-full-curriculum" className="cursor-pointer">Plan the full 4-phase curriculum</Label>
+                    <Label htmlFor="gen-full-curriculum" className="cursor-pointer">
+                      {genForm.courseType === 'moto' ? 'Plan the full motorcycle program' : 'Plan the full 4-phase curriculum'}
+                    </Label>
                     <p className="text-xs text-gray-600">
-                      Creates all 27 classes (Theory #1–12 and In-Car #1–15) in the school's recommended order on the selected weekdays, automatically spacing them to satisfy the phase minimums (28 days for Phases 1–2, 56 days for Phases 3–4). Class type, number, and duration are set per class automatically.
+                      {genForm.courseType === 'moto'
+                        ? "Creates all 9 classes in program order on the selected weekdays: Theory #1 yard prep (3h), four closed-circuit sessions (4h each), Theory #2 road prep (3h), then road sessions of 2h/4h/4h. Class type, number, duration, and capacity are set per class automatically."
+                        : "Creates all 27 classes (Theory #1–12 and In-Car #1–15) in the school's recommended order on the selected weekdays, automatically spacing them to satisfy the phase minimums (28 days for Phases 1–2, 56 days for Phases 3–4). Class type, number, and duration are set per class automatically."}
                     </p>
                   </div>
                 </div>

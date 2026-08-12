@@ -6,5 +6,6 @@
 - [Migration baseline](migration-baseline.md) — post-merge "relation already exists" means dev DB got schema via push before tracking; baseline the migration hash, don't replay.
 - [Billing invoice lifecycle](billing-invoice-lifecycle.md) — status changes only via conditional UPDATE claims; two-step Stripe charge; legacy payments negative totals; SUBSTRING FROM param is a Drizzle trap.
 - [Registration card capture](registration-card-capture.md) — registrationId-keyed public endpoints need a capability token; SetupIntent card-only; atomic transfer at onboarding; classNumber>1 booking gate.
-- [Auto course phase rules](auto-course-phase-rules.md) — 4-phase docs apply to auto only (moto 7+10, scooter 6+8 simplified); 3h/day cap has four caller entry points; curriculum planner anchors.
+- [Auto course phase rules](auto-course-phase-rules.md) — 4-phase docs apply to auto only (scooter 6+8 simplified); 3h/day cap has four caller entry points; curriculum planner anchors.
+- [Moto curriculum](moto-curriculum.md) — real program 2 theory + 4 closed-circuit + 3 road; closed-circuit gated on Theory 1 AND recorded 6R pass; every rules-engine call site must pass the 6R flag.
 - [Class times are school-local](class-times-school-timezone.md) — never compare class date/time strings as server-local on the UTC server; use the SCHOOL_TIMEZONE helpers. Also: a migration .sql without a _journal.json entry silently never applies.

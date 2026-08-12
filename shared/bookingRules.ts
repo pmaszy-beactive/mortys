@@ -61,6 +61,13 @@ export interface TargetClassInfo {
    */
   maxClassesPerDay?: number;
   /**
+   * Moto course only: has the office recorded the student's SAAQ 6R
+   * knowledge-test pass? Required (together with yard-prep theory) before any
+   * closed-circuit session can be booked. Theory 1 and the 6R test may be
+   * done in either order.
+   */
+  saaq6rKnowledgePassed?: boolean;
+  /**
    * The student's current upcoming (not cancelled, not yet attended, class
    * still scheduled) bookings. Used for strict progression gating: the next
    * theory unlocks only when the previous one is completed, in-car lessons
@@ -231,7 +238,12 @@ export function validateClassBooking(
     if (seqCheck) return seqCheck;
   }
 
-  // For non-auto courses apply simplified rules
+  // Moto follows the real Mortys motorcycle program rules.
+  if (courseType === "moto") {
+    return validateMotoRules(target, completed);
+  }
+
+  // For other non-auto courses apply simplified rules
   if (courseType !== "auto") {
     return validateSimplifiedRules(target, completed, courseType);
   }
@@ -337,7 +349,10 @@ export const MAX_CLASSES_PER_DAY = 2;
 export function getCourseClassCounts(courseType: string): { theoryCount: number; drivingCount: number } {
   const config: Record<string, { theoryCount: number; drivingCount: number }> = {
     auto: { theoryCount: 12, drivingCount: 15 },
-    moto: { theoryCount: 7, drivingCount: 10 },
+    // Moto (Mortys program): Theory 1 (yard prep) + Theory 2 (road prep);
+    // practical sessions 1–4 are closed-circuit (240 min each), 5–7 are road
+    // sessions (120/240/240 min).
+    moto: { theoryCount: 2, drivingCount: 7 },
     scooter: { theoryCount: 6, drivingCount: 8 },
   };
   return config[(courseType || '').toLowerCase()] ?? { theoryCount: 5, drivingCount: 10 };
@@ -735,6 +750,127 @@ function validateAutoRules(
   }
 
   // Unknown class — allow with a warning (shouldn't happen)
+  return { allowed: true };
+}
+
+// ─── Moto (Mortys motorcycle program) ────────────────────────────────────────
+
+/** Practical sessions 1–4 are closed-circuit; 5–7 are road sessions. */
+export const MOTO_CLOSED_CIRCUIT_SESSIONS = 4;
+export const MOTO_ROAD_SESSIONS = 3;
+/** Theory 1 (yard prep) and Theory 2 (road prep) are 3-hour classes. */
+export const MOTO_THEORY_DURATION_MINUTES = 180;
+
+/** Required duration (minutes) for each moto practical session number. */
+export function getMotoPracticalDuration(classNumber: number): number | null {
+  if (classNumber >= 1 && classNumber <= 4) return 240; // closed-circuit 4h
+  if (classNumber === 5) return 120; // road session 1: 2h
+  if (classNumber === 6 || classNumber === 7) return 240; // road sessions 2–3: 4h
+  return null;
+}
+
+export function isMotoClosedCircuitSession(classNumber: number): boolean {
+  return classNumber >= 1 && classNumber <= MOTO_CLOSED_CIRCUIT_SESSIONS;
+}
+
+/**
+ * Real motorcycle program rules:
+ * - Theory 1 (yard prep) — always bookable first.
+ * - Theory 2 (road prep) — requires Theory 1 AND all four closed-circuit
+ *   sessions (it prepares the student for road training, which follows the
+ *   closed circuit in the program).
+ * - Closed-circuit sessions (practical 1–4, 240 min): require Theory 1
+ *   completed AND the SAAQ 6R knowledge-test pass recorded (either order
+ *   between the two).
+ * - Road sessions (practical 5–7, 120/240/240 min): require Theory 2 (road
+ *   prep) completed. Session sequencing itself is enforced by the strict
+ *   progression layer when upcoming bookings are provided.
+ * - Class numbers outside the 2-theory / 7-practical program are rejected
+ *   (legacy placeholder classes are not bookable), and practical sessions
+ *   must carry their exact program duration.
+ */
+function validateMotoRules(
+  target: TargetClassInfo,
+  completed: CompletedClassRecord[],
+): BookingValidationResult {
+  const { classType, classNumber, duration } = target;
+
+  if (classType === "theory") {
+    if (classNumber > 2) {
+      return {
+        allowed: false,
+        reason: `Theory #${classNumber} is not part of the motorcycle program (only Theory #1 yard preparation and Theory #2 road preparation exist). This looks like a legacy class — please contact the office.`,
+        blockingRule: "moto_class_not_in_program",
+      };
+    }
+    // Both program theory classes are fixed 3-hour classes; wrong or missing
+    // durations indicate a legacy/misconfigured offering.
+    if (duration !== MOTO_THEORY_DURATION_MINUTES) {
+      return {
+        allowed: false,
+        reason: `Theory #${classNumber} (${classNumber === 1 ? "yard" : "road"} preparation) must be a 3-hour (${MOTO_THEORY_DURATION_MINUTES}-minute) class${duration != null ? ` (this class is ${duration} minutes)` : ""}.`,
+        blockingRule: "moto_theory_duration",
+      };
+    }
+    if (classNumber === 1) return { allowed: true };
+    // Theory 2 (road prep) follows the closed circuit in the program.
+    const missing: string[] = [];
+    if (!hasCompleted(completed, "theory", 1)) missing.push("Theory #1 (Yard Preparation)");
+    for (let n = 1; n <= MOTO_CLOSED_CIRCUIT_SESSIONS; n++) {
+      if (!hasCompleted(completed, "driving", n)) missing.push(`Closed-Circuit Session #${n}`);
+    }
+    if (missing.length > 0) {
+      return {
+        allowed: false,
+        reason: `Theory #2 (road preparation) requires Theory #1 and all four closed-circuit sessions to be completed first. Still needed: ${missing.join(", ")}.`,
+        blockingRule: "moto_theory2_prerequisites",
+        detail: { prerequisitesNeeded: missing },
+      };
+    }
+    return { allowed: true };
+  }
+
+  // Practical sessions
+  const requiredDuration = getMotoPracticalDuration(classNumber);
+  if (requiredDuration == null) {
+    return {
+      allowed: false,
+      reason: `Session #${classNumber} is not part of the motorcycle program (4 closed-circuit sessions and 3 road sessions). This looks like a legacy class — please contact the office.`,
+      blockingRule: "moto_class_not_in_program",
+    };
+  }
+  if (duration !== requiredDuration) {
+    return {
+      allowed: false,
+      reason: `This ${isMotoClosedCircuitSession(classNumber) ? "closed-circuit" : "road"} session must be booked as a ${requiredDuration / 60}-hour (${requiredDuration}-minute) session${duration != null ? ` (this class is ${duration} minutes)` : ""}.`,
+      blockingRule: "moto_session_duration",
+    };
+  }
+
+  if (isMotoClosedCircuitSession(classNumber)) {
+    const missing: string[] = [];
+    if (!hasCompleted(completed, "theory", 1)) missing.push("Theory #1 (Yard Preparation)");
+    if (!target.saaq6rKnowledgePassed) missing.push("SAAQ 6R knowledge test (pass recorded by the office)");
+    if (missing.length > 0) {
+      return {
+        allowed: false,
+        reason: `Closed-circuit sessions require the yard-preparation theory class AND a recorded SAAQ 6R knowledge-test pass (they can be done in either order). Still needed: ${missing.join(", ")}.`,
+        blockingRule: "moto_closed_circuit_prerequisites",
+        detail: { prerequisitesNeeded: missing },
+      };
+    }
+    return { allowed: true };
+  }
+
+  // Road sessions (5–7)
+  if (!hasCompleted(completed, "theory", 2)) {
+    return {
+      allowed: false,
+      reason: "Road sessions require Theory #2 (road preparation) to be completed first.",
+      blockingRule: "moto_road_requires_road_theory",
+      detail: { prerequisitesNeeded: ["Theory #2 (Road Preparation)"] },
+    };
+  }
   return { allowed: true };
 }
 

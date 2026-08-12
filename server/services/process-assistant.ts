@@ -6,6 +6,8 @@ import { verifyStudentToken } from "../student-auth";
 import {
   buildCompletedClasses,
   validateClassBooking,
+  getCourseClassCounts,
+  getMotoPracticalDuration,
   type CompletedClassRecord,
 } from "@shared/bookingRules";
 
@@ -227,10 +229,12 @@ async function buildStudentProgressContext(studentId: number): Promise<string | 
     const courseType = (student.courseType || "auto").toLowerCase();
     const today = new Date().toISOString().slice(0, 10);
 
-    // Evaluate every not-yet-completed class through the real rules engine.
+    // Evaluate every not-yet-completed class through the real rules engine
+    // (course-aware counts: auto 12/15, moto 2/7, scooter 6/8).
+    const counts = getCourseClassCounts(courseType);
     const candidates: { classType: "theory" | "driving"; classNumber: number }[] = [];
-    for (let n = 1; n <= 12; n++) candidates.push({ classType: "theory", classNumber: n });
-    for (let n = 1; n <= 15; n++) candidates.push({ classType: "driving", classNumber: n });
+    for (let n = 1; n <= counts.theoryCount; n++) candidates.push({ classType: "theory", classNumber: n });
+    for (let n = 1; n <= counts.drivingCount; n++) candidates.push({ classType: "driving", classNumber: n });
 
     const bookableNow: string[] = [];
     const blocked: string[] = [];
@@ -248,7 +252,11 @@ async function buildStudentProgressContext(studentId: number): Promise<string | 
           // Evaluate prerequisites only: assume a valid duration and a shared
           // session where required, and ignore the daily limit (no specific
           // class is being booked yet).
-          duration: 60,
+          duration:
+            courseType === "moto"
+              ? (cand.classType === "driving" ? (getMotoPracticalDuration(cand.classNumber) ?? 240) : 180)
+              : 60,
+          saaq6rKnowledgePassed: !!(student as any).saaqKnowledgeTestDate,
           maxStudents: cand.classType === "driving" && (cand.classNumber === 12 || cand.classNumber === 13) ? 2 : undefined,
           currentEnrollmentCount: 0,
           sameDayAlreadyBookedCount: 0,

@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -146,6 +147,27 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
         variant: "destructive",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/students", studentId, "enrollment-suggestion"] });
+    },
+  });
+
+  // SAAQ 6R knowledge test (moto): office records the pass date.
+  const [saaq6rDate, setSaaq6rDate] = useState("");
+  const saaq6rMutation = useMutation({
+    mutationFn: (date: string | null) =>
+      apiRequest("PUT", `/api/students/${studentId}`, { saaqKnowledgeTestDate: date }),
+    onSuccess: (_data, date) => {
+      toast({
+        title: date ? "6R knowledge test recorded" : "6R knowledge test cleared",
+        description: date
+          ? `Recorded a SAAQ 6R knowledge-test pass on ${date}.`
+          : "The recorded 6R pass was removed.",
+      });
+      setSaaq6rDate("");
+      queryClient.invalidateQueries({ queryKey: ["/api/students", studentId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/students", studentId, "phase-progress"] });
+    },
+    onError: (err: any) => {
+      toast({ title: "Could not save", description: err?.message || "Update failed.", variant: "destructive" });
     },
   });
 
@@ -788,6 +810,56 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
             </div>
           </CardContent>
         </Card>
+        {(student.courseType || '').toLowerCase() === 'moto' && (
+          <Card className="mobile-card mb-4" data-testid="card-saaq-6r">
+            <CardContent className="pt-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">SAAQ 6R Knowledge Test</p>
+                  {student.saaqKnowledgeTestDate ? (
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <Badge className="bg-green-100 text-green-800 border-0 text-xs">Passed</Badge>
+                      <span className="text-sm text-gray-600">on {formatDate(student.saaqKnowledgeTestDate)}</span>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      Not recorded — closed-circuit sessions stay locked until the 6R pass is recorded (Theory #1 and the 6R test can be done in either order).
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="date"
+                    className="w-auto"
+                    value={saaq6rDate}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSaaq6rDate(e.target.value)}
+                    data-testid="input-saaq-6r-date"
+                  />
+                  <Button
+                    size="sm"
+                    className="bg-[#ECC462] hover:bg-[#ECC462]/90 text-black"
+                    disabled={!saaq6rDate || saaq6rMutation.isPending}
+                    onClick={() => saaq6rMutation.mutate(saaq6rDate)}
+                    data-testid="button-record-saaq-6r"
+                  >
+                    {student.saaqKnowledgeTestDate ? 'Update' : 'Record Pass'}
+                  </Button>
+                  {student.saaqKnowledgeTestDate && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={saaq6rMutation.isPending}
+                      onClick={() => saaq6rMutation.mutate(null)}
+                      data-testid="button-clear-saaq-6r"
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         {phaseLoading ? (
           <PhaseProgressTrackerSkeleton />
         ) : phaseProgressData ? (

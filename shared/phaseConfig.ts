@@ -7,6 +7,20 @@ export interface PhaseClassItem {
   mustBeFirst?: boolean;
   mustBeLast?: boolean;
   maxDurationMinutes?: number;
+  /** Fixed session length for this class, when the curriculum dictates one. */
+  durationMinutes?: number;
+}
+
+/**
+ * External (SAAQ-administered) milestone shown as an informational step in a
+ * course's progress display. Not bookable through the school.
+ */
+export interface ExternalMilestone {
+  id: string;
+  label: string;
+  description: string;
+  /** Phase number the milestone belongs with in the display. */
+  afterPhase: number;
 }
 
 export interface PhaseDefinition {
@@ -132,9 +146,97 @@ function buildSimplifiedPhases(theoryCount: number, drivingCount: number, practi
 }
 
 // Counts must stay in sync with getCourseClassCounts in shared/bookingRules.ts
-// (moto: 7 theory / 10 practical, scooter: 6 theory / 8 practical).
-const MOTO_PHASE_DEFINITIONS = buildSimplifiedPhases(7, 10, "Riding Session");
+// (scooter: 6 theory / 8 practical).
 const SCOOTER_PHASE_DEFINITIONS = buildSimplifiedPhases(6, 8, "Riding Session");
+
+/**
+ * Real Mortys motorcycle program (see the SAAQ course-steps document):
+ * Theory 1 (yard prep, 3h) + external 6R knowledge test (either order, both
+ * before closed circuit) → 4 closed-circuit sessions (4h each) → Theory 2
+ * (road prep, 3h) → 3 road sessions (2h/4h/4h). SAAQ closed-track exam,
+ * 11-month wait, and the final road exam are external milestones.
+ * Counts must stay in sync with getCourseClassCounts (moto: 2 theory / 7 practical).
+ */
+export const MOTO_PHASE_DEFINITIONS: PhaseDefinition[] = [
+  {
+    phase: 1,
+    label: "Yard Preparation",
+    minimumDays: 0,
+    classes: [
+      { id: "theory_1", label: "Theory #1 — Yard Preparation", classType: "theory", classNumber: 1, mustBeFirst: true, durationMinutes: 180, specialNote: "(3 hours)" },
+    ],
+    notes: "One 3-hour theory class preparing you for the closed circuit. The SAAQ 6R knowledge test (self-study) can be done before or after this class, but BOTH must be complete before any closed-circuit session.",
+    orderingRule: "strict",
+  },
+  {
+    phase: 2,
+    label: "Closed-Circuit Training",
+    minimumDays: 0,
+    classes: [
+      { id: "driving_1", label: "Closed-Circuit Session #1", classType: "driving", classNumber: 1, durationMinutes: 240, specialNote: "(4 hours)" },
+      { id: "driving_2", label: "Closed-Circuit Session #2", classType: "driving", classNumber: 2, durationMinutes: 240, specialNote: "(4 hours)" },
+      { id: "driving_3", label: "Closed-Circuit Session #3", classType: "driving", classNumber: 3, durationMinutes: 240, specialNote: "(4 hours)" },
+      { id: "driving_4", label: "Closed-Circuit Session #4", classType: "driving", classNumber: 4, durationMinutes: 240, specialNote: "(4 hours)" },
+    ],
+    notes: "Four 4-hour closed-circuit sessions (16 hours total). Unlocked once Theory #1 is completed AND your SAAQ 6R knowledge-test pass is recorded.",
+    orderingRule: "strict",
+  },
+  {
+    phase: 3,
+    label: "Road Preparation",
+    minimumDays: 0,
+    classes: [
+      { id: "theory_2", label: "Theory #2 — Road Preparation", classType: "theory", classNumber: 2, durationMinutes: 180, specialNote: "(3 hours)" },
+    ],
+    notes: "One 3-hour theory class preparing you for road training. Must be completed before any road session.",
+    orderingRule: "strict",
+  },
+  {
+    phase: 4,
+    label: "Road Training",
+    minimumDays: 0,
+    classes: [
+      { id: "driving_5", label: "Road Session #1", classType: "driving", classNumber: 5, durationMinutes: 120, specialNote: "(2 hours)" },
+      { id: "driving_6", label: "Road Session #2", classType: "driving", classNumber: 6, durationMinutes: 240, specialNote: "(4 hours)" },
+      { id: "driving_7", label: "Road Session #3", classType: "driving", classNumber: 7, durationMinutes: 240, specialNote: "(4 hours)" },
+    ],
+    notes: "Three road sessions (2h, 4h, 4h — 10 hours total) after the road-preparation theory class.",
+    orderingRule: "strict",
+  },
+];
+
+/** External SAAQ milestones for the moto program (informational only). */
+export const MOTO_EXTERNAL_MILESTONES: ExternalMilestone[] = [
+  {
+    id: "saaq_6r_knowledge_test",
+    label: "SAAQ 6R Knowledge Test",
+    description: "Self-study knowledge test taken at the SAAQ. Can be done before or after Theory #1, but both must be complete before any closed-circuit session. Ask the office to record your pass.",
+    afterPhase: 1,
+  },
+  {
+    id: "saaq_closed_track_exam",
+    label: "SAAQ Closed-Track Exam",
+    description: "SAAQ-administered closed-track exam taken after closed-circuit training.",
+    afterPhase: 2,
+  },
+  {
+    id: "saaq_11_month_wait",
+    label: "11-Month Learner Period",
+    description: "You must hold your learner's licence for 11 months before the final SAAQ road exam.",
+    afterPhase: 4,
+  },
+  {
+    id: "saaq_final_road_exam",
+    label: "SAAQ Road Exam",
+    description: "Final SAAQ road exam after completing the course and the 11-month learner period.",
+    afterPhase: 4,
+  },
+];
+
+/** External milestones per course (empty for courses without any). */
+export function getExternalMilestonesForCourse(courseType: string | null | undefined): ExternalMilestone[] {
+  return (courseType || "auto").toLowerCase() === "moto" ? MOTO_EXTERNAL_MILESTONES : [];
+}
 
 /** Course-aware phase definitions. Auto uses the full 4-phase curriculum. */
 export function getPhaseDefinitionsForCourse(courseType: string | null | undefined): PhaseDefinition[] {
@@ -177,7 +279,16 @@ export interface PhaseProgress {
   classes: PhaseClassProgress[];
 }
 
+export interface ExternalMilestoneProgress extends ExternalMilestone {
+  /** Recorded as complete (currently only the moto 6R knowledge test can be). */
+  isCompleted: boolean;
+  /** Date the milestone was recorded (YYYY-MM-DD), when known. */
+  date?: string;
+}
+
 export interface PhaseProgressData {
   currentPhase: number;
   phases: PhaseProgress[];
+  /** External SAAQ milestones (informational; present for moto students). */
+  externalMilestones?: ExternalMilestoneProgress[];
 }
