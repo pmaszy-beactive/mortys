@@ -582,9 +582,13 @@ function validateRescheduleTargetWithContext(
     return { allowed: false, reason: "The selected class has already started and can no longer be booked.", blockingRule: "class_started" };
   }
   const newClassDate = newClass.date ?? new Date().toISOString().slice(0, 10);
-  const sameDayBooked = ctx.enrollmentDetails.filter(
+  const sameDayDetails = ctx.enrollmentDetails.filter(
     d => d.date === newClassDate && d.classStatus === 'scheduled'
-  ).length;
+  );
+  const sameDayBooked = sameDayDetails.length;
+  const sameDayMinutes = sameDayDetails.reduce(
+    (sum, d) => sum + (d.duration ?? (d.classType === 'theory' ? 120 : 60)), 0);
+  const sameDayHasDriving = sameDayDetails.some(d => d.classType === 'driving');
   return validateClassBooking(
     {
       classType: newClass.classType as "theory" | "driving",
@@ -593,6 +597,8 @@ function validateRescheduleTargetWithContext(
       duration: newClass.duration ?? undefined,
       maxStudents: newClass.maxStudents ?? undefined,
       sameDayAlreadyBookedCount: sameDayBooked,
+      sameDayAlreadyBookedMinutes: sameDayMinutes,
+      sameDayAlreadyBookedHasDriving: sameDayHasDriving,
       maxClassesPerDay: dailyLimit,
       upcomingBookings: ctx.upcomingBookings,
     },
@@ -3258,6 +3264,146 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (dates.length === 0) return res.status(400).json({ message: "No dates match the selected days of week in this range" });
 
+      // ── Full-curriculum planner (auto course) ────────────────────────────
+      // Lays out the entire 4-phase program (Theory 1–12, In-Car 1–15) in the
+      // school's recommended order on the selected weekdays, spacing classes
+      // so the phase minimums hold: T5 ≥ 28 days after T1, In-Car #4 ≥ 28
+      // days after T6, Phase 3 ends ≥ 56 days after T8, In-Car #15 ≥ 56 days
+      // after T11. One class per date. Candidate dates extend up to a year
+      // from the start date regardless of endDate so the plan always fits.
+      if (req.body.fullCurriculum) {
+        if ((courseType || '').toLowerCase() !== 'auto') {
+          return res.status(400).json({ message: "Full curriculum planning is only available for the auto course." });
+        }
+        const candidates: string[] = [];
+        const c = new Date(start);
+        const hardEnd = new Date(start); hardEnd.setDate(hardEnd.getDate() + 365);
+        while (c <= hardEnd) {
+          if (daysOfWeek.includes(c.getDay())) candidates.push(c.toISOString().slice(0, 10));
+          c.setDate(c.getDate() + 1);
+        }
+
+        type PlanItem = {
+          classType: 'theory' | 'driving'; classNumber: number;
+          duration: number; maxStudents: number; hasTest?: boolean;
+          // constraint: this class must be >= minDays after the anchor class
+          minDaysAfter?: { classType: 'theory' | 'driving'; classNumber: number; days: number };
+        };
+        const theoryDur = 120;
+        const theoryMax = parseInt(maxStudents) || 24;
+        const plan: PlanItem[] = [
+          // Phase 1
+          { classType: 'theory', classNumber: 1, duration: theoryDur, maxStudents: theoryMax },
+          { classType: 'theory', classNumber: 2, duration: theoryDur, maxStudents: theoryMax },
+          { classType: 'theory', classNumber: 3, duration: theoryDur, maxStudents: theoryMax },
+          { classType: 'theory', classNumber: 4, duration: theoryDur, maxStudents: theoryMax },
+          { classType: 'theory', classNumber: 5, duration: theoryDur, maxStudents: theoryMax, hasTest: true,
+            minDaysAfter: { classType: 'theory', classNumber: 1, days: 28 } },
+          // Phase 2 (strict order; in-cars single hours)
+          { classType: 'theory', classNumber: 6, duration: theoryDur, maxStudents: theoryMax },
+          { classType: 'theory', classNumber: 7, duration: theoryDur, maxStudents: theoryMax },
+          { classType: 'driving', classNumber: 1, duration: 60, maxStudents: 1 },
+          { classType: 'driving', classNumber: 2, duration: 60, maxStudents: 1 },
+          { classType: 'driving', classNumber: 3, duration: 60, maxStudents: 1 },
+          { classType: 'driving', classNumber: 4, duration: 60, maxStudents: 1,
+            minDaysAfter: { classType: 'theory', classNumber: 6, days: 28 } },
+          // Phase 3 (recommended order)
+          { classType: 'theory', classNumber: 8, duration: theoryDur, maxStudents: theoryMax },
+          { classType: 'theory', classNumber: 9, duration: theoryDur, maxStudents: theoryMax },
+          { classType: 'driving', classNumber: 5, duration: 60, maxStudents: 1 },
+          { classType: 'driving', classNumber: 6, duration: 60, maxStudents: 1 },
+          { classType: 'driving', classNumber: 7, duration: 60, maxStudents: 1 },
+          { classType: 'driving', classNumber: 8, duration: 60, maxStudents: 1 },
+          { classType: 'theory', classNumber: 10, duration: theoryDur, maxStudents: theoryMax },
+          { classType: 'driving', classNumber: 9, duration: 60, maxStudents: 1 },
+          { classType: 'driving', classNumber: 10, duration: 60, maxStudents: 1,
+            minDaysAfter: { classType: 'theory', classNumber: 8, days: 56 } },
+          // Phase 4
+          { classType: 'theory', classNumber: 11, duration: theoryDur, maxStudents: theoryMax },
+          { classType: 'theory', classNumber: 12, duration: theoryDur, maxStudents: theoryMax },
+          { classType: 'driving', classNumber: 11, duration: 60, maxStudents: 1 },
+          { classType: 'driving', classNumber: 12, duration: 60, maxStudents: 2 }, // shared session
+          { classType: 'driving', classNumber: 13, duration: 60, maxStudents: 2 }, // shared session
+          { classType: 'driving', classNumber: 14, duration: 60, maxStudents: 1 },
+          { classType: 'driving', classNumber: 15, duration: 60, maxStudents: 1,
+            minDaysAfter: { classType: 'theory', classNumber: 11, days: 56 } },
+        ];
+
+        const assignedDate: Record<string, string> = {};
+        const scheduled: Array<PlanItem & { date: string }> = [];
+        let cursor = 0;
+        for (const item of plan) {
+          let idx = cursor;
+          if (item.minDaysAfter) {
+            const anchor = assignedDate[`${item.minDaysAfter.classType}:${item.minDaysAfter.classNumber}`];
+            if (anchor) {
+              const minDate = new Date(anchor + "T00:00:00");
+              minDate.setDate(minDate.getDate() + item.minDaysAfter.days);
+              const minStr = minDate.toISOString().slice(0, 10);
+              while (idx < candidates.length && candidates[idx] < minStr) idx++;
+            }
+          }
+          if (idx >= candidates.length) {
+            return res.status(400).json({
+              message: "Not enough matching dates within a year to fit the full curriculum with its minimum phase durations. Select more days of the week or an earlier start date.",
+            });
+          }
+          const date = candidates[idx];
+          assignedDate[`${item.classType}:${item.classNumber}`] = date;
+          scheduled.push({ ...item, date });
+          cursor = idx + 1;
+        }
+
+        // Pre-validate instructor availability (one check per weekday used).
+        if (instructorId) {
+          const instId = parseInt(instructorId);
+          const violations: string[] = [];
+          const checkedDays = new Set<number>();
+          for (const s of scheduled) {
+            const dow = new Date(s.date + "T00:00:00").getDay();
+            if (checkedDays.has(dow)) continue;
+            checkedDays.add(dow);
+            const violation = await checkInstructorAvailability(instId, s.date, time, Math.max(...scheduled.filter(x => new Date(x.date + "T00:00:00").getDay() === dow).map(x => x.duration)));
+            if (violation) violations.push(violation.message);
+          }
+          if (violations.length > 0) {
+            return res.status(409).json({
+              message: "Schedule falls outside the instructor's availability. No classes were created.",
+              availabilityViolations: violations,
+              conflicts: violations,
+            });
+          }
+        }
+
+        const curriculumSeriesId = randomUUID();
+        const createdPlan = [];
+        for (const s of scheduled) {
+          const cls = await storage.createClass({
+            courseType,
+            classType: s.classType,
+            classNumber: s.classNumber,
+            date: s.date,
+            time,
+            duration: s.duration,
+            instructorId: instructorId ? parseInt(instructorId) : null,
+            maxStudents: s.maxStudents,
+            lessonType: lessonType || 'regular',
+            status: 'scheduled',
+            hasTest: s.hasTest ?? false,
+            zoomLink: zoomLink || null,
+            seriesId: curriculumSeriesId,
+          } as any);
+          createdPlan.push(cls);
+        }
+        return res.status(201).json({
+          message: `Created the full ${courseType} curriculum: ${createdPlan.length} classes from ${scheduled[0].date} to ${scheduled[scheduled.length - 1].date}.`,
+          count: createdPlan.length,
+          created: createdPlan.length,
+          seriesId: curriculumSeriesId,
+          classes: createdPlan,
+        });
+      }
+
       // Progressive series: instead of repeating the same class on every
       // date, assign incrementing class numbers (Class 1, 2, ... n) across
       // consecutive dates, capped at the course's session count. Extra dates
@@ -4243,12 +4389,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // uses the policy value when set, falling back to the built-in
             // default) so authorized staff can override it with a reason.
             const targetDatePhase = classData.date ?? new Date().toISOString().slice(0, 10);
+            // Same-day scheduled minutes for the auto 3-hours-per-day rule —
+            // must be enforced on the admin enrollment path too (overridable
+            // with the same overridePolicy flag as the other checks).
+            const sameDayPhase = enrollmentDetailsPhase.filter(
+              d => d.date === targetDatePhase && d.classStatus === 'scheduled'
+            );
             const targetForPhase = {
               classType: classData.classType as "theory" | "driving",
               classNumber: classData.classNumber ?? 0,
               date: targetDatePhase,
               duration: classData.duration ?? undefined,
               maxStudents: classData.maxStudents ?? undefined,
+              sameDayAlreadyBookedMinutes: sameDayPhase.reduce(
+                (sum, d) => sum + (d.duration ?? (d.classType === 'theory' ? 120 : 60)), 0),
+              sameDayAlreadyBookedHasDriving: sameDayPhase.some(d => d.classType === 'driving'),
               upcomingBookings: computeUpcomingBookings(studentEnrollmentsPhase, allClassesPhase),
             };
             const phaseCheck = validateClassBooking(
@@ -10879,9 +11034,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // limit. Only classes that are still scheduled count — enrollments in
         // cancelled classes must not consume a daily slot.
         const sameDayCountMapAvail: Record<string, number> = {};
+        const sameDayMinutesMapAvail: Record<string, number> = {};
+        const sameDayDrivingMapAvail: Record<string, boolean> = {};
         for (const detail of enrollmentDetailsAvail) {
           if (detail.date && detail.classStatus === 'scheduled') {
             sameDayCountMapAvail[detail.date] = (sameDayCountMapAvail[detail.date] ?? 0) + 1;
+            sameDayMinutesMapAvail[detail.date] = (sameDayMinutesMapAvail[detail.date] ?? 0)
+              + (detail.duration ?? (detail.classType === 'theory' ? 120 : 60));
+            if (detail.classType === 'driving') sameDayDrivingMapAvail[detail.date] = true;
           }
         }
 
@@ -10930,6 +11090,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               duration: classItem.duration ?? undefined,
               maxStudents: classItem.maxStudents ?? undefined,
               sameDayAlreadyBookedCount: sameDayCountMapAvail[classDate] ?? 0,
+              sameDayAlreadyBookedMinutes: sameDayMinutesMapAvail[classDate] ?? 0,
+              sameDayAlreadyBookedHasDriving: sameDayDrivingMapAvail[classDate] ?? false,
               maxClassesPerDay: effectiveDailyLimit(allPoliciesAvail, {
                 courseType: classItem.courseType ?? undefined,
                 classType: classItem.classType ?? undefined,
@@ -11337,9 +11499,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // classes that are still scheduled count — enrollments in cancelled
         // classes must not consume a daily slot.
         const classDateForBook = classData.date ?? new Date().toISOString().slice(0, 10);
-        const sameDayAlreadyBookedBook = enrollmentDetails.filter(
+        const sameDayDetailsBook = enrollmentDetails.filter(
           d => d.date === classDateForBook && d.classStatus === 'scheduled'
-        ).length;
+        );
+        const sameDayAlreadyBookedBook = sameDayDetailsBook.length;
+        const sameDayMinutesBook = sameDayDetailsBook.reduce(
+          (sum: number, d: any) => sum + (d.duration ?? (d.classType === 'theory' ? 120 : 60)), 0);
+        const sameDayHasDrivingBook = sameDayDetailsBook.some((d: any) => d.classType === 'driving');
 
         // Get active booking policies for this class type. Daily limit
         // precedence rule: an active max_bookings_per_day policy OVERRIDES
@@ -11367,6 +11533,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           currentEnrollmentCount: undefined as number | undefined,
           maxStudents: classData.maxStudents ?? undefined,
           sameDayAlreadyBookedCount: sameDayAlreadyBookedBook,
+          sameDayAlreadyBookedMinutes: sameDayMinutesBook,
+          sameDayAlreadyBookedHasDriving: sameDayHasDrivingBook,
           maxClassesPerDay: dailyLimit.limit,
           upcomingBookings: computeUpcomingBookings(studentEnrollmentsForRules, allClassesForRules),
         };

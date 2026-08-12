@@ -45,6 +45,14 @@ export interface TargetClassInfo {
    */
   sameDayAlreadyBookedCount?: number;
   /**
+   * Total minutes of classes this student already has booked on the same
+   * date (excluding the class being evaluated; scheduled classes only).
+   * Used for the auto-course "no more than 3 hours per day" rule.
+   */
+  sameDayAlreadyBookedMinutes?: number;
+  /** True when any of the same-day booked classes is an in-car session. */
+  sameDayAlreadyBookedHasDriving?: boolean;
+  /**
    * Effective daily booking limit. Precedence rule: an active
    * "max_bookings_per_day" booking policy (Settings → Booking Policies)
    * OVERRIDES the built-in default of MAX_CLASSES_PER_DAY (2). Callers that
@@ -208,6 +216,14 @@ export function validateClassBooking(
   const dailyLimitCheck = checkMaxClassesPerDay(target);
   if (dailyLimitCheck) return dailyLimitCheck;
 
+  // Auto-course daily hours cap: no more than 3 hours of classes per day
+  // when an in-car session is involved (a 2-hour in-car rules out a theory
+  // class the same day; a 1-hour in-car + theory is fine).
+  if (courseType === "auto") {
+    const hoursCheck = checkMaxHoursPerDay(target);
+    if (hoursCheck) return hoursCheck;
+  }
+
   // Strict per-class progression gating (skipped when the caller did not
   // provide the student's upcoming bookings).
   if (target.upcomingBookings) {
@@ -265,8 +281,14 @@ function validateSequentialProgression(
     };
   }
 
+  // Auto-course ordering is fully governed by validateAutoRules, which
+  // matches the school's phase documents (T2–4 in any order after T1,
+  // Phase 3/4 flexible after the phase opener, Phase 2 strictly ordered).
+  // The strict one-at-a-time gating below applies to simplified courses only.
+  const strictSequence = courseType !== "auto";
+
   if (classType === "theory") {
-    if (classNumber > 1 && !hasCompleted(completed, "theory", classNumber - 1)) {
+    if (strictSequence && classNumber > 1 && !hasCompleted(completed, "theory", classNumber - 1)) {
       return {
         allowed: false,
         reason: `Theory #${classNumber} unlocks after you complete Theory #${classNumber - 1}.`,
@@ -287,6 +309,7 @@ function validateSequentialProgression(
     };
   }
   if (
+    strictSequence &&
     classNumber > 1 &&
     !hasCompleted(completed, "driving", classNumber - 1) &&
     !isBooked("driving", classNumber - 1)
@@ -318,6 +341,34 @@ export function getCourseClassCounts(courseType: string): { theoryCount: number;
     scooter: { theoryCount: 6, drivingCount: 8 },
   };
   return config[(courseType || '').toLowerCase()] ?? { theoryCount: 5, drivingCount: 10 };
+}
+
+/** Auto-course rule (Phase 3 wording, applied whenever an in-car session is
+ * involved): no more than 3 hours of classes in one day. Theory classes count
+ * as 2 hours when duration is unknown; in-car sessions default to 1 hour. */
+export const MAX_MINUTES_PER_DAY = 180;
+
+function assumedMinutes(classType: "theory" | "driving", duration?: number): number {
+  return duration ?? (classType === "theory" ? 120 : 60);
+}
+
+function checkMaxHoursPerDay(target: TargetClassInfo): BookingValidationResult | null {
+  const bookedMinutes = target.sameDayAlreadyBookedMinutes ?? 0;
+  if (bookedMinutes === 0) return null;
+  const targetIsDriving = target.classType === "driving";
+  // The cap only bites when an in-car session is part of the day — two
+  // theory classes in one day are governed by the class-count limit alone.
+  if (!targetIsDriving && !target.sameDayAlreadyBookedHasDriving) return null;
+  const totalMinutes = bookedMinutes + assumedMinutes(target.classType, target.duration);
+  if (totalMinutes > MAX_MINUTES_PER_DAY) {
+    return {
+      allowed: false,
+      reason: `No more than 3 hours of classes can be taken in one day. This booking would bring your day to ${(totalMinutes / 60).toFixed(1).replace(/\.0$/, "")} hours. A 2-hour in-car lesson cannot be combined with a theory class on the same day.`,
+      blockingRule: "max_hours_per_day",
+      detail: {},
+    };
+  }
+  return null;
 }
 
 function checkMaxClassesPerDay(

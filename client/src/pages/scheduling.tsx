@@ -74,6 +74,7 @@ export default function Scheduling() {
     hasTest: false,
     zoomLink: '',
     progressive: false,
+    fullCurriculum: false,
   });
 
   // Reschedule class mutation
@@ -152,6 +153,7 @@ export default function Scheduling() {
 
   // Preview: count how many dates will be created
   const previewCount = useMemo(() => {
+    if (genForm.fullCurriculum) return genForm.daysOfWeek.length > 0 && genForm.startDate ? 27 : 0;
     if (!classNumberValid) return 0;
     if (!genForm.startDate || !genForm.endDate || genForm.daysOfWeek.length === 0) return 0;
     const start = new Date(genForm.startDate + "T00:00:00");
@@ -169,7 +171,7 @@ export default function Scheduling() {
       count = Math.max(0, Math.min(count, maxNumber - classNumberInt + 1));
     }
     return count;
-  }, [genForm.startDate, genForm.endDate, genForm.daysOfWeek, genForm.progressive, genForm.courseType, genForm.classType, classNumberValid, classNumberInt]);
+  }, [genForm.startDate, genForm.endDate, genForm.daysOfWeek, genForm.progressive, genForm.fullCurriculum, genForm.courseType, genForm.classType, classNumberValid, classNumberInt]);
 
   const toggleGenDay = (day: number) => {
     setGenForm(prev => ({
@@ -1239,7 +1241,26 @@ export default function Scheduling() {
                 </div>
               </div>
 
+              {/* Full curriculum plan (auto course) */}
+              {genForm.courseType === 'auto' && (
+                <div className="flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 p-3">
+                  <Checkbox
+                    id="gen-full-curriculum"
+                    checked={genForm.fullCurriculum}
+                    onCheckedChange={v => setGenForm(p => ({ ...p, fullCurriculum: v === true, progressive: false }))}
+                    data-testid="checkbox-full-curriculum"
+                  />
+                  <div className="space-y-0.5">
+                    <Label htmlFor="gen-full-curriculum" className="cursor-pointer">Plan the full 4-phase curriculum</Label>
+                    <p className="text-xs text-gray-600">
+                      Creates all 27 classes (Theory #1–12 and In-Car #1–15) in the school's recommended order on the selected weekdays, automatically spacing them to satisfy the phase minimums (28 days for Phases 1–2, 56 days for Phases 3–4). Class type, number, and duration are set per class automatically.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Progressive series */}
+              {!genForm.fullCurriculum && (
               <div className="flex items-start gap-2 rounded-md border border-gray-200 p-3">
                 <Checkbox
                   id="gen-progressive"
@@ -1254,6 +1275,7 @@ export default function Scheduling() {
                   </p>
                 </div>
               </div>
+              )}
 
               {/* Days of Week */}
               <div className="space-y-2">
