@@ -40,16 +40,8 @@ import { useLocation } from "wouter";
 import { useStudentAuth } from "@/hooks/useStudentAuth";
 import { useState, useMemo, useEffect } from "react";
 import type { Class } from "@shared/schema";
-import type { PhaseProgressData, PhaseClassProgress, PhaseProgress } from "@shared/phaseConfig";
-import PhaseProgressTracker, { PhaseProgressTrackerSkeleton, type ClassBookState } from "@/components/phase-progress-tracker";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { CardCaptureForm } from "@/components/student/card-capture-form";
+import type { PhaseProgressData } from "@shared/phaseConfig";
+import PhaseProgressTracker, { PhaseProgressTrackerSkeleton } from "@/components/phase-progress-tracker";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { getStripePromise } from "@/lib/stripe";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -98,16 +90,6 @@ interface AvailableClass {
   enrolledCount: number;
   spotsRemaining: number;
   status: string;
-  /** Set by the server-side phase rules engine */
-  bookingAllowed?: boolean;
-  blockingReason?: string;
-  blockingRule?: string;
-}
-
-interface StudentPaymentMethodSummary {
-  id: number;
-  cardBrand: string | null;
-  last4: string | null;
 }
 
 interface PhaseInfo {
@@ -1042,12 +1024,10 @@ export default function StudentClasses() {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
 
   const [bookingWizardOpen, setBookingWizardOpen] = useState(false);
-  const [wizardStep, setWizardStep] = useState<2 | 3 | 4>(2);
-  const [targetClass, setTargetClass] = useState<PhaseClassProgress | null>(null);
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3 | 4>(1);
+  const [activeBookingType, setActiveBookingType] = useState<'theory' | 'driving' | null>(null);
   const [selectedBookingClass, setSelectedBookingClass] = useState<AvailableClass | null>(null);
   const [policyAccepted, setPolicyAccepted] = useState(false);
-  const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
-  const [pendingCardClass, setPendingCardClass] = useState<AvailableClass | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data: classes = [], isLoading: classesLoading } = useQuery<ClassWithDetails[]>({
@@ -1068,12 +1048,6 @@ export default function StudentClasses() {
   const availableClasses = classesResponse?.classes || [];
   const phaseInfo = classesResponse?.phaseInfo;
 
-  const { data: paymentMethods = [] } = useQuery<StudentPaymentMethodSummary[]>({
-    queryKey: ["/api/student/billing/methods"],
-    enabled: isAuthenticated,
-  });
-  const hasSavedCard = paymentMethods.length > 0;
-
   const bookClassMutation = useMutation({
     mutationFn: async (classId: number) => {
       return await apiRequest("POST", `/api/student/classes/${classId}/book`);
@@ -1087,14 +1061,6 @@ export default function StudentClasses() {
       setWizardStep(4);
     },
     onError: (error: any) => {
-      // Server-side card enforcement: open the card drawer instead of a toast
-      // so the student can add a card and resume the booking.
-      if (error?.data?.policyViolation === "card_required" && selectedBookingClass) {
-        setBookingWizardOpen(false);
-        setPendingCardClass(selectedBookingClass);
-        setIsCardDrawerOpen(true);
-        return;
-      }
       toast({
         title: "Booking Failed",
         description: error?.message || "Failed to book class. Please try again.",
@@ -1103,17 +1069,15 @@ export default function StudentClasses() {
     },
   });
 
-  // Sessions matching the specific class the student clicked "Book" on.
   const bookableClasses = useMemo(() => {
-    if (!targetClass || !availableClasses.length) return [];
+    if (!activeBookingType || !availableClasses.length) return [];
     return availableClasses.filter(c => {
       const isTheory = c.classType
         ? c.classType === 'theory'
         : c.classNumber <= 5;
-      const sessionType = isTheory ? 'theory' : 'driving';
-      return sessionType === targetClass.classType && c.classNumber === targetClass.classNumber;
+      return activeBookingType === 'theory' ? isTheory : !isTheory;
     });
-  }, [availableClasses, targetClass]);
+  }, [availableClasses, activeBookingType]);
 
   const totalPages = Math.max(1, Math.ceil(bookableClasses.length / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
@@ -1121,7 +1085,7 @@ export default function StudentClasses() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [targetClass]);
+  }, [activeBookingType]);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -1148,79 +1112,25 @@ export default function StudentClasses() {
     );
   }
 
-  // A class row's Book button was clicked — open the per-class session picker.
-  const handleBookPhaseClass = (classItem: PhaseClassProgress) => {
-    setTargetClass(classItem);
+  const openBookingWizard = () => {
+    setWizardStep(1);
+    setActiveBookingType(null);
     setSelectedBookingClass(null);
     setPolicyAccepted(false);
     setCurrentPage(1);
-    setWizardStep(2);
     setBookingWizardOpen(true);
   };
 
+  const handleSelectClassType = (type: 'theory' | 'driving') => {
+    setActiveBookingType(type);
+    setCurrentPage(1);
+    setWizardStep(2);
+  };
+
   const handleSelectClass = (classItem: AvailableClass) => {
-    // Classes beyond #1 require a card on file (also enforced server-side).
-    if (classItem.classNumber > 1 && !hasSavedCard) {
-      setPendingCardClass(classItem);
-      setBookingWizardOpen(false);
-      setIsCardDrawerOpen(true);
-      return;
-    }
     setSelectedBookingClass(classItem);
     setPolicyAccepted(false);
     setWizardStep(3);
-  };
-
-  const handleCardSaved = () => {
-    queryClient.invalidateQueries({ queryKey: ["/api/student/billing/methods"] });
-    setIsCardDrawerOpen(false);
-    toast({
-      title: "Card saved",
-      description: "Your card is securely on file. You can now book this class.",
-      variant: "success",
-    });
-    // Resume the booking the student was attempting.
-    if (pendingCardClass) {
-      setSelectedBookingClass(pendingCardClass);
-      setPolicyAccepted(false);
-      setWizardStep(3);
-      setBookingWizardOpen(true);
-      setPendingCardClass(null);
-    }
-  };
-
-  // Derive per-class Book button state for the phase tracker rows.
-  const getBookState = (classItem: PhaseClassProgress, phase: PhaseProgress): ClassBookState => {
-    if (classItem.isCompleted) return { status: "completed" };
-
-    // Already booked & upcoming? /api/student/classes only returns upcoming
-    // enrollments, so a non-cancelled match means this class is already held.
-    const alreadyBooked = classes.some(c => {
-      if (c.status === 'cancelled') return false;
-      const isTheory = c.classType ? c.classType === 'theory' : (c.classNumber != null && c.classNumber <= 5);
-      const type = isTheory ? 'theory' : 'driving';
-      return type === classItem.classType && c.classNumber === classItem.classNumber;
-    });
-    if (alreadyBooked) return { status: "booked", reason: "You already have this class booked." };
-
-    if (phase.isLocked) {
-      return { status: "locked", reason: "Complete the previous phase to unlock this class." };
-    }
-
-    const sessions = availableClasses.filter(c => {
-      const isTheory = c.classType ? c.classType === 'theory' : c.classNumber <= 5;
-      const type = isTheory ? 'theory' : 'driving';
-      return type === classItem.classType && c.classNumber === classItem.classNumber;
-    });
-    if (sessions.length === 0) {
-      return { status: "none", reason: "No sessions are scheduled for this class yet." };
-    }
-    const openSessions = sessions.filter(s => s.bookingAllowed !== false);
-    if (openSessions.length === 0) {
-      const reason = sessions.find(s => s.blockingReason)?.blockingReason;
-      return { status: "blocked", reason: reason || "Booking rules currently block this class." };
-    }
-    return { status: "available" };
   };
 
   const confirmBooking = () => {
@@ -1406,6 +1316,8 @@ export default function StudentClasses() {
     );
   };
 
+  const drivingLocked = phaseInfo ? !phaseInfo.theoryComplete : true;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50">
       {/* Header */}
@@ -1441,11 +1353,7 @@ export default function StudentClasses() {
           {phaseProgressLoading ? (
             <PhaseProgressTrackerSkeleton />
           ) : phaseProgressData ? (
-            <PhaseProgressTracker
-              phaseData={phaseProgressData}
-              getBookState={getBookState}
-              onBookClass={handleBookPhaseClass}
-            />
+            <PhaseProgressTracker phaseData={phaseProgressData} />
           ) : (
             <Card className="border-0 shadow-lg">
               <CardContent className="p-6 text-center text-gray-500">
@@ -1498,8 +1406,18 @@ export default function StudentClasses() {
           )}
         </section>
 
-        {/* Booking is now per-class: each row in the phase cards above has its
-            own Book button, so the generic "Book a Class" entry point is gone. */}
+        {/* Book a Class — navigates to the per-class booking page where each
+            class has its own phase-gated Book button */}
+        <section>
+          <Button
+            onClick={() => setLocation("/student/book")}
+            className="w-full py-6 text-lg font-semibold bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] rounded-xl shadow-lg hover:shadow-xl transition-all"
+            data-testid="button-book-class"
+          >
+            <BookOpen className="h-5 w-5 mr-2" />
+            Book a Class
+          </Button>
+        </section>
 
         {/* Section 3: My Schedule */}
         <section>
@@ -1543,8 +1461,8 @@ export default function StudentClasses() {
             });
           }
           setBookingWizardOpen(false);
-          setWizardStep(2);
-          setTargetClass(null);
+          setWizardStep(1);
+          setActiveBookingType(null);
           setSelectedBookingClass(null);
           setPolicyAccepted(false);
         }
@@ -1553,26 +1471,74 @@ export default function StudentClasses() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-[#ECC462]" />
-              Book {targetClass ? targetClass.label : "a Class"}
+              Book a Class
             </DialogTitle>
             <DialogDescription>
-              {wizardStep === 2 && "Pick an available session for this class"}
+              {wizardStep === 1 && "Choose the type of class you'd like to book"}
+              {wizardStep === 2 && `Select an available ${activeBookingType} class`}
               {wizardStep === 3 && "Review the booking policy before confirming"}
               {wizardStep === 4 && "Your class has been booked!"}
             </DialogDescription>
           </DialogHeader>
 
           <div className="flex items-center gap-1 mb-4">
-            {[2, 3, 4].map((step) => (
+            {[1, 2, 3, 4].map((step) => (
               <div key={step} className="flex items-center flex-1">
                 <div className={`h-1.5 w-full rounded-full transition-colors ${wizardStep >= step ? 'bg-[#ECC462]' : 'bg-gray-200'}`} />
               </div>
             ))}
           </div>
 
+          {wizardStep === 1 && (
+            <div className="space-y-3">
+              <button
+                onClick={() => handleSelectClassType('theory')}
+                className="w-full group text-left p-5 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-400 hover:shadow-md transition-all"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-blue-100 group-hover:bg-blue-200 transition-colors">
+                    <BookOpen className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900">Theory Classes</h3>
+                    {phaseInfo && <p className="text-sm text-gray-500">{phaseInfo.completedTheory}/{phaseInfo.theoryRequired} completed</p>}
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-blue-400" />
+                </div>
+              </button>
+
+              <button
+                onClick={() => { if (!drivingLocked) handleSelectClassType('driving'); }}
+                disabled={drivingLocked}
+                className={`w-full group text-left p-5 rounded-xl border-2 transition-all ${
+                  drivingLocked ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60' : 'border-gray-200 bg-white hover:border-amber-400 hover:shadow-md'
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-xl transition-colors ${drivingLocked ? 'bg-gray-200' : 'bg-amber-100 group-hover:bg-amber-200'}`}>
+                    {drivingLocked ? <Lock className="h-6 w-6 text-gray-400" /> : <Car className="h-6 w-6 text-amber-600" />}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-bold ${drivingLocked ? 'text-gray-400' : 'text-gray-900'}`}>Driving Classes</h3>
+                    {drivingLocked ? (
+                      <p className="text-sm text-gray-400">Complete theory classes first</p>
+                    ) : phaseInfo ? (
+                      <p className="text-sm text-gray-500">{phaseInfo.completedDriving}/{phaseInfo.drivingRequired} completed</p>
+                    ) : null}
+                  </div>
+                  {drivingLocked ? <Lock className="h-5 w-5 text-gray-300" /> : <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-amber-400" />}
+                </div>
+              </button>
+            </div>
+          )}
+
           {wizardStep === 2 && (
             <div>
-              {targetClass?.classType === 'driving' && student && (
+              <button onClick={() => setWizardStep(1)} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-3">
+                <ChevronLeft className="h-4 w-4" /> Back
+              </button>
+
+              {activeBookingType === 'driving' && student && (
                 (!student.learnerPermitNumber || !student.learnerPermitExpiryDate || 
                  (student.learnerPermitExpiryDate && isPermitExpired(student.learnerPermitExpiryDate))) && (
                   <div className="mb-3 p-3 rounded-lg bg-red-50 border border-red-200" data-testid="card-permit-warning">
@@ -1591,7 +1557,7 @@ export default function StudentClasses() {
                 )
               )}
 
-              {targetClass?.classType === 'driving' && student &&
+              {activeBookingType === 'driving' && student &&
                 student.learnerPermitNumber && student.learnerPermitExpiryDate &&
                 !isPermitExpired(student.learnerPermitExpiryDate) &&
                 isPermitExpiringSoon(student.learnerPermitExpiryDate) && (
@@ -1620,29 +1586,26 @@ export default function StudentClasses() {
               ) : bookableClasses.length === 0 ? (
                 <div className="py-8 text-center">
                   <AlertCircle className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                  <p className="font-medium text-gray-600 text-sm">No sessions available right now</p>
+                  <p className="font-medium text-gray-600 text-sm">No classes available right now</p>
                   <p className="text-xs text-gray-400 mt-1">Check back later for new openings.</p>
                 </div>
               ) : (
                 <>
                   <p className="text-xs text-gray-400 mb-2">
-                    {bookableClasses.length} {bookableClasses.length === 1 ? 'session' : 'sessions'} available for {targetClass?.label}
+                    {bookableClasses.length} {activeBookingType} {bookableClasses.length === 1 ? 'class' : 'classes'} available
                   </p>
                   <div className="space-y-2 max-h-[50vh] overflow-y-auto" data-testid="list-available-classes">
                     {paginatedBookableClasses.map((classItem) => {
                       const classDate = new Date(`${classItem.date}T${classItem.time}`);
                       const isFull = classItem.spotsRemaining <= 0;
-                      const isBlocked = classItem.bookingAllowed === false;
-                      const isDisabled = isFull || isBlocked;
                       const isLow = classItem.spotsRemaining <= 3 && classItem.spotsRemaining > 0;
                       return (
                         <button
                           key={classItem.id}
-                          onClick={() => !isDisabled && handleSelectClass(classItem)}
-                          disabled={isDisabled}
-                          title={isBlocked ? classItem.blockingReason : undefined}
+                          onClick={() => !isFull && handleSelectClass(classItem)}
+                          disabled={isFull}
                           className={`w-full text-left p-3 rounded-lg border transition-all ${
-                            isDisabled ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60' : 'border-gray-200 bg-white hover:border-[#ECC462] hover:bg-[#ECC462]/5'
+                            isFull ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60' : 'border-gray-200 bg-white hover:border-[#ECC462] hover:bg-[#ECC462]/5'
                           }`}
                           data-testid={`card-available-class-${classItem.id}`}
                         >
@@ -1822,26 +1785,6 @@ export default function StudentClasses() {
           )}
         </DialogContent>
       </Dialog>
-
-      {/* Card capture drawer — required before booking classes beyond #1 */}
-      <Sheet open={isCardDrawerOpen} onOpenChange={(open) => {
-        setIsCardDrawerOpen(open);
-        if (!open) setPendingCardClass(null);
-      }}>
-        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto" data-testid="sheet-card-required">
-          <SheetHeader>
-            <SheetTitle className="text-[#111111]">Add a Payment Card</SheetTitle>
-            <SheetDescription>
-              A card on file is required to book classes beyond Class #1
-              {pendingCardClass ? ` (you're booking Class #${pendingCardClass.classNumber})` : ""}.
-              You won't be charged now — your booking will continue once the card is saved.
-            </SheetDescription>
-          </SheetHeader>
-          <div className="mt-6">
-            <CardCaptureForm onSaved={handleCardSaved} saveLabel="Save Card & Continue Booking" />
-          </div>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }
