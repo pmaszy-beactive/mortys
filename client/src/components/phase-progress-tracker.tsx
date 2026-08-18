@@ -1,34 +1,53 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle, Lock, BookOpen, Car, Info, Landmark } from "lucide-react";
+import { CheckCircle, Lock, BookOpen, Car, Info, Landmark, CalendarPlus } from "lucide-react";
 import { formatDate, formatTime } from "@/lib/utils";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress, ExternalMilestoneProgress } from "@shared/phaseConfig";
+import { Button } from "@/components/ui/button";
 
 interface PhaseProgressTrackerProps {
   phaseData: PhaseProgressData;
   compact?: boolean;
+  /** When provided, each class row shows a right-aligned Book button. */
+  getBookState?: (classItem: PhaseClassProgress, phase: PhaseProgress) => ClassBookState;
+  onBookClass?: (classItem: PhaseClassProgress) => void;
 }
 
-function PhaseClassRow({ classItem, compact }: { classItem: PhaseClassProgress; compact?: boolean }) {
+const DISABLED_LABELS: Record<Exclude<ClassBookState["status"], "available" | "completed">, string> = {
+  booked: "Booked",
+  locked: "Locked",
+  blocked: "Locked",
+  none: "None",
+};
+function PhaseClassRow({
+  classItem,
+  compact,
+  bookState,
+  onBookClass,
+}: {
+  classItem: PhaseClassProgress;
+  compact?: boolean;
+  bookState?: ClassBookState;
+  onBookClass?: (classItem: PhaseClassProgress) => void;
+}) {
   const isTheory = classItem.classType === 'theory';
 
   return (
     <div
       className={`flex items-start gap-2 py-1.5 px-2 rounded-md transition-colors ${
-        classItem.isCompleted
-          ? 'bg-green-50/80'
-          : 'opacity-50'
+        classItem.isCompleted ? 'bg-green-50/80' : ''
       }`}
+      data-testid={`row-phase-class-${classItem.id}`}
     >
-      <div className="flex-shrink-0 mt-0.5">
+      <div className={`flex-shrink-0 mt-0.5 ${classItem.isCompleted ? '' : 'opacity-50'}`}>
         {classItem.isCompleted ? (
           <CheckCircle className="h-4 w-4 text-green-600" />
         ) : (
           <div className="h-4 w-4 rounded-full border-2 border-gray-300" />
         )}
       </div>
-      <div className="flex-1 min-w-0">
+      <div className={`flex-1 min-w-0 ${classItem.isCompleted ? '' : 'opacity-70'}`}>
         <div className="flex items-center gap-1.5 flex-wrap">
           {isTheory ? (
             <BookOpen className="h-3 w-3 text-blue-600 flex-shrink-0" />
@@ -56,12 +75,59 @@ function PhaseClassRow({ classItem, compact }: { classItem: PhaseClassProgress; 
             )}
           </div>
         )}
+        {bookState && bookState.status !== "available" && bookState.status !== "completed" && bookState.reason && (
+          <div className="text-[10px] text-gray-400 mt-0.5 leading-tight" data-testid={`text-book-reason-${classItem.id}`}>
+            {bookState.reason}
+          </div>
+        )}
       </div>
+      {bookState && bookState.status !== "completed" && (
+        <div className="flex-shrink-0 ml-auto">
+          {bookState.status === "available" ? (
+            <Button
+              size="sm"
+              className="h-6 px-2 text-xs bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] shadow-none"
+              onClick={() => onBookClass?.(classItem)}
+              data-testid={`button-book-${classItem.id}`}
+            >
+              <CalendarPlus className="h-3 w-3 mr-1" />
+              Book
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              disabled
+              title={bookState.reason}
+              className="h-6 px-2 text-xs bg-gray-100 text-gray-400 border border-gray-200 shadow-none"
+              data-testid={`button-book-${classItem.id}`}
+            >
+              {bookState.status === "booked" ? (
+                "Booked"
+              ) : (
+                <>
+                  <Lock className="h-3 w-3 mr-1" />
+                  {DISABLED_LABELS[bookState.status]}
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function PhaseCard({ phase, compact }: { phase: PhaseProgress; compact?: boolean }) {
+function PhaseCard({
+  phase,
+  compact,
+  getBookState,
+  onBookClass,
+}: {
+  phase: PhaseProgress;
+  compact?: boolean;
+  getBookState?: (classItem: PhaseClassProgress, phase: PhaseProgress) => ClassBookState;
+  onBookClass?: (classItem: PhaseClassProgress) => void;
+}) {
   const borderColor = phase.isCurrent
     ? 'border-[#ECC462] border-2 shadow-lg shadow-[#ECC462]/20'
     : phase.isComplete
@@ -71,7 +137,7 @@ function PhaseCard({ phase, compact }: { phase: PhaseProgress; compact?: boolean
     : 'border-gray-200';
 
   return (
-    <Card className={`${borderColor} transition-all duration-300 flex-shrink-0 ${compact ? 'w-[260px]' : 'w-[300px]'}`}>
+    <Card className={`${borderColor} transition-all duration-300 flex-shrink-0 ${compact ? 'w-[260px]' : 'w-[320px]'}`}>
       <CardHeader className={`pb-2 ${compact ? 'p-3' : 'p-4'}`}>
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -102,7 +168,13 @@ function PhaseCard({ phase, compact }: { phase: PhaseProgress; compact?: boolean
       <CardContent className={`${compact ? 'px-3 pb-3' : 'px-4 pb-4'} pt-0`}>
         <div className="space-y-0.5">
           {phase.classes.map((classItem) => (
-            <PhaseClassRow key={classItem.id} classItem={classItem} compact={compact} />
+            <PhaseClassRow
+              key={classItem.id}
+              classItem={classItem}
+              compact={compact}
+              bookState={getBookState ? getBookState(classItem, phase) : undefined}
+              onBookClass={onBookClass}
+            />
           ))}
         </div>
         {!compact && (
@@ -159,13 +231,19 @@ function ExternalMilestoneRow({ milestone }: { milestone: ExternalMilestoneProgr
   );
 }
 
-export default function PhaseProgressTracker({ phaseData, compact }: PhaseProgressTrackerProps) {
+export default function PhaseProgressTracker({ phaseData, compact, getBookState, onBookClass }: PhaseProgressTrackerProps) {
   const milestones = phaseData.externalMilestones ?? [];
   return (
     <div className="space-y-3">
       <div className="flex gap-4 overflow-x-auto pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {phaseData.phases.map((phase) => (
-          <PhaseCard key={phase.phase} phase={phase} compact={compact} />
+          <PhaseCard
+            key={phase.phase}
+            phase={phase}
+            compact={compact}
+            getBookState={getBookState}
+            onBookClass={onBookClass}
+          />
         ))}
       </div>
       {milestones.length > 0 && (
@@ -187,4 +265,11 @@ export default function PhaseProgressTracker({ phaseData, compact }: PhaseProgre
       )}
     </div>
   );
+}
+
+/** Bookability of a single class row, computed by the parent page. */
+export interface ClassBookState {
+  status: "available" | "completed" | "booked" | "locked" | "blocked" | "none";
+  /** Human-readable reason when the class isn't bookable. */
+  reason?: string;
 }
