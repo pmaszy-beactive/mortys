@@ -22,7 +22,7 @@ import {
 import { jobs as jobsTable, JOB_STATUSES, JOB_CATEGORIES, type JobCategory } from "@shared/schema";
 import { desc as descOrder } from "drizzle-orm";
 import { db } from "./db";
-import { sql, eq, and, not, isNull, isNotNull, ne, count, desc } from "drizzle-orm";
+import { sql, eq, and, not, isNull, isNotNull, ne, count, desc, inArray } from "drizzle-orm";
 import {
   lessonRecords,
   students,
@@ -54,7 +54,7 @@ import {
   questionImagePath,
 } from "@shared/examData";
 import { getPhaseDefinitionsForCourse, getExternalMilestonesForCourse } from "@shared/phaseConfig";
-import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum } from "@shared/curriculumPlanner";
+import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum, findCurriculumConflicts } from "@shared/curriculumPlanner";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
 import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, type BookingValidationResult } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -1820,9 +1820,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ============================================================
+  // ------------------------------------------------------------
   // Job Control — admin management of the background job queue
-  // ============================================================
+  // ------------------------------------------------------------
   app.get("/api/admin/jobs", requireAdmin, async (req: any, res) => {
     try {
       const { status, category } = req.query;
@@ -1916,7 +1916,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ==================== In-house Billing (admin) ====================
+  // -------------------- In-house Billing (admin) --------------------
   // All pricing/invoicing lives in the app's own tables; Stripe is only the
   // card processor. Heavy work runs through the job queue (billing category).
 
@@ -3321,6 +3321,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
               message: "Schedule falls outside the instructor's availability. No classes were created.",
               availabilityViolations: violations,
               conflicts: violations,
+            });
+          }
+
+          // Pre-check date/time conflicts with the instructor's existing
+          // scheduled classes (e.g. running the generator twice). No partial
+          // creation: refuse the whole plan when any date overlaps.
+          const planDates = Array.from(new Set(scheduled.map(s => s.date)));
+          const existingRows = await db
+            .select({ date: classes.date, time: classes.time, duration: classes.duration })
+            .from(classes)
+            .where(and(
+              eq(classes.instructorId, instId),
+              ne(classes.status, 'cancelled'),
+              inArray(classes.date, planDates),
+            ));
+          const scheduleConflicts = findCurriculumConflicts(scheduled, time, existingRows);
+          if (scheduleConflicts.length > 0) {
+            const conflictMessages = scheduleConflicts.map(c =>
+              `${c.date}: planned ${c.classType} #${c.classNumber} at ${time} overlaps an existing class at ${c.existing.time} (${c.existing.duration ?? 120} min)`
+            );
+            return res.status(409).json({
+              message: "The instructor already has classes scheduled at these times. No classes were created.",
+              scheduleConflicts: conflictMessages,
+              conflicts: conflictMessages,
             });
           }
         }
@@ -8134,9 +8158,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ============================================================
+  // ------------------------------------------------------------
   // Module 1 Start Dates (admin-managed, chosen during registration)
-  // ============================================================
+  // ------------------------------------------------------------
 
   // Public: available upcoming start dates (used on the registration page)
   app.get("/api/course-start-dates", async (req, res) => {
@@ -8407,10 +8431,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ============================================================
+  // ------------------------------------------------------------
   // Module 5 Online Exam Engine
   // Camera/monitoring is handled via Zoom only (no in-app proctoring).
-  // ============================================================
+  // ------------------------------------------------------------
 
   // Parse a class date ("YYYY-MM-DD") + time ("HH:MM") into a real instant,
   // interpreting the stored wall-clock values in the school timezone (the
@@ -12974,9 +12998,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  // ============================================
+  // --------------------------------------------
   // Admin Refund Routes
-  // ============================================
+  // --------------------------------------------
 
   // List all refund requests (pending and resolved)
   app.get("/api/admin/refund-requests", authMiddleware, async (req: any, res) => {
@@ -13174,9 +13198,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ============================================
+  // --------------------------------------------
   // Admin Payment Reconciliation Routes
-  // ============================================
+  // --------------------------------------------
 
   // Get all payment intakes (pending queue)
   app.get("/api/admin/payments/intakes", authMiddleware, async (req, res) => {
@@ -15067,9 +15091,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ============================================
+  // --------------------------------------------
   // NOTIFICATION API ENDPOINTS
-  // ============================================
+  // --------------------------------------------
 
   // Get notifications for a student
   app.get("/api/student/notifications", isStudentAuthenticated, async (req, res) => {

@@ -103,6 +103,11 @@ export function buildCandidateDates(
   return candidates;
 }
 
+export type ExistingClassSlot = {
+  date: string;
+  time: string;
+  duration: number | null;
+};
 export type CurriculumScheduleResult =
   | { ok: true; scheduled: ScheduledPlanItem[] }
   | { ok: false; reason: "not_enough_dates" };
@@ -138,4 +143,59 @@ export function scheduleAutoCurriculum(
     cursor = idx + 1;
   }
   return { ok: true, scheduled };
+}
+
+export type CurriculumConflict = {
+  date: string;
+  classType: "theory" | "driving";
+  classNumber: number;
+  existing: ExistingClassSlot;
+};
+
+function toMinutes(time: string): number | null {
+  const [h, m] = time.split(":").map(Number);
+  return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null;
+}
+
+/**
+ * Detect date/time conflicts between a scheduled curriculum plan (all classes
+ * start at `time`) and an instructor's existing classes. Two classes conflict
+ * when they are on the same date and their time ranges overlap.
+ */
+export function findCurriculumConflicts(
+  scheduled: ScheduledPlanItem[],
+  time: string,
+  existing: ExistingClassSlot[],
+): CurriculumConflict[] {
+  const startMin = toMinutes(time);
+  const byDate = new Map<string, ExistingClassSlot[]>();
+  for (const ex of existing) {
+    const list = byDate.get(ex.date);
+    if (list) list.push(ex);
+    else byDate.set(ex.date, [ex]);
+  }
+  const conflicts: CurriculumConflict[] = [];
+  for (const s of scheduled) {
+    const sameDay = byDate.get(s.date);
+    if (!sameDay) continue;
+    const sStart = startMin;
+    const sEnd = sStart === null ? null : sStart + s.duration;
+    for (const ex of sameDay) {
+      const exStart = toMinutes(ex.time);
+      // If either time is unparseable, treat same-date as a conflict (safe side).
+      const overlaps =
+        sStart === null || sEnd === null || exStart === null
+          ? true
+          : sStart < exStart + (ex.duration ?? 120) && exStart < sEnd;
+      if (overlaps) {
+        conflicts.push({
+          date: s.date,
+          classType: s.classType,
+          classNumber: s.classNumber,
+          existing: ex,
+        });
+      }
+    }
+  }
+  return conflicts;
 }

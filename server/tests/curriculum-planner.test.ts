@@ -3,6 +3,7 @@ import {
   buildAutoCurriculumPlan,
   buildCandidateDates,
   scheduleAutoCurriculum,
+  findCurriculumConflicts,
 } from "@shared/curriculumPlanner";
 
 function daysBetween(earlier: string, later: string): number {
@@ -152,5 +153,55 @@ describe("scheduleAutoCurriculum", () => {
   it("fails immediately when there are no candidate dates", () => {
     const r = scheduleAutoCurriculum([], plan);
     expect(r).toEqual({ ok: false, reason: "not_enough_dates" });
+  });
+});
+
+describe("findCurriculumConflicts", () => {
+  const scheduled = (() => {
+    const plan = buildAutoCurriculumPlan(24);
+    const candidates = buildCandidateDates("2026-08-03", [1, 3, 5]); // Mon/Wed/Fri
+    const r = scheduleAutoCurriculum(candidates, plan);
+    if (!r.ok) throw new Error("plan should fit");
+    return r.scheduled;
+  })();
+
+  it("returns no conflicts against an empty calendar", () => {
+    expect(findCurriculumConflicts(scheduled, "10:00", [])).toEqual([]);
+  });
+
+  it("flags an existing class on the same date with an overlapping time range", () => {
+    const first = scheduled[0];
+    const conflicts = findCurriculumConflicts(scheduled, "10:00", [
+      { date: first.date, time: "09:30", duration: 60 }, // 09:30-10:30 overlaps 10:00+
+    ]);
+    expect(conflicts).toHaveLength(1);
+    expect(conflicts[0]).toMatchObject({
+      date: first.date,
+      classType: first.classType,
+      classNumber: first.classNumber,
+    });
+  });
+
+  it("does not flag same-date classes whose times do not overlap", () => {
+    const first = scheduled[0]; // theory, 120 min at 10:00 → ends 12:00
+    const conflicts = findCurriculumConflicts(scheduled, "10:00", [
+      { date: first.date, time: "12:00", duration: 60 }, // starts exactly at end
+      { date: first.date, time: "08:00", duration: 120 }, // ends exactly at start
+    ]);
+    expect(conflicts).toEqual([]);
+  });
+
+  it("detects every collision when the generator runs twice with the same inputs", () => {
+    const existing = scheduled.map((s) => ({ date: s.date, time: "10:00", duration: s.duration }));
+    const conflicts = findCurriculumConflicts(scheduled, "10:00", existing);
+    expect(conflicts).toHaveLength(scheduled.length);
+  });
+
+  it("treats unparseable times on the same date as conflicts (safe side)", () => {
+    const first = scheduled[0];
+    const conflicts = findCurriculumConflicts(scheduled, "10:00", [
+      { date: first.date, time: "not-a-time", duration: 60 },
+    ]);
+    expect(conflicts).toHaveLength(1);
   });
 });
