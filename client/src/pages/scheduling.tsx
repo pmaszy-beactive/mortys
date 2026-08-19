@@ -301,6 +301,9 @@ export default function Scheduling() {
     bookedClassId: number | null;
     enrollmentId: number | null;
     updatedAt: string;
+    studentName: string | null;
+    classDate: string | null;
+    classTime: string | null;
   }
   interface PairedSession {
     id: number;
@@ -313,6 +316,10 @@ export default function Scheduling() {
     enrollmentIdB: number | null;
     status: string;
     pairedAt: string;
+    studentNameA: string | null;
+    studentNameB: string | null;
+    classDate: string | null;
+    classTime: string | null;
   }
   interface SessionConfirmation {
     id: number;
@@ -335,43 +342,44 @@ export default function Scheduling() {
     queryKey: ["/api/lesson-pairing/admin"],
   });
 
-  // Resolve student names for every student referenced in the overview.
-  const pairingStudentIds = useMemo(() => {
-    if (!pairingOverview) return [] as number[];
-    const ids = new Set<number>();
+  // Student names and class date/time now arrive inline on the overview
+  // payload — build lookup maps from it instead of per-id fetches.
+  const pairingNameById = useMemo(() => {
+    const map = new Map<number, string>();
+    if (!pairingOverview) return map;
     for (const e of [...pairingOverview.waiting, ...pairingOverview.bookedFirst, ...pairingOverview.offered, ...pairingOverview.paired]) {
-      ids.add(e.studentId);
+      if (e.studentName) map.set(e.studentId, e.studentName);
     }
     for (const s of pairingOverview.activeSessions) {
-      ids.add(s.studentIdA);
-      ids.add(s.studentIdB);
+      if (s.studentNameA) map.set(s.studentIdA, s.studentNameA);
+      if (s.studentNameB) map.set(s.studentIdB, s.studentNameB);
     }
-    return Array.from(ids).sort((a, b) => a - b);
+    return map;
   }, [pairingOverview]);
 
-  const { data: pairingStudents = [] } = useQuery<{ id: number; firstName: string; lastName: string }[]>({
-    queryKey: ["/api/lesson-pairing/admin", "students", pairingStudentIds.join(",")],
-    queryFn: async () => {
-      const rows = await Promise.all(
-        pairingStudentIds.map((id) =>
-          apiRequest("GET", `/api/students/${id}`).catch(() => null),
-        ),
-      );
-      return rows
-        .filter(Boolean)
-        .map((s: any) => ({ id: s.id, firstName: s.firstName, lastName: s.lastName }));
-    },
-    enabled: pairingStudentIds.length > 0,
-  });
+  const pairingClassTimeById = useMemo(() => {
+    const map = new Map<number, { date: string | null; time: string | null }>();
+    if (!pairingOverview) return map;
+    for (const e of [...pairingOverview.bookedFirst, ...pairingOverview.offered, ...pairingOverview.paired]) {
+      if (e.bookedClassId != null && (e.classDate || e.classTime)) {
+        map.set(e.bookedClassId, { date: e.classDate, time: e.classTime });
+      }
+    }
+    for (const s of pairingOverview.activeSessions) {
+      if (s.classDate || s.classTime) {
+        map.set(s.classId, { date: s.classDate, time: s.classTime });
+      }
+    }
+    return map;
+  }, [pairingOverview]);
 
   const pairingStudentName = (studentId: number) => {
-    const s = pairingStudents.find((x) => x.id === studentId);
-    return s ? `${s.firstName} ${s.lastName}` : `Student #${studentId}`;
+    return pairingNameById.get(studentId) ?? `Student #${studentId}`;
   };
 
   const pairingClassLabel = (classId: number | null) => {
     if (!classId) return "—";
-    const cls = classes.find((c) => c.id === classId);
+    const cls = pairingClassTimeById.get(classId);
     if (!cls) return `Class #${classId}`;
     return `${cls.date ?? "TBD"}${cls.time ? ` @ ${cls.time}` : ""}`;
   };

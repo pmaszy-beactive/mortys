@@ -3223,30 +3223,101 @@ export async function getStudentPairingStatus(studentId: number): Promise<{
 
 // ─── getAdminPairingOverview ───────────────────────────────────────────────────
 
+/** Queue entry enriched with the student's name and, when booked, the class date/time. */
+export type AdminPairingQueueEntry = IncarPairingQueue & {
+  studentName: string | null;
+  classDate: string | null;
+  classTime: string | null;
+};
+
+/** Paired session enriched with both students' names and the class date/time. */
+export type AdminPairedSession = IncarPairedSession & {
+  studentNameA: string | null;
+  studentNameB: string | null;
+  classDate: string | null;
+  classTime: string | null;
+};
+
 export async function getAdminPairingOverview(): Promise<{
-  waiting: IncarPairingQueue[];
-  bookedFirst: IncarPairingQueue[];
-  offered: IncarPairingQueue[];
-  paired: IncarPairingQueue[];
-  activeSessions: IncarPairedSession[];
+  waiting: AdminPairingQueueEntry[];
+  bookedFirst: AdminPairingQueueEntry[];
+  offered: AdminPairingQueueEntry[];
+  paired: AdminPairingQueueEntry[];
+  activeSessions: AdminPairedSession[];
   pendingConfirmations: IncarSessionConfirmation[];
   stats: { waiting: number; bookedFirst: number; offered: number; activeSessionsTotal: number };
 }> {
   const allActive = await getQueue();
-  const waiting = allActive.filter((e) => e.status === "waiting");
-  const bookedFirst = allActive.filter((e) => e.status === "booked_first");
-  const offered = allActive.filter((e) => e.status === "offered");
-  const paired = allActive.filter((e) => e.status === "paired" || e.status === "confirmed");
+  const rawActiveSessions = await getActivePairedSessions();
 
-  const activeSessions = await getActivePairedSessions();
-
-  const allStudentIds: number[] = [];
-  for (const s of activeSessions) {
-    allStudentIds.push(s.studentIdA, s.studentIdB);
+  // Batch-load student names and class date/time for everything referenced,
+  // so the client doesn't need per-id lookups.
+  const studentIds = new Set<number>();
+  const classIds = new Set<number>();
+  for (const e of allActive) {
+    studentIds.add(e.studentId);
+    if (e.bookedClassId != null) classIds.add(e.bookedClassId);
   }
-  const uniqueStudentIds = Array.from(new Set(allStudentIds));
+  for (const s of rawActiveSessions) {
+    studentIds.add(s.studentIdA);
+    studentIds.add(s.studentIdB);
+    classIds.add(s.classId);
+  }
+
+  const studentRows = studentIds.size
+    ? await db
+        .select({
+          id: students.id,
+          firstName: students.firstName,
+          lastName: students.lastName,
+        })
+        .from(students)
+        .where(inArray(students.id, Array.from(studentIds)))
+    : [];
+  const nameById = new Map(
+    studentRows.map((s) => [s.id, `${s.firstName} ${s.lastName}`]),
+  );
+
+  const classRows = classIds.size
+    ? await db
+        .select({ id: classes.id, date: classes.date, time: classes.time })
+        .from(classes)
+        .where(inArray(classes.id, Array.from(classIds)))
+    : [];
+  const classById = new Map(classRows.map((c) => [c.id, c]));
+
+  const enrichEntry = (e: IncarPairingQueue): AdminPairingQueueEntry => {
+    const cls = e.bookedClassId != null ? classById.get(e.bookedClassId) : undefined;
+    return {
+      ...e,
+      studentName: nameById.get(e.studentId) ?? null,
+      classDate: cls?.date ?? null,
+      classTime: cls?.time ?? null,
+    };
+  };
+
+  const enriched = allActive.map(enrichEntry);
+  const waiting = enriched.filter((e) => e.status === "waiting");
+  const bookedFirst = enriched.filter((e) => e.status === "booked_first");
+  const offered = enriched.filter((e) => e.status === "offered");
+  const paired = enriched.filter((e) => e.status === "paired" || e.status === "confirmed");
+
+  const activeSessions: AdminPairedSession[] = rawActiveSessions.map((s) => {
+    const cls = classById.get(s.classId);
+    return {
+      ...s,
+      studentNameA: nameById.get(s.studentIdA) ?? null,
+      studentNameB: nameById.get(s.studentIdB) ?? null,
+      classDate: cls?.date ?? null,
+      classTime: cls?.time ?? null,
+    };
+  });
+
+  const sessionStudentIds = Array.from(
+    new Set(rawActiveSessions.flatMap((s) => [s.studentIdA, s.studentIdB])),
+  );
   const pendingConfirmations: IncarSessionConfirmation[] = [];
-  for (const sid of uniqueStudentIds) {
+  for (const sid of sessionStudentIds) {
     pendingConfirmations.push(...(await getPendingConfirmations(sid)));
   }
 
