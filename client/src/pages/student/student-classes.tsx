@@ -53,6 +53,7 @@ import { CardCaptureForm } from "@/components/student/card-capture-form";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { getStripePromise } from "@/lib/stripe";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { getPhaseClassBookState } from "@/lib/class-book-state";
 import { isPermitExpired, isPermitExpiringSoon, formatDate } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -1190,38 +1191,8 @@ export default function StudentClasses() {
   };
 
   // Derive per-class Book button state for the phase tracker rows.
-  const getBookState = (classItem: PhaseClassProgress, phase: PhaseProgress): ClassBookState => {
-    if (classItem.isCompleted) return { status: "completed" };
-
-    // Already booked & upcoming? /api/student/classes only returns upcoming
-    // enrollments, so a non-cancelled match means this class is already held.
-    const alreadyBooked = classes.some(c => {
-      if (c.status === 'cancelled') return false;
-      const isTheory = c.classType ? c.classType === 'theory' : (c.classNumber != null && c.classNumber <= 5);
-      const type = isTheory ? 'theory' : 'driving';
-      return type === classItem.classType && c.classNumber === classItem.classNumber;
-    });
-    if (alreadyBooked) return { status: "booked", reason: "You already have this class booked." };
-
-    if (phase.isLocked) {
-      return { status: "locked", reason: "Complete the previous phase to unlock this class." };
-    }
-
-    const sessions = availableClasses.filter(c => {
-      const isTheory = c.classType ? c.classType === 'theory' : c.classNumber <= 5;
-      const type = isTheory ? 'theory' : 'driving';
-      return type === classItem.classType && c.classNumber === classItem.classNumber;
-    });
-    if (sessions.length === 0) {
-      return { status: "none", reason: "No sessions are scheduled for this class yet." };
-    }
-    const openSessions = sessions.filter(s => s.bookingAllowed !== false);
-    if (openSessions.length === 0) {
-      const reason = sessions.find(s => s.blockingReason)?.blockingReason;
-      return { status: "blocked", reason: reason || "Booking rules currently block this class." };
-    }
-    return { status: "available" };
-  };
+  const getBookState = (classItem: PhaseClassProgress, phase: PhaseProgress): ClassBookState =>
+    getPhaseClassBookState(classItem, phase, classes, availableClasses);
 
   const confirmBooking = () => {
     if (selectedBookingClass) {

@@ -5,6 +5,7 @@ import { CheckCircle, Lock, BookOpen, Car, Info, Landmark, CalendarPlus } from "
 import { formatDate, formatTime } from "@/lib/utils";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress, ExternalMilestoneProgress } from "@shared/phaseConfig";
 import { Button } from "@/components/ui/button";
+import type { ClassBookState } from "@/lib/class-book-state";
 
 interface PhaseProgressTrackerProps {
   phaseData: PhaseProgressData;
@@ -267,9 +268,4 @@ export default function PhaseProgressTracker({ phaseData, compact, getBookState,
   );
 }
 
-/** Bookability of a single class row, computed by the parent page. */
-export interface ClassBookState {
-  status: "available" | "completed" | "booked" | "locked" | "blocked" | "none";
-  /** Human-readable reason when the class isn't bookable. */
-  reason?: string;
-}
+export type { ClassBookState } from "@/lib/class-book-state";

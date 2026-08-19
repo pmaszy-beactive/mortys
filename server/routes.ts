@@ -318,9 +318,8 @@ if (process.env.STRIPE_SECRET_KEY) {
 
 
 async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData> {
-  // Course-aware curriculum: moto/scooter students follow a simplified
-  // two-phase structure (all theory, then practical), matching the booking
-  // rules — never the auto 4-phase curriculum.
+  // Course-aware curriculum: auto, moto, and scooter each use their matching
+  // phase definitions and booking-rule structure.
   const studentRow = await storage.getStudent(studentId);
   const phaseDefinitions = getPhaseDefinitionsForCourse(studentRow?.courseType);
 
