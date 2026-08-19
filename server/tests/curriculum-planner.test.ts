@@ -4,7 +4,32 @@ import {
   buildCandidateDates,
   scheduleAutoCurriculum,
   findCurriculumConflicts,
+  splitVirtualEnrollment,
 } from "@shared/curriculumPlanner";
+
+describe("splitVirtualEnrollment", () => {
+  it.each([
+    [0, [0]],
+    [30, [30]],
+    [31, [16, 15]],
+    [60, [30, 30]],
+    [65, [22, 22, 21]],
+    [91, [23, 23, 23, 22]],
+  ])("splits %i students into the minimum evenly sized classes", (studentCount, expected) => {
+    const result = splitVirtualEnrollment(studentCount);
+    expect(result.studentCounts).toEqual(expected);
+    expect(result.classCount).toBe(expected.length);
+    expect(result.studentCounts.reduce((sum, count) => sum + count, 0)).toBe(studentCount);
+    expect(Math.max(...result.studentCounts) - Math.min(...result.studentCounts)).toBeLessThanOrEqual(1);
+    expect(Math.max(...result.studentCounts)).toBeLessThanOrEqual(30);
+  });
+
+  it("rejects invalid counts and capacities", () => {
+    expect(() => splitVirtualEnrollment(-1)).toThrow();
+    expect(() => splitVirtualEnrollment(10.5)).toThrow();
+    expect(() => splitVirtualEnrollment(10, 0)).toThrow();
+  });
+});
 
 function daysBetween(earlier: string, later: string): number {
   return Math.floor(

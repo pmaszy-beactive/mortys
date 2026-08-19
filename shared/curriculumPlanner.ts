@@ -21,6 +21,27 @@ export type PlanItem = {
 export type ScheduledPlanItem = PlanItem & { date: string };
 
 export const AUTO_CURRICULUM_THEORY_DURATION = 120;
+export const VIRTUAL_CLASS_MAX_STUDENTS = 30;
+
+/**
+ * Returns the minimum number of virtual classes and an even distribution of
+ * students across them. Counts always differ by at most one.
+ */
+export function splitVirtualEnrollment(studentCount: number, cap = VIRTUAL_CLASS_MAX_STUDENTS): {
+  classCount: number;
+  studentCounts: number[];
+} {
+  if (!Number.isInteger(studentCount) || studentCount < 0 || !Number.isInteger(cap) || cap < 1) {
+    throw new Error("Student count and capacity must be positive integers");
+  }
+  const classCount = Math.max(1, Math.ceil(studentCount / cap));
+  const base = Math.floor(studentCount / classCount);
+  const remainder = studentCount % classCount;
+  return {
+    classCount,
+    studentCounts: Array.from({ length: classCount }, (_, index) => base + (index < remainder ? 1 : 0)),
+  };
+}
 
 /** The 27-class auto curriculum in the school's recommended order. */
 export function buildAutoCurriculumPlan(theoryMaxStudents: number): PlanItem[] {

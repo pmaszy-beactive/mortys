@@ -752,6 +752,28 @@ export async function notifyStartDateReschedule(details: {
   });
 }
 
+export async function notifyVirtualClassSplit(details: {
+  studentIds: number[];
+  classId: number;
+  classTitle: string;
+  date: string;
+  time: string;
+  zoomLink: string;
+  instructorName: string;
+}, triggeredBy?: string): Promise<void> {
+  const recipients: NotificationRecipient[] = [];
+  for (const studentId of details.studentIds) recipients.push(...(await getStudentRecipients(studentId)));
+  if (recipients.length === 0) return;
+  await enqueueNotification({
+    type: 'schedule_change',
+    title: `Class Assignment: ${details.classTitle}`,
+    message: `Your virtual class has been assigned to a smaller session.\n\nClass: ${details.classTitle}\nDate: ${details.date}\nTime: ${details.time}\nInstructor: ${details.instructorName}\nZoom link: ${details.zoomLink}\n\nYour calendar has been updated automatically — no action is needed.`,
+    payload: { classId: details.classId, zoomLink: details.zoomLink },
+    recipients,
+    triggeredBy,
+  });
+}
+
 // Notify a student (and their linked parents) that an admin recalculation
 // corrected their exam result and the pass/fail outcome changed.
 export async function notifyExamResultCorrected(details: {

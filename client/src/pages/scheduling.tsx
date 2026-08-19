@@ -9,11 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getCourseClassCounts } from "@shared/bookingRules";
-import { Plus, Calendar, ChevronLeft, ChevronRight, Car, Bike, Users, Edit, Eye, X, Sparkles, CalendarClock, BookOpen, MapPin, AlertTriangle, Clock, GripVertical, Wand2, Loader2 } from "lucide-react";
+import { Plus, Calendar, ChevronLeft, ChevronRight, Car, Bike, Users, Edit, Eye, X, Sparkles, CalendarClock, BookOpen, MapPin, AlertTriangle, Clock, GripVertical, Wand2, Loader2, Scissors, Link2 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import ClassForm from "@/components/class-form";
 import SeriesManager from "@/components/series-manager";
+import VirtualClassSplitDialog from "@/components/virtual-class-split-dialog";
 import { Repeat } from "lucide-react";
 import type { Class, Instructor } from "@shared/schema";
 import { startOfWeek, endOfWeek, parse, format, addDays } from "date-fns";
@@ -35,6 +36,7 @@ export default function Scheduling() {
   const [expandedDay, setExpandedDay] = useState<Date | null>(null);
   const [dragOverDate, setDragOverDate] = useState<Date | null>(null);
   const [seriesAction, setSeriesAction] = useState<{ mode: "edit" | "delete" | "days"; anchorClass: Class } | null>(null);
+  const [splitClass, setSplitClass] = useState<(Class & { enrolledCount?: number }) | null>(null);
   const { toast } = useToast();
 
   // Enrolled students for the class being edited
@@ -877,6 +879,12 @@ export default function Scheduling() {
                         <h4 className="text-base font-bold text-gray-900 mb-1">
                           {classItem.courseType.charAt(0).toUpperCase() + classItem.courseType.slice(1)} Theory Class #{classItem.classNumber}
                         </h4>
+                        {classItem.sessionGroupId && (
+                          <Badge variant="outline" className="mb-1 border-blue-200 bg-blue-50 text-blue-700" data-testid={`badge-session-group-${classItem.id}`}>
+                            <Link2 className="mr-1 h-3 w-3" />
+                            Virtual session group ({classes.filter(cls => cls.sessionGroupId === classItem.sessionGroupId).length} parts)
+                          </Badge>
+                        )}
                         <div className="flex items-center space-x-3 text-sm text-gray-600">
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 mr-1.5 text-[#ECC462]" />
@@ -1113,6 +1121,37 @@ export default function Scheduling() {
                   </div>
                 </div>
               )}
+              {editingClass.sessionGroupId && (
+                <div className="rounded-md border border-blue-200 bg-blue-50 p-3" data-testid="banner-session-group">
+                  <div className="flex items-center gap-2 text-sm font-medium text-blue-900">
+                    <Link2 className="h-4 w-4" />
+                    Linked virtual session
+                  </div>
+                  <p className="mt-1 text-sm text-blue-800">
+                    This is part {classes.filter(cls => cls.sessionGroupId === editingClass.sessionGroupId).sort((a, b) => a.id - b.id).findIndex(cls => cls.id === editingClass.id) + 1} of {classes.filter(cls => cls.sessionGroupId === editingClass.sessionGroupId).length}.
+                    Each part has its own instructor, roster, attendance, capacity, and Zoom link.
+                  </p>
+                </div>
+              )}
+              {!!editingClass.zoomLink?.trim() && (editingClass.enrolledCount ?? 0) > 30 && !editingClass.sessionGroupId && (
+                <div className="rounded-md border border-red-200 bg-red-50 p-3 flex items-center justify-between gap-3" data-testid="banner-virtual-over-capacity">
+                  <div>
+                    <p className="text-sm font-semibold text-red-900">Virtual class exceeds the 30-student limit</p>
+                    <p className="text-sm text-red-700">Split the roster evenly before making other changes.</p>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setSplitClass(editingClass);
+                      setEditingClass(null);
+                    }}
+                    data-testid="button-split-virtual-class"
+                  >
+                    <Scissors className="mr-2 h-4 w-4" />
+                    Split class
+                  </Button>
+                </div>
+              )}
               {(() => {
                 const classDateTime = new Date(`${editingClass.date}T${editingClass.time || "00:00"}`);
                 const isPastClass = !isNaN(classDateTime.getTime()) && classDateTime < new Date();
@@ -1157,6 +1196,14 @@ export default function Scheduling() {
               />
             </DialogContent>
           </Dialog>
+        )}
+
+        {splitClass && (
+          <VirtualClassSplitDialog
+            classData={splitClass}
+            instructors={instructors}
+            onClose={() => setSplitClass(null)}
+          />
         )}
 
         {/* Series Edit/Delete Dialog */}

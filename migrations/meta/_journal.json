@@ -148,6 +148,13 @@
       "when": 1786600000000,
       "tag": "0020_moto_saaq_6r",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1787110000000,
+      "tag": "0021_virtual_class_session_groups",
+      "breakpoints": true
     }
   ]
 }

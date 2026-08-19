@@ -47,8 +47,9 @@ import { db } from "./db";
 /** Drizzle transaction handle — lets callers run storage mutations inside an
  * externally-owned transaction (e.g. the per-student booking lock). */
 export type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
-import { eq, and, sql, gte, lte, isNotNull, isNull, inArray } from "drizzle-orm";
+import { eq, and, sql, gte, lte, isNotNull, isNull, inArray, ne } from "drizzle-orm";
 import { isTheoryClass } from "@shared/bookingRules";
+import { VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
 
 export interface IStorage {
   // Users - Basic Auth methods
@@ -1329,6 +1330,9 @@ export class MemStorage implements IStorage {
   }
 
   async createClass(insertClass: InsertClass): Promise<Class> {
+    if (insertClass.zoomLink?.trim() && (insertClass.maxStudents ?? 15) > VIRTUAL_CLASS_MAX_STUDENTS) {
+      throw new Error(`Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students`);
+    }
     const id = this.currentId++;
     const classData: Class = { ...insertClass, id };
     this.classes.set(id, classData);
@@ -1338,6 +1342,11 @@ export class MemStorage implements IStorage {
   async updateClass(id: number, updateData: Partial<InsertClass>): Promise<Class> {
     const classData = this.classes.get(id);
     if (!classData) throw new Error("Class not found");
+    const zoomLink = updateData.zoomLink !== undefined ? updateData.zoomLink : classData.zoomLink;
+    const maxStudents = updateData.maxStudents !== undefined ? updateData.maxStudents : classData.maxStudents;
+    if (zoomLink?.trim() && maxStudents > VIRTUAL_CLASS_MAX_STUDENTS) {
+      throw new Error(`Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students`);
+    }
     const updated = { ...classData, ...updateData };
     this.classes.set(id, updated);
     return updated;
@@ -2588,6 +2597,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createClass(insertClass: InsertClass): Promise<Class> {
+    if (insertClass.zoomLink?.trim() && (insertClass.maxStudents ?? 15) > VIRTUAL_CLASS_MAX_STUDENTS) {
+      throw new Error(`Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students`);
+    }
     const [classData] = await db
       .insert(classes)
       .values(insertClass)
@@ -2596,6 +2608,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateClass(id: number, updateData: Partial<InsertClass>): Promise<Class> {
+    if (updateData.zoomLink !== undefined || updateData.maxStudents !== undefined) {
+      const existing = await this.getClass(id);
+      if (!existing) throw new Error("Class not found");
+      const zoomLink = updateData.zoomLink !== undefined ? updateData.zoomLink : existing.zoomLink;
+      const maxStudents = updateData.maxStudents !== undefined ? updateData.maxStudents : existing.maxStudents;
+      if (zoomLink?.trim() && maxStudents > VIRTUAL_CLASS_MAX_STUDENTS) {
+        throw new Error(`Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students`);
+      }
+    }
     const [classData] = await db
       .update(classes)
       .set(updateData)
@@ -2689,20 +2710,75 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createClassEnrollment(insertEnrollment: InsertClassEnrollment, txc?: DbTx): Promise<ClassEnrollment> {
-    const [enrollment] = await (txc ?? db)
-      .insert(classEnrollments)
-      .values(insertEnrollment)
-      .returning();
-    return enrollment;
+    const run = async (tx: DbTx) => {
+      if (insertEnrollment.classId && !insertEnrollment.cancelledAt) {
+        const [classData] = await tx
+          .select()
+          .from(classes)
+          .where(eq(classes.id, insertEnrollment.classId))
+          .for("update");
+        if (!classData) throw new Error("Class not found");
+        const [activeCount] = await tx
+          .select({ count: sql<number>`count(*)::int` })
+          .from(classEnrollments)
+          .where(and(
+            eq(classEnrollments.classId, insertEnrollment.classId),
+            isNull(classEnrollments.cancelledAt),
+          ));
+        const capacity = classData.zoomLink?.trim()
+          ? Math.min(classData.maxStudents, VIRTUAL_CLASS_MAX_STUDENTS)
+          : classData.maxStudents;
+        if ((activeCount?.count ?? 0) >= capacity) throw new Error("Class is full");
+      }
+      const [enrollment] = await tx
+        .insert(classEnrollments)
+        .values(insertEnrollment)
+        .returning();
+      return enrollment;
+    };
+    return txc ? run(txc) : db.transaction(run);
   }
 
   async updateClassEnrollment(id: number, updateData: Partial<InsertClassEnrollment>, txc?: DbTx): Promise<ClassEnrollment> {
-    const [enrollment] = await (txc ?? db)
-      .update(classEnrollments)
-      .set(updateData)
-      .where(eq(classEnrollments.id, id))
-      .returning();
-    return enrollment;
+    const run = async (tx: DbTx) => {
+      if (updateData.classId) {
+        const [existing] = await tx
+          .select()
+          .from(classEnrollments)
+          .where(eq(classEnrollments.id, id));
+        if (!existing) throw new Error("Class enrollment not found");
+        const resultingCancelledAt = updateData.cancelledAt !== undefined
+          ? updateData.cancelledAt
+          : existing.cancelledAt;
+        if (!resultingCancelledAt && updateData.classId !== existing.classId) {
+          const [classData] = await tx
+            .select()
+            .from(classes)
+            .where(eq(classes.id, updateData.classId))
+            .for("update");
+          if (!classData) throw new Error("Class not found");
+          const [activeCount] = await tx
+            .select({ count: sql<number>`count(*)::int` })
+            .from(classEnrollments)
+            .where(and(
+              eq(classEnrollments.classId, updateData.classId),
+              isNull(classEnrollments.cancelledAt),
+              ne(classEnrollments.id, id),
+            ));
+          const capacity = classData.zoomLink?.trim()
+            ? Math.min(classData.maxStudents, VIRTUAL_CLASS_MAX_STUDENTS)
+            : classData.maxStudents;
+          if ((activeCount?.count ?? 0) >= capacity) throw new Error("Class is full");
+        }
+      }
+      const [enrollment] = await tx
+        .update(classEnrollments)
+        .set(updateData)
+        .where(eq(classEnrollments.id, id))
+        .returning();
+      return enrollment;
+    };
+    return txc ? run(txc) : db.transaction(run);
   }
 
   async deleteClassEnrollment(id: number): Promise<void> {
@@ -2735,6 +2811,17 @@ export class DatabaseStorage implements IStorage {
         changeRequestedAt: classes.changeRequestedAt,
         zoomLink: classes.zoomLink,
         hasTest: classes.hasTest,
+        lessonType: classes.lessonType,
+        isExtra: classes.isExtra,
+        price: classes.price,
+        topic: classes.topic,
+        attendanceSignature: classes.attendanceSignature,
+        attendanceSignedAt: classes.attendanceSignedAt,
+        attendanceSignedBy: classes.attendanceSignedBy,
+        seriesId: classes.seriesId,
+        sessionGroupId: classes.sessionGroupId,
+        detachedFromSeries: classes.detachedFromSeries,
+        legacyClassId: classes.legacyClassId,
         instructorName: sql<string>`CONCAT(${instructors.firstName}, ' ', ${instructors.lastName})`,
         enrolledCount: sql<number>`CAST(COALESCE(COUNT(CASE WHEN ${classEnrollments.id} IS NOT NULL AND ${classEnrollments.cancelledAt} IS NULL THEN 1 END), 0) AS INTEGER)`,
       })
@@ -2778,6 +2865,17 @@ export class DatabaseStorage implements IStorage {
         classes.changeRequestedAt,
         classes.zoomLink,
         classes.hasTest,
+        classes.lessonType,
+        classes.isExtra,
+        classes.price,
+        classes.topic,
+        classes.attendanceSignature,
+        classes.attendanceSignedAt,
+        classes.attendanceSignedBy,
+        classes.seriesId,
+        classes.sessionGroupId,
+        classes.detachedFromSeries,
+        classes.legacyClassId,
         instructors.firstName,
         instructors.lastName
       )
@@ -2785,8 +2883,8 @@ export class DatabaseStorage implements IStorage {
 
     return result.map(row => ({
       ...row,
-      spotsRemaining: row.maxStudents - row.enrolledCount,
-    }));
+      spotsRemaining: Math.max(0, (row.zoomLink?.trim() ? Math.min(row.maxStudents, VIRTUAL_CLASS_MAX_STUDENTS) : row.maxStudents) - row.enrolledCount),
+    })).filter(row => row.spotsRemaining > 0);
   }
 
   async bookClass(
@@ -2837,7 +2935,10 @@ export class DatabaseStorage implements IStorage {
           )
         );
 
-      if (enrolledStudents.length >= classData.maxStudents) {
+      const effectiveCapacity = classData.zoomLink?.trim()
+        ? Math.min(classData.maxStudents, VIRTUAL_CLASS_MAX_STUDENTS)
+        : classData.maxStudents;
+      if (enrolledStudents.length >= effectiveCapacity) {
         return { success: false, message: 'Class is full' };
       }
 

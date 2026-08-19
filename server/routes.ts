@@ -54,7 +54,7 @@ import {
   questionImagePath,
 } from "@shared/examData";
 import { getPhaseDefinitionsForCourse, getExternalMilestonesForCourse } from "@shared/phaseConfig";
-import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum, findCurriculumConflicts } from "@shared/curriculumPlanner";
+import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum, findCurriculumConflicts, splitVirtualEnrollment, VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
 import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, type BookingValidationResult } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -3218,10 +3218,233 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  const virtualSplitSchema = z.object({
+    parts: z.array(z.object({
+      instructorId: z.number().int().positive(),
+      zoomLink: z.string().trim().url().refine(link => /^https:\/\//i.test(link), "Zoom links must use HTTPS"),
+    })).min(2),
+  });
+
+  app.post("/api/admin/classes/:id/split-virtual", requireAdmin, async (req: any, res) => {
+    try {
+      const classId = Number(req.params.id);
+      if (!Number.isInteger(classId) || classId < 1) {
+        return res.status(400).json({ message: "Invalid class id" });
+      }
+      const input = virtualSplitSchema.parse(req.body);
+      const classData = await storage.getClass(classId);
+      if (!classData) return res.status(404).json({ message: "Class not found" });
+      if (!classData.zoomLink?.trim()) {
+        return res.status(400).json({ message: "Only virtual classes with a Zoom link can be split." });
+      }
+      if (classData.sessionGroupId) {
+        return res.status(409).json({ message: "This class has already been split into a session group." });
+      }
+      const enrollments = await storage.getClassEnrollmentsByClass(classId);
+      const distribution = splitVirtualEnrollment(enrollments.length);
+      if (distribution.classCount < 2) {
+        return res.status(400).json({ message: `This class has ${enrollments.length} students and does not exceed the ${VIRTUAL_CLASS_MAX_STUDENTS}-student virtual limit.` });
+      }
+      if (input.parts.length !== distribution.classCount) {
+        return res.status(400).json({
+          message: `This roster requires exactly ${distribution.classCount} classes (${distribution.studentCounts.join("/")}).`,
+        });
+      }
+      const instructorIds = input.parts.map(part => part.instructorId);
+      if (new Set(instructorIds).size !== instructorIds.length) {
+        return res.status(400).json({ message: "Choose a different instructor for each split class." });
+      }
+      const assignedInstructors = await Promise.all(instructorIds.map(id => storage.getInstructor(id)));
+      if (assignedInstructors.some(instructor => !instructor || instructor.status !== "active")) {
+        return res.status(400).json({ message: "Every split class must use an active instructor." });
+      }
+      const normalizedLinks = input.parts.map(part => part.zoomLink.trim().toLowerCase());
+      if (new Set(normalizedLinks).size !== normalizedLinks.length) {
+        return res.status(400).json({ message: "Enter a different Zoom link for each split class." });
+      }
+      const violations = (await Promise.all(input.parts.map(part =>
+        checkInstructorAvailability(part.instructorId, classData.date, classData.time, classData.duration)
+      ))).filter((violation): violation is NonNullable<typeof violation> => !!violation);
+      if (violations.length > 0) {
+        return res.status(409).json({
+          message: "One or more instructors are unavailable for this session.",
+          availabilityViolations: violations.map(violation => violation.message),
+        });
+      }
+
+      const sessionGroupId = randomUUID();
+      const result = await db.transaction(async tx => {
+        const [lockedClass] = await tx
+          .select()
+          .from(classes)
+          .where(eq(classes.id, classId))
+          .for("update");
+        if (!lockedClass) throw new Error("Class not found");
+        if (!lockedClass.zoomLink?.trim()) throw new Error("Class is no longer virtual");
+        if (lockedClass.sessionGroupId) throw new Error("Class has already been split");
+
+        // Serialize split assignments that use any of these instructors, then
+        // re-check active status and overlapping classes inside the same
+        // transaction that creates the siblings.
+        const lockedInstructors = await tx
+          .select()
+          .from(instructors)
+          .where(inArray(instructors.id, [...instructorIds].sort((a, b) => a - b)))
+          .orderBy(instructors.id)
+          .for("update");
+        if (lockedInstructors.length !== instructorIds.length ||
+            lockedInstructors.some(instructor => instructor.status !== "active")) {
+          throw new Error("Every split class must use an active instructor");
+        }
+        const existingInstructorClasses = await tx
+          .select({
+            id: classes.id,
+            instructorId: classes.instructorId,
+            time: classes.time,
+            duration: classes.duration,
+          })
+          .from(classes)
+          .where(and(
+            eq(classes.date, lockedClass.date),
+            inArray(classes.instructorId, instructorIds),
+            ne(classes.status, "cancelled"),
+            ne(classes.id, classId),
+          ));
+        const toMinutes = (value: string) => {
+          const [hours, minutes] = value.split(":").map(Number);
+          return Number.isFinite(hours) && Number.isFinite(minutes) ? hours * 60 + minutes : null;
+        };
+        const splitStart = toMinutes(lockedClass.time);
+        const splitEnd = splitStart === null ? null : splitStart + lockedClass.duration;
+        const conflict = existingInstructorClasses.find(existing => {
+          const existingStart = toMinutes(existing.time);
+          if (splitStart === null || splitEnd === null || existingStart === null) return true;
+          const existingEnd = existingStart + existing.duration;
+          return splitStart < existingEnd && existingStart < splitEnd;
+        });
+        if (conflict) {
+          const instructor = lockedInstructors.find(row => row.id === conflict.instructorId);
+          const name = instructor ? `${instructor.firstName} ${instructor.lastName}` : `Instructor #${conflict.instructorId}`;
+          throw new Error(`${name} is already booked for an overlapping class at ${conflict.time}`);
+        }
+
+        const lockedEnrollments = await tx
+          .select()
+          .from(classEnrollments)
+          .where(and(eq(classEnrollments.classId, classId), isNull(classEnrollments.cancelledAt)))
+          .orderBy(classEnrollments.id)
+          .for("update");
+        const lockedDistribution = splitVirtualEnrollment(lockedEnrollments.length);
+        if (lockedDistribution.classCount !== input.parts.length) {
+          throw new Error(`Enrollment changed while splitting; ${lockedEnrollments.length} students now require ${lockedDistribution.classCount} classes`);
+        }
+
+        const [firstClass] = await tx
+          .update(classes)
+          .set({
+            instructorId: input.parts[0].instructorId,
+            zoomLink: input.parts[0].zoomLink.trim(),
+            maxStudents: VIRTUAL_CLASS_MAX_STUDENTS,
+            sessionGroupId,
+            detachedFromSeries: true,
+          })
+          .where(eq(classes.id, classId))
+          .returning();
+        const splitClasses = [firstClass];
+        for (let index = 1; index < input.parts.length; index++) {
+          const [sibling] = await tx
+            .insert(classes)
+            .values({
+              courseType: lockedClass.courseType,
+              classType: lockedClass.classType,
+              classNumber: lockedClass.classNumber,
+              date: lockedClass.date,
+              time: lockedClass.time,
+              duration: lockedClass.duration,
+              instructorId: input.parts[index].instructorId,
+              vehicleId: lockedClass.vehicleId,
+              vehicleConfirmed: lockedClass.vehicleConfirmed,
+              confirmedAt: lockedClass.confirmedAt,
+              room: lockedClass.room,
+              maxStudents: VIRTUAL_CLASS_MAX_STUDENTS,
+              status: lockedClass.status,
+              lessonType: lockedClass.lessonType,
+              isExtra: lockedClass.isExtra,
+              price: lockedClass.price,
+              topic: lockedClass.topic,
+              confirmationStatus: lockedClass.confirmationStatus,
+              zoomLink: input.parts[index].zoomLink.trim(),
+              hasTest: lockedClass.hasTest,
+              seriesId: lockedClass.seriesId,
+              detachedFromSeries: true,
+              sessionGroupId,
+            })
+            .returning();
+          splitClasses.push(sibling);
+        }
+
+        const assignments: Array<{ classData: typeof splitClasses[number]; studentIds: number[] }> = [];
+        let cursor = 0;
+        for (let index = 0; index < splitClasses.length; index++) {
+          const assigned = lockedEnrollments.slice(cursor, cursor + lockedDistribution.studentCounts[index]);
+          cursor += assigned.length;
+          if (index > 0 && assigned.length > 0) {
+            await tx
+              .update(classEnrollments)
+              .set({ classId: splitClasses[index].id })
+              .where(inArray(classEnrollments.id, assigned.map(enrollment => enrollment.id)));
+          }
+          assignments.push({
+            classData: splitClasses[index],
+            studentIds: assigned.flatMap(enrollment => enrollment.studentId == null ? [] : [enrollment.studentId]),
+          });
+        }
+        return { classes: splitClasses, assignments, distribution: lockedDistribution.studentCounts };
+      });
+
+      const triggeredBy = req.user?.id || req.session?.userId || "system";
+      for (const assignment of result.assignments) {
+        const instructor = assignment.classData.instructorId
+          ? await storage.getInstructor(assignment.classData.instructorId)
+          : null;
+        try {
+          await notificationService.notifyVirtualClassSplit({
+            studentIds: assignment.studentIds,
+            classId: assignment.classData.id,
+            classTitle: `${assignment.classData.courseType.toUpperCase()} ${assignment.classData.classType === "driving" ? "Driving" : "Theory"} Class #${assignment.classData.classNumber}`,
+            date: assignment.classData.date,
+            time: assignment.classData.time,
+            zoomLink: assignment.classData.zoomLink!,
+            instructorName: instructor ? `${instructor.firstName} ${instructor.lastName}` : "Assigned instructor",
+          }, String(triggeredBy));
+        } catch (notifyError) {
+          captureRequestError(notifyError);
+          console.error("Failed to notify student about virtual class split:", notifyError);
+        }
+      }
+      res.status(201).json({
+        sessionGroupId,
+        distribution: result.distribution,
+        classes: result.classes,
+      });
+    } catch (error) {
+      captureRequestError(error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.issues[0]?.message || "Invalid split details" });
+      }
+      const message = error instanceof Error ? error.message : "Failed to split virtual class";
+      const status = /changed while splitting|already been split|already booked/i.test(message) ? 409 : 400;
+      res.status(status).json({ message });
+    }
+  });
+
   app.post("/api/classes", authMiddleware, async (req, res) => {
     try {
       console.log("Class creation request body:", req.body);
       const classData = insertClassSchema.parse(req.body);
+      if (classData.zoomLink?.trim() && (classData.maxStudents ?? 15) > VIRTUAL_CLASS_MAX_STUDENTS) {
+        return res.status(400).json({ message: `Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students.` });
+      }
       console.log("Class data after validation:", classData);
       const availabilityViolation = await checkInstructorAvailability(
         classData.instructorId, classData.date, classData.time, classData.duration,
@@ -3256,6 +3479,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         instructorId, maxStudents, lessonType, startDate, endDate, hasTest, zoomLink,
         progressive
       } = req.body;
+      if (typeof zoomLink === "string" && zoomLink.trim() && Number(maxStudents) > VIRTUAL_CLASS_MAX_STUDENTS) {
+        return res.status(400).json({ message: `Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students.` });
+      }
 
       if (!courseType || !classType || !classNumber || !daysOfWeek?.length || !time || !startDate || !endDate) {
         return res.status(400).json({ message: "Missing required fields" });
@@ -3535,6 +3761,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (cls.status === 'cancelled') { skippedCancelled++; continue; }
         targets.push(cls);
       }
+      const virtualCapacityViolation = targets.some(cls => {
+        const zoomLink = updateData.zoomLink !== undefined ? updateData.zoomLink : cls.zoomLink;
+        const maxStudents = updateData.maxStudents !== undefined ? updateData.maxStudents : cls.maxStudents;
+        return typeof zoomLink === "string" && zoomLink.trim() && maxStudents > VIRTUAL_CLASS_MAX_STUDENTS;
+      });
+      if (virtualCapacityViolation) {
+        return res.status(400).json({ message: `Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students. No classes were changed.` });
+      }
 
       // Pre-validate ALL target classes for instructor/room double-bookings
       // before mutating anything, so a conflict never leaves the series
@@ -3699,6 +3933,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Local-date helpers (avoid UTC shifting).
       const dayOf = (dateStr: string) => new Date(dateStr + "T00:00:00").getDay();
       const template = targets[0];
+      if (template.zoomLink?.trim() && template.maxStudents > VIRTUAL_CLASS_MAX_STUDENTS) {
+        return res.status(400).json({
+          message: `This virtual series exceeds the ${VIRTUAL_CLASS_MAX_STUDENTS}-student limit. Split its over-capacity sessions before changing the series days.`,
+        });
+      }
       const firstDate = targets[0].date;
       const lastDate = targets[targets.length - 1].date;
       // Never extend the series earlier than its first upcoming class.
@@ -4081,6 +4320,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get existing class data to compare for changes
       const existingClass = await storage.getClass(id);
+      const resultingZoomLink = updateData.zoomLink !== undefined ? updateData.zoomLink : existingClass?.zoomLink;
+      const resultingMaxStudents = updateData.maxStudents !== undefined ? Number(updateData.maxStudents) : existingClass?.maxStudents;
+      if (typeof resultingZoomLink === "string" && resultingZoomLink.trim() && resultingMaxStudents && resultingMaxStudents > VIRTUAL_CLASS_MAX_STUDENTS) {
+        return res.status(400).json({ message: `Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students.` });
+      }
 
       // Validate against instructor availability when schedule-relevant
       // fields are changing.
@@ -4707,7 +4951,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       captureRequestError(error);
       console.error("Error creating enrollment:", error);
-      res.status(400).json({ message: "Invalid enrollment data" });
+      res.status(400).json({
+        message: error instanceof Error && error.message === "Class is full"
+          ? "Class is full"
+          : "Invalid enrollment data",
+      });
     }
   });
 
@@ -11994,7 +12242,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         captureRequestError(error);
         console.error("Error rescheduling class:", error);
-        res.status(500).json({ message: "Failed to reschedule class" });
+        res.status(error instanceof Error && error.message === "Class is full" ? 409 : 500).json({
+          message: error instanceof Error && error.message === "Class is full"
+            ? "The selected class is full"
+            : "Failed to reschedule class",
+        });
       }
     },
   );

@@ -114,6 +114,7 @@ export default function ClassForm({ classData, onSuccess }: ClassFormProps) {
   };
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
+  const isVirtual = !!form.watch("zoomLink")?.trim();
 
   return (
     <Form {...form}>
@@ -279,13 +280,14 @@ export default function ClassForm({ classData, onSuccess }: ClassFormProps) {
                   <Input
                     type="number"
                     min="1"
-                    max="50"
+                    max={isVirtual ? "30" : "50"}
                     {...field}
                     onChange={e => field.onChange(parseInt(e.target.value) || 15)}
                     data-testid="input-max-students"
                   />
                 </FormControl>
                 <FormMessage />
+                {isVirtual && <p className="mt-1 text-xs text-muted-foreground">Virtual classes are limited to 30 students.</p>}
               </FormItem>
             )}
           />
@@ -329,7 +331,7 @@ export default function ClassForm({ classData, onSuccess }: ClassFormProps) {
           name="zoomLink"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Zoom Link (Optional)</FormLabel>
+              <FormLabel>Zoom Link (Optional — makes this a virtual class)</FormLabel>
               <FormControl>
                 <Input placeholder="https://zoom.us/j/..." {...field} value={field.value ?? ""} data-testid="input-zoom-link" />
               </FormControl>
