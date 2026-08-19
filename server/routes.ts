@@ -83,6 +83,7 @@ import {
   leaveCombinedQueue,
   getStudentPairingStatus,
   getAdminPairingOverview,
+  getPairingAuditHistory,
   respondToOffer,
   respondToConfirmation,
   manualPair,
@@ -16345,6 +16346,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         captureRequestError(error);
         console.error("[lesson-pairing] Error fetching admin overview:", error);
         res.status(500).json({ message: "Failed to fetch pairing overview" });
+      }
+    },
+  );
+
+  // ── Admin/Instructor: pairing audit history (per student or per class) ────
+  app.get(
+    "/api/lesson-pairing/admin/history",
+    isAdminOrInstructor,
+    async (req: any, res) => {
+      try {
+        const rawStudentId = req.query?.studentId;
+        const rawClassId = req.query?.classId;
+        const rawLimit = req.query?.limit;
+
+        let studentId: number | undefined;
+        if (rawStudentId != null && rawStudentId !== "") {
+          studentId = parseInt(String(rawStudentId));
+          if (!Number.isInteger(studentId) || studentId <= 0) {
+            return res.status(400).json({ message: "Invalid studentId" });
+          }
+        }
+        let classId: number | undefined;
+        if (rawClassId != null && rawClassId !== "") {
+          classId = parseInt(String(rawClassId));
+          if (!Number.isInteger(classId) || classId <= 0) {
+            return res.status(400).json({ message: "Invalid classId" });
+          }
+        }
+        let limit: number | undefined;
+        if (rawLimit != null && rawLimit !== "") {
+          limit = parseInt(String(rawLimit));
+          if (!Number.isInteger(limit) || limit <= 0) {
+            return res.status(400).json({ message: "Invalid limit" });
+          }
+        }
+
+        const events = await getPairingAuditHistory({ studentId, classId, limit });
+        res.json({ events });
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error fetching pairing history:", error);
+        res.status(500).json({ message: "Failed to fetch pairing history" });
       }
     },
   );

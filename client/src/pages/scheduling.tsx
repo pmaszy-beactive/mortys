@@ -404,6 +404,50 @@ export default function Scheduling() {
     return { pending: rows.length, students: rows.map((r) => ({ studentId: r.studentId, status: r.status })) };
   };
 
+  // Pairing history dialog state (Task 276)
+  interface PairingAuditEvent {
+    id: number;
+    eventType: string;
+    queueEntryId: number | null;
+    pairedSessionId: number | null;
+    offerId: number | null;
+    confirmationId: number | null;
+    studentId: number | null;
+    studentName: string | null;
+    classId: number | null;
+    actorId: string | null;
+    actorRole: string | null;
+    previousStatus: string | null;
+    newStatus: string | null;
+    details: Record<string, unknown> | null;
+    createdAt: string;
+  }
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyStudentId, setHistoryStudentId] = useState<string>("");
+  const [historyClassId, setHistoryClassId] = useState<string>("");
+
+  const historyParams = new URLSearchParams();
+  if (historyStudentId.trim() !== "" && Number.isInteger(Number(historyStudentId)) && Number(historyStudentId) > 0) {
+    historyParams.set("studentId", historyStudentId.trim());
+  }
+  if (historyClassId !== "" && historyClassId !== "all") {
+    historyParams.set("classId", historyClassId);
+  }
+  const historyQueryString = historyParams.toString();
+
+  const { data: pairingHistory, isLoading: historyLoading } = useQuery<{ events: PairingAuditEvent[] }>({
+    queryKey: ["/api/lesson-pairing/admin/history", historyQueryString],
+    queryFn: async () =>
+      apiRequest("GET", `/api/lesson-pairing/admin/history${historyQueryString ? `?${historyQueryString}` : ""}`),
+    enabled: historyOpen,
+  });
+
+  const formatEventType = (t: string) => t.replace(/_/g, " ");
+  const historyReason = (e: PairingAuditEvent): string | null => {
+    const r = e.details?.reason;
+    return typeof r === "string" && r.length > 0 ? r : null;
+  };
+
   // Manual pair dialog state
   const [manualPairEntry, setManualPairEntry] = useState<PairingQueueEntry | null>(null);
   const [manualPairClassId, setManualPairClassId] = useState<string>("");
@@ -1144,10 +1188,21 @@ export default function Scheduling() {
         {/* In-Car #12/13 Pairing Queue (Task 272) */}
         <Card className="mt-6" data-testid="card-pairing-queue">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Users className="h-5 w-5 text-[#ECC462]" />
-              In-Car #12/13 Pairing Queue
-            </CardTitle>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Users className="h-5 w-5 text-[#ECC462]" />
+                In-Car #12/13 Pairing Queue
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setHistoryOpen(true)}
+                data-testid="button-pairing-history"
+              >
+                <Clock className="mr-1.5 h-3.5 w-3.5" />
+                Pairing History
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {pairingLoading ? (
@@ -1343,6 +1398,101 @@ export default function Scheduling() {
             )}
           </CardContent>
         </Card>
+
+        {/* Pairing History Dialog (Task 276) */}
+        <Dialog open={historyOpen} onOpenChange={(open) => { if (!open) setHistoryOpen(false); }}>
+          <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" data-testid="dialog-pairing-history">
+            <DialogHeader>
+              <DialogTitle>12/13 Pairing History</DialogTitle>
+              <DialogDescription>
+                Full audit timeline of pairing events — offers, pairs, deferrals, and conversions. Filter by student or class.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-wrap gap-4 pb-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="history-student-id">Student ID</Label>
+                <Input
+                  id="history-student-id"
+                  type="number"
+                  min={1}
+                  placeholder="All students"
+                  className="w-40"
+                  value={historyStudentId}
+                  onChange={(e) => setHistoryStudentId(e.target.value)}
+                  data-testid="input-history-student"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="history-class">Class</Label>
+                <Select value={historyClassId || "all"} onValueChange={(v) => setHistoryClassId(v === "all" ? "" : v)}>
+                  <SelectTrigger id="history-class" className="w-56" data-testid="select-history-class">
+                    <SelectValue placeholder="All classes" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All classes</SelectItem>
+                    {classes
+                      .filter((c) => c.classType === "driving")
+                      .slice()
+                      .sort((a, b) => `${b.date ?? ""} ${b.time ?? ""}`.localeCompare(`${a.date ?? ""} ${a.time ?? ""}`))
+                      .map((c) => (
+                        <SelectItem key={c.id} value={String(c.id)}>
+                          {pairingClassLabel(c.id)} · #{c.classNumber}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {historyLoading ? (
+              <div className="flex items-center gap-2 text-sm text-gray-500 py-6">
+                <Loader2 className="h-4 w-4 animate-spin" /> Loading history…
+              </div>
+            ) : !pairingHistory || pairingHistory.events.length === 0 ? (
+              <p className="text-sm text-gray-500 py-6" data-testid="text-history-empty">
+                No pairing events found{historyQueryString ? " for this filter" : ""}.
+              </p>
+            ) : (
+              <ul className="space-y-2" data-testid="list-pairing-history">
+                {pairingHistory.events.map((event) => {
+                  const reason = historyReason(event);
+                  return (
+                    <li
+                      key={event.id}
+                      className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm"
+                      data-testid={`pairing-history-${event.id}`}
+                    >
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 min-w-0 flex-wrap">
+                          <Badge variant="outline" className="capitalize">{formatEventType(event.eventType)}</Badge>
+                          <span className="font-medium text-gray-800 truncate">
+                            {event.studentName ?? (event.studentId != null ? `Student #${event.studentId}` : "—")}
+                          </span>
+                          {event.classId != null && (
+                            <span className="text-xs text-gray-500">{pairingClassLabel(event.classId)}</span>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                          {format(new Date(event.createdAt), "MMM d, yyyy h:mm a")}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-600 flex-wrap">
+                        <span>
+                          By: {event.actorRole === "system" ? "system" : `${event.actorRole ?? "unknown"}${event.actorId && event.actorId !== "system" ? ` (${event.actorId})` : ""}`}
+                        </span>
+                        {(event.previousStatus || event.newStatus) && (
+                          <span>
+                            Status: {event.previousStatus ?? "—"} → {event.newStatus ?? "—"}
+                          </span>
+                        )}
+                        {reason && <span className="text-gray-700">Reason: {reason}</span>}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Manual Pair Dialog */}
         <Dialog open={!!manualPairEntry} onOpenChange={(open) => { if (!open) { setManualPairEntry(null); setManualPairClassId(""); } }}>

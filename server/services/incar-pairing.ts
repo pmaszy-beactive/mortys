@@ -95,6 +95,7 @@ import {
   lt,
   sql,
   asc,
+  desc,
 } from "drizzle-orm";
 import { SCHOOL_TIMEZONE, getClassStartTime } from "./class-time";
 import {
@@ -3263,6 +3264,93 @@ export async function getAdminPairingOverview(): Promise<{
       activeSessionsTotal: activeSessions.length,
     },
   };
+}
+
+// ─── getPairingAuditHistory ────────────────────────────────────────────────────
+
+/** A single pairing audit event enriched with the student's name for display. */
+export interface PairingAuditHistoryEvent {
+  id: number;
+  eventType: string;
+  queueEntryId: number | null;
+  pairedSessionId: number | null;
+  offerId: number | null;
+  confirmationId: number | null;
+  studentId: number | null;
+  studentName: string | null;
+  classId: number | null;
+  actorId: string | null;
+  actorRole: string | null;
+  previousStatus: string | null;
+  newStatus: string | null;
+  details: Record<string, unknown> | null;
+  createdAt: Date;
+}
+
+/**
+ * Full 12/13 pairing audit timeline, filterable per student or per class,
+ * newest first. Used by the office to answer "why was my session deferred /
+ * why did my partner change" questions without querying the database.
+ */
+export async function getPairingAuditHistory(params: {
+  studentId?: number;
+  classId?: number;
+  limit?: number;
+}): Promise<PairingAuditHistoryEvent[]> {
+  const conditions = [];
+  if (params.studentId != null) {
+    conditions.push(eq(incarPairingAudit.studentId, params.studentId));
+  }
+  if (params.classId != null) {
+    conditions.push(eq(incarPairingAudit.classId, params.classId));
+  }
+  const limit = Math.min(Math.max(params.limit ?? 200, 1), 500);
+
+  const rows = await db
+    .select({
+      id: incarPairingAudit.id,
+      eventType: incarPairingAudit.eventType,
+      queueEntryId: incarPairingAudit.queueEntryId,
+      pairedSessionId: incarPairingAudit.pairedSessionId,
+      offerId: incarPairingAudit.offerId,
+      confirmationId: incarPairingAudit.confirmationId,
+      studentId: incarPairingAudit.studentId,
+      firstName: students.firstName,
+      lastName: students.lastName,
+      classId: incarPairingAudit.classId,
+      actorId: incarPairingAudit.actorId,
+      actorRole: incarPairingAudit.actorRole,
+      previousStatus: incarPairingAudit.previousStatus,
+      newStatus: incarPairingAudit.newStatus,
+      details: incarPairingAudit.details,
+      createdAt: incarPairingAudit.createdAt,
+    })
+    .from(incarPairingAudit)
+    .leftJoin(students, eq(incarPairingAudit.studentId, students.id))
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(desc(incarPairingAudit.createdAt), desc(incarPairingAudit.id))
+    .limit(limit);
+
+  return rows.map((r) => ({
+    id: r.id,
+    eventType: r.eventType,
+    queueEntryId: r.queueEntryId,
+    pairedSessionId: r.pairedSessionId,
+    offerId: r.offerId,
+    confirmationId: r.confirmationId,
+    studentId: r.studentId,
+    studentName:
+      r.firstName || r.lastName
+        ? `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim()
+        : null,
+    classId: r.classId,
+    actorId: r.actorId,
+    actorRole: r.actorRole,
+    previousStatus: r.previousStatus,
+    newStatus: r.newStatus,
+    details: (r.details ?? null) as Record<string, unknown> | null,
+    createdAt: r.createdAt,
+  }));
 }
 
 // ─── Notification helpers ──────────────────────────────────────────────────────
