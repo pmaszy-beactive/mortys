@@ -3,6 +3,7 @@ import sgMail from "@sendgrid/mail";
 import * as notificationService from "./services/notifications";
 import { applyUatEmailOverride } from "./services/sendgrid";
 import { getClassStartTime } from "./services/class-time";
+import { processPairingLifecycle } from "./services/incar-pairing";
 
 const CHECK_INTERVAL = 60000; // Check every minute
 const REMINDER_HOURS_BEFORE = 24; // Send reminder 24 hours before class
@@ -182,6 +183,20 @@ async function processUpcomingClassReminders() {
   }
 }
 
+async function processIncarPairingLifecycle(): Promise<void> {
+  try {
+    const result = await processPairingLifecycle();
+    const { expiredOffers, deferredStudents, confirmationsSent } = result;
+    if (expiredOffers > 0 || deferredStudents > 0 || confirmationsSent > 0) {
+      console.log(
+        `[SCHEDULED-MESSAGES] In-Car pairing: expired=${expiredOffers} deferred=${deferredStudents} confirmations=${confirmationsSent}`,
+      );
+    }
+  } catch (err) {
+    console.error('[SCHEDULED-MESSAGES] Error processing in-car pairing lifecycle:', err);
+  }
+}
+
 export function startScheduledMessageWorker() {
   if (intervalId) {
     console.log('[SCHEDULED-MESSAGES] Worker already running');
@@ -193,6 +208,7 @@ export function startScheduledMessageWorker() {
   // Run immediately
   processScheduledMessages();
   processUpcomingClassReminders();
+  processIncarPairingLifecycle();
   
   // Then run every minute for scheduled messages
   intervalId = setInterval(() => {
@@ -200,6 +216,10 @@ export function startScheduledMessageWorker() {
     // Only check reminders every 15 minutes to avoid duplicates
     if (new Date().getMinutes() % 15 === 0) {
       processUpcomingClassReminders();
+    }
+    // Run in-car pairing lifecycle every 5 minutes
+    if (new Date().getMinutes() % 5 === 0) {
+      processIncarPairingLifecycle();
     }
   }, CHECK_INTERVAL);
 }

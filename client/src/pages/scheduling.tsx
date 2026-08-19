@@ -290,6 +290,174 @@ export default function Scheduling() {
     return instructor ? `${instructor.firstName} ${instructor.lastName}` : "Unknown Instructor";
   };
 
+  // ─── In-Car #12/13 Pairing Queue (Task 272) ──────────────────────────────
+  interface PairingQueueEntry {
+    id: number;
+    studentId: number;
+    sessionNumber: number;
+    status: string;
+    priority: number;
+    queuedAt: string;
+    bookedClassId: number | null;
+    enrollmentId: number | null;
+    updatedAt: string;
+  }
+  interface PairedSession {
+    id: number;
+    queueEntryIdA: number;
+    queueEntryIdB: number;
+    studentIdA: number;
+    studentIdB: number;
+    classId: number;
+    enrollmentIdA: number | null;
+    enrollmentIdB: number | null;
+    status: string;
+    pairedAt: string;
+  }
+  interface SessionConfirmation {
+    id: number;
+    pairedSessionId: number;
+    studentId: number;
+    queueEntryId: number;
+    status: string;
+  }
+  interface PairingOverview {
+    waiting: PairingQueueEntry[];
+    bookedFirst: PairingQueueEntry[];
+    offered: PairingQueueEntry[];
+    paired: PairingQueueEntry[];
+    activeSessions: PairedSession[];
+    pendingConfirmations: SessionConfirmation[];
+    stats: { waiting: number; bookedFirst: number; offered: number; activeSessionsTotal: number };
+  }
+
+  const { data: pairingOverview, isLoading: pairingLoading } = useQuery<PairingOverview>({
+    queryKey: ["/api/lesson-pairing/admin"],
+  });
+
+  // Resolve student names for every student referenced in the overview.
+  const pairingStudentIds = useMemo(() => {
+    if (!pairingOverview) return [] as number[];
+    const ids = new Set<number>();
+    for (const e of [...pairingOverview.waiting, ...pairingOverview.bookedFirst, ...pairingOverview.offered, ...pairingOverview.paired]) {
+      ids.add(e.studentId);
+    }
+    for (const s of pairingOverview.activeSessions) {
+      ids.add(s.studentIdA);
+      ids.add(s.studentIdB);
+    }
+    return Array.from(ids).sort((a, b) => a - b);
+  }, [pairingOverview]);
+
+  const { data: pairingStudents = [] } = useQuery<{ id: number; firstName: string; lastName: string }[]>({
+    queryKey: ["/api/lesson-pairing/admin", "students", pairingStudentIds.join(",")],
+    queryFn: async () => {
+      const rows = await Promise.all(
+        pairingStudentIds.map((id) =>
+          apiRequest("GET", `/api/students/${id}`).catch(() => null),
+        ),
+      );
+      return rows
+        .filter(Boolean)
+        .map((s: any) => ({ id: s.id, firstName: s.firstName, lastName: s.lastName }));
+    },
+    enabled: pairingStudentIds.length > 0,
+  });
+
+  const pairingStudentName = (studentId: number) => {
+    const s = pairingStudents.find((x) => x.id === studentId);
+    return s ? `${s.firstName} ${s.lastName}` : `Student #${studentId}`;
+  };
+
+  const pairingClassLabel = (classId: number | null) => {
+    if (!classId) return "—";
+    const cls = classes.find((c) => c.id === classId);
+    if (!cls) return `Class #${classId}`;
+    return `${cls.date ?? "TBD"}${cls.time ? ` @ ${cls.time}` : ""}`;
+  };
+
+  // Canonical combined 12/13 slots that currently have a booked-first owner
+  // awaiting a partner. Only these may be offered in the Manual Pair dialog.
+  const manualPairSlots = useMemo(() => {
+    if (!pairingOverview) return [] as { classId: number; bookedFirstStudentId: number }[];
+    const slots: { classId: number; bookedFirstStudentId: number }[] = [];
+    for (const entry of pairingOverview.bookedFirst) {
+      if (entry.bookedClassId == null) continue;
+      const cls = classes.find((c) => c.id === entry.bookedClassId);
+      if (!cls) continue;
+      const isCanonical =
+        cls.classType === "driving" &&
+        cls.classNumber === 12 &&
+        cls.duration === 120 &&
+        cls.maxStudents === 2 &&
+        cls.status === "scheduled";
+      if (!isCanonical) continue;
+      slots.push({ classId: entry.bookedClassId, bookedFirstStudentId: entry.studentId });
+    }
+    return slots;
+  }, [pairingOverview, classes]);
+
+  // Confirmation status per paired session (both students).
+  const sessionConfirmStatus = (session: PairedSession) => {
+    if (!pairingOverview) return { pending: 0, students: [] as { studentId: number; status: string }[] };
+    const rows = pairingOverview.pendingConfirmations.filter((c) => c.pairedSessionId === session.id);
+    return { pending: rows.length, students: rows.map((r) => ({ studentId: r.studentId, status: r.status })) };
+  };
+
+  // Manual pair dialog state
+  const [manualPairEntry, setManualPairEntry] = useState<PairingQueueEntry | null>(null);
+  const [manualPairClassId, setManualPairClassId] = useState<string>("");
+
+  // Convert-to-solo dialog state
+  const [convertSession, setConvertSession] = useState<PairedSession | null>(null);
+  const [convertEnrollmentId, setConvertEnrollmentId] = useState<string>("");
+  const [convertLessonNumber, setConvertLessonNumber] = useState<string>("11");
+
+  const invalidatePairing = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/lesson-pairing/admin"] });
+  };
+
+  const manualPairMutation = useMutation({
+    mutationFn: async ({ classId, waitingStudentId }: { classId: number; waitingStudentId: number }) =>
+      apiRequest("POST", "/api/lesson-pairing/admin/manual-pair", { classId, waitingStudentId }),
+    onSuccess: () => {
+      invalidatePairing();
+      setManualPairEntry(null);
+      setManualPairClassId("");
+      toast({ title: "Students Paired", description: "The waiting student was paired into the selected class." });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err?.data?.message || err?.message || "Failed to pair students.", variant: "destructive" });
+    },
+  });
+
+  const requeueMutation = useMutation({
+    mutationFn: async (queueEntryId: number) =>
+      apiRequest("POST", "/api/lesson-pairing/admin/requeue", { queueEntryId }),
+    onSuccess: () => {
+      invalidatePairing();
+      toast({ title: "Requeued", description: "The student was returned to the waiting queue." });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err?.data?.message || err?.message || "Failed to requeue student.", variant: "destructive" });
+    },
+  });
+
+  const convertMutation = useMutation({
+    mutationFn: async ({ pairedSessionId, presentEnrollmentId, targetLessonNumber }: { pairedSessionId: number; presentEnrollmentId: number; targetLessonNumber: 11 | 14 }) =>
+      apiRequest("POST", `/api/lesson-pairing/sessions/${pairedSessionId}/convert`, { presentEnrollmentId, targetLessonNumber }),
+    onSuccess: () => {
+      invalidatePairing();
+      setConvertSession(null);
+      setConvertEnrollmentId("");
+      setConvertLessonNumber("11");
+      toast({ title: "Converted to Solo", description: "The present student was converted to a solo lesson." });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err?.data?.message || err?.message || "Failed to convert session.", variant: "destructive" });
+    },
+  });
+
   const now = new Date();
   const upcomingWindowEnd = addDays(now, 7);
   const upcomingClasses = classes
@@ -972,6 +1140,329 @@ export default function Scheduling() {
             </div>
           </CardContent>
         </Card>
+
+        {/* In-Car #12/13 Pairing Queue (Task 272) */}
+        <Card className="mt-6" data-testid="card-pairing-queue">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Users className="h-5 w-5 text-[#ECC462]" />
+              In-Car #12/13 Pairing Queue
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {pairingLoading ? (
+              <div className="flex items-center gap-2 text-sm text-gray-500 py-4">
+                <Loader2 className="h-4 w-4 animate-spin" /> Loading pairing queue…
+              </div>
+            ) : !pairingOverview ? (
+              <p className="text-sm text-gray-500 py-4">Unable to load pairing queue.</p>
+            ) : (
+              <div className="space-y-6">
+                {/* Stats */}
+                <div className="flex flex-wrap gap-2 text-xs" data-testid="pairing-stats">
+                  <Badge variant="outline">Waiting: {pairingOverview.stats.waiting}</Badge>
+                  <Badge variant="outline">Booked First: {pairingOverview.stats.bookedFirst}</Badge>
+                  <Badge variant="outline">Offered: {pairingOverview.stats.offered}</Badge>
+                  <Badge variant="outline">Active Sessions: {pairingOverview.stats.activeSessionsTotal}</Badge>
+                </div>
+
+                {/* Waiting queue */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Waiting Queue</h3>
+                  {pairingOverview.waiting.length === 0 ? (
+                    <p className="text-sm text-gray-500">No students waiting.</p>
+                  ) : (
+                    <ul className="space-y-1.5" data-testid="list-pairing-waiting">
+                      {pairingOverview.waiting.map((entry, idx) => (
+                        <li
+                          key={entry.id}
+                          className="flex items-center justify-between gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm"
+                          data-testid={`pairing-waiting-${entry.id}`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Badge className="bg-[#ECC462] text-[#111111]">#{idx + 1}</Badge>
+                            <span className="truncate font-medium text-gray-800">{pairingStudentName(entry.studentId)}</span>
+                            <span className="text-xs text-gray-500">priority {entry.priority}</span>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => { setManualPairEntry(entry); setManualPairClassId(""); }}
+                            data-testid={`button-manual-pair-${entry.id}`}
+                          >
+                            Manual Pair
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* Booked first (owner awaiting a partner) */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Booked First (awaiting partner)</h3>
+                  {pairingOverview.bookedFirst.length === 0 ? (
+                    <p className="text-sm text-gray-500">No students awaiting a partner.</p>
+                  ) : (
+                    <ul className="space-y-1.5" data-testid="list-pairing-booked-first">
+                      {pairingOverview.bookedFirst.map((entry) => (
+                        <li
+                          key={entry.id}
+                          className="flex items-center justify-between gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm"
+                          data-testid={`pairing-booked-first-${entry.id}`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="truncate font-medium text-gray-800">{pairingStudentName(entry.studentId)}</span>
+                            <span className="text-xs text-gray-500">{pairingClassLabel(entry.bookedClassId)}</span>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={requeueMutation.isPending}
+                            onClick={() => requeueMutation.mutate(entry.id)}
+                            data-testid={`button-requeue-${entry.id}`}
+                          >
+                            Requeue
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* Offered (active offers / deadlines) */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Active Offers</h3>
+                  {pairingOverview.offered.length === 0 ? (
+                    <p className="text-sm text-gray-500">No active offers.</p>
+                  ) : (
+                    <ul className="space-y-1.5" data-testid="list-pairing-offered">
+                      {pairingOverview.offered.map((entry) => (
+                        <li
+                          key={entry.id}
+                          className="flex items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm"
+                          data-testid={`pairing-offered-${entry.id}`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Clock className="h-3.5 w-3.5 text-amber-600 flex-shrink-0" />
+                            <span className="truncate font-medium text-gray-800">{pairingStudentName(entry.studentId)}</span>
+                            <span className="text-xs text-gray-500">{pairingClassLabel(entry.bookedClassId)}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs border-amber-400 text-amber-700">offered</Badge>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={requeueMutation.isPending}
+                              onClick={() => requeueMutation.mutate(entry.id)}
+                              data-testid={`button-requeue-${entry.id}`}
+                            >
+                              Requeue
+                            </Button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* Paired sessions */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Paired Sessions</h3>
+                  {pairingOverview.activeSessions.length === 0 ? (
+                    <p className="text-sm text-gray-500">No active paired sessions.</p>
+                  ) : (
+                    <ul className="space-y-2" data-testid="list-pairing-sessions">
+                      {pairingOverview.activeSessions.map((session) => {
+                        const confirm = sessionConfirmStatus(session);
+                        return (
+                          <li
+                            key={session.id}
+                            className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                            data-testid={`pairing-session-${session.id}`}
+                          >
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <CalendarClock className="h-3.5 w-3.5 text-[#ECC462] flex-shrink-0" />
+                                <span className="font-medium text-gray-800">
+                                  {pairingStudentName(session.studentIdA)} &amp; {pairingStudentName(session.studentIdB)}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500">{pairingClassLabel(session.classId)}</span>
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${session.status === "confirmed" ? "border-green-400 text-green-700" : "border-amber-400 text-amber-700"}`}
+                                >
+                                  {session.status}
+                                </Badge>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between gap-2 mt-1.5">
+                              <span className="text-xs text-gray-500" data-testid={`pairing-session-confirm-${session.id}`}>
+                                {confirm.pending > 0
+                                  ? `${confirm.pending} pending confirmation${confirm.pending !== 1 ? "s" : ""}`
+                                  : "All confirmed"}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={requeueMutation.isPending}
+                                  onClick={() => requeueMutation.mutate(session.queueEntryIdA)}
+                                  data-testid={`button-requeue-session-a-${session.id}`}
+                                >
+                                  Requeue {pairingStudentName(session.studentIdA)}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={requeueMutation.isPending}
+                                  onClick={() => requeueMutation.mutate(session.queueEntryIdB)}
+                                  data-testid={`button-requeue-session-b-${session.id}`}
+                                >
+                                  Requeue {pairingStudentName(session.studentIdB)}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => { setConvertSession(session); setConvertEnrollmentId(""); setConvertLessonNumber("11"); }}
+                                  data-testid={`button-convert-session-${session.id}`}
+                                >
+                                  Convert to Solo
+                                </Button>
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Manual Pair Dialog */}
+        <Dialog open={!!manualPairEntry} onOpenChange={(open) => { if (!open) { setManualPairEntry(null); setManualPairClassId(""); } }}>
+          <DialogContent data-testid="dialog-manual-pair">
+            <DialogHeader>
+              <DialogTitle>Manual Pair</DialogTitle>
+              <DialogDescription>
+                {manualPairEntry ? `Pair ${pairingStudentName(manualPairEntry.studentId)} into an In-Car #12/13 class.` : ""}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2 py-2">
+              <Label htmlFor="manual-pair-class">Canonical 12/13 Slot (awaiting partner)</Label>
+              {manualPairSlots.length === 0 ? (
+                <p className="text-sm text-gray-500">No canonical 12/13 slots with a booked-first student awaiting a partner.</p>
+              ) : (
+                <Select value={manualPairClassId} onValueChange={setManualPairClassId}>
+                  <SelectTrigger id="manual-pair-class" data-testid="select-manual-pair-class">
+                    <SelectValue placeholder="Select a slot" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {manualPairSlots
+                      .slice()
+                      .sort((a, b) => pairingClassLabel(a.classId).localeCompare(pairingClassLabel(b.classId)))
+                      .map((slot) => (
+                        <SelectItem key={slot.classId} value={String(slot.classId)}>
+                          {pairingClassLabel(slot.classId)} · {pairingStudentName(slot.bookedFirstStudentId)}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => { setManualPairEntry(null); setManualPairClassId(""); }}>
+                Cancel
+              </Button>
+              <Button
+                className="bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] font-medium"
+                disabled={!manualPairClassId || !manualPairEntry || manualPairMutation.isPending}
+                onClick={() => {
+                  if (manualPairEntry && manualPairClassId) {
+                    manualPairMutation.mutate({ classId: parseInt(manualPairClassId), waitingStudentId: manualPairEntry.studentId });
+                  }
+                }}
+                data-testid="button-confirm-manual-pair"
+              >
+                {manualPairMutation.isPending ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Pairing…</>) : "Pair"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Convert to Solo Dialog */}
+        <Dialog open={!!convertSession} onOpenChange={(open) => { if (!open) { setConvertSession(null); setConvertEnrollmentId(""); setConvertLessonNumber("11"); } }}>
+          <DialogContent data-testid="dialog-convert-session">
+            <DialogHeader>
+              <DialogTitle>Convert to Solo Lesson</DialogTitle>
+              <DialogDescription>
+                Convert the present student in this paired session to a solo lesson (11 or 14).
+              </DialogDescription>
+            </DialogHeader>
+            {convertSession && (
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <Label>Present Student</Label>
+                  <Select value={convertEnrollmentId} onValueChange={setConvertEnrollmentId}>
+                    <SelectTrigger data-testid="select-convert-student">
+                      <SelectValue placeholder="Select the present student" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {convertSession.enrollmentIdA != null && (
+                        <SelectItem value={String(convertSession.enrollmentIdA)}>
+                          {pairingStudentName(convertSession.studentIdA)}
+                        </SelectItem>
+                      )}
+                      {convertSession.enrollmentIdB != null && (
+                        <SelectItem value={String(convertSession.enrollmentIdB)}>
+                          {pairingStudentName(convertSession.studentIdB)}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Target Lesson</Label>
+                  <Select value={convertLessonNumber} onValueChange={setConvertLessonNumber}>
+                    <SelectTrigger data-testid="select-convert-lesson">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="11">Lesson 11</SelectItem>
+                      <SelectItem value="14">Lesson 14</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => { setConvertSession(null); setConvertEnrollmentId(""); setConvertLessonNumber("11"); }}>
+                Cancel
+              </Button>
+              <Button
+                className="bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] font-medium"
+                disabled={!convertEnrollmentId || !convertSession || convertMutation.isPending}
+                onClick={() => {
+                  if (convertSession && convertEnrollmentId) {
+                    convertMutation.mutate({
+                      pairedSessionId: convertSession.id,
+                      presentEnrollmentId: parseInt(convertEnrollmentId),
+                      targetLessonNumber: parseInt(convertLessonNumber) === 14 ? 14 : 11,
+                    });
+                  }
+                }}
+                data-testid="button-confirm-convert"
+              >
+                {convertMutation.isPending ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Converting…</>) : "Convert"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Expanded Day Dialog */}
         {expandedDay && (

@@ -56,7 +56,7 @@ import {
 import { getPhaseDefinitionsForCourse, getExternalMilestonesForCourse } from "@shared/phaseConfig";
 import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum, findCurriculumConflicts, splitVirtualEnrollment, VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
-import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, type BookingValidationResult } from "@shared/bookingRules";
+import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, isCombined1213Class, type BookingValidationResult } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { loginUser, isAuthenticatedTraditional } from "./auth";
 import { loginInstructor, isInstructorAuthenticated } from "./instructor-auth";
@@ -76,6 +76,21 @@ import { checkInstructorAvailability } from "./services/availability";
 import { chargeNoShowFee as chargeNoShowFeeImpl } from "./services/no-show-fee";
 import { isPortalUserAuthenticated, handleAssistantChat } from "./services/process-assistant";
 import * as notificationService from "./services/notifications";
+// Task 272: In-Car #12/13 combined-session pairing service.
+import {
+  bookCombinedSlot,
+  joinCombinedQueue,
+  leaveCombinedQueue,
+  getStudentPairingStatus,
+  getAdminPairingOverview,
+  respondToOffer,
+  respondToConfirmation,
+  manualPair,
+  requeueStudent,
+  convertPresentStudentToSolo,
+  completeSession,
+  getActivePairedSessions,
+} from "./services/incar-pairing";
 import {
   generateInviteToken,
   getInviteExpiry,
@@ -333,6 +348,8 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
       date: classes.date,
       time: classes.time,
       duration: classes.duration,
+      maxStudents: classes.maxStudents,
+      courseType: classes.courseType,
       instructorId: classes.instructorId,
       instructorFirstName: instructors.firstName,
       instructorLastName: instructors.lastName,
@@ -352,6 +369,21 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
     if (row.attendanceStatus === 'attended') {
       const key = `${row.classType}_${row.classNumber}`;
       completedMap.set(key, row);
+
+      // Task 272: an attended canonical combined In-Car 12/13 session
+      // (auto driving, classNumber=12, duration=120, maxStudents=2) counts as
+      // BOTH In-Car #12 and In-Car #13 completed, so populate driving_13 too.
+      if (
+        isCombined1213Class({
+          classType: row.classType,
+          classNumber: row.classNumber,
+          duration: row.duration,
+          maxStudents: row.maxStudents,
+          courseType: row.courseType,
+        })
+      ) {
+        completedMap.set('driving_13', row);
+      }
     }
   }
 
@@ -567,6 +599,8 @@ async function buildRescheduleContext(studentId: number, enrollmentId: number) {
         classNumber: cls?.classNumber ?? null,
         date: cls?.date ?? null,
         duration: cls?.duration ?? null,
+              maxStudents: cls?.maxStudents ?? null,
+        courseType: cls?.courseType ?? null,
         classStatus: cls?.status ?? null,
       };
     });
@@ -4579,6 +4613,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get class data for policy checks
       const classData = await storage.getClass(enrollmentData.classId!);
+
+      // ── Task 272: block direct enrollment on the canonical In-Car 12/13
+      // paired slot. Creating a plain enrollment here would bypass the pairing
+      // service (no offer/pair/confirmation lifecycle, no second-seat handling).
+      // Staff must use the pairing tools (manual pair) instead.
+      if (
+        classData &&
+        isCombined1213Class({
+          classType: classData.classType ?? null,
+          classNumber: classData.classNumber ?? null,
+          duration: classData.duration ?? null,
+          maxStudents: classData.maxStudents ?? null,
+          courseType: classData.courseType ?? null,
+        })
+      ) {
+        return res.status(400).json({
+          message:
+            "In-Car 12/13 is a paired session — use the pairing tools (manual pair) instead of direct enrollment.",
+        });
+      }
+
       if (classData && enrollmentData.studentId) {
         // ── Phase ordering & prerequisite validation (admin enrollment) ─────────
         // Admins with override permission can bypass; others must comply
@@ -4597,6 +4652,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   classNumber: cls?.classNumber ?? null,
                   date: cls?.date ?? null,
                   duration: cls?.duration ?? null,
+              maxStudents: cls?.maxStudents ?? null,
+                  courseType: cls?.courseType ?? null,
                   classStatus: cls?.status ?? null,
                 };
               });
@@ -5029,6 +5086,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return chargeNoShowFeeImpl(stripe, studentId, classData, enrollmentId);
   }
 
+  // Task 272: find the active (paired|confirmed) In-Car 12/13 paired session
+  // for a given class, if one exists. Returns null on any lookup failure so
+  // callers never block their response on it.
+  async function findActivePairedSessionForClass(classId: number) {
+    try {
+      const sessions = await getActivePairedSessions();
+      return sessions.find((s) => s.classId === classId) ?? null;
+    } catch (err) {
+      captureRequestError(err);
+      console.error("[lesson-pairing] Failed to look up active paired session (non-critical):", err);
+      return null;
+    }
+  }
+
+  // Task 272: mark the combined 12/13 paired session for a class complete once
+  // an enrollment on that canonical slot is marked attended. Idempotent in the
+  // service; failures are logged but never block the caller.
+  async function maybeCompletePairedSessionForClass(
+    classData: { classType?: string | null; classNumber?: number | null; duration?: number | null; maxStudents?: number | null; courseType?: string | null; id?: number } | null | undefined,
+    req: any,
+  ): Promise<void> {
+    if (!classData?.id) return;
+    if (
+      !isCombined1213Class({
+        classType: classData.classType ?? null,
+        classNumber: classData.classNumber ?? null,
+        duration: classData.duration ?? null,
+        maxStudents: classData.maxStudents ?? null,
+        courseType: classData.courseType ?? null,
+      })
+    ) {
+      return;
+    }
+    try {
+      const session = await findActivePairedSessionForClass(classData.id);
+      if (!session) return;
+      const actor = req?.instructor ?? req?.user;
+      await completeSession({
+        pairedSessionId: session.id,
+        actorId: actor?.id != null ? String(actor.id) : "system",
+        actorRole: req?.instructor ? "instructor" : req?.user ? "admin" : "system",
+      });
+    } catch (err) {
+      captureRequestError(err);
+      console.error("[lesson-pairing] Failed to complete paired session after attendance (non-critical):", err);
+    }
+  }
+
   app.put("/api/class-enrollments/:id", isAdminOrInstructor, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -5055,6 +5160,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const enrollment = await storage.updateClassEnrollment(id, updateData);
       if (updateData.attendanceStatus === "attended" && enrollment.studentId && enrollment.classId) {
         await autoContractOnClass1(enrollment.studentId, enrollment.classId);
+        // Task 272: complete the combined 12/13 paired session for this class
+        // (idempotent, non-blocking).
+        const attendedClass = await storage.getClass(enrollment.classId);
+        await maybeCompletePairedSessionForClass(attendedClass, req);
       }
       // A missed in-car lesson promotes the student's other upcoming in-car
       // booking (if any) to slot #1 — notify them to confirm or cancel it.
@@ -5263,7 +5372,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (existingEnrollment?.studentId && existingEnrollment?.classId) {
         await autoContractOnClass1(existingEnrollment.studentId, existingEnrollment.classId);
       }
-      
+
+      // Task 272: complete the combined 12/13 paired session for this class
+      // once the student is marked attended (idempotent, non-blocking).
+      await maybeCompletePairedSessionForClass(checkOutClass, req);
+
       res.json(enrollment);
     } catch (error) {
       captureRequestError(error);
@@ -5335,7 +5448,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      res.json(enrollment);
+      // NOTE (Task 272): a no-show on a combined In-Car 12/13 session is NOT
+      // automatically requeued or converted here. Conversion of the present
+      // student to a solo lesson (and any requeue of the absent student) is an
+      // explicit admin/instructor action via the pairing convert endpoint.
+      // Surface a hint so the admin UI can offer the convert action when an
+      // active paired session still exists for this class. The no-show fee
+      // flow above is unchanged.
+      let noShowResponse: Record<string, any> = { ...enrollment };
+      if (
+        isCombined1213Class({
+          classType: noShowClass.classType,
+          classNumber: noShowClass.classNumber,
+          duration: noShowClass.duration,
+          maxStudents: noShowClass.maxStudents,
+          courseType: noShowClass.courseType,
+        })
+      ) {
+        const pairedSession = await findActivePairedSessionForClass(noShowClass.id);
+        if (pairedSession) {
+          noShowResponse = {
+            ...noShowResponse,
+            pairedSessionId: pairedSession.id,
+            canConvertPresentStudent: true,
+          };
+        }
+      }
+
+      res.json(noShowResponse);
     } catch (error) {
       captureRequestError(error);
       console.error("Error marking no-show:", error);
@@ -11238,6 +11378,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               classNumber: cls?.classNumber ?? null,
               date: cls?.date ?? null,
               duration: cls?.duration ?? null,
+              maxStudents: cls?.maxStudents ?? null,
+              courseType: cls?.courseType ?? null,
               classStatus: cls?.status ?? null,
             };
           });
@@ -11358,8 +11500,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const requiredTheoryForDriving = theoryPhase.requiredTheoryClasses;
         const hasCompletedTheoryRequirements = completedTheoryClasses >= requiredTheoryForDriving;
 
+        // ── Task 272: In-Car 12/13 combined-session handling ────────────────
+        // Direct In-Car #13 is never bookable on its own — it is awarded as
+        // part of the combined 12/13 session. Drop it from the listing. The
+        // canonical #12 slot IS bookable (booking it enters the pairing flow),
+        // so annotate it as a paired lesson.
+        const finalClasses = filteredClasses
+          .filter((c: any) => !(c.classType === 'driving' && c.classNumber === 13))
+          .map((c: any) => {
+            if (
+              isCombined1213Class({
+                classType: c.classType,
+                classNumber: c.classNumber,
+                duration: c.duration,
+                maxStudents: c.maxStudents,
+                courseType: c.courseType,
+              })
+            ) {
+              return {
+                ...c,
+                classNumber: 12,
+                duration: 120,
+                pairedLesson: true,
+                pairedLabel: 'In-Car 12/13',
+              };
+            }
+            return c;
+          });
+
         res.json({
-          classes: filteredClasses,
+          classes: finalClasses,
           // date → number of classes already booked that day (scheduled only,
           // cancelled classes never consume a daily slot). Same counting rule
           // as the server-side 2-classes-per-day booking limit.
@@ -11711,6 +11881,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               classNumber: cls?.classNumber ?? null,
               date: cls?.date ?? null,
               duration: cls?.duration ?? null,
+              maxStudents: cls?.maxStudents ?? null,
+              courseType: cls?.courseType ?? null,
               classStatus: cls?.status ?? null,
             };
           });
@@ -11897,6 +12069,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
               policyViolation: "card_required",
             });
           }
+        }
+
+        // ── Task 272: the canonical combined In-Car 12/13 slot (auto driving,
+        // classNumber=12, duration=120, maxStudents=2) is booked through the
+        // pairing service, not the generic storage.bookClass path. Direct #13
+        // is already blocked earlier by the booking-rules engine
+        // (phase4_incar13_not_directly_bookable). All existing validation,
+        // permit, card, and policy gates above have passed at this point.
+        if (
+          (classData.courseType || '').toLowerCase() === 'auto' &&
+          isCombined1213Class({
+            classType: classData.classType,
+            classNumber: classData.classNumber,
+            duration: classData.duration,
+            maxStudents: classData.maxStudents,
+            courseType: classData.courseType,
+          })
+        ) {
+          const combinedResult = await bookCombinedSlot({
+            studentId: student.id,
+            classId,
+          });
+          if (combinedResult.success) {
+            logBookingDecision('allow rule=combined_12_13');
+            return res.json({
+              message: "You are booked into the In-Car 12/13 shared session. A second student will be matched with you.",
+              enrollmentId: combinedResult.enrollmentId,
+              queueEntryId: combinedResult.queueEntryId,
+              pairedLesson: true,
+            });
+          }
+          logBookingDecision('deny rule=combined_12_13', combinedResult.reason);
+          return res.status(400).json({ message: combinedResult.reason ?? "Unable to book combined In-Car 12/13 session." });
         }
 
         const result = await storage.bookClass(student.id, classId, bookingTx);
@@ -16001,6 +16206,249 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to update bug report status" });
     }
   });
+
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Task 272: In-Car #12/13 combined-session pairing routes.
+  //
+  // Students queue, respond to offers, and confirm attendance. Admins and
+  // instructors view the queue overview, force pairings, requeue students,
+  // and convert a session to solo when a partner does not show. All ownership
+  // and eligibility checks live in the pairing service; these routes are thin.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ── Student: current pairing status ───────────────────────────────────────
+  app.get(
+    "/api/student/lesson-pairing/status",
+    isStudentAuthenticated,
+    async (req: any, res) => {
+      try {
+        const status = await getStudentPairingStatus(req.student.id);
+        res.json(status);
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error fetching status:", error);
+        res.status(500).json({ message: "Failed to fetch lesson-pairing status" });
+      }
+    },
+  );
+
+  // ── Student: join the pairing queue ───────────────────────────────────────
+  app.post(
+    "/api/student/lesson-pairing/queue",
+    isStudentAuthenticated,
+    async (req: any, res) => {
+      try {
+        const result = await joinCombinedQueue({ studentId: req.student.id });
+        if (!result.success) {
+          return res.status(400).json({ message: result.reason ?? "Unable to join pairing queue." });
+        }
+        res.json(result);
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error joining queue:", error);
+        res.status(500).json({ message: "Failed to join pairing queue" });
+      }
+    },
+  );
+
+  // ── Student: leave the pairing queue ──────────────────────────────────────
+  app.delete(
+    "/api/student/lesson-pairing/queue",
+    isStudentAuthenticated,
+    async (req: any, res) => {
+      try {
+        const result = await leaveCombinedQueue({ studentId: req.student.id });
+        if (!result.success) {
+          return res.status(400).json({ message: result.reason ?? "Unable to leave pairing queue." });
+        }
+        res.json(result);
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error leaving queue:", error);
+        res.status(500).json({ message: "Failed to leave pairing queue" });
+      }
+    },
+  );
+
+  // ── Student: respond to a pairing offer (accept | decline) ────────────────
+  app.post(
+    "/api/student/lesson-pairing/offers/:offerId/respond",
+    isStudentAuthenticated,
+    async (req: any, res) => {
+      try {
+        const offerId = parseInt(req.params.offerId);
+        if (!Number.isInteger(offerId) || offerId <= 0) {
+          return res.status(400).json({ message: "Invalid offer id" });
+        }
+        const action = String(req.body?.action || "");
+        if (action !== "accept" && action !== "decline") {
+          return res.status(400).json({ message: "action must be 'accept' or 'decline'" });
+        }
+        const result = await respondToOffer({
+          offerId,
+          studentId: req.student.id,
+          response: action,
+        });
+        if (!result.success) {
+          return res.status(400).json({ message: result.reason ?? "Unable to respond to offer." });
+        }
+        res.json(result);
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error responding to offer:", error);
+        res.status(500).json({ message: "Failed to respond to offer" });
+      }
+    },
+  );
+
+  // ── Student: respond to a session confirmation (confirm | decline) ────────
+  app.post(
+    "/api/student/lesson-pairing/confirmations/:confirmationId/respond",
+    isStudentAuthenticated,
+    async (req: any, res) => {
+      try {
+        const confirmationId = parseInt(req.params.confirmationId);
+        if (!Number.isInteger(confirmationId) || confirmationId <= 0) {
+          return res.status(400).json({ message: "Invalid confirmation id" });
+        }
+        const action = String(req.body?.action || "");
+        if (action !== "confirm" && action !== "decline") {
+          return res.status(400).json({ message: "action must be 'confirm' or 'decline'" });
+        }
+        const result = await respondToConfirmation({
+          confirmationId,
+          studentId: req.student.id,
+          response: action,
+        });
+        if (!result.success) {
+          return res.status(400).json({ message: result.reason ?? "Unable to respond to confirmation." });
+        }
+        res.json(result);
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error responding to confirmation:", error);
+        res.status(500).json({ message: "Failed to respond to confirmation" });
+      }
+    },
+  );
+
+  // ── Admin/Instructor: pairing queue overview ──────────────────────────────
+  app.get(
+    "/api/lesson-pairing/admin",
+    isAdminOrInstructor,
+    async (_req: any, res) => {
+      try {
+        const overview = await getAdminPairingOverview();
+        res.json(overview);
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error fetching admin overview:", error);
+        res.status(500).json({ message: "Failed to fetch pairing overview" });
+      }
+    },
+  );
+
+  // ── Admin/Instructor: manually pair a waiting student into a class slot ───
+  app.post(
+    "/api/lesson-pairing/admin/manual-pair",
+    isAdminOrInstructor,
+    async (req: any, res) => {
+      try {
+        // The service pairs a waiting student into a canonical combined class
+        // slot: it needs the class id and the waiting student's id.
+        const classId = parseInt(String(req.body?.classId ?? req.body?.pairedSessionId));
+        const waitingStudentId = parseInt(String(req.body?.waitingStudentId ?? req.body?.studentId));
+        if (!Number.isInteger(classId) || classId <= 0) {
+          return res.status(400).json({ message: "Invalid classId" });
+        }
+        if (!Number.isInteger(waitingStudentId) || waitingStudentId <= 0) {
+          return res.status(400).json({ message: "Invalid studentId" });
+        }
+        const actor = req.admin ?? req.instructor ?? req.user;
+        const result = await manualPair({
+          classId,
+          waitingStudentId,
+          actorId: actor?.id != null ? String(actor.id) : undefined,
+          actorRole: req.instructor ? "instructor" : "admin",
+        });
+        if (!result.success) {
+          return res.status(400).json({ message: result.reason ?? "Unable to pair students." });
+        }
+        res.json(result);
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error manually pairing students:", error);
+        res.status(500).json({ message: "Failed to pair students" });
+      }
+    },
+  );
+
+  // ── Admin/Instructor: requeue a student's queue entry ─────────────────────
+  app.post(
+    "/api/lesson-pairing/admin/requeue",
+    isAdminOrInstructor,
+    async (req: any, res) => {
+      try {
+        const queueEntryId = parseInt(String(req.body?.queueEntryId));
+        if (!Number.isInteger(queueEntryId) || queueEntryId <= 0) {
+          return res.status(400).json({ message: "Invalid queueEntryId" });
+        }
+        const actor = req.admin ?? req.instructor ?? req.user;
+        const result = await requeueStudent({
+          queueEntryId,
+          actorId: actor?.id != null ? String(actor.id) : undefined,
+          actorRole: req.instructor ? "instructor" : "admin",
+        });
+        if (!result.success) {
+          return res.status(400).json({ message: result.reason ?? "Unable to requeue student." });
+        }
+        res.json(result);
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error requeueing student:", error);
+        res.status(500).json({ message: "Failed to requeue student" });
+      }
+    },
+  );
+
+  // ── Admin/Instructor: convert present student to a solo lesson ────────────
+  app.post(
+    "/api/lesson-pairing/sessions/:pairedSessionId/convert",
+    isAdminOrInstructor,
+    async (req: any, res) => {
+      try {
+        const pairedSessionId = parseInt(req.params.pairedSessionId);
+        if (!Number.isInteger(pairedSessionId) || pairedSessionId <= 0) {
+          return res.status(400).json({ message: "Invalid pairedSessionId" });
+        }
+        const presentEnrollmentId = parseInt(String(req.body?.presentEnrollmentId));
+        if (!Number.isInteger(presentEnrollmentId) || presentEnrollmentId <= 0) {
+          return res.status(400).json({ message: "Invalid presentEnrollmentId" });
+        }
+        const targetLessonNumber = parseInt(String(req.body?.targetLessonNumber));
+        if (targetLessonNumber !== 11 && targetLessonNumber !== 14) {
+          return res.status(400).json({ message: "targetLessonNumber must be 11 or 14" });
+        }
+        const actor = req.admin ?? req.instructor ?? req.user;
+        const result = await convertPresentStudentToSolo({
+          pairedSessionId,
+          presentEnrollmentId,
+          targetSessionNumber: targetLessonNumber,
+          actorId: actor?.id != null ? String(actor.id) : undefined,
+          actorRole: req.instructor ? "instructor" : "admin",
+        });
+        if (!result.success) {
+          return res.status(400).json({ message: result.reason ?? "Unable to convert session." });
+        }
+        res.json(result);
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error converting to solo session:", error);
+        res.status(500).json({ message: "Failed to convert to solo session" });
+      }
+    },
+  );
 
   // Catch-all for unmatched API routes: return 404 JSON instead of falling
   // through to the SPA handler (which would return 200 with HTML and make

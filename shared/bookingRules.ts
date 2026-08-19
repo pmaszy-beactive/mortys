@@ -687,17 +687,38 @@ function validateAutoRules(
         };
       }
 
-      // In-Car 12 and 13: must be shared (2-student) sessions.
-      // In-Cars 11–14 can be done in any order — only T11 is required.
-      if (classNumber === 12 || classNumber === 13) {
-        const label = `In-Car #${classNumber}`;
-        if (
-          target.maxStudents != null &&
-          target.maxStudents !== 2
-        ) {
+      // In-Car 12 & 13: combined shared session.
+      // In-Car 13 cannot be booked directly — it is only awarded as part of
+      // the combined 12/13 paired session (see isCombined1213Class).
+      // In-Car 12 must be a 2-student, 120-minute paired session booked
+      // through the pairing queue, not through the normal booking path.
+      if (classNumber === 13) {
+        return {
+          allowed: false,
+          reason:
+            "In-Car #13 cannot be booked directly. It is awarded automatically when you complete the combined In-Car #12/13 paired session. Please use the pairing queue to join a shared session.",
+          blockingRule: "phase4_incar13_not_directly_bookable",
+          detail: { phaseLabel: "Phase 4" },
+        };
+      }
+      if (classNumber === 12) {
+        // Must be the canonical combined slot: exactly 120 min AND
+        // maxStudents = 2. No 60-minute #12 is bookable through ordinary
+        // booking, and a missing/unknown duration or seat count is rejected.
+        if (duration !== 120) {
           return {
             allowed: false,
-            reason: `${label} must be a shared session with exactly 2 students and 1 instructor. This class is not configured as a 2-student session. Please contact the school to book the correct session.`,
+            reason:
+              "In-Car #12/13 must be booked as the 2-hour (120-minute) combined shared session. A 1-hour In-Car #12 cannot be booked directly.",
+            blockingRule: "phase4_shared_session_required",
+            detail: { phaseLabel: "Phase 4" },
+          };
+        }
+        if (target.maxStudents !== 2) {
+          return {
+            allowed: false,
+            reason:
+              "In-Car #12/13 must be a shared session with exactly 2 students. This class is not configured as a 2-student session. Please contact the school.",
             blockingRule: "phase4_shared_session_required",
             detail: { phaseLabel: "Phase 4" },
           };
@@ -919,6 +940,35 @@ function validateSimplifiedRules(
   return { allowed: true };
 }
 
+// ─── Combined In-Car 12/13 helper ─────────────────────────────────────────────
+
+/**
+ * Returns true when an enrollment row represents the canonical combined
+ * In-Car 12/13 session (auto driving, classNumber=12, duration=120,
+ * maxStudents=2).  These rows count as BOTH #12 AND #13 completed.
+ *
+ * Exported so routes (buildPhaseProgress) and tests can use the same check.
+ */
+export function isCombined1213Class(e: {
+  classType: string | null;
+  classNumber: number | null;
+  duration: number | null;
+  maxStudents?: number | null;
+  courseType?: string | null;
+}): boolean {
+  // Strict canonical check: missing/unknown duration or maxStudents is NOT
+  // canonical. A combined 12/13 slot is exactly AUTO-course driving #12,
+  // 120 minutes, 2 seats — anything else (incl. a 60-minute or single-seat
+  // #12, or a non-auto course) is not.
+  return (
+    (e.courseType ?? "").toLowerCase() === "auto" &&
+    e.classType === "driving" &&
+    e.classNumber === 12 &&
+    e.duration === 120 &&
+    e.maxStudents === 2
+  );
+}
+
 // ─── Utility: build CompletedClassRecord[] from enrollment data ───────────────
 
 export interface EnrollmentWithClass {
@@ -927,23 +977,56 @@ export interface EnrollmentWithClass {
   classNumber: number | null;
   date: string | null;
   duration: number | null;
+  /**
+   * Used by isCombined1213Class to expand #12 rows to also count as #13.
+   * Required for the 12/13 expansion: a null/unknown value is treated as
+   * NON-canonical (no expansion).
+   */
+  maxStudents?: number | null;
+  /**
+   * Course type of the class. The 12/13 combined expansion applies ONLY to
+   * auto-course rows; a non-auto 120-min driving #12 must never expand to #13.
+   */
+  courseType?: string | null;
 }
 
+/**
+ * Build the list of completed class records from enrollment rows.
+ *
+ * Special rule for the combined In-Car 12/13 session:
+ *   An attended canonical #12 row (driving, classNumber=12, duration=120,
+ *   maxStudents=2) is expanded to TWO records — one for #12 and one for #13 —
+ *   so that progression checks for In-Car #15 (which requires both 12 and 13)
+ *   are satisfied automatically.
+ */
 export function buildCompletedClasses(
   enrollments: EnrollmentWithClass[]
 ): CompletedClassRecord[] {
-  return enrollments
-    .filter(
-      (e) =>
-        e.attendanceStatus === "attended" &&
-        e.classType != null &&
-        e.classNumber != null &&
-        e.date != null
-    )
-    .map((e) => ({
+  const records: CompletedClassRecord[] = [];
+  for (const e of enrollments) {
+    if (
+      e.attendanceStatus !== "attended" ||
+      e.classType == null ||
+      e.classNumber == null ||
+      e.date == null
+    ) {
+      continue;
+    }
+    records.push({
       classType: e.classType as "theory" | "driving",
-      classNumber: e.classNumber!,
-      date: e.date!,
+      classNumber: e.classNumber,
+      date: e.date,
       duration: e.duration ?? undefined,
-    }));
+    });
+    // Expand the combined 12/13 row to also count as In-Car #13.
+    if (isCombined1213Class(e)) {
+      records.push({
+        classType: "driving",
+        classNumber: 13,
+        date: e.date,
+        duration: e.duration ?? undefined,
+      });
+    }
+  }
+  return records;
 }

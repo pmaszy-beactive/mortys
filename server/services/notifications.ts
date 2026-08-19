@@ -29,7 +29,15 @@ export type NotificationType =
   | 'auto_enroll_failed'
   | 'start_date_change'
   | 'series_days_change'
-  | 'exam_result_corrected';
+  | 'exam_result_corrected'
+  // In-Car 12/13 combined pairing queue
+  | 'incar_pairing_offer'
+  | 'incar_pairing_offer_expired'
+  | 'incar_pairing_confirmed'
+  | 'incar_session_confirmation'
+  | 'incar_pairing_broken'
+  | 'incar_pairing_deferred'
+  | 'incar_lesson_converted';
 
 export type RecipientType = 'student' | 'parent' | 'staff';
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Bell, Check, Calendar, CreditCard, AlertTriangle, Clock, X } from "lucide-react";
+import { Bell, Check, Calendar, CreditCard, AlertTriangle, Clock, X, Users, UserCheck, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -37,6 +37,14 @@ const notificationIcons: Record<string, any> = {
   policy_override: AlertTriangle,
   class_reminder: Calendar,
   class_cancelled: X,
+  // Task 272: In-Car #12/13 combined-session pairing notifications.
+  incar_pairing_offer: Users,
+  incar_pairing_offer_expired: Clock,
+  incar_pairing_confirmed: CheckCircle2,
+  incar_session_confirmation: UserCheck,
+  incar_pairing_broken: AlertTriangle,
+  incar_pairing_deferred: AlertTriangle,
+  incar_lesson_converted: Calendar,
 };
 
 const notificationColors: Record<string, string> = {
@@ -47,6 +55,13 @@ const notificationColors: Record<string, string> = {
   policy_override: "bg-red-100 text-red-600",
   class_reminder: "bg-purple-100 text-purple-600",
   class_cancelled: "bg-gray-100 text-gray-600",
+  incar_pairing_offer: "bg-purple-100 text-purple-600",
+  incar_pairing_offer_expired: "bg-gray-100 text-gray-600",
+  incar_pairing_confirmed: "bg-green-100 text-green-600",
+  incar_session_confirmation: "bg-green-100 text-green-600",
+  incar_pairing_broken: "bg-amber-100 text-amber-600",
+  incar_pairing_deferred: "bg-amber-100 text-amber-600",
+  incar_lesson_converted: "bg-blue-100 text-blue-600",
 };
 
 export function NotificationCenter({ userType }: NotificationCenterProps) {
@@ -86,6 +101,62 @@ export function NotificationCenter({ userType }: NotificationCenterProps) {
     },
   });
 
+  const respondOfferMutation = useMutation({
+    mutationFn: async ({ offerId, action, notificationId }: { offerId: number; action: "accept" | "decline"; notificationId: number }) => {
+      await apiRequest("POST", `/api/student/lesson-pairing/offers/${offerId}/respond`, { action });
+      // Mark the notification read after responding
+      const readPath = `/api/student/notifications/${notificationId}/read`;
+      await apiRequest("POST", readPath);
+    },
+    onSuccess: (_data, { action }) => {
+      queryClient.invalidateQueries({ queryKey: [apiPath] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/lesson-pairing/status"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/classes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/classes/available"] });
+      toast({
+        title: action === "accept" ? "Offer Accepted" : "Offer Declined",
+        description: action === "accept"
+          ? "You've accepted the In-Car 12/13 pairing offer. You're paired!"
+          : "You've declined the pairing offer. You'll remain in the queue.",
+        variant: "success",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Action Failed",
+        description: error?.message || "Could not process your response. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const respondConfirmationMutation = useMutation({
+    mutationFn: async ({ confirmationId, action, notificationId }: { confirmationId: number; action: "confirm" | "decline"; notificationId: number }) => {
+      await apiRequest("POST", `/api/student/lesson-pairing/confirmations/${confirmationId}/respond`, { action });
+      const readPath = `/api/student/notifications/${notificationId}/read`;
+      await apiRequest("POST", readPath);
+    },
+    onSuccess: (_data, { action }) => {
+      queryClient.invalidateQueries({ queryKey: [apiPath] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/lesson-pairing/status"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/classes"] });
+      toast({
+        title: action === "confirm" ? "Session Confirmed" : "Session Declined",
+        description: action === "confirm"
+          ? "Your paired In-Car 12/13 session is confirmed. See you there!"
+          : "You've declined. Your spot will be re-offered to another student.",
+        variant: "success",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Confirmation Failed",
+        description: error?.message || "Could not process your response. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const unreadCount = notifications.filter(n => n.status !== "read").length;
 
   const handleMarkRead = (id: number) => {
@@ -117,6 +188,8 @@ export function NotificationCenter({ userType }: NotificationCenterProps) {
   const handleMarkAllRead = () => {
     markAllReadMutation.mutate();
   };
+
+  const isPairingActionPending = respondOfferMutation.isPending || respondConfirmationMutation.isPending;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -169,12 +242,28 @@ export function NotificationCenter({ userType }: NotificationCenterProps) {
                 const IconComponent = notificationIcons[notification.type] || Bell;
                 const colorClass = notificationColors[notification.type] || "bg-gray-100 text-gray-600";
                 const isUnread = notification.status !== "read";
+                // Task 272: the `incar_pairing_offer` type is reused for both an
+                // actionable offer (payload has offerId) and an informational
+                // "pairing confirmed" message (payload has pairedSessionId, no
+                // offerId). Only render action buttons when the keyed id is present.
+                const offerId = notification.payload?.offerId;
+                const confirmationId = notification.payload?.confirmationId;
+                const hasOfferAction = notification.type === "incar_pairing_offer" && offerId != null;
+                const hasConfirmationAction = notification.type === "incar_session_confirmation" && confirmationId != null;
+                const isPairingAction = hasOfferAction || hasConfirmationAction;
 
                 return (
                   <div
                     key={notification.id}
-                    className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${isUnread ? "bg-blue-50/50" : ""}`}
-                    onClick={() => isUnread && handleMarkRead(notification.id)}
+                    className={`p-4 hover:bg-gray-50 transition-colors ${isUnread ? "bg-blue-50/50" : ""}`}
+                    onClick={() => {
+                      // Only mark read on click if it's not an actionable pairing
+                      // notification (those get marked read via the action buttons).
+                      if (isUnread && !isPairingAction) {
+                        handleMarkRead(notification.id);
+                      }
+                    }}
+                    style={{ cursor: isUnread && !isPairingAction ? "pointer" : "default" }}
                     data-testid={`notification-item-${notification.id}`}
                   >
                     <div className="flex gap-3">
@@ -196,6 +285,60 @@ export function NotificationCenter({ userType }: NotificationCenterProps) {
                         <p className="text-xs text-muted-foreground mt-2">
                           {notification.createdAt && formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                         </p>
+
+                        {/* Accept / Decline buttons for an actionable pairing offer */}
+                        {hasOfferAction && (
+                          <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
+                            <Button
+                              size="sm"
+                              className="h-7 text-xs bg-green-600 hover:bg-green-700 text-white px-3"
+                              disabled={isPairingActionPending}
+                              onClick={() => respondOfferMutation.mutate({ offerId, action: "accept", notificationId: notification.id })}
+                              data-testid={`button-pairing-accept-${notification.id}`}
+                            >
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              Accept
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 text-xs border-red-200 text-red-600 hover:bg-red-50 px-3"
+                              disabled={isPairingActionPending}
+                              onClick={() => respondOfferMutation.mutate({ offerId, action: "decline", notificationId: notification.id })}
+                              data-testid={`button-pairing-decline-${notification.id}`}
+                            >
+                              <XCircle className="h-3 w-3 mr-1" />
+                              Decline
+                            </Button>
+                          </div>
+                        )}
+
+                        {/* Confirm / Decline buttons for a session confirmation request */}
+                        {hasConfirmationAction && (
+                          <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
+                            <Button
+                              size="sm"
+                              className="h-7 text-xs bg-purple-600 hover:bg-purple-700 text-white px-3"
+                              disabled={isPairingActionPending}
+                              onClick={() => respondConfirmationMutation.mutate({ confirmationId, action: "confirm", notificationId: notification.id })}
+                              data-testid={`button-pairing-confirm-${notification.id}`}
+                            >
+                              <UserCheck className="h-3 w-3 mr-1" />
+                              Confirm
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 text-xs border-red-200 text-red-600 hover:bg-red-50 px-3"
+                              disabled={isPairingActionPending}
+                              onClick={() => respondConfirmationMutation.mutate({ confirmationId, action: "decline", notificationId: notification.id })}
+                              data-testid={`button-pairing-decline-confirmation-${notification.id}`}
+                            >
+                              <XCircle className="h-3 w-3 mr-1" />
+                              Can't Attend
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

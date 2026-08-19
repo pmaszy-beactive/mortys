@@ -78,6 +78,8 @@ export async function validateProgressionForStudent(
         classNumber: cls?.classNumber ?? null,
         date: cls?.date ?? null,
         duration: cls?.duration ?? null,
+          maxStudents: cls?.maxStudents ?? null,
+        courseType: cls?.courseType ?? null,
         classStatus: cls?.status ?? null,
       };
     });

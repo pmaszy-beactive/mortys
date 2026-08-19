@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, varchar, index, jsonb, unique } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, varchar, index, jsonb, unique, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { sql } from 'drizzle-orm';
@@ -1707,3 +1707,240 @@ export type InsertJob = z.infer<typeof insertJobSchema>;
 // Auth types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+
+export const INCAR_PAIRING_QUEUE_STATUSES = [
+  'waiting',       // in queue, no active pair
+  'offered',       // offer sent to this student (they are student 2)
+  'booked_first',  // student 1: enrolled in the class, awaiting a partner
+  'paired',        // both enrolled
+  'confirmed',     // both confirmed attendance
+  'completed',     // session done (12+13 awarded to both students)
+  'deferred',      // no partner before confirmation horizon; enrollment cancelled
+  'converted_solo',// converted to solo In-Car 11 or 14 (day-of)
+  'cancelled',     // removed from system
+] as const;
+
+export const INCAR_PAIRED_SESSION_STATUSES = [
+  'paired',
+  'confirmed',
+  'completed',
+  'dissolved',
+  'cancelled',
+] as const;
+
+export const INCAR_PAIRING_OFFER_STATUSES = [
+  'pending',
+  'accepted',
+  'declined',
+  'expired',
+  'withdrawn',
+] as const;
+
+export const INCAR_SESSION_CONFIRMATION_STATUSES = [
+  'pending',
+  'confirmed',
+  'declined',
+] as const;
+
+export type IncarPairingQueueStatus = (typeof INCAR_PAIRING_QUEUE_STATUSES)[number];
+export type IncarPairedSessionStatus = (typeof INCAR_PAIRED_SESSION_STATUSES)[number];
+export type IncarPairingOfferStatus = (typeof INCAR_PAIRING_OFFER_STATUSES)[number];
+export type IncarSessionConfirmationStatus =
+  (typeof INCAR_SESSION_CONFIRMATION_STATUSES)[number];
+
+export const incarPairingQueue = pgTable(
+  "incar_pairing_queue",
+  {
+    id: serial("id").primaryKey(),
+    studentId: integer("student_id")
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    /** Always 12 — the combined 12/13 canonical slot number. */
+    sessionNumber: integer("session_number").notNull().default(12),
+    status: text("status").notNull().default("waiting"),
+    /** Lower = higher priority; FIFO tie-break via queuedAt. */
+    priority: integer("priority").notNull().default(100),
+    queuedAt: timestamp("queued_at").notNull().defaultNow(),
+    /** Set once the student is enrolled in a class (booked_first or paired). */
+    bookedClassId: integer("booked_class_id").references(() => classes.id),
+    /** classEnrollments.id for this student in the class. */
+    enrollmentId: integer("enrollment_id").references(() => classEnrollments.id),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_incar_pq_student").on(t.studentId),
+    index("idx_incar_pq_status_priority").on(t.status, t.priority, t.queuedAt),
+    // At most one ACTIVE (non-terminal) queue entry per student.
+    uniqueIndex("idx_incar_pq_active_per_student")
+      .on(t.studentId)
+      .where(
+        sql`${t.status} IN ('waiting', 'offered', 'booked_first', 'paired', 'confirmed')`,
+      ),
+  ],
+);
+
+export const incarPairedSessions = pgTable(
+  "incar_paired_sessions",
+  {
+    id: serial("id").primaryKey(),
+    queueEntryIdA: integer("queue_entry_id_a")
+      .notNull()
+      .references(() => incarPairingQueue.id),
+    queueEntryIdB: integer("queue_entry_id_b")
+      .notNull()
+      .references(() => incarPairingQueue.id),
+    studentIdA: integer("student_id_a")
+      .notNull()
+      .references(() => students.id),
+    studentIdB: integer("student_id_b")
+      .notNull()
+      .references(() => students.id),
+    /** The canonical In-Car 12 class both students are enrolled in. */
+    classId: integer("class_id")
+      .notNull()
+      .references(() => classes.id),
+    enrollmentIdA: integer("enrollment_id_a").references(() => classEnrollments.id),
+    enrollmentIdB: integer("enrollment_id_b").references(() => classEnrollments.id),
+    status: text("status").notNull().default("paired"),
+    pairedAt: timestamp("paired_at").notNull().defaultNow(),
+    completedAt: timestamp("completed_at"),
+    dissolvedAt: timestamp("dissolved_at"),
+    dissolutionReason: text("dissolution_reason"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_incar_ps_students").on(t.studentIdA, t.studentIdB),
+    index("idx_incar_ps_class").on(t.classId),
+    index("idx_incar_ps_status").on(t.status),
+  ],
+);
+
+export const incarPairingOffers = pgTable(
+  "incar_pairing_offers",
+  {
+    id: serial("id").primaryKey(),
+    /** The queue entry of student 2 (the one receiving this offer). */
+    queueEntryId: integer("queue_entry_id")
+      .notNull()
+      .references(() => incarPairingQueue.id),
+    studentId: integer("student_id")
+      .notNull()
+      .references(() => students.id),
+    /** The specific class slot being offered. */
+    classId: integer("class_id")
+      .notNull()
+      .references(() => classes.id),
+    /** Set once accepted and pair created. */
+    pairedSessionId: integer("paired_session_id").references(
+      () => incarPairedSessions.id,
+    ),
+    status: text("status").notNull().default("pending"),
+    expiresAt: timestamp("expires_at").notNull(),
+    respondedAt: timestamp("responded_at"),
+    declineReason: text("decline_reason"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_incar_po_student_status").on(t.studentId, t.status),
+    index("idx_incar_po_class").on(t.classId),
+    // One pending offer per queue entry.
+    uniqueIndex("idx_incar_po_active_per_entry")
+      .on(t.queueEntryId)
+      .where(sql`${t.status} = 'pending'`),
+    // One pending offer per class slot.
+    uniqueIndex("idx_incar_po_active_per_class")
+      .on(t.classId)
+      .where(sql`${t.status} = 'pending'`),
+  ],
+);
+
+export const incarSessionConfirmations = pgTable(
+  "incar_session_confirmations",
+  {
+    id: serial("id").primaryKey(),
+    pairedSessionId: integer("paired_session_id")
+      .notNull()
+      .references(() => incarPairedSessions.id),
+    studentId: integer("student_id")
+      .notNull()
+      .references(() => students.id),
+    queueEntryId: integer("queue_entry_id")
+      .notNull()
+      .references(() => incarPairingQueue.id),
+    status: text("status").notNull().default("pending"),
+    requestedAt: timestamp("requested_at").notNull().defaultNow(),
+    respondedAt: timestamp("responded_at"),
+    declineReason: text("decline_reason"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_incar_sc_student_status").on(t.studentId, t.status),
+    unique("uq_incar_sc_session_student").on(t.pairedSessionId, t.studentId),
+  ],
+);
+
+export const incarPairingAudit = pgTable(
+  "incar_pairing_audit",
+  {
+    id: serial("id").primaryKey(),
+    eventType: text("event_type").notNull(),
+    queueEntryId: integer("queue_entry_id").references(
+      () => incarPairingQueue.id,
+    ),
+    pairedSessionId: integer("paired_session_id").references(
+      () => incarPairedSessions.id,
+    ),
+    offerId: integer("offer_id").references(() => incarPairingOffers.id),
+    confirmationId: integer("confirmation_id").references(
+      () => incarSessionConfirmations.id,
+    ),
+    studentId: integer("student_id").references(() => students.id),
+    classId: integer("class_id").references(() => classes.id),
+    actorId: text("actor_id"),
+    actorRole: text("actor_role"),
+    previousStatus: text("previous_status"),
+    newStatus: text("new_status"),
+    details: jsonb("details"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_incar_pa_queue_entry").on(t.queueEntryId),
+    index("idx_incar_pa_student").on(t.studentId),
+    index("idx_incar_pa_created_at").on(t.createdAt),
+  ],
+);
+
+export const insertIncarPairingQueueSchema = createInsertSchema(
+  incarPairingQueue,
+).omit({ id: true, queuedAt: true, updatedAt: true });
+
+export const insertIncarPairedSessionSchema = createInsertSchema(
+  incarPairedSessions,
+).omit({ id: true, pairedAt: true, createdAt: true, updatedAt: true });
+
+export const insertIncarPairingOfferSchema = createInsertSchema(
+  incarPairingOffers,
+).omit({ id: true, createdAt: true, updatedAt: true });
+
+export const insertIncarSessionConfirmationSchema = createInsertSchema(
+  incarSessionConfirmations,
+).omit({ id: true, requestedAt: true, createdAt: true, updatedAt: true });
+
+export const insertIncarPairingAuditSchema = createInsertSchema(
+  incarPairingAudit,
+).omit({ id: true, createdAt: true });
+
+export type IncarPairingQueue = typeof incarPairingQueue.$inferSelect;
+export type IncarPairedSession = typeof incarPairedSessions.$inferSelect;
+export type IncarPairingOffer = typeof incarPairingOffers.$inferSelect;
+export type IncarSessionConfirmation = typeof incarSessionConfirmations.$inferSelect;
+export type IncarPairingAuditRow = typeof incarPairingAudit.$inferSelect;
+export type InsertIncarPairingQueue = z.infer<typeof insertIncarPairingQueueSchema>;
+export type InsertIncarPairedSession = z.infer<typeof insertIncarPairedSessionSchema>;
+export type InsertIncarPairingOffer = z.infer<typeof insertIncarPairingOfferSchema>;
+export type InsertIncarSessionConfirmation = z.infer<typeof insertIncarSessionConfirmationSchema>;
+export type InsertIncarPairingAudit = z.infer<typeof insertIncarPairingAuditSchema>;

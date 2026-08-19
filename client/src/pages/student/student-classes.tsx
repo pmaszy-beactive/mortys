@@ -103,6 +103,46 @@ interface AvailableClass {
   bookingAllowed?: boolean;
   blockingReason?: string;
   blockingRule?: string;
+  /** Task 272: canonical combined In-Car 12/13 slot annotations */
+  pairedLesson?: boolean;
+  pairedLabel?: string;
+}
+
+// ── Task 272: In-Car 12/13 combined-session pairing status ─────────────────
+interface PairingQueueEntry {
+  id: number;
+  studentId: number;
+  sessionNumber: number;
+  status: 'waiting' | 'offered' | 'booked_first' | 'paired' | 'confirmed' | 'completed' | 'deferred' | 'converted_solo' | 'cancelled';
+  priority: number;
+  bookedClassId: number | null;
+  enrollmentId?: number | null;
+}
+
+interface PairingOffer {
+  id: number;
+  classId: number;
+  expiresAt: string;
+  status: string;
+}
+
+interface PairingConfirmation {
+  id: number;
+  pairedSessionId: number;
+  status: string;
+}
+
+interface PairingSession {
+  id: number;
+  classId: number;
+  status: string;
+}
+
+interface PairingStatusResponse {
+  queueEntries: PairingQueueEntry[];
+  pendingOffers: PairingOffer[];
+  pendingConfirmations: PairingConfirmation[];
+  activeSessions: PairingSession[];
 }
 
 interface StudentPaymentMethodSummary {
@@ -1050,6 +1090,9 @@ export default function StudentClasses() {
   const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
   const [pendingCardClass, setPendingCardClass] = useState<AvailableClass | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  // Task 272: remember whether the last confirmed booking entered the In-Car
+  // 12/13 pairing flow so the success step shows the pairing copy.
+  const [lastBookingPaired, setLastBookingPaired] = useState(false);
 
   const { data: classes = [], isLoading: classesLoading } = useQuery<ClassWithDetails[]>({
     queryKey: ["/api/student/classes"],
@@ -1075,16 +1118,28 @@ export default function StudentClasses() {
   });
   const hasSavedCard = paymentMethods.length > 0;
 
+  // Task 272: In-Car 12/13 pairing status. Auto students may queue for and be
+  // paired into the combined 2-hour session.
+  const { data: pairingStatus } = useQuery<PairingStatusResponse>({
+    queryKey: ["/api/student/lesson-pairing/status"],
+    enabled: isAuthenticated,
+  });
+
   const bookClassMutation = useMutation({
     mutationFn: async (classId: number) => {
       return await apiRequest("POST", `/api/student/classes/${classId}/book`);
     },
-    onSuccess: () => {
+    onSuccess: (response: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/student/classes/available"] });
       queryClient.invalidateQueries({ queryKey: ["/api/student/classes"] });
       queryClient.invalidateQueries({ queryKey: ["/api/student/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/student/history"] });
       queryClient.invalidateQueries({ queryKey: ["/api/student/phase-progress"] });
+      const isPaired = response?.pairedLesson === true;
+      setLastBookingPaired(isPaired);
+      if (isPaired) {
+        queryClient.invalidateQueries({ queryKey: ["/api/student/lesson-pairing/status"] });
+      }
       setWizardStep(4);
     },
     onError: (error: any) => {
@@ -1103,6 +1158,106 @@ export default function StudentClasses() {
       });
     },
   });
+
+  // ── Task 272: In-Car 12/13 pairing mutations ─────────────────────────────
+  const invalidatePairing = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/student/lesson-pairing/status"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/student/classes"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/student/classes/available"] });
+  };
+
+  const joinQueueMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("POST", "/api/student/lesson-pairing/queue");
+    },
+    onSuccess: () => {
+      invalidatePairing();
+      toast({
+        title: "Joined the pairing queue",
+        description: "We're finding you a partner for your In-Car 12/13 session.",
+        variant: "success",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Couldn't join the queue",
+        description: error?.message || "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const leaveQueueMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("DELETE", "/api/student/lesson-pairing/queue");
+    },
+    onSuccess: () => {
+      invalidatePairing();
+      toast({
+        title: "Left the pairing queue",
+        description: "You've been removed from the In-Car 12/13 pairing queue.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Couldn't leave the queue",
+        description: error?.message || "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const respondOfferMutation = useMutation({
+    mutationFn: async ({ offerId, action }: { offerId: number; action: "accept" | "decline" }) => {
+      return await apiRequest("POST", `/api/student/lesson-pairing/offers/${offerId}/respond`, { action });
+    },
+    onSuccess: (_data, { action }) => {
+      invalidatePairing();
+      toast({
+        title: action === "accept" ? "Offer accepted" : "Offer declined",
+        description: action === "accept"
+          ? "You're paired for your In-Car 12/13 session."
+          : "You'll remain in the queue for another partner.",
+        variant: "success",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Action failed",
+        description: error?.message || "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const respondConfirmationMutation = useMutation({
+    mutationFn: async ({ confirmationId, action }: { confirmationId: number; action: "confirm" | "decline" }) => {
+      return await apiRequest("POST", `/api/student/lesson-pairing/confirmations/${confirmationId}/respond`, { action });
+    },
+    onSuccess: (_data, { action }) => {
+      invalidatePairing();
+      toast({
+        title: action === "confirm" ? "Session confirmed" : "Session declined",
+        description: action === "confirm"
+          ? "Your paired In-Car 12/13 session is confirmed. See you there!"
+          : "Your spot will be re-offered to another student.",
+        variant: "success",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Confirmation failed",
+        description: error?.message || "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const isPairingActionPending =
+    joinQueueMutation.isPending ||
+    leaveQueueMutation.isPending ||
+    respondOfferMutation.isPending ||
+    respondConfirmationMutation.isPending;
 
   // Sessions matching the specific class the student clicked "Book" on.
   const bookableClasses = useMemo(() => {
@@ -1190,9 +1345,76 @@ export default function StudentClasses() {
     }
   };
 
+  // ── Task 272: pairing eligibility & helpers ──────────────────────────────
+  const isAutoCourse = (student?.courseType || "").toLowerCase() === "auto";
+
+  // Theory 11 must be attended before the combined In-Car 12/13 session opens.
+  const hasAttendedTheory11 = useMemo(() => {
+    if (!phaseProgressData) return false;
+    for (const phase of phaseProgressData.phases) {
+      for (const c of phase.classes) {
+        if (c.classType === "theory" && c.classNumber === 11 && c.isCompleted) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }, [phaseProgressData]);
+
+  // Look up scheduled class info by id from the booked-classes query so pairing
+  // offer/session cards can show date, time, and instructor.
+  const findClassInfo = (classId: number | null | undefined): ClassWithDetails | undefined => {
+    if (classId == null) return undefined;
+    return classes.find((c) => c.id === classId);
+  };
+
+  const formatClassSchedule = (classId: number | null | undefined): string | null => {
+    const info = findClassInfo(classId);
+    if (!info) return null;
+    const when = new Date(`${info.date}T${info.time}`);
+    return when.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) +
+      " · " +
+      when.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  };
+
+  const pairingQueueEntries = pairingStatus?.queueEntries ?? [];
+  const pairingOffers = pairingStatus?.pendingOffers ?? [];
+  const pairingConfirmations = pairingStatus?.pendingConfirmations ?? [];
+  const pairingSessions = pairingStatus?.activeSessions ?? [];
+
+  // An "active" queue entry keeps the student in the pairing flow. completed,
+  // cancelled, converted, and deferred entries are historical.
+  const activeQueueEntry = pairingQueueEntries.find((e) =>
+    e.status === "waiting" ||
+    e.status === "offered" ||
+    e.status === "booked_first" ||
+    e.status === "paired" ||
+    e.status === "confirmed",
+  );
+
+  const hasPairingActivity =
+    activeQueueEntry != null ||
+    pairingOffers.length > 0 ||
+    pairingConfirmations.length > 0 ||
+    pairingSessions.length > 0;
+
+  // Show the panel to auto students who either qualify (attended Theory 11) or
+  // already have some pairing activity to act on.
+  const showPairingPanel = isAutoCourse && (hasAttendedTheory11 || hasPairingActivity);
+
+  // Only offer the Join button when the student is eligible and has no active
+  // entry. Any server-side gate still surfaces as an error toast.
+  const canJoinQueue = isAutoCourse && hasAttendedTheory11 && !activeQueueEntry;
+
   // Derive per-class Book button state for the phase tracker rows.
-  const getBookState = (classItem: PhaseClassProgress, phase: PhaseProgress): ClassBookState =>
-    getPhaseClassBookState(classItem, phase, classes, availableClasses);
+  const getBookState = (classItem: PhaseClassProgress, phase: PhaseProgress): ClassBookState => {
+    // Task 272: In-Car #13 is never bookable on its own for auto students — it
+    // is awarded together with the combined In-Car 12/13 session.
+    if (isAutoCourse && classItem.classType === "driving" && classItem.classNumber === 13 && !classItem.isCompleted) {
+      return { status: "blocked", reason: "Included with lesson 12 (paired In-Car 12/13 session)." };
+    }
+    return getPhaseClassBookState(classItem, phase, classes, availableClasses);
+  };
 
   const confirmBooking = () => {
     if (selectedBookingClass) {
@@ -1426,6 +1648,227 @@ export default function StudentClasses() {
           )}
         </section>
 
+        {/* Section: In-Car 12/13 pairing (auto students) — Task 272 */}
+        {showPairingPanel && (
+          <section data-testid="section-incar-pairing">
+            <h2 className="text-xl font-bold text-[#111111] mb-4 flex items-center gap-2">
+              <Users className="h-5 w-5 text-[#ECC462]" />
+              In-Car 12/13 Pairing
+            </h2>
+            <Card className="border border-gray-200 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Car className="h-4 w-4 text-amber-600" />
+                  In-Car 12/13
+                  <Badge className="bg-amber-100 text-amber-800 border-amber-200">Paired session</Badge>
+                </CardTitle>
+                <CardDescription>
+                  A 2-hour paired session that counts as lessons 12 &amp; 13. We match you with another
+                  student to share the session.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Pending offers — highest priority to act on */}
+                {pairingOffers.map((offer) => {
+                  const schedule = formatClassSchedule(offer.classId);
+                  const info = findClassInfo(offer.classId);
+                  return (
+                    <div
+                      key={`offer-${offer.id}`}
+                      className="p-4 rounded-lg border border-purple-200 bg-purple-50"
+                      data-testid={`card-pairing-offer-${offer.id}`}
+                    >
+                      <div className="flex items-start gap-2 mb-2">
+                        <Users className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-purple-900 text-sm">Pairing offer available</p>
+                          <p className="text-xs text-purple-800 mt-0.5">
+                            {schedule
+                              ? <>In-Car 12/13 session on {schedule}{info?.instructorName ? ` with ${info.instructorName}` : ""}.</>
+                              : "A partner has been found for your In-Car 12/13 session."}
+                          </p>
+                          <p className="text-[11px] text-purple-700 mt-1">
+                            Respond before {new Date(offer.expiresAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="h-8 bg-green-600 hover:bg-green-700 text-white"
+                          disabled={isPairingActionPending}
+                          onClick={() => respondOfferMutation.mutate({ offerId: offer.id, action: "accept" })}
+                          data-testid={`button-offer-accept-${offer.id}`}
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                          Accept
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 border-red-200 text-red-600 hover:bg-red-50"
+                          disabled={isPairingActionPending}
+                          onClick={() => respondOfferMutation.mutate({ offerId: offer.id, action: "decline" })}
+                          data-testid={`button-offer-decline-${offer.id}`}
+                        >
+                          <XCircle className="h-3.5 w-3.5 mr-1" />
+                          Decline
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Pending confirmations */}
+                {pairingConfirmations.map((confirmation) => {
+                  const session = pairingSessions.find((s) => s.id === confirmation.pairedSessionId);
+                  const schedule = session ? formatClassSchedule(session.classId) : null;
+                  const info = session ? findClassInfo(session.classId) : undefined;
+                  return (
+                    <div
+                      key={`confirmation-${confirmation.id}`}
+                      className="p-4 rounded-lg border border-green-200 bg-green-50"
+                      data-testid={`card-pairing-confirmation-${confirmation.id}`}
+                    >
+                      <div className="flex items-start gap-2 mb-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-green-900 text-sm">Confirm your paired session</p>
+                          <p className="text-xs text-green-800 mt-0.5">
+                            {schedule
+                              ? <>In-Car 12/13 session on {schedule}{info?.instructorName ? ` with ${info.instructorName}` : ""}.</>
+                              : "Please confirm you'll attend your paired In-Car 12/13 session."}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="h-8 bg-green-600 hover:bg-green-700 text-white"
+                          disabled={isPairingActionPending}
+                          onClick={() => respondConfirmationMutation.mutate({ confirmationId: confirmation.id, action: "confirm" })}
+                          data-testid={`button-confirmation-confirm-${confirmation.id}`}
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                          Confirm
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 border-red-200 text-red-600 hover:bg-red-50"
+                          disabled={isPairingActionPending}
+                          onClick={() => respondConfirmationMutation.mutate({ confirmationId: confirmation.id, action: "decline" })}
+                          data-testid={`button-confirmation-decline-${confirmation.id}`}
+                        >
+                          <XCircle className="h-3.5 w-3.5 mr-1" />
+                          Can't attend
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Active queue-entry status */}
+                {activeQueueEntry && (activeQueueEntry.status === "waiting") && (
+                  <div className="p-4 rounded-lg border border-amber-200 bg-amber-50 flex items-start justify-between gap-3" data-testid="card-pairing-waiting">
+                    <div className="flex items-start gap-2">
+                      <Timer className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-semibold text-amber-900 text-sm">You're in the queue</p>
+                        <p className="text-xs text-amber-800 mt-0.5">We're finding you a partner for your In-Car 12/13 session.</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 border-red-200 text-red-600 hover:bg-red-50 flex-shrink-0"
+                      disabled={isPairingActionPending}
+                      onClick={() => leaveQueueMutation.mutate()}
+                      data-testid="button-leave-queue"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />
+                      Leave
+                    </Button>
+                  </div>
+                )}
+
+                {activeQueueEntry && activeQueueEntry.status === "offered" && (
+                  <div className="p-4 rounded-lg border border-purple-200 bg-purple-50 flex items-start gap-2" data-testid="card-pairing-offered">
+                    <Users className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-purple-900 text-sm">Pairing offer sent</p>
+                      <p className="text-xs text-purple-800 mt-0.5">Respond to the offer above to lock in your paired session.</p>
+                    </div>
+                  </div>
+                )}
+
+                {activeQueueEntry && activeQueueEntry.status === "booked_first" && (
+                  <div className="p-4 rounded-lg border border-amber-200 bg-amber-50 flex items-start justify-between gap-3" data-testid="card-pairing-booked-first">
+                    <div className="flex items-start gap-2">
+                      <Timer className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-semibold text-amber-900 text-sm">Waiting for a partner</p>
+                        <p className="text-xs text-amber-800 mt-0.5">
+                          You've reserved your In-Car 12/13 session
+                          {formatClassSchedule(activeQueueEntry.bookedClassId) ? ` on ${formatClassSchedule(activeQueueEntry.bookedClassId)}` : ""}.
+                          We'll match a second student with you.
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 border-red-200 text-red-600 hover:bg-red-50 flex-shrink-0"
+                      disabled={isPairingActionPending}
+                      onClick={() => leaveQueueMutation.mutate()}
+                      data-testid="button-leave-queue"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />
+                      Leave
+                    </Button>
+                  </div>
+                )}
+
+                {activeQueueEntry && (activeQueueEntry.status === "paired" || activeQueueEntry.status === "confirmed") && pairingConfirmations.length === 0 && (
+                  <div className="p-4 rounded-lg border border-green-200 bg-green-50 flex items-start gap-2" data-testid="card-pairing-paired">
+                    <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-green-900 text-sm">
+                        {activeQueueEntry.status === "confirmed" ? "Session confirmed" : "You're paired!"}
+                      </p>
+                      <p className="text-xs text-green-800 mt-0.5">
+                        {activeQueueEntry.status === "confirmed"
+                          ? "Your paired In-Car 12/13 session is confirmed. See you there!"
+                          : "You've been matched with a partner for your In-Car 12/13 session."}
+                        {formatClassSchedule(activeQueueEntry.bookedClassId) ? ` (${formatClassSchedule(activeQueueEntry.bookedClassId)})` : ""}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Join queue — only when eligible with no active entry */}
+                {canJoinQueue && pairingOffers.length === 0 && pairingConfirmations.length === 0 && (
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm text-gray-600">
+                      Ready to be matched for your paired In-Car 12/13 session?
+                    </p>
+                    <Button
+                      size="sm"
+                      className="h-8 bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111] flex-shrink-0"
+                      disabled={isPairingActionPending}
+                      onClick={() => joinQueueMutation.mutate()}
+                      data-testid="button-join-queue"
+                    >
+                      <Users className="h-3.5 w-3.5 mr-1" />
+                      Join pairing queue
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </section>
+        )}
+
         {/* SAAQ Important Dates */}
         <section>
           <h2 className="text-xl font-bold text-[#111111] mb-4 flex items-center gap-2">
@@ -1507,17 +1950,26 @@ export default function StudentClasses() {
       <Dialog open={bookingWizardOpen} onOpenChange={(open) => {
         if (!open) {
           if (wizardStep === 4) {
-            toast({
-              title: "Class Booked!",
-              description: "Your class has been added to your schedule.",
-              variant: "success",
-            });
+            if (lastBookingPaired) {
+              toast({
+                title: "In-Car 12/13 reserved",
+                description: "We're finding you a partner for your paired session.",
+                variant: "success",
+              });
+            } else {
+              toast({
+                title: "Class Booked!",
+                description: "Your class has been added to your schedule.",
+                variant: "success",
+              });
+            }
           }
           setBookingWizardOpen(false);
           setWizardStep(2);
           setTargetClass(null);
           setSelectedBookingClass(null);
           setPolicyAccepted(false);
+          setLastBookingPaired(false);
         }
       }}>
         <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
@@ -1543,6 +1995,21 @@ export default function StudentClasses() {
 
           {wizardStep === 2 && (
             <div>
+              {isAutoCourse && targetClass?.classType === 'driving' && targetClass?.classNumber === 12 && (
+                <div className="mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200" data-testid="banner-combined-1213">
+                  <div className="flex items-start gap-2">
+                    <Users className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-amber-900 text-sm">In-Car 12/13 — 2-hour paired session</p>
+                      <p className="text-xs text-amber-800 mt-0.5">
+                        Booking this session counts as lessons 12 &amp; 13. We'll match you with another
+                        student to share the 2-hour drive.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {targetClass?.classType === 'driving' && student && (
                 (!student.learnerPermitNumber || !student.learnerPermitExpiryDate || 
                  (student.learnerPermitExpiryDate && isPermitExpired(student.learnerPermitExpiryDate))) && (
@@ -1626,8 +2093,19 @@ export default function StudentClasses() {
                               </div>
                               <div className="min-w-0">
                                 <p className="font-semibold text-sm text-gray-900 truncate" data-testid={`text-class-title-${classItem.id}`}>
-                                  {classItem.courseType.toUpperCase()} - {classItem.classType === 'driving' ? 'In-Car' : 'Theory'} #{classItem.classNumber}
+                                  {classItem.pairedLesson
+                                    ? `${classItem.courseType.toUpperCase()} - ${classItem.pairedLabel || 'In-Car 12/13'}`
+                                    : `${classItem.courseType.toUpperCase()} - ${classItem.classType === 'driving' ? 'In-Car' : 'Theory'} #${classItem.classNumber}`}
                                 </p>
+                                {classItem.pairedLesson && (
+                                  <span
+                                    className="inline-flex items-center gap-1 mt-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200"
+                                    data-testid={`badge-paired-${classItem.id}`}
+                                  >
+                                    <Users className="h-2.5 w-2.5" />
+                                    Paired · counts as 12 &amp; 13
+                                  </span>
+                                )}
                                 <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
                                   <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{classDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span>
                                   <span>{classItem.duration}min</span>
@@ -1677,10 +2155,19 @@ export default function StudentClasses() {
                     <span className="text-[#ECC462]">{getCourseIcon(selectedBookingClass.courseType)}</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">{selectedBookingClass.courseType.toUpperCase()} - {selectedBookingClass.classType === 'driving' ? 'In-Car' : 'Theory'} #{selectedBookingClass.classNumber}</h4>
+                    <h4 className="font-semibold text-gray-900">
+                      {selectedBookingClass.pairedLesson
+                        ? `${selectedBookingClass.courseType.toUpperCase()} - ${selectedBookingClass.pairedLabel || 'In-Car 12/13'}`
+                        : `${selectedBookingClass.courseType.toUpperCase()} - ${selectedBookingClass.classType === 'driving' ? 'In-Car' : 'Theory'} #${selectedBookingClass.classNumber}`}
+                    </h4>
                     <p className="text-sm text-gray-600">{selectedBookingClass.instructorName}</p>
                   </div>
                 </div>
+                {selectedBookingClass.pairedLesson && (
+                  <p className="mt-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-2 py-1.5" data-testid="note-paired-confirm">
+                    2-hour paired session — counts as lessons 12 &amp; 13. We'll find you a partner.
+                  </p>
+                )}
                 <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-gray-600">
                   <div className="flex items-center gap-1.5">
                     <Calendar className="h-3.5 w-3.5 text-gray-400" />
@@ -1758,8 +2245,14 @@ export default function StudentClasses() {
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-1">You're All Set!</h3>
-              <p className="text-sm text-gray-600 mb-4">Your class has been added to your schedule.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-1">
+                {lastBookingPaired ? "In-Car 12/13 Reserved!" : "You're All Set!"}
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                {lastBookingPaired
+                  ? "We're finding you a partner for your paired session."
+                  : "Your class has been added to your schedule."}
+              </p>
 
               <div className="p-4 rounded-lg bg-green-50 border border-green-200 text-left mb-4">
                 <div className="flex items-center gap-3">
@@ -1767,7 +2260,11 @@ export default function StudentClasses() {
                     <span className="text-green-600">{getCourseIcon(selectedBookingClass.courseType)}</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">{selectedBookingClass.courseType.toUpperCase()} - {selectedBookingClass.classType === 'driving' ? 'In-Car' : 'Theory'} #{selectedBookingClass.classNumber}</h4>
+                    <h4 className="font-semibold text-gray-900">
+                      {selectedBookingClass.pairedLesson || lastBookingPaired
+                        ? `${selectedBookingClass.courseType.toUpperCase()} - ${selectedBookingClass.pairedLabel || 'In-Car 12/13'}`
+                        : `${selectedBookingClass.courseType.toUpperCase()} - ${selectedBookingClass.classType === 'driving' ? 'In-Car' : 'Theory'} #${selectedBookingClass.classNumber}`}
+                    </h4>
                     <p className="text-sm text-gray-600">{selectedBookingClass.instructorName}</p>
                   </div>
                 </div>
