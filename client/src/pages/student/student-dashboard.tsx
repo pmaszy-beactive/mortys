@@ -223,7 +223,7 @@ export default function StudentDashboard() {
             </p>
             <Button
               className="mt-4 bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111]"
-              onClick={() => setLocation("/student/book")}
+              onClick={() => setLocation("/student/classes")}
               data-testid="button-book-first-class"
             >
               Book a Class
@@ -238,7 +238,7 @@ export default function StudentDashboard() {
         <div className="grid sm:grid-cols-2 gap-4">
           {/* Option A: Program session */}
           <button
-            onClick={() => setLocation("/student/book")}
+            onClick={() => setLocation("/student/classes")}
             className="group text-left bg-white border border-gray-200 rounded-md shadow-sm p-6 hover:border-[#ECC462] hover:shadow-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#ECC462]"
             data-testid="button-book-program-session"
           >

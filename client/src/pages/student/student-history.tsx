@@ -299,7 +299,7 @@ export default function StudentHistory() {
               {typeFilter === 'all' && statusFilter === 'all' && (
                 <Button
                   className="mt-6 bg-[#ECC462] text-[#111111] hover:bg-[#d4b055] font-semibold px-8"
-                  onClick={() => setLocation('/student/book')}
+                  onClick={() => setLocation('/student/classes')}
                   data-testid="button-book-first"
                 >
                   Book Your First Class
