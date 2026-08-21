@@ -115,6 +115,30 @@ export default function ClassForm({ classData, onSuccess }: ClassFormProps) {
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
   const isVirtual = !!form.watch("zoomLink")?.trim();
+  const selectedCourseType = form.watch("courseType");
+  const selectedClassType = form.watch("classType");
+  const selectedClassNumber = form.watch("classNumber") ?? 1;
+  const isMotoPractical = selectedCourseType === "moto" && selectedClassType === "driving";
+  const motoPracticalStage = selectedClassNumber >= 5 ? "road" : "closed-circuit";
+
+  // Moto sessions have contract-defined durations/capacity. Keep manual
+  // scheduling aligned with the curriculum planner so the class will be
+  // bookable after it is created.
+  useEffect(() => {
+    if (selectedCourseType !== "moto") return;
+    const expectedDuration =
+      selectedClassType === "theory"
+        ? 180
+        : selectedClassNumber === 5
+          ? 120
+          : 240;
+    if (form.getValues("duration") !== expectedDuration) {
+      form.setValue("duration", expectedDuration);
+    }
+    if (selectedClassType === "driving" && form.getValues("maxStudents") !== 1) {
+      form.setValue("maxStudents", 1);
+    }
+  }, [form, selectedCourseType, selectedClassType, selectedClassNumber]);
 
   return (
     <Form {...form}>
@@ -126,7 +150,17 @@ export default function ClassForm({ classData, onSuccess }: ClassFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Course Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    if (value === "moto") {
+                      form.setValue("classNumber", 1);
+                      form.setValue("duration", selectedClassType === "driving" ? 240 : 180);
+                      if (selectedClassType === "driving") form.setValue("maxStudents", 1);
+                    }
+                  }}
+                  value={field.value}
+                >
                   <FormControl>
                     <SelectTrigger data-testid="select-course-type">
                       <SelectValue placeholder="Select course type" />
@@ -148,37 +182,95 @@ export default function ClassForm({ classData, onSuccess }: ClassFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Class Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    if (selectedCourseType === "moto") {
+                      form.setValue("classNumber", 1);
+                      form.setValue("duration", value === "driving" ? 240 : 180);
+                      if (value === "driving") form.setValue("maxStudents", 1);
+                    }
+                  }}
+                  value={field.value || "theory"}
+                >
                   <FormControl>
                     <SelectTrigger data-testid="select-class-type">
                       <SelectValue placeholder="Select class type" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="theory" data-testid="option-class-type-theory">Theory Class</SelectItem>
-                    <SelectItem value="driving" data-testid="option-class-type-driving">Driving Class</SelectItem>
+                    <SelectItem value="theory" data-testid="option-class-type-theory">
+                      {selectedCourseType === "moto" ? "Motorcycle Theory / Preparation" : "Theory Class"}
+                    </SelectItem>
+                    <SelectItem value="driving" data-testid="option-class-type-driving">
+                      {selectedCourseType === "moto" ? "Motorcycle Practical Training" : "Driving Class"}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
+          {isMotoPractical && (
+            <FormItem>
+              <FormLabel>Training Stage</FormLabel>
+              <Select
+                value={motoPracticalStage}
+                onValueChange={(value) => {
+                  const firstSession = value === "road" ? 5 : 1;
+                  form.setValue("classNumber", firstSession);
+                  form.setValue("duration", firstSession === 5 ? 120 : 240);
+                  form.setValue("maxStudents", 1);
+                }}
+              >
+                <FormControl>
+                  <SelectTrigger data-testid="select-moto-training-stage">
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="closed-circuit">Closed-Circuit Training (Sessions 1–4)</SelectItem>
+                  <SelectItem value="road">Road Training (Sessions 1–3)</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormItem>
+          )}
           <FormField
             control={form.control}
             name="classNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Class Number</FormLabel>
+                <FormLabel>
+                  {isMotoPractical
+                    ? motoPracticalStage === "road"
+                      ? "Road Session"
+                      : "Closed-Circuit Session"
+                    : "Class Number"}
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
-                    min="1"
-                    max="15"
+                    min={isMotoPractical && motoPracticalStage === "road" ? "5" : "1"}
+                    max={isMotoPractical ? (motoPracticalStage === "road" ? "7" : "4") : "15"}
                     {...field}
-                    onChange={e => field.onChange(parseInt(e.target.value) || 1)}
+                    onChange={e => {
+                      const nextNumber = parseInt(e.target.value) || 1;
+                      field.onChange(nextNumber);
+                      if (isMotoPractical) {
+                        form.setValue("duration", nextNumber === 5 ? 120 : 240);
+                        form.setValue("maxStudents", 1);
+                      }
+                    }}
                     data-testid="input-class-number"
                   />
                 </FormControl>
+                {isMotoPractical && (
+                  <p className="text-xs text-muted-foreground">
+                    {motoPracticalStage === "road"
+                      ? `Class #${selectedClassNumber} is Road Session #${selectedClassNumber - 4} (${selectedClassNumber === 5 ? "2 hours" : "4 hours"}).`
+                      : `Class #${selectedClassNumber} is Closed-Circuit Session #${selectedClassNumber} (4 hours).`}
+                  </p>
+                )}
                 <FormMessage />
               </FormItem>
             )}
@@ -261,11 +353,17 @@ export default function ClassForm({ classData, onSuccess }: ClassFormProps) {
                     min="60"
                     max="240"
                     step="30"
+                    disabled={selectedCourseType === "moto"}
                     {...field}
                     onChange={e => field.onChange(parseInt(e.target.value) || 120)}
                     data-testid="input-class-duration"
                   />
                 </FormControl>
+                {selectedCourseType === "moto" && (
+                  <p className="text-xs text-muted-foreground">
+                    Set automatically from the official motorcycle program.
+                  </p>
+                )}
                 <FormMessage />
               </FormItem>
             )}
@@ -281,11 +379,17 @@ export default function ClassForm({ classData, onSuccess }: ClassFormProps) {
                     type="number"
                     min="1"
                     max={isVirtual ? "30" : "50"}
+                    disabled={isMotoPractical}
                     {...field}
                     onChange={e => field.onChange(parseInt(e.target.value) || 15)}
                     data-testid="input-max-students"
                   />
                 </FormControl>
+                {isMotoPractical && (
+                  <p className="text-xs text-muted-foreground">
+                    Motorcycle practical sessions are one student per instructor.
+                  </p>
+                )}
                 <FormMessage />
                 {isVirtual && <p className="mt-1 text-xs text-muted-foreground">Virtual classes are limited to 30 students.</p>}
               </FormItem>

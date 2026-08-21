@@ -54,7 +54,7 @@ import {
   questionImagePath,
 } from "@shared/examData";
 import { getPhaseDefinitionsForCourse, getExternalMilestonesForCourse } from "@shared/phaseConfig";
-import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum, findCurriculumConflicts, splitVirtualEnrollment, VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
+import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum, findCurriculumConflicts, getMotoClassRequirements, validateMotoClassConfiguration, splitVirtualEnrollment, VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
 import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, isCombined1213Class, type BookingValidationResult } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -3477,6 +3477,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("Class creation request body:", req.body);
       const classData = insertClassSchema.parse(req.body);
+      const motoConfigurationError = validateMotoClassConfiguration(classData);
+      if (motoConfigurationError) {
+        return res.status(400).json({ message: motoConfigurationError });
+      }
       if (classData.zoomLink?.trim() && (classData.maxStudents ?? 15) > VIRTUAL_CLASS_MAX_STUDENTS) {
         return res.status(400).json({ message: `Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students.` });
       }
@@ -3512,7 +3516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const {
         courseType, classType, classNumber, daysOfWeek, time, duration,
         instructorId, maxStudents, lessonType, startDate, endDate, hasTest, zoomLink,
-        progressive
+        progressive, motoTrainingStage
       } = req.body;
       if (typeof zoomLink === "string" && zoomLink.trim() && Number(maxStudents) > VIRTUAL_CLASS_MAX_STUDENTS) {
         return res.status(400).json({ message: `Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students.` });
@@ -3610,25 +3614,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         const curriculumSeriesId = randomUUID();
-        const createdPlan = [];
-        for (const s of scheduled) {
-          const cls = await storage.createClass({
-            courseType,
-            classType: s.classType,
-            classNumber: s.classNumber,
-            date: s.date,
-            time,
-            duration: s.duration,
-            instructorId: instructorId ? parseInt(instructorId) : null,
-            maxStudents: s.maxStudents,
-            lessonType: lessonType || 'regular',
-            status: 'scheduled',
-            hasTest: s.hasTest ?? false,
-            zoomLink: zoomLink || null,
-            seriesId: curriculumSeriesId,
-          } as any);
-          createdPlan.push(cls);
-        }
+        const createdPlan = await db.transaction(async (tx) => {
+          const created = [];
+          for (const s of scheduled) {
+            created.push(await storage.createClass({
+              courseType,
+              classType: s.classType,
+              classNumber: s.classNumber,
+              date: s.date,
+              time,
+              duration: s.duration,
+              instructorId: instructorId ? parseInt(instructorId) : null,
+              maxStudents: s.maxStudents,
+              lessonType: lessonType || 'regular',
+              status: 'scheduled',
+              hasTest: s.hasTest ?? false,
+              zoomLink: zoomLink || null,
+              seriesId: curriculumSeriesId,
+            } as any, tx));
+          }
+          return created;
+        });
         return res.status(201).json({
           message: `Created the full ${courseType} curriculum: ${createdPlan.length} classes from ${scheduled[0].date} to ${scheduled[scheduled.length - 1].date}.`,
           count: createdPlan.length,
@@ -3652,30 +3658,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isValidClassNumber || startNumber < 1) {
         return res.status(400).json({ message: "Class number must be a positive integer" });
       }
+      const isMotoPracticalRequest =
+        (courseType || '').toLowerCase() === 'moto' &&
+        classType === 'driving';
+      if (!req.body.fullCurriculum) {
+        const motoConfigurationError = validateMotoClassConfiguration({
+          courseType,
+          classType,
+          classNumber: startNumber,
+          duration: Number(duration),
+          maxStudents: Number(maxStudents),
+        });
+        if (motoConfigurationError) {
+          return res.status(400).json({ message: motoConfigurationError });
+        }
+        if (isMotoPracticalRequest) {
+          if (motoTrainingStage !== 'closed-circuit' && motoTrainingStage !== 'road') {
+            return res.status(400).json({
+              message: "Choose Closed-Circuit Training or Road Training for the motorcycle series.",
+            });
+          }
+          const requirements = getMotoClassRequirements(classType, startNumber);
+          if (requirements?.stage !== motoTrainingStage) {
+            return res.status(400).json({
+              message: `Motorcycle class #${startNumber} does not belong to the selected ${motoTrainingStage === 'road' ? 'Road Training' : 'Closed-Circuit Training'} stage.`,
+            });
+          }
+        }
+      }
       let progressiveDates = dates;
       if (progressive) {
         const counts = getCourseClassCounts(courseType);
-        const maxNumber = classType === 'driving' ? counts.drivingCount : counts.theoryCount;
-        if (startNumber > maxNumber) {
+        const isMotoPracticalSeries = isMotoPracticalRequest;
+        if (
+          isMotoPracticalSeries &&
+          motoTrainingStage !== 'closed-circuit' &&
+          motoTrainingStage !== 'road'
+        ) {
           return res.status(400).json({
-            message: `Class number ${startNumber} exceeds the ${maxNumber} ${classType} sessions for the ${courseType} course.`,
+            message: "Choose Closed-Circuit Training or Road Training for the motorcycle series.",
           });
         }
-        progressiveDates = dates.slice(0, maxNumber - startNumber + 1);
+        const minNumber =
+          isMotoPracticalSeries && motoTrainingStage === 'road' ? 5 : 1;
+        const maxNumber =
+          isMotoPracticalSeries
+            ? motoTrainingStage === 'closed-circuit' ? 4 : 7
+            : classType === 'driving' ? counts.drivingCount : counts.theoryCount;
+        if (startNumber < minNumber) {
+          return res.status(400).json({
+            message: `${motoTrainingStage === 'road' ? 'Road Training' : 'Closed-Circuit Training'} starts at motorcycle class #${minNumber}.`,
+          });
+        }
+        if (startNumber > maxNumber) {
+          return res.status(400).json({
+            message: isMotoPracticalSeries
+              ? `Class number ${startNumber} is outside the selected motorcycle training stage.`
+              : `Class number ${startNumber} exceeds the ${maxNumber} ${classType} sessions for the ${courseType} course.`,
+          });
+        }
+        const requiredDates = maxNumber - startNumber + 1;
+        if (isMotoPracticalSeries && dates.length < requiredDates) {
+          return res.status(400).json({
+            message: `Select at least ${requiredDates} matching date${requiredDates === 1 ? '' : 's'} to schedule the remaining ${motoTrainingStage === 'road' ? 'Road Training' : 'Closed-Circuit Training'} sessions.`,
+          });
+        }
+        progressiveDates = dates.slice(0, requiredDates);
       }
 
       // Pre-validate every date against the instructor's availability before
       // creating anything (no partial creation).
       if (instructorId) {
         const instId = parseInt(instructorId);
-        const dur = parseInt(duration) || 120;
         const availabilityViolations: string[] = [];
-        const checkedDays = new Set<number>();
-        for (const date of progressiveDates) {
+        const checkedDayDurations = new Set<string>();
+        for (let index = 0; index < progressiveDates.length; index++) {
+          const date = progressiveDates[index];
           const dow = new Date(date + "T00:00:00").getDay();
-          if (checkedDays.has(dow)) continue;
-          checkedDays.add(dow);
-          const violation = await checkInstructorAvailability(instId, date, time, dur);
+          const generatedClassNumber = progressive ? startNumber + index : startNumber;
+          const generatedRequirements =
+            (courseType || '').toLowerCase() === 'moto'
+              ? getMotoClassRequirements(classType, generatedClassNumber)
+              : null;
+          const generatedDuration = generatedRequirements?.duration ?? (parseInt(duration) || 120);
+          const availabilityKey = `${dow}:${generatedDuration}`;
+          if (checkedDayDurations.has(availabilityKey)) continue;
+          checkedDayDurations.add(availabilityKey);
+          const violation = await checkInstructorAvailability(instId, date, time, generatedDuration);
           if (violation) availabilityViolations.push(violation.message);
         }
         if (availabilityViolations.length > 0) {
@@ -3688,26 +3757,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const seriesId = randomUUID();
-      const created = [];
-      for (let i = 0; i < progressiveDates.length; i++) {
-        const date = progressiveDates[i];
-        const cls = await storage.createClass({
+      const rowsToCreate = progressiveDates.map((date, i) => {
+        const generatedClassNumber = progressive ? startNumber + i : startNumber;
+        const generatedRequirements =
+          (courseType || '').toLowerCase() === 'moto'
+            ? getMotoClassRequirements(classType, generatedClassNumber)
+            : null;
+        const generatedDuration = generatedRequirements?.duration ?? (parseInt(duration) || 120);
+        return {
           courseType,
           classType,
-          classNumber: progressive ? startNumber + i : startNumber,
+          classNumber: generatedClassNumber,
           date,
           time,
-          duration: parseInt(duration) || 120,
+          duration: generatedDuration,
           instructorId: instructorId ? parseInt(instructorId) : null,
-          maxStudents: parseInt(maxStudents) || 15,
+          maxStudents: generatedRequirements?.maxStudents ?? (parseInt(maxStudents) || 15),
           lessonType: lessonType || 'regular',
           hasTest: hasTest || false,
           zoomLink: zoomLink || null,
           status: 'scheduled',
           seriesId,
-        });
-        created.push(cls);
-      }
+        };
+      });
+      const created = await db.transaction(async (tx) => {
+        const createdClasses = [];
+        for (const row of rowsToCreate) {
+          createdClasses.push(await storage.createClass(row, tx));
+        }
+        return createdClasses;
+      });
 
       res.status(201).json({ created: created.length, dates: progressiveDates, seriesId, progressive: !!progressive });
     } catch (error) {
@@ -3795,6 +3874,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (cls.detachedFromSeries) { skippedDetached++; continue; }
         if (cls.status === 'cancelled') { skippedCancelled++; continue; }
         targets.push(cls);
+      }
+      for (const cls of targets) {
+        const motoConfigurationError = validateMotoClassConfiguration({
+          courseType: cls.courseType,
+          classType: cls.classType,
+          classNumber: cls.classNumber,
+          duration: updateData.duration !== undefined ? updateData.duration : cls.duration,
+          maxStudents: updateData.maxStudents !== undefined ? updateData.maxStudents : cls.maxStudents,
+        });
+        if (motoConfigurationError) {
+          return res.status(400).json({
+            message: `${motoConfigurationError} No classes were changed.`,
+          });
+        }
       }
       const virtualCapacityViolation = targets.some(cls => {
         const zoomLink = updateData.zoomLink !== undefined ? updateData.zoomLink : cls.zoomLink;
@@ -3968,6 +4061,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Local-date helpers (avoid UTC shifting).
       const dayOf = (dateStr: string) => new Date(dateStr + "T00:00:00").getDay();
       const template = targets[0];
+      for (const cls of targets) {
+        const motoConfigurationError = validateMotoClassConfiguration(cls);
+        if (motoConfigurationError) {
+          return res.status(400).json({
+            message: `${motoConfigurationError} The series days were not changed.`,
+          });
+        }
+      }
+      const templateFields = [
+        'courseType', 'classType', 'classNumber', 'time', 'duration',
+        'instructorId', 'maxStudents', 'lessonType', 'hasTest', 'zoomLink', 'room',
+      ] as const;
+      const hasMixedTemplates = targets.some((cls) =>
+        templateFields.some((field) => cls[field] !== template[field])
+      );
+      if (hasMixedTemplates) {
+        return res.status(400).json({
+          message: "This series contains different class sessions or schedules, so its days cannot be changed as one repeating class. No classes were changed.",
+        });
+      }
       if (template.zoomLink?.trim() && template.maxStudents > VIRTUAL_CLASS_MAX_STUDENTS) {
         return res.status(400).json({
           message: `This virtual series exceeds the ${VIRTUAL_CLASS_MAX_STUDENTS}-student limit. Split its over-capacity sessions before changing the series days.`,
@@ -4355,6 +4468,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get existing class data to compare for changes
       const existingClass = await storage.getClass(id);
+      if (!existingClass) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+      const motoConfigurationError = validateMotoClassConfiguration({
+        courseType: updateData.courseType !== undefined ? updateData.courseType : existingClass.courseType,
+        classType: updateData.classType !== undefined ? updateData.classType : existingClass.classType,
+        classNumber: updateData.classNumber !== undefined ? Number(updateData.classNumber) : existingClass.classNumber,
+        duration: updateData.duration !== undefined ? Number(updateData.duration) : existingClass.duration,
+        maxStudents: updateData.maxStudents !== undefined ? Number(updateData.maxStudents) : existingClass.maxStudents,
+      });
+      if (motoConfigurationError) {
+        return res.status(400).json({ message: motoConfigurationError });
+      }
       const resultingZoomLink = updateData.zoomLink !== undefined ? updateData.zoomLink : existingClass?.zoomLink;
       const resultingMaxStudents = updateData.maxStudents !== undefined ? Number(updateData.maxStudents) : existingClass?.maxStudents;
       if (typeof resultingZoomLink === "string" && resultingZoomLink.trim() && resultingMaxStudents && resultingMaxStudents > VIRTUAL_CLASS_MAX_STUDENTS) {
@@ -4477,6 +4603,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const classId = parseInt(req.params.id);
       const updateData = req.body;
+      const existingClass = await storage.getClass(classId);
+      if (!existingClass) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+
+      const motoConfigurationError = validateMotoClassConfiguration({
+        courseType: updateData.courseType !== undefined ? updateData.courseType : existingClass.courseType,
+        classType: updateData.classType !== undefined ? updateData.classType : existingClass.classType,
+        classNumber: updateData.classNumber !== undefined ? Number(updateData.classNumber) : existingClass.classNumber,
+        duration: updateData.duration !== undefined ? Number(updateData.duration) : existingClass.duration,
+        maxStudents: updateData.maxStudents !== undefined ? Number(updateData.maxStudents) : existingClass.maxStudents,
+      });
+      if (motoConfigurationError) {
+        return res.status(400).json({ message: motoConfigurationError });
+      }
+
+      const resultingZoomLink = updateData.zoomLink !== undefined ? updateData.zoomLink : existingClass.zoomLink;
+      const resultingMaxStudents = updateData.maxStudents !== undefined ? Number(updateData.maxStudents) : existingClass.maxStudents;
+      if (typeof resultingZoomLink === "string" && resultingZoomLink.trim() && resultingMaxStudents > VIRTUAL_CLASS_MAX_STUDENTS) {
+        return res.status(400).json({ message: `Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students.` });
+      }
+
+      const scheduleChanging =
+        updateData.date !== undefined || updateData.time !== undefined ||
+        updateData.duration !== undefined || updateData.instructorId !== undefined;
+      if (scheduleChanging) {
+        const violation = await checkInstructorAvailability(
+          updateData.instructorId !== undefined ? Number(updateData.instructorId) : existingClass.instructorId,
+          updateData.date !== undefined ? updateData.date : existingClass.date,
+          updateData.time !== undefined ? updateData.time : existingClass.time,
+          updateData.duration !== undefined ? Number(updateData.duration) : existingClass.duration,
+        );
+        if (violation) {
+          return res.status(409).json({
+            message: violation.message,
+            availabilityViolations: [violation.message],
+          });
+        }
+      }
       
       // Update the class with new details and reset confirmation status
       const updatedClass = await storage.updateClass(classId, {

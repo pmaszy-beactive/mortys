@@ -23,6 +23,73 @@ export type ScheduledPlanItem = PlanItem & { date: string };
 export const AUTO_CURRICULUM_THEORY_DURATION = 120;
 export const VIRTUAL_CLASS_MAX_STUDENTS = 30;
 
+export type MotoClassRequirements = {
+  duration: number;
+  maxStudents?: number;
+  stage: "yard-preparation" | "closed-circuit" | "road-preparation" | "road";
+};
+
+/**
+ * Canonical configuration for every class in the motorcycle program.
+ * Returns null for an invalid class type/number pair.
+ */
+export function getMotoClassRequirements(
+  classType: string | null | undefined,
+  classNumber: number | null | undefined,
+): MotoClassRequirements | null {
+  if (!Number.isInteger(classNumber)) return null;
+  if (classType === "theory") {
+    if (classNumber === 1) {
+      return { duration: 180, stage: "yard-preparation" };
+    }
+    if (classNumber === 2) {
+      return { duration: 180, stage: "road-preparation" };
+    }
+    return null;
+  }
+  if (classType === "driving") {
+    if (classNumber! >= 1 && classNumber! <= 4) {
+      return { duration: 240, maxStudents: 1, stage: "closed-circuit" };
+    }
+    if (classNumber === 5) {
+      return { duration: 120, maxStudents: 1, stage: "road" };
+    }
+    if (classNumber! >= 6 && classNumber! <= 7) {
+      return { duration: 240, maxStudents: 1, stage: "road" };
+    }
+  }
+  return null;
+}
+
+/**
+ * Validates server-bound class data against the official motorcycle program.
+ * UI defaults are not an integrity boundary: every create/update path calls
+ * this before writing.
+ */
+export function validateMotoClassConfiguration(input: {
+  courseType?: string | null;
+  classType?: string | null;
+  classNumber?: number | null;
+  duration?: number | null;
+  maxStudents?: number | null;
+}): string | null {
+  if ((input.courseType || "").toLowerCase() !== "moto") return null;
+  const requirements = getMotoClassRequirements(input.classType, input.classNumber);
+  if (!requirements) {
+    return "Invalid motorcycle session. Use Theory #1–2, Closed-Circuit #1–4, or Road Training #5–7.";
+  }
+  if (input.duration !== requirements.duration) {
+    return `This motorcycle session must be ${requirements.duration} minutes.`;
+  }
+  if (
+    requirements.maxStudents !== undefined &&
+    input.maxStudents !== requirements.maxStudents
+  ) {
+    return "Motorcycle practical sessions must have exactly 1 student.";
+  }
+  return null;
+}
+
 /**
  * Returns the minimum number of virtual classes and an even distribution of
  * students across them. Counts always differ by at most one.

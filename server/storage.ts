@@ -214,7 +214,7 @@ export interface IStorage {
   // Classes
   getClasses(): Promise<Class[]>;
   getClass(id: number): Promise<Class | undefined>;
-  createClass(classData: InsertClass): Promise<Class>;
+  createClass(classData: InsertClass, txc?: DbTx): Promise<Class>;
   updateClass(id: number, classData: Partial<InsertClass>): Promise<Class>;
   deleteClass(id: number): Promise<void>;
   confirmClassVehicle(classId: number): Promise<void>;
@@ -1329,7 +1329,7 @@ export class MemStorage implements IStorage {
     return this.classes.get(id);
   }
 
-  async createClass(insertClass: InsertClass): Promise<Class> {
+  async createClass(insertClass: InsertClass, _txc?: DbTx): Promise<Class> {
     if (insertClass.zoomLink?.trim() && (insertClass.maxStudents ?? 15) > VIRTUAL_CLASS_MAX_STUDENTS) {
       throw new Error(`Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students`);
     }
@@ -2596,11 +2596,12 @@ export class DatabaseStorage implements IStorage {
     return classData || undefined;
   }
 
-  async createClass(insertClass: InsertClass): Promise<Class> {
+  async createClass(insertClass: InsertClass, txc?: DbTx): Promise<Class> {
     if (insertClass.zoomLink?.trim() && (insertClass.maxStudents ?? 15) > VIRTUAL_CLASS_MAX_STUDENTS) {
       throw new Error(`Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students`);
     }
-    const [classData] = await db
+    const runner = txc ?? db;
+    const [classData] = await runner
       .insert(classes)
       .values(insertClass)
       .returning();

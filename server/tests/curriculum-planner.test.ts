@@ -2,10 +2,88 @@ import { describe, it, expect } from "vitest";
 import {
   buildAutoCurriculumPlan,
   buildCandidateDates,
+  getMotoClassRequirements,
   scheduleAutoCurriculum,
   findCurriculumConflicts,
   splitVirtualEnrollment,
+  validateMotoClassConfiguration,
 } from "@shared/curriculumPlanner";
+
+describe("motorcycle class requirements", () => {
+  it.each([
+    ["theory", 1, { duration: 180, stage: "yard-preparation" }],
+    ["theory", 2, { duration: 180, stage: "road-preparation" }],
+    ["driving", 1, { duration: 240, maxStudents: 1, stage: "closed-circuit" }],
+    ["driving", 4, { duration: 240, maxStudents: 1, stage: "closed-circuit" }],
+    ["driving", 5, { duration: 120, maxStudents: 1, stage: "road" }],
+    ["driving", 6, { duration: 240, maxStudents: 1, stage: "road" }],
+    ["driving", 7, { duration: 240, maxStudents: 1, stage: "road" }],
+  ])("maps %s #%i to its canonical configuration", (classType, classNumber, expected) => {
+    expect(getMotoClassRequirements(classType, classNumber)).toEqual(expected);
+  });
+
+  it.each([
+    ["theory", 0],
+    ["theory", 3],
+    ["driving", 0],
+    ["driving", 8],
+    ["driving", 1.5],
+    ["other", 1],
+  ])("rejects invalid motorcycle session %s #%s", (classType, classNumber) => {
+    expect(getMotoClassRequirements(classType, classNumber)).toBeNull();
+  });
+
+  it("accepts every canonical motorcycle session", () => {
+    const validSessions = [
+      { classType: "theory", classNumber: 1, duration: 180, maxStudents: 24 },
+      { classType: "theory", classNumber: 2, duration: 180, maxStudents: 24 },
+      ...[1, 2, 3, 4].map((classNumber) => ({
+        classType: "driving",
+        classNumber,
+        duration: 240,
+        maxStudents: 1,
+      })),
+      { classType: "driving", classNumber: 5, duration: 120, maxStudents: 1 },
+      ...[6, 7].map((classNumber) => ({
+        classType: "driving",
+        classNumber,
+        duration: 240,
+        maxStudents: 1,
+      })),
+    ];
+
+    for (const session of validSessions) {
+      expect(validateMotoClassConfiguration({ courseType: "moto", ...session })).toBeNull();
+    }
+  });
+
+  it("rejects invalid practical durations and capacities", () => {
+    expect(validateMotoClassConfiguration({
+      courseType: "moto",
+      classType: "driving",
+      classNumber: 5,
+      duration: 240,
+      maxStudents: 1,
+    })).toContain("120 minutes");
+    expect(validateMotoClassConfiguration({
+      courseType: "moto",
+      classType: "driving",
+      classNumber: 1,
+      duration: 240,
+      maxStudents: 2,
+    })).toContain("exactly 1 student");
+  });
+
+  it("does not apply motorcycle rules to other courses", () => {
+    expect(validateMotoClassConfiguration({
+      courseType: "auto",
+      classType: "driving",
+      classNumber: 99,
+      duration: 15,
+      maxStudents: 12,
+    })).toBeNull();
+  });
+});
 
 describe("splitVirtualEnrollment", () => {
   it.each([

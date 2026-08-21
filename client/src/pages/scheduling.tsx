@@ -19,6 +19,39 @@ import { Repeat } from "lucide-react";
 import type { Class, Instructor } from "@shared/schema";
 import { startOfWeek, endOfWeek, parse, format, addDays } from "date-fns";
 
+function getSchedulingClassLabel(
+  cls: Pick<Class, "courseType" | "classType" | "classNumber">,
+): string {
+  const courseType = (cls.courseType || "").toLowerCase();
+  const classType = cls.classType || "theory";
+  const classNumber = cls.classNumber ?? 0;
+
+  if (courseType === "moto") {
+    if (classType === "theory") {
+      return classNumber === 1
+        ? "Moto Yard Preparation (Theory #1)"
+        : classNumber === 2
+          ? "Moto Road Preparation (Theory #2)"
+          : `Moto Theory #${classNumber}`;
+    }
+    if (classNumber >= 1 && classNumber <= 4) {
+      return `Moto Closed-Circuit Session #${classNumber}`;
+    }
+    if (classNumber >= 5 && classNumber <= 7) {
+      return `Moto Road Session #${classNumber - 4}`;
+    }
+  }
+
+  const courseLabel = courseType.charAt(0).toUpperCase() + courseType.slice(1);
+  const sessionLabel =
+    classType === "theory"
+      ? "Theory"
+      : courseType === "auto"
+        ? "In-Car"
+        : "Riding";
+  return `${courseLabel} ${sessionLabel} #${classNumber}`;
+}
+
 export default function Scheduling() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<(Class & { enrolledCount?: number; historicalEnrollmentCount?: number }) | null>(null);
@@ -77,6 +110,7 @@ export default function Scheduling() {
     zoomLink: '',
     progressive: false,
     fullCurriculum: false,
+    motoTrainingStage: 'closed-circuit' as 'closed-circuit' | 'road',
   });
 
   // Reschedule class mutation
@@ -152,6 +186,24 @@ export default function Scheduling() {
   // decimals/suffixes — matches the server's strict validation).
   const classNumberValid = /^\d+$/.test(genForm.classNumber.trim()) && parseInt(genForm.classNumber, 10) >= 1;
   const classNumberInt = classNumberValid ? parseInt(genForm.classNumber, 10) : 1;
+  const isMotoPracticalSeries =
+    genForm.courseType === "moto" &&
+    genForm.classType === "driving" &&
+    !genForm.fullCurriculum;
+  const motoPracticalStage = genForm.motoTrainingStage;
+
+  const selectMotoPracticalStage = (stage: "closed-circuit" | "road") => {
+    const firstClassNumber = stage === "road" ? 5 : 1;
+    setGenForm((previous) => ({
+      ...previous,
+      classType: "driving",
+      classNumber: String(firstClassNumber),
+      duration: firstClassNumber === 5 ? 120 : 240,
+      maxStudents: 1,
+      progressive: false,
+      motoTrainingStage: stage,
+    }));
+  };
 
   // Preview: count how many dates will be created
   const previewCount = useMemo(() => {
@@ -169,11 +221,14 @@ export default function Scheduling() {
     }
     if (genForm.progressive) {
       const counts = getCourseClassCounts(genForm.courseType);
-      const maxNumber = genForm.classType === 'driving' ? counts.drivingCount : counts.theoryCount;
+      const maxNumber =
+        genForm.courseType === "moto" && genForm.classType === "driving"
+          ? genForm.motoTrainingStage === "closed-circuit" ? 4 : 7
+          : genForm.classType === 'driving' ? counts.drivingCount : counts.theoryCount;
       count = Math.max(0, Math.min(count, maxNumber - classNumberInt + 1));
     }
     return count;
-  }, [genForm.startDate, genForm.endDate, genForm.daysOfWeek, genForm.progressive, genForm.fullCurriculum, genForm.courseType, genForm.classType, classNumberValid, classNumberInt]);
+  }, [genForm.startDate, genForm.endDate, genForm.daysOfWeek, genForm.progressive, genForm.fullCurriculum, genForm.courseType, genForm.classType, genForm.motoTrainingStage, classNumberValid, classNumberInt]);
 
   const toggleGenDay = (day: number) => {
     setGenForm(prev => ({
@@ -1033,11 +1088,11 @@ export default function Scheduling() {
                             onDragEnd={handleDragEnd}
                             onClick={() => setEditingClass(cls)}
                             className={`text-xs px-2 py-1 rounded-md truncate font-medium cursor-grab active:cursor-grabbing relative ${getCourseColor(cls.courseType)} ${hasConflict ? 'ring-2 ring-red-500 ring-offset-1' : ''} ${isDragging ? 'opacity-50 scale-95' : ''}`}
-                            title={`${cls.courseType.toUpperCase()} #${cls.classNumber} - ${cls.time} - ${cls.enrolledCount ?? 0}/${cls.maxStudents} enrolled${hasConflict ? ' (CONFLICT!)' : ''} - Drag to reschedule`}
+                            title={`${getSchedulingClassLabel(cls)} - ${cls.time} - ${cls.enrolledCount ?? 0}/${cls.maxStudents} enrolled${hasConflict ? ' (CONFLICT!)' : ''} - Drag to reschedule`}
                           >
                             <div className="flex items-center gap-1">
                               {hasConflict && <AlertTriangle className="h-3 w-3 text-red-500 flex-shrink-0" />}
-                              <span className="truncate">{cls.courseType.charAt(0).toUpperCase()}{cls.courseType.slice(1)} #{cls.classNumber}</span>
+                              <span className="truncate">{getSchedulingClassLabel(cls)}</span>
                               <span className="ml-auto flex-shrink-0 text-[10px] font-semibold opacity-80" data-testid={`text-cell-enrolled-${cls.id}`}>
                                 {cls.enrolledCount ?? 0}/{cls.maxStudents}
                               </span>
@@ -1097,7 +1152,7 @@ export default function Scheduling() {
                       </div>
                       <div>
                         <h4 className="text-base font-bold text-gray-900 mb-1">
-                          {classItem.courseType.charAt(0).toUpperCase() + classItem.courseType.slice(1)} Theory Class #{classItem.classNumber}
+                          {getSchedulingClassLabel(classItem)}
                         </h4>
                         {classItem.sessionGroupId && (
                           <Badge variant="outline" className="mb-1 border-blue-200 bg-blue-50 text-blue-700" data-testid={`badge-session-group-${classItem.id}`}>
@@ -1160,7 +1215,7 @@ export default function Scheduling() {
                           data-testid={`button-delete-class-${classItem.id}`}
                           disabled={deleteClassMutation.isPending}
                           onClick={() => {
-                            if (window.confirm(`Delete ${classItem.courseType.charAt(0).toUpperCase() + classItem.courseType.slice(1)} Theory Class #${classItem.classNumber} on ${classItem.date} at ${classItem.time}? This cannot be undone.`)) {
+                            if (window.confirm(`Delete ${getSchedulingClassLabel(classItem)} on ${classItem.date} at ${classItem.time}? This cannot be undone.`)) {
                               deleteClassMutation.mutate(classItem.id);
                             }
                           }}
@@ -1662,7 +1717,7 @@ export default function Scheduling() {
                       >
                         <div className="flex items-center gap-2">
                           {hasConflict && <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />}
-                          <span>{cls.courseType.charAt(0).toUpperCase()}{cls.courseType.slice(1)} #{cls.classNumber}</span>
+                          <span>{getSchedulingClassLabel(cls)}</span>
                           <span className="ml-auto flex items-center gap-2 text-xs">
                             <span className="flex items-center gap-1" data-testid={`text-day-enrolled-${cls.id}`}>
                               <Users className="h-3 w-3" />
@@ -1881,10 +1936,25 @@ export default function Scheduling() {
 
             <div className="space-y-5 py-2">
               {/* Course & Class Type */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className={genForm.fullCurriculum ? "grid grid-cols-1 gap-4" : "grid grid-cols-2 gap-4"}>
                 <div className="space-y-1.5">
                   <Label>Course Type</Label>
-                  <Select value={genForm.courseType} onValueChange={v => setGenForm(p => ({ ...p, courseType: v }))}>
+                  <Select
+                    value={genForm.courseType}
+                    onValueChange={v => setGenForm(p => ({
+                      ...p,
+                      courseType: v,
+                      // Auto and moto are curriculum-driven programs. Selecting
+                      // either type should immediately plan the whole schedule;
+                      // staff can uncheck the planner to create a partial series.
+                      fullCurriculum: v === "auto" || v === "moto",
+                      progressive: false,
+                      classType: "theory",
+                      classNumber: "1",
+                      duration: v === "moto" ? 180 : 120,
+                      motoTrainingStage: "closed-circuit",
+                    }))}
+                  >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="auto">Auto</SelectItem>
@@ -1893,29 +1963,84 @@ export default function Scheduling() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1.5">
+                {!genForm.fullCurriculum && <div className="space-y-1.5">
                   <Label>Class Type</Label>
-                  <Select value={genForm.classType} onValueChange={v => setGenForm(p => ({ ...p, classType: v }))}>
+                  <Select
+                    value={genForm.classType}
+                    onValueChange={v => setGenForm(p => ({
+                      ...p,
+                      classType: v,
+                      classNumber: v === "driving" && p.courseType === "moto" ? "1" : p.classNumber,
+                      duration: p.courseType === "moto"
+                        ? (v === "driving" ? 240 : 180)
+                        : p.duration,
+                      maxStudents: v === "driving" && p.courseType === "moto" ? 1 : p.maxStudents,
+                      motoTrainingStage: "closed-circuit",
+                    }))}
+                  >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="theory">Theory Class</SelectItem>
-                      <SelectItem value="driving">Driving Class</SelectItem>
+                      <SelectItem value="theory">
+                        {genForm.courseType === "moto" ? "Motorcycle Theory / Preparation" : "Theory Class"}
+                      </SelectItem>
+                      <SelectItem value="driving">
+                        {genForm.courseType === "moto" ? "Motorcycle Practical Training" : "Driving Class"}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
+                </div>}
               </div>
 
+              {isMotoPracticalSeries && (
+                <div className="space-y-1.5 rounded-md border border-blue-200 bg-blue-50 p-3">
+                  <Label>Motorcycle Training Stage</Label>
+                  <Select
+                    value={motoPracticalStage}
+                    onValueChange={(value: "closed-circuit" | "road") => selectMotoPracticalStage(value)}
+                  >
+                    <SelectTrigger data-testid="select-recurring-moto-training-stage">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="closed-circuit">Closed-Circuit Training — Sessions 1–4</SelectItem>
+                      <SelectItem value="road">Road Training — Sessions 1–3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-600">
+                    {motoPracticalStage === "closed-circuit"
+                      ? "Choose class numbers 1–4. Each closed-circuit session is 4 hours."
+                      : "Choose class #5 for Road Session 1 (2 hours), or #6–7 for Road Sessions 2–3 (4 hours)."}
+                  </p>
+                </div>
+              )}
+
               {/* Class Number & Duration */}
-              <div className="grid grid-cols-2 gap-4">
+              {!genForm.fullCurriculum && <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label>Class Number</Label>
+                  <Label>
+                    {isMotoPracticalSeries
+                      ? motoPracticalStage === "road"
+                        ? "Road Session"
+                        : "Closed-Circuit Session"
+                      : "Class Number"}
+                  </Label>
                   <Input
                     type="number"
-                    min={1}
-                    max={15}
+                    min={isMotoPracticalSeries && motoPracticalStage === "road" ? 5 : 1}
+                    max={isMotoPracticalSeries ? (motoPracticalStage === "road" ? 7 : 4) : 15}
                     step={1}
                     value={genForm.classNumber}
-                    onChange={e => setGenForm(p => ({ ...p, classNumber: e.target.value }))}
+                    onChange={e => {
+                      const nextNumber = parseInt(e.target.value, 10);
+                      setGenForm(p => ({
+                        ...p,
+                        classNumber: e.target.value,
+                        duration: isMotoPracticalSeries && Number.isInteger(nextNumber)
+                          ? (nextNumber === 5 ? 120 : 240)
+                          : p.duration,
+                        maxStudents: isMotoPracticalSeries ? 1 : p.maxStudents,
+                      }));
+                    }}
                     className={classNumberValid ? undefined : 'border-red-400 focus-visible:ring-red-400'}
                   />
                   {!classNumberValid && (
@@ -1924,7 +2049,11 @@ export default function Scheduling() {
                 </div>
                 <div className="space-y-1.5">
                   <Label>Duration</Label>
-                  <Select value={String(genForm.duration)} onValueChange={v => setGenForm(p => ({ ...p, duration: parseInt(v) }))}>
+                  <Select
+                    value={String(genForm.duration)}
+                    disabled={genForm.courseType === "moto"}
+                    onValueChange={v => setGenForm(p => ({ ...p, duration: parseInt(v) }))}
+                  >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="60">60 min</SelectItem>
@@ -1934,8 +2063,11 @@ export default function Scheduling() {
                       <SelectItem value="240">240 min</SelectItem>
                     </SelectContent>
                   </Select>
+                  {genForm.courseType === "moto" && (
+                    <p className="text-xs text-gray-500">Set automatically from the motorcycle program.</p>
+                  )}
                 </div>
-              </div>
+              </div>}
 
               {/* Full curriculum plan (auto & moto courses) */}
               {(genForm.courseType === 'auto' || genForm.courseType === 'moto') && (
@@ -1959,6 +2091,27 @@ export default function Scheduling() {
                 </div>
               )}
 
+              {genForm.fullCurriculum && genForm.courseType === "moto" && (
+                <div className="grid gap-2 sm:grid-cols-2" data-testid="moto-curriculum-preview">
+                  <div className="rounded-md border bg-white p-3">
+                    <p className="font-medium">1. Yard Preparation</p>
+                    <p className="text-xs text-gray-500">Theory #1 · 3 hours</p>
+                  </div>
+                  <div className="rounded-md border bg-white p-3">
+                    <p className="font-medium">2. Closed-Circuit Training</p>
+                    <p className="text-xs text-gray-500">4 sessions · 4 hours each</p>
+                  </div>
+                  <div className="rounded-md border bg-white p-3">
+                    <p className="font-medium">3. Road Preparation</p>
+                    <p className="text-xs text-gray-500">Theory #2 · 3 hours</p>
+                  </div>
+                  <div className="rounded-md border bg-white p-3">
+                    <p className="font-medium">4. Road Training</p>
+                    <p className="text-xs text-gray-500">3 sessions · 2h / 4h / 4h</p>
+                  </div>
+                </div>
+              )}
+
               {/* Progressive series */}
               {!genForm.fullCurriculum && (
               <div className="flex items-start gap-2 rounded-md border border-gray-200 p-3">
@@ -1969,9 +2122,19 @@ export default function Scheduling() {
                   data-testid="checkbox-progressive"
                 />
                 <div className="space-y-0.5">
-                  <Label htmlFor="gen-progressive" className="cursor-pointer">Progress through class numbers</Label>
+                  <Label htmlFor="gen-progressive" className="cursor-pointer">
+                    {isMotoPracticalSeries
+                      ? motoPracticalStage === "closed-circuit"
+                        ? "Create all Closed-Circuit sessions"
+                        : "Create all Road Training sessions"
+                      : "Progress through class numbers"}
+                  </Label>
                   <p className="text-xs text-gray-500">
-                    Each date gets the next class number ({genForm.classType === 'driving' ? 'Driving' : 'Theory'} {classNumberInt}, {classNumberInt + 1}, …) up to the last session of the {genForm.courseType} course, instead of repeating the same class every time.
+                    {isMotoPracticalSeries
+                      ? motoPracticalStage === "closed-circuit"
+                        ? "Creates Closed-Circuit Sessions #1–4 on consecutive matching dates, each with the required 4-hour duration."
+                        : "Creates Road Sessions #1–3 on consecutive matching dates with the required 2h / 4h / 4h durations."
+                      : `Each date gets the next class number (${genForm.classType === 'driving' ? 'Driving' : 'Theory'} ${classNumberInt}, ${classNumberInt + 1}, …) up to the last session of the ${genForm.courseType} course, instead of repeating the same class every time.`}
                   </p>
                 </div>
               </div>
