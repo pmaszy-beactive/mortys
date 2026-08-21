@@ -1285,8 +1285,11 @@ export default function StudentClasses() {
     }
   }, [authLoading, isAuthenticated, setLocation]);
 
-  if (authLoading || classesLoading) {
-    return (
+  // Do not return before the hooks below. The student auth query resolves
+  // before the class query, so an early loading return here caused the next
+  // render to reach useMemo for the first time and crash with a hook-order
+  // error.
+  const loadingScreen = (authLoading || classesLoading) ? (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50">
         <div className="bg-white/80 backdrop-blur-lg shadow-lg border-b border-[#ECC462]/20">
           <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
@@ -1301,8 +1304,7 @@ export default function StudentClasses() {
           </div>
         </div>
       </div>
-    );
-  }
+    ) : null;
 
   // A class row's Book button was clicked — open the per-class session picker.
   const handleBookPhaseClass = (classItem: PhaseClassProgress) => {
@@ -1360,6 +1362,8 @@ export default function StudentClasses() {
     }
     return false;
   }, [phaseProgressData]);
+
+  if (loadingScreen) return loadingScreen;
 
   // Look up scheduled class info by id from the booked-classes query so pairing
   // offer/session cards can show date, time, and instructor.
