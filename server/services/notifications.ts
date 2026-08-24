@@ -27,6 +27,7 @@ export type NotificationType =
   | 'scrape_failure'
   | 'scrape_recovered'
   | 'auto_enroll_failed'
+  | 'contract_signed'
   | 'start_date_change'
   | 'series_days_change'
   | 'exam_result_corrected'
@@ -596,6 +597,57 @@ export async function notifyAutoEnrollFailure(details: {
       startDate: details.startDate,
       startTime: details.startTime ?? null,
       reason: details.reason,
+    },
+    recipients,
+    channels: ['email', 'in_app'],
+  });
+}
+
+// Alert the office after a contract passes the initials gate and becomes active.
+// OFFICE_NOTIFICATION_EMAILS controls the recipient list when configured;
+// otherwise getOfficeRecipients falls back to owner/admin/manager accounts.
+export async function notifyContractSigned(details: {
+  contractId: number;
+  contractNumber?: string | null;
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  courseType: string;
+  signedDate: string;
+}): Promise<number | null> {
+  const recipients = await getOfficeRecipients();
+
+  if (recipients.length === 0) {
+    console.error(
+      `[contracts] Contract #${details.contractId} was signed by ${details.studentName}, but there are no office recipients to notify.`,
+    );
+    return null;
+  }
+
+  const contractLabel = details.contractNumber
+    ? `${details.contractNumber} (record #${details.contractId})`
+    : `record #${details.contractId}`;
+  const courseLabel =
+    details.courseType.charAt(0).toUpperCase() + details.courseType.slice(1);
+  const message =
+    `A student completed and signed their digital contract.\n\n` +
+    `Student: ${details.studentName} (#${details.studentId})\n` +
+    `Email: ${details.studentEmail}\n` +
+    `Contract: ${contractLabel}\n` +
+    `Course: ${courseLabel}\n` +
+    `Signed date: ${details.signedDate}\n\n` +
+    `The signed contract is now active and available in the student's profile.`;
+
+  return enqueueNotification({
+    type: 'contract_signed',
+    title: `Contract Signed — ${details.studentName}`,
+    message,
+    payload: {
+      contractId: details.contractId,
+      contractNumber: details.contractNumber ?? undefined,
+      studentId: details.studentId,
+      courseType: details.courseType,
+      signedDate: details.signedDate,
     },
     recipients,
     channels: ['email', 'in_app'],

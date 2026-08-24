@@ -15,6 +15,19 @@
 
 export const SCHOOL_TIMEZONE = process.env.SCHOOL_TIMEZONE || "America/Toronto";
 
+/** Current calendar date in the school's timezone, formatted as YYYY-MM-DD. */
+export function getSchoolLocalDate(at = new Date()): string {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: SCHOOL_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const parts: Record<string, string> = {};
+  for (const part of formatter.formatToParts(at)) parts[part.type] = part.value;
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
 // Millisecond offset of `tz` from UTC at the given instant.
 function timeZoneOffsetMs(tz: string, at: Date): number {
   const dtf = new Intl.DateTimeFormat("en-US", {

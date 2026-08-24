@@ -12,7 +12,7 @@ import {
 } from "./services/s3";
 import { storage } from "./storage";
 import { captureRequestError } from "./services/error-logger";
-import { checkClassStart, getClassStartTime, formatClassSchedule } from "./services/class-time";
+import { checkClassStart, getClassStartTime, formatClassSchedule, getSchoolLocalDate } from "./services/class-time";
 import { validateProgressionForStudent, withStudentBookingLock } from "./services/booking-validation";
 import { enqueueJob, retryJob, cancelJob as cancelQueueJob, runJobNow, getBillingHoldUntil, isBillingHoldActive, getRegisteredJobTypes, validateEnqueueInput } from "./job-queue";
 import {
@@ -5807,7 +5807,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/contracts/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const updateData = req.body;
+      const updateData = { ...req.body };
       const existing = await storage.getContract(id);
       if (!existing) {
         return res.status(404).json({ message: "Contract not found" });
@@ -5821,8 +5821,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
             message: "All contract clauses must be initialed before the contract can be activated",
           });
         }
+        if (!updateData.signedDate) {
+          updateData.signedDate = getSchoolLocalDate();
+        }
       }
       const contract = await storage.updateContract(id, updateData);
+
+      if (becomingActive && contract.studentId) {
+        try {
+          const student = await storage.getStudent(contract.studentId);
+          if (!student) {
+            console.error(
+              `[contracts] Contract #${contract.id} became active, but student #${contract.studentId} was not found for the office notification.`,
+            );
+          } else {
+            await notificationService.notifyContractSigned({
+              contractId: contract.id,
+              contractNumber: contract.contractNumber,
+              studentId: student.id,
+              studentName: `${student.firstName} ${student.lastName}`.trim(),
+              studentEmail: student.email,
+              courseType: contract.courseType,
+              signedDate: contract.signedDate || updateData.signedDate,
+            });
+          }
+        } catch (notificationError) {
+          captureRequestError(notificationError);
+          console.error(
+            `[contracts] Failed to notify the office that contract #${contract.id} was signed (contract remains active):`,
+            notificationError,
+          );
+        }
+      }
+
       res.json(contract);
     } catch (error) {
       captureRequestError(error);
