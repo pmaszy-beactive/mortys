@@ -259,6 +259,7 @@ async function buildStudentProgressContext(studentId: number): Promise<string | 
               ? (cand.classType === "driving" ? (getMotoPracticalDuration(cand.classNumber) ?? 240) : 180)
               : 60,
           saaq6rKnowledgePassed: !!(student as any).saaqKnowledgeTestDate,
+          phase1TimingAdvanceDays: (student as any).phase1TimingAdvanceDays ?? 0,
           maxStudents: cand.classType === "driving" && (cand.classNumber === 12 || cand.classNumber === 13) ? 2 : undefined,
           currentEnrollmentCount: 0,
           sameDayAlreadyBookedCount: 0,

@@ -224,6 +224,50 @@ describe("relaxed auto sequential layer (validateSequentialProgression via valid
     expect(result.blockingRule).toBe("phase1_min_28_days");
   });
 
+  it("allows an admin timing advance to satisfy the 28-day Phase 1 minimum", () => {
+    const completed: CompletedClassRecord[] = [1, 2, 3, 4].map((n) => ({
+      classType: "theory" as const,
+      classNumber: n,
+      date: "2026-08-01",
+    }));
+    const result = validateClassBooking(
+      theoryTarget({
+        classNumber: 5,
+        date: "2026-08-15",
+        phase1TimingAdvanceDays: 14,
+        upcomingBookings: [],
+      }),
+      completed,
+      "auto",
+    );
+    expect(result.allowed).toBe(true);
+  });
+
+  it("restores the normal Phase 1 block when the timing advance is cleared", () => {
+    const completed: CompletedClassRecord[] = [1, 2, 3, 4].map((n) => ({
+      classType: "theory" as const,
+      classNumber: n,
+      date: "2026-08-01",
+    }));
+    const result = validateClassBooking(
+      theoryTarget({
+        classNumber: 5,
+        date: "2026-08-15",
+        phase1TimingAdvanceDays: 0,
+        upcomingBookings: [],
+      }),
+      completed,
+      "auto",
+    );
+    expect(result.allowed).toBe(false);
+    expect(result.blockingRule).toBe("phase1_min_28_days");
+    expect(result.detail).toMatchObject({
+      daysElapsed: 14,
+      actualDaysElapsed: 14,
+      timingAdvanceDays: 0,
+    });
+  });
+
   it("still caps concurrent upcoming in-car bookings at 2", () => {
     const completed: CompletedClassRecord[] = [
       ...[1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({

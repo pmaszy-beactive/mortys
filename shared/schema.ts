@@ -98,6 +98,12 @@ export const students = pgTable("students", {
   // SAAQ 6R knowledge test (moto course): date the office recorded the pass.
   // Null = not yet passed/recorded. Gates closed-circuit booking with Theory #1.
   saaqKnowledgeTestDate: text("saaq_knowledge_test_date"),
+  // Admin-only testing override for Auto Phase 1 elapsed-day checks. This
+  // advances the computed day count without changing the real Theory #1 date.
+  phase1TimingAdvanceDays: integer("phase1_timing_advance_days").notNull().default(0),
+  phase1TimingOverrideReason: text("phase1_timing_override_reason"),
+  phase1TimingOverrideSetAt: timestamp("phase1_timing_override_set_at"),
+  phase1TimingOverrideSetBy: varchar("phase1_timing_override_set_by").references(() => users.id),
   finalExamScore: integer("final_exam_score"),
   roadTestDate: text("road_test_date"),
   roadTestResult: text("road_test_result"),

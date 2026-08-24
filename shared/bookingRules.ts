@@ -68,6 +68,11 @@ export interface TargetClassInfo {
    */
   saaq6rKnowledgePassed?: boolean;
   /**
+   * Admin-only testing override for Auto Phase 1. Added to the real number of
+   * days since Theory #1 without changing the student's attendance history.
+   */
+  phase1TimingAdvanceDays?: number;
+  /**
    * The student's current upcoming (not cancelled, not yet attended, class
    * still scheduled) bookings. Used for strict progression gating: the next
    * theory unlocks only when the previous one is completed, in-car lessons
@@ -98,6 +103,8 @@ export interface BookingValidationResult {
     prerequisitesNeeded?: string[];
     daysNeeded?: number;
     daysElapsed?: number;
+    actualDaysElapsed?: number;
+    timingAdvanceDays?: number;
     phaseLabel?: string;
   };
 }
@@ -452,13 +459,15 @@ function validateAutoRules(
       // 28-day check from Theory 1
       const t1Date = dateOf(completed, "theory", 1);
       if (t1Date) {
-        const elapsed = daysBetween(t1Date, date);
+        const actualElapsed = daysBetween(t1Date, date);
+        const advanceDays = Math.max(0, Math.floor(target.phase1TimingAdvanceDays ?? 0));
+        const elapsed = actualElapsed + advanceDays;
         if (elapsed < 28) {
           return {
             allowed: false,
-            reason: `Theory #5 cannot be attended until at least 28 days after Theory #1. Only ${elapsed} day(s) have passed since Theory #1 (completed ${t1Date}).`,
+            reason: `Theory #5 cannot be attended until at least 28 days after Theory #1. Only ${elapsed} day(s) count toward the wait since Theory #1 (completed ${t1Date}).`,
             blockingRule: "phase1_min_28_days",
-            detail: { daysNeeded: 28, daysElapsed: elapsed, phaseLabel: "Phase 1" },
+            detail: { daysNeeded: 28, daysElapsed: elapsed, actualDaysElapsed: actualElapsed, timingAdvanceDays: advanceDays, phaseLabel: "Phase 1" },
           };
         }
       }

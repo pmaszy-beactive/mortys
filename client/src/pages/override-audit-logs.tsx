@@ -22,7 +22,9 @@ const actionTypeLabels: Record<string, string> = {
   book: "Booking",
   edit: "Edit",
   cancel: "Cancellation",
-  reschedule: "Reschedule"
+  reschedule: "Reschedule",
+  set: "Set",
+  clear: "Clear"
 };
 
 const policyTypeLabels: Record<string, string> = {
@@ -30,7 +32,8 @@ const policyTypeLabels: Record<string, string> = {
   max_bookings_per_day: "Max Bookings/Day",
   max_bookings_per_week: "Max Bookings/Week",
   advance_booking_days: "Advance Booking Days",
-  min_booking_notice: "Min Notice"
+  min_booking_notice: "Min Notice",
+  phase1_timing: "Phase 1 Timing"
 };
 
 export default function OverrideAuditLogs() {
@@ -301,6 +304,7 @@ export default function OverrideAuditLogs() {
                   <SelectItem value="max_bookings_per_day">Max Bookings/Day</SelectItem>
                   <SelectItem value="max_bookings_per_week">Max Bookings/Week</SelectItem>
                   <SelectItem value="advance_booking_days">Advance Booking Days</SelectItem>
+                  <SelectItem value="phase1_timing">Phase 1 Timing</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -322,6 +326,8 @@ export default function OverrideAuditLogs() {
                   <SelectItem value="edit">Edit</SelectItem>
                   <SelectItem value="cancel">Cancellation</SelectItem>
                   <SelectItem value="reschedule">Reschedule</SelectItem>
+                  <SelectItem value="set">Set</SelectItem>
+                  <SelectItem value="clear">Clear</SelectItem>
                 </SelectContent>
               </Select>
             </div>

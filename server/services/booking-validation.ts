@@ -110,6 +110,7 @@ export async function validateProgressionForStudent(
       duration: targetClass.duration ?? undefined,
       maxStudents: targetClass.maxStudents ?? undefined,
       saaq6rKnowledgePassed: !!student.saaqKnowledgeTestDate,
+      phase1TimingAdvanceDays: student.phase1TimingAdvanceDays ?? 0,
       upcomingBookings,
     },
     buildCompletedClasses(enrollmentDetails),

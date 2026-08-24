@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  AlertTriangle,
   Edit,
   Plus,
   ArrowLeft,
@@ -47,7 +48,7 @@ import { StatementOfAccount } from "@/components/statement-of-account";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import type { Student, Contract, Evaluation, ClassEnrollment, Location, StudentCourse, StudentParent, Parent, Class, Instructor, StudentNote, StudentDocument } from "@shared/schema";
+import type { Student, Contract, Evaluation, ClassEnrollment, Location, StudentCourse, StudentParent, Parent, Class, Instructor, StudentNote, StudentDocument, User as StaffUser } from "@shared/schema";
 import type { PhaseProgressData } from "@shared/phaseConfig";
 import PhaseProgressTracker, { PhaseProgressTrackerSkeleton } from "@/components/phase-progress-tracker";
 
@@ -84,6 +85,12 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
     queryKey: ["/api/students", studentId],
     queryFn: () => apiRequest("GET", `/api/students/${studentId}`),
   });
+
+  const { data: currentUser } = useQuery<StaffUser>({
+    queryKey: ["/api/auth/user"],
+  });
+  const canManagePhase1Timing =
+    currentUser?.role === "owner" || currentUser?.role === "admin";
 
   const { data: phaseProgressData, isLoading: phaseLoading } = useQuery<PhaseProgressData>({
     queryKey: ['/api/students', studentId, 'phase-progress'],
@@ -168,6 +175,54 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
     },
     onError: (err: any) => {
       toast({ title: "Could not save", description: err?.message || "Update failed.", variant: "destructive" });
+    },
+  });
+
+  // Auto Phase 1 elapsed-day testing override. The server restricts this
+  // endpoint to owner/admin users and requires a reason for set and clear.
+  const [phase1AdvanceDays, setPhase1AdvanceDays] = useState("");
+  const [phase1OverrideReason, setPhase1OverrideReason] = useState("");
+  useEffect(() => {
+    if (student) {
+      setPhase1AdvanceDays(
+        student.phase1TimingAdvanceDays && student.phase1TimingAdvanceDays > 0
+          ? String(student.phase1TimingAdvanceDays)
+          : "",
+      );
+    }
+  }, [student?.id, student?.phase1TimingAdvanceDays]);
+
+  const phase1OverrideMutation = useMutation({
+    mutationFn: ({ advanceDays, reason }: { advanceDays: number; reason: string }) =>
+      apiRequest("PUT", `/api/students/${studentId}/phase1-timing-override`, {
+        advanceDays,
+        reason,
+      }),
+    onSuccess: (updatedStudent: Student, variables) => {
+      queryClient.setQueryData(["/api/students", studentId], updatedStudent);
+      queryClient.invalidateQueries({ queryKey: ["/api/students", studentId, "phase-progress"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/classes/available"] });
+      setPhase1OverrideReason("");
+      setPhase1AdvanceDays(
+        updatedStudent.phase1TimingAdvanceDays && updatedStudent.phase1TimingAdvanceDays > 0
+          ? String(updatedStudent.phase1TimingAdvanceDays)
+          : "",
+      );
+      toast({
+        title: variables.advanceDays > 0
+          ? "Phase 1 timing override active"
+          : "Phase 1 timing override cleared",
+        description: variables.advanceDays > 0
+          ? `Phase 1 elapsed-day checks now count ${variables.advanceDays} extra day(s).`
+          : "Phase 1 elapsed-day checks now use the student's real Theory #1 attendance date.",
+      });
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Could not update timing override",
+        description: err?.message || "Update failed.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -856,6 +911,123 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                     </Button>
                   )}
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {(student.courseType || '').toLowerCase() === 'auto' && canManagePhase1Timing && (
+          <Card
+            className={`mobile-card mb-4 ${
+              (student.phase1TimingAdvanceDays ?? 0) > 0
+                ? "border-amber-400 bg-amber-50/50"
+                : ""
+            }`}
+            data-testid="card-phase1-timing-override"
+          >
+            <CardHeader className="pb-3">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <AlertTriangle className="h-5 w-5 text-amber-600" />
+                    Phase 1 Timing Test Override
+                  </CardTitle>
+                  <CardDescription className="mt-1 max-w-3xl">
+                    Artificially advances the 28-day Phase 1 wait for testing.
+                    It does not change the real Theory #1 attendance date.
+                  </CardDescription>
+                </div>
+                {(student.phase1TimingAdvanceDays ?? 0) > 0 && (
+                  <Badge className="border-amber-300 bg-amber-100 text-amber-900 hover:bg-amber-100">
+                    Active: +{student.phase1TimingAdvanceDays} day(s)
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(student.phase1TimingAdvanceDays ?? 0) > 0 && (
+                <div
+                  className="rounded-md border border-amber-300 bg-amber-100/70 p-3 text-sm text-amber-950"
+                  role="status"
+                  data-testid="phase1-timing-override-active"
+                >
+                  <p className="font-semibold">Testing override is affecting booking eligibility.</p>
+                  <p className="mt-1">
+                    Reason: {student.phase1TimingOverrideReason || "No reason recorded"}
+                    {student.phase1TimingOverrideSetAt
+                      ? ` · Last changed ${formatDate(String(student.phase1TimingOverrideSetAt))}`
+                      : ""}
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
+                <div className="space-y-2">
+                  <label htmlFor="phase1-advance-days" className="text-sm font-medium text-gray-900">
+                    Extra elapsed days
+                  </label>
+                  <Input
+                    id="phase1-advance-days"
+                    type="number"
+                    min={1}
+                    max={365}
+                    step={1}
+                    value={phase1AdvanceDays}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhase1AdvanceDays(e.target.value)}
+                    placeholder="Example: 28"
+                    data-testid="input-phase1-advance-days"
+                  />
+                  <p className="text-xs text-gray-500">Whole number from 1 to 365.</p>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="phase1-override-reason" className="text-sm font-medium text-gray-900">
+                    Reason
+                  </label>
+                  <Textarea
+                    id="phase1-override-reason"
+                    value={phase1OverrideReason}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPhase1OverrideReason(e.target.value)}
+                    placeholder="Required for the audit history, including when clearing."
+                    maxLength={500}
+                    className="min-h-[80px]"
+                    data-testid="input-phase1-override-reason"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  className="bg-[#ECC462] text-black hover:bg-[#ECC462]/90"
+                  disabled={
+                    phase1OverrideMutation.isPending ||
+                    !phase1OverrideReason.trim() ||
+                    !phase1AdvanceDays ||
+                    !Number.isInteger(Number(phase1AdvanceDays)) ||
+                    Number(phase1AdvanceDays) < 1 ||
+                    Number(phase1AdvanceDays) > 365
+                  }
+                  onClick={() => phase1OverrideMutation.mutate({
+                    advanceDays: Number(phase1AdvanceDays),
+                    reason: phase1OverrideReason.trim(),
+                  })}
+                  data-testid="button-set-phase1-timing-override"
+                >
+                  Set Override
+                </Button>
+                {(student.phase1TimingAdvanceDays ?? 0) > 0 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={phase1OverrideMutation.isPending || !phase1OverrideReason.trim()}
+                    onClick={() => phase1OverrideMutation.mutate({
+                      advanceDays: 0,
+                      reason: phase1OverrideReason.trim(),
+                    })}
+                    data-testid="button-clear-phase1-timing-override"
+                  >
+                    Clear Override
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>

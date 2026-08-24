@@ -11,3 +11,9 @@ Key rules and their homes:
 - Full-curriculum recurrence planner: `fullCurriculum` flag on `POST /api/admin/classes/bulk` — 27 classes, recommended order, anchors T5≥T1+28d, IC4≥T6+28d, IC10≥T8+56d, IC15≥T11+56d, IC12/13 shared (maxStudents 2), T5 hasTest.
 
 **Why:** the school's printed phase documents are the contract-level source; earlier confusion arose when the same documents were briefly believed to be the moto rules.
+
+For early Phase 1 testing, advance the student's **computed elapsed-day count** by an additive number of days; never rewrite Theory #1 attendance dates or class schedules. Keep the control owner/admin-only, reason-required, reversible, and audit every set/clear with accurate before/after values.
+
+**Why:** test data still needs truthful attendance history, while staff need to exercise Theory #5 eligibility before the real 28-day wait has elapsed.
+
+**How to apply:** pass the per-student advance through every booking/progression entry point, but apply it only to the Auto Theory #5 28-day calculation unless the school explicitly expands the override's scope.
