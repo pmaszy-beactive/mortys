@@ -255,6 +255,43 @@ describe("moto booking rules", () => {
     expect(res.allowed).toBe(false);
     expect(res.blockingRule).toBe("previous_class_incomplete");
   });
+
+  it("blocks Session #3 on a full date but allows it on another day", () => {
+    const upcomingBookings = [
+      { classType: "driving" as const, classNumber: 1 },
+      { classType: "driving" as const, classNumber: 2 },
+    ];
+    const completed = [attended("theory", 1)];
+
+    const sameDay = validateClassBooking(
+      motoTarget({
+        classNumber: 3,
+        date: "2026-03-02",
+        duration: 240,
+        saaq6rKnowledgePassed: true,
+        sameDayAlreadyBookedCount: 2,
+        upcomingBookings,
+      }),
+      completed,
+      "moto",
+    );
+    expect(sameDay.allowed).toBe(false);
+    expect(sameDay.blockingRule).toBe("max_classes_per_day");
+
+    const anotherDay = validateClassBooking(
+      motoTarget({
+        classNumber: 3,
+        date: "2026-03-03",
+        duration: 240,
+        saaq6rKnowledgePassed: true,
+        sameDayAlreadyBookedCount: 0,
+        upcomingBookings,
+      }),
+      completed,
+      "moto",
+    );
+    expect(anotherDay).toEqual({ allowed: true });
+  });
 });
 
 describe("auto and scooter behavior unchanged", () => {

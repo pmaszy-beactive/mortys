@@ -19,6 +19,7 @@ import { useInstructorAuth } from "@/hooks/useInstructorAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import SignaturePad, { type SignaturePadRef } from "@/components/signature-pad";
+import type { Instructor } from "@shared/schema";
 
 interface ReminderSettings {
   instructorId: number;
@@ -111,9 +112,21 @@ export default function InstructorProfile() {
     }
   }, [isLoading, isAuthenticated, setLocation]);
 
+  useEffect(() => {
+    if (instructor && !isEditing) {
+      form.reset({
+        phone: instructor.phone || "",
+        emergencyContact: instructor.emergencyContact || "",
+        emergencyPhone: instructor.emergencyPhone || "",
+        notes: instructor.notes || "",
+      });
+    }
+  }, [form, instructor, isEditing]);
+
   const updateProfileMutation = useMutation({
     mutationFn: (data: ProfileFormData) => apiRequest("PUT", "/api/instructor/profile", data),
-    onSuccess: () => {
+    onSuccess: (updatedInstructor: Instructor) => {
+      queryClient.setQueryData(["/api/instructor/me"], updatedInstructor);
       queryClient.invalidateQueries({ queryKey: ["/api/instructor/me"] });
       toast({
         title: "Profile updated",
@@ -133,7 +146,8 @@ export default function InstructorProfile() {
   const saveSignatureMutation = useMutation({
     mutationFn: (signatureData: string) => 
       apiRequest("PUT", "/api/instructor/profile", { digitalSignature: signatureData }),
-    onSuccess: () => {
+    onSuccess: (updatedInstructor: Instructor) => {
+      queryClient.setQueryData(["/api/instructor/me"], updatedInstructor);
       queryClient.invalidateQueries({ queryKey: ["/api/instructor/me"] });
       toast({
         title: "Signature saved",

@@ -73,15 +73,48 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
   });
 
   // Parse existing specializations from database
-  const parseSpecializations = (specializations: any) => {
+  const parseSpecializations = (
+    specializations: any,
+  ): Record<string, { theory: boolean; practical: boolean }> => {
     if (typeof specializations === 'string') {
       try {
-        return JSON.parse(specializations);
+        return parseSpecializations(JSON.parse(specializations));
       } catch {
-        return {};
+        return parseSpecializations(
+          specializations.split(',').map((value) => value.trim()),
+        );
       }
     }
-    return specializations || {};
+    if (Array.isArray(specializations)) {
+      return specializations.reduce<Record<string, { theory: boolean; practical: boolean }>>(
+        (result, courseType) => {
+          if (typeof courseType === "string" && courseTypes.some(({ value }) => value === courseType.toLowerCase())) {
+            result[courseType.toLowerCase()] = { theory: true, practical: true };
+          }
+          return result;
+        },
+        {},
+      );
+    }
+    if (specializations && typeof specializations === "object") {
+      return Object.entries(specializations).reduce<Record<string, { theory: boolean; practical: boolean }>>(
+        (result, [courseType, details]) => {
+          if (!courseTypes.some(({ value }) => value === courseType.toLowerCase())) {
+            return result;
+          }
+          const values = details && typeof details === "object"
+            ? details as { theory?: unknown; practical?: unknown }
+            : {};
+          result[courseType.toLowerCase()] = {
+            theory: Boolean(values.theory),
+            practical: Boolean(values.practical),
+          };
+          return result;
+        },
+        {},
+      );
+    }
+    return {};
   };
 
   // Parse secondary locations
@@ -146,9 +179,17 @@ export default function InstructorForm({ instructor, onSuccess }: InstructorForm
         ? apiRequest('PUT', `/api/instructors/${instructor!.id}`, submitData)
         : apiRequest('POST', '/api/instructors', submitData);
     },
-    onSuccess: () => {
+    onSuccess: (savedInstructor: Instructor) => {
       queryClient.invalidateQueries({ queryKey: ["/api/instructors"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/instructors", instructor?.id] });
+      if (isEditing) {
+        queryClient.setQueryData(
+          [`/api/instructors/${instructor!.id}`],
+          savedInstructor,
+        );
+        queryClient.invalidateQueries({
+          queryKey: [`/api/instructors/${instructor!.id}`],
+        });
+      }
       toast({
         title: "✓ Success",
         description: `Instructor ${isEditing ? 'updated' : 'created'} successfully`,

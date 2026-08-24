@@ -257,10 +257,11 @@ export function validateClassBooking(
  * - theory classes unlock strictly one at a time — Theory #n requires
  *   Theory #(n-1) to be completed (attended), which also gates crossing into
  *   the next phase (e.g. Theory #7 stays locked until Theory #6 is done);
- * - in-car lessons unlock sequentially too, but a student may hold up to
- *   MAX_CONCURRENT_INCAR_BOOKINGS upcoming in-car bookings: In-Car #n is
- *   bookable when #(n-1) is completed OR currently booked;
- * - no more than MAX_CONCURRENT_INCAR_BOOKINGS upcoming in-car bookings.
+ * - driving lessons unlock sequentially: lesson #n is bookable when #(n-1)
+ *   is completed OR currently booked;
+ * - Auto and simplified-course students may hold up to
+ *   MAX_CONCURRENT_INCAR_BOOKINGS upcoming driving bookings. Moto's
+ *   multi-session closed-circuit progression is intentionally exempt.
  * Returns null when the target passes this layer.
  */
 function validateSequentialProgression(
@@ -311,9 +312,12 @@ function validateSequentialProgression(
     return null;
   }
 
-  // In-car lessons
+  // Driving lessons
   const upcomingInCar = upcoming.filter((b) => b.classType === "driving").length;
-  if (upcomingInCar >= MAX_CONCURRENT_INCAR_BOOKINGS) {
+  if (
+    courseType.toLowerCase() !== "moto" &&
+    upcomingInCar >= MAX_CONCURRENT_INCAR_BOOKINGS
+  ) {
     return {
       allowed: false,
       reason: `You already hold ${MAX_CONCURRENT_INCAR_BOOKINGS} upcoming in-car bookings. Complete or cancel one before booking another.`,

@@ -598,6 +598,15 @@ export default function Scheduling() {
     }
   };
 
+  const getCalendarClassColor = (
+    classItem: Pick<Class, "courseType" | "instructorId">,
+  ) => {
+    if (!classItem.instructorId) {
+      return "bg-amber-100 text-amber-950 border border-amber-400";
+    }
+    return getCourseColor(classItem.courseType);
+  };
+
   const getCourseGradient = (courseType: string) => {
     switch (courseType) {
       case "auto": return "from-[#ECC462] to-amber-500";
@@ -1014,6 +1023,13 @@ export default function Scheduling() {
                 />
                 <span className="text-sm font-medium text-gray-700 group-hover:text-green-600 transition-colors">Driving</span>
               </label>
+              <span
+                className="inline-flex items-center gap-2 text-sm font-medium text-amber-900"
+                data-testid="calendar-legend-needs-instructor"
+              >
+                <span className="h-3 w-3 rounded-sm border border-amber-400 bg-amber-100" />
+                Needs instructor
+              </span>
             </div>
           </CardHeader>
 
@@ -1078,6 +1094,7 @@ export default function Scheduling() {
                       {filteredClasses.slice(0, 2).map((cls) => {
                         const classConflicts = getClassConflicts(cls.id);
                         const hasConflict = classConflicts.length > 0;
+                        const needsInstructor = !cls.instructorId;
                         const isDragging = draggedClass?.id === cls.id;
                         
                         return (
@@ -1087,11 +1104,13 @@ export default function Scheduling() {
                             onDragStart={(e) => handleDragStart(e, cls)}
                             onDragEnd={handleDragEnd}
                             onClick={() => setEditingClass(cls)}
-                            className={`text-xs px-2 py-1 rounded-md truncate font-medium cursor-grab active:cursor-grabbing relative ${getCourseColor(cls.courseType)} ${hasConflict ? 'ring-2 ring-red-500 ring-offset-1' : ''} ${isDragging ? 'opacity-50 scale-95' : ''}`}
-                            title={`${getSchedulingClassLabel(cls)} - ${cls.time} - ${cls.enrolledCount ?? 0}/${cls.maxStudents} enrolled${hasConflict ? ' (CONFLICT!)' : ''} - Drag to reschedule`}
+                            className={`text-xs px-2 py-1 rounded-md truncate font-medium cursor-grab active:cursor-grabbing relative ${getCalendarClassColor(cls)} ${hasConflict ? 'ring-2 ring-red-500 ring-offset-1' : ''} ${isDragging ? 'opacity-50 scale-95' : ''}`}
+                            title={`${getSchedulingClassLabel(cls)} - ${cls.time} - ${cls.enrolledCount ?? 0}/${cls.maxStudents} enrolled${needsInstructor ? " (NEEDS INSTRUCTOR)" : ""}${hasConflict ? ' (CONFLICT!)' : ''} - Drag to reschedule`}
+                            data-testid={`calendar-class-${cls.id}`}
                           >
                             <div className="flex items-center gap-1">
                               {hasConflict && <AlertTriangle className="h-3 w-3 text-red-500 flex-shrink-0" />}
+                              {needsInstructor && <AlertTriangle className="h-3 w-3 text-amber-700 flex-shrink-0" aria-label="Needs instructor" />}
                               <span className="truncate">{getSchedulingClassLabel(cls)}</span>
                               <span className="ml-auto flex-shrink-0 text-[10px] font-semibold opacity-80" data-testid={`text-cell-enrolled-${cls.id}`}>
                                 {cls.enrolledCount ?? 0}/{cls.maxStudents}
@@ -1704,6 +1723,7 @@ export default function Scheduling() {
                   .sort((a, b) => (a.time || '').localeCompare(b.time || ''))
                   .map(cls => {
                     const hasConflict = getClassConflicts(cls.id).length > 0;
+                     const needsInstructor = !cls.instructorId;
                     return (
                       <button
                         key={cls.id}
@@ -1712,11 +1732,12 @@ export default function Scheduling() {
                           setExpandedDay(null);
                           setEditingClass(cls);
                         }}
-                        className={`w-full text-left text-sm px-3 py-2 rounded-md font-medium cursor-pointer ${getCourseColor(cls.courseType)} ${hasConflict ? 'ring-2 ring-red-500 ring-offset-1' : ''}`}
+                        className={`w-full text-left text-sm px-3 py-2 rounded-md font-medium cursor-pointer ${getCalendarClassColor(cls)} ${hasConflict ? 'ring-2 ring-red-500 ring-offset-1' : ''}`}
                         data-testid={`button-day-class-${cls.id}`}
                       >
                         <div className="flex items-center gap-2">
                           {hasConflict && <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />}
+                           {needsInstructor && <AlertTriangle className="h-4 w-4 text-amber-700 flex-shrink-0" aria-label="Needs instructor" />}
                           <span>{getSchedulingClassLabel(cls)}</span>
                           <span className="ml-auto flex items-center gap-2 text-xs">
                             <span className="flex items-center gap-1" data-testid={`text-day-enrolled-${cls.id}`}>
@@ -1730,6 +1751,7 @@ export default function Scheduling() {
                           </span>
                         </div>
                         {hasConflict && <div className="text-xs text-red-600 mt-1">Scheduling conflict</div>}
+                         {needsInstructor && <div className="text-xs text-amber-800 mt-1">Needs instructor</div>}
                       </button>
                     );
                   })}
