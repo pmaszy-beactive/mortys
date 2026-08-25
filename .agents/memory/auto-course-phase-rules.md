@@ -1,9 +1,9 @@
 ---
 name: Auto course phase rules
-description: Source of truth for the auto (car) 4-phase curriculum rules and where they're enforced; scooter uses the simplified 2-phase model; moto now has its own real 4-phase program (see moto-curriculum.md).
+description: Source of truth for the auto (car) 4-phase curriculum rules and where they're enforced; moto and scooter have separate programs.
 ---
 
-The 4-phase curriculum documents (12 theory + 15 in-car, 28/28/56/56-day phase minimums) apply to the **auto (car) course only**. Scooter = 6 theory + 8 riding, simplified 2-phase (all theory before practical). Moto no longer uses the simplified model — it has its own real program (2 theory + 4 closed-circuit + 3 road, see moto-curriculum.md).
+The 4-phase curriculum documents (12 theory + 15 in-car, 28/28/56/56-day phase minimums) apply to the **auto (car) course only**. Moto and scooter each have their own separate curriculum; never apply Auto phase structure to either.
 
 Key rules and their homes:
 - Phase ordering + duration rules: `validateAutoRules` in `shared/bookingRules.ts` (docs allow T2–4 any order, Phase 3/4 flexible after opener — the strict one-at-a-time sequential layer is intentionally skipped for auto and applies to simplified courses only).

@@ -364,7 +364,8 @@ export function getCourseClassCounts(courseType: string): { theoryCount: number;
     // practical sessions 1–4 are closed-circuit (240 min each), 5–7 are road
     // sessions (120/240/240 min).
     moto: { theoryCount: 2, drivingCount: 7 },
-    scooter: { theoryCount: 6, drivingCount: 8 },
+    // Scooter is a two-session course: one 3-hour theory and one 3-hour practical.
+    scooter: { theoryCount: 1, drivingCount: 1 },
   };
   return config[(courseType || '').toLowerCase()] ?? { theoryCount: 5, drivingCount: 10 };
 }
@@ -908,7 +909,7 @@ function validateMotoRules(
   return { allowed: true };
 }
 
-// ─── Simplified rules for Moto / Scooter ─────────────────────────────────────
+// ─── Simplified rules for Scooter ─────────────────────────────────────────────
 
 function validateSimplifiedRules(
   target: TargetClassInfo,
@@ -919,6 +920,26 @@ function validateSimplifiedRules(
 
   // Config per course
   const c = getCourseClassCounts(courseType);
+
+  const maxClassNumber = classType === "theory" ? c.theoryCount : c.drivingCount;
+  if (
+    !Number.isInteger(classNumber) ||
+    classNumber < 1 ||
+    classNumber > maxClassNumber
+  ) {
+    return {
+      allowed: false,
+      reason: `This session is not part of the ${courseType} course curriculum.`,
+      blockingRule: "invalid_course_session",
+    };
+  }
+  if (courseType.toLowerCase() === "scooter" && target.duration !== 180) {
+    return {
+      allowed: false,
+      reason: "Scooter theory and practical sessions must each be 3 hours.",
+      blockingRule: "scooter_session_duration",
+    };
+  }
 
   const completedTheory = completed.filter((x) => x.classType === "theory").length;
   const completedDriving = completed.filter((x) => x.classType === "driving").length;
@@ -943,7 +964,9 @@ function validateSimplifiedRules(
     if (completedTheory < c.theoryCount) {
       return {
         allowed: false,
-        reason: `You must complete all ${c.theoryCount} theory classes before booking in-car sessions. You have completed ${completedTheory}.`,
+        reason: courseType.toLowerCase() === "scooter"
+          ? "You must complete the scooter theory session before booking the practical session."
+          : `You must complete all ${c.theoryCount} theory classes before booking in-car sessions. You have completed ${completedTheory}.`,
         blockingRule: "theory_required_before_driving",
       };
     }
@@ -1042,4 +1065,33 @@ export function buildCompletedClasses(
     }
   }
   return records;
+}
+
+/**
+ * Merge validated scooter transfer credits into attended completion records.
+ * Scooter transfer credits are intentionally limited to class #1 of each type;
+ * out-of-range legacy values cannot unlock non-existent curriculum sessions.
+ */
+export function mergeScooterTransferCredits(
+  completed: CompletedClassRecord[],
+  student: {
+    courseType?: string | null;
+    completedTheoryClasses?: unknown;
+    completedInCarSessions?: unknown;
+    enrollmentDate?: string | null;
+  } | null | undefined,
+): CompletedClassRecord[] {
+  if ((student?.courseType || "").toLowerCase() !== "scooter") return completed;
+
+  const merged = [...completed];
+  const creditDate = student?.enrollmentDate || "1970-01-01";
+  const addCredit = (classType: "theory" | "driving", values: unknown) => {
+    if (!Array.isArray(values) || !values.some((value) => value === 1)) return;
+    if (merged.some((record) => record.classType === classType && record.classNumber === 1)) return;
+    merged.push({ classType, classNumber: 1, date: creditDate, duration: 180 });
+  };
+
+  addCredit("theory", student?.completedTheoryClasses);
+  addCredit("driving", student?.completedInCarSessions);
+  return merged;
 }

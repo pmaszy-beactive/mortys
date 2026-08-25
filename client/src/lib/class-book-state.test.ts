@@ -36,24 +36,18 @@ function session(classType: "theory" | "driving", classNumber: number, bookingAl
 }
 
 describe("per-class Book state for moto and scooter curricula", () => {
-  it("keeps scooter theory sequential and riding locked until all theory is complete", () => {
+  it("shows only scooter theory and practical, with practical locked until theory is complete", () => {
     const theory1 = curriculumRow("scooter", "theory", 1);
-    const theory2 = curriculumRow("scooter", "theory", 2);
     const riding1 = curriculumRow("scooter", "driving", 1);
     const available = [
       session("theory", 1, true),
-      session("theory", 2, false, "Theory #2 unlocks after you complete Theory #1."),
-      session("driving", 1, false, "You must complete all 6 theory classes before booking in-car sessions."),
+      session("driving", 1, false, "You must complete the scooter theory session before booking the practical session."),
     ];
 
     expect(getPhaseClassBookState(theory1, unlockedPhase, [], available).status).toBe("available");
-    expect(getPhaseClassBookState(theory2, unlockedPhase, [], available)).toMatchObject({
+    expect(getPhaseClassBookState(riding1, unlockedPhase, [], available)).toMatchObject({
       status: "blocked",
-      reason: "Theory #2 unlocks after you complete Theory #1.",
-    });
-    expect(getPhaseClassBookState(riding1, lockedPhase, [], available)).toMatchObject({
-      status: "locked",
-      reason: "Complete the previous phase to unlock this class.",
+      reason: "You must complete the scooter theory session before booking the practical session.",
     });
 
     const afterAllTheory = [session("driving", 1, true)];

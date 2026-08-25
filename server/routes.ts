@@ -55,9 +55,9 @@ import {
   questionImagePath,
 } from "@shared/examData";
 import { getPhaseDefinitionsForCourse, getExternalMilestonesForCourse } from "@shared/phaseConfig";
-import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum, findCurriculumConflicts, getMotoClassRequirements, validateMotoClassConfiguration, splitVirtualEnrollment, VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
+import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum, findCurriculumConflicts, getMotoClassRequirements, getCourseClassRequirements, validateCourseClassConfiguration, splitVirtualEnrollment, VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
-import { validateClassBooking, buildCompletedClasses, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, isCombined1213Class, type BookingValidationResult } from "@shared/bookingRules";
+import { validateClassBooking, buildCompletedClasses, mergeScooterTransferCredits, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, isCombined1213Class, type BookingValidationResult } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { loginUser, isAuthenticatedTraditional } from "./auth";
 import { loginInstructor, isInstructorAuthenticated } from "./instructor-auth";
@@ -155,9 +155,8 @@ const COURSE_PHASES: Record<string, PhaseDefinition[]> = {
     { name: "Completed", order: 4, description: "Graduation!", requiredTheoryClasses: 2, requiredInCarSessions: 7, estimatedDays: 0 },
   ],
   scooter: [
-    { name: "Theory Phase", order: 1, description: "Complete scooter theory", requiredTheoryClasses: 6, requiredInCarSessions: 0, estimatedDays: 21 },
-    { name: "Practical Training", order: 2, description: "Complete riding sessions", requiredTheoryClasses: 6, requiredInCarSessions: 8, estimatedDays: 30 },
-    { name: "Completed", order: 3, description: "Graduation!", requiredTheoryClasses: 6, requiredInCarSessions: 8, estimatedDays: 0 },
+    { name: "Scooter Course", order: 1, description: "Complete one 3-hour theory session and one 3-hour practical session", requiredTheoryClasses: 1, requiredInCarSessions: 1, estimatedDays: 1 },
+    { name: "Completed", order: 2, description: "Graduation!", requiredTheoryClasses: 1, requiredInCarSessions: 1, estimatedDays: 0 },
   ],
 };
 
@@ -244,9 +243,15 @@ function calculatePhaseProgress(
   let phaseProgressPercent = 0;
   
   if (currentPhaseIndex === 0) {
-    // Theory phase - progress based on theory classes only
+    // First step may be theory-only (Auto/Moto) or the entire compact course
+    // (Scooter: one theory + one practical).
     const theoryRequired = currentPhase.requiredTheoryClasses;
-    phaseProgressPercent = theoryRequired > 0 ? Math.min(100, (completedTheoryClasses / theoryRequired) * 100) : 100;
+    const practicalRequired = currentPhase.requiredInCarSessions;
+    const totalRequired = theoryRequired + practicalRequired;
+    const totalCompleted =
+      Math.min(completedTheoryClasses, theoryRequired) +
+      Math.min(completedInCarSessions, practicalRequired);
+    phaseProgressPercent = totalRequired > 0 ? Math.min(100, (totalCompleted / totalRequired) * 100) : 100;
   } else if (currentPhaseIndex < phases.length - 1) {
     // Training phases - progress based on in-car sessions for this phase
     const prevPhase = phases[currentPhaseIndex - 1];
@@ -272,14 +277,24 @@ function calculatePhaseProgress(
   
   if (nextPhase) {
     if (currentPhaseIndex === 0) {
-      // Theory Phase: only show theory class requirements
       const theoryRequired = currentPhase.requiredTheoryClasses;
-      requirements.push({
-        label: "Theory Classes",
-        completed: Math.min(completedTheoryClasses, theoryRequired),
-        required: theoryRequired,
-        isComplete: completedTheoryClasses >= theoryRequired,
-      });
+      if (theoryRequired > 0) {
+        requirements.push({
+          label: "Theory Classes",
+          completed: Math.min(completedTheoryClasses, theoryRequired),
+          required: theoryRequired,
+          isComplete: completedTheoryClasses >= theoryRequired,
+        });
+      }
+      const practicalRequired = currentPhase.requiredInCarSessions;
+      if (practicalRequired > 0) {
+        requirements.push({
+          label: courseType === "scooter" ? "Practical Sessions" : "In-Car Sessions",
+          completed: Math.min(completedInCarSessions, practicalRequired),
+          required: practicalRequired,
+          isComplete: completedInCarSessions >= practicalRequired,
+        });
+      }
     } else {
       // Training phases: show in-car requirements scoped to this phase segment
       const prevPhase = phases[currentPhaseIndex - 1];
@@ -339,6 +354,11 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
   // phase definitions and booking-rule structure.
   const studentRow = await storage.getStudent(studentId);
   const phaseDefinitions = getPhaseDefinitionsForCourse(studentRow?.courseType);
+  const transferCompletionKeys = new Set(
+    mergeScooterTransferCredits([], studentRow).map(
+      (record) => `${record.classType}_${record.classNumber}`,
+    ),
+  );
 
   const enrollmentRows = await db
     .select({
@@ -401,13 +421,11 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
     for (const classItem of phaseDef.classes) {
       const key = `${classItem.classType}_${classItem.classNumber}`;
       const completed = completedMap.get(key);
-      const isCompleted = !!completed;
+      const isCompleted = !!completed || transferCompletionKeys.has(key);
 
-      if (isCompleted) {
-        completedCount++;
-        if (completed.date && (!earliestDate || completed.date < earliestDate)) {
-          earliestDate = completed.date;
-        }
+      if (isCompleted) completedCount++;
+      if (completed?.date && (!earliestDate || completed.date < earliestDate)) {
+        earliestDate = completed.date;
       }
 
       phaseClasses.push({
@@ -609,7 +627,7 @@ async function buildRescheduleContext(studentId: number, enrollmentId: number) {
   const studentRow = await storage.getStudent(studentId);
   return {
     enrollmentDetails,
-    completed: buildCompletedClasses(enrollmentDetails),
+    completed: mergeScooterTransferCredits(buildCompletedClasses(enrollmentDetails), studentRow),
     upcomingBookings: computeUpcomingBookings(enrollments, allClasses),
     saaq6rKnowledgePassed: !!studentRow?.saaqKnowledgeTestDate,
       phase1TimingAdvanceDays: studentRow?.phase1TimingAdvanceDays ?? 0,
@@ -3591,9 +3609,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("Class creation request body:", req.body);
       const classData = insertClassSchema.parse(req.body);
-      const motoConfigurationError = validateMotoClassConfiguration(classData);
-      if (motoConfigurationError) {
-        return res.status(400).json({ message: motoConfigurationError });
+      const configurationError = validateCourseClassConfiguration(classData);
+      if (configurationError) {
+        return res.status(400).json({ message: configurationError });
       }
       if (classData.zoomLink?.trim() && (classData.maxStudents ?? 15) > VIRTUAL_CLASS_MAX_STUDENTS) {
         return res.status(400).json({ message: `Virtual classes cannot exceed ${VIRTUAL_CLASS_MAX_STUDENTS} students.` });
@@ -3776,15 +3794,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (courseType || '').toLowerCase() === 'moto' &&
         classType === 'driving';
       if (!req.body.fullCurriculum) {
-        const motoConfigurationError = validateMotoClassConfiguration({
+        const configurationError = validateCourseClassConfiguration({
           courseType,
           classType,
           classNumber: startNumber,
           duration: Number(duration),
           maxStudents: Number(maxStudents),
         });
-        if (motoConfigurationError) {
-          return res.status(400).json({ message: motoConfigurationError });
+        if (configurationError) {
+          return res.status(400).json({ message: configurationError });
         }
         if (isMotoPracticalRequest) {
           if (motoTrainingStage !== 'closed-circuit' && motoTrainingStage !== 'road') {
@@ -3850,10 +3868,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const date = progressiveDates[index];
           const dow = new Date(date + "T00:00:00").getDay();
           const generatedClassNumber = progressive ? startNumber + index : startNumber;
-          const generatedRequirements =
-            (courseType || '').toLowerCase() === 'moto'
-              ? getMotoClassRequirements(classType, generatedClassNumber)
-              : null;
+          const generatedRequirements = getCourseClassRequirements(
+            courseType,
+            classType,
+            generatedClassNumber,
+          );
           const generatedDuration = generatedRequirements?.duration ?? (parseInt(duration) || 120);
           const availabilityKey = `${dow}:${generatedDuration}`;
           if (checkedDayDurations.has(availabilityKey)) continue;
@@ -3873,10 +3892,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const seriesId = randomUUID();
       const rowsToCreate = progressiveDates.map((date, i) => {
         const generatedClassNumber = progressive ? startNumber + i : startNumber;
-        const generatedRequirements =
-          (courseType || '').toLowerCase() === 'moto'
-            ? getMotoClassRequirements(classType, generatedClassNumber)
-            : null;
+        const generatedRequirements = getCourseClassRequirements(
+          courseType,
+          classType,
+          generatedClassNumber,
+        );
         const generatedDuration = generatedRequirements?.duration ?? (parseInt(duration) || 120);
         return {
           courseType,
@@ -3990,16 +4010,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         targets.push(cls);
       }
       for (const cls of targets) {
-        const motoConfigurationError = validateMotoClassConfiguration({
+        const configurationError = validateCourseClassConfiguration({
           courseType: cls.courseType,
           classType: cls.classType,
           classNumber: cls.classNumber,
           duration: updateData.duration !== undefined ? updateData.duration : cls.duration,
           maxStudents: updateData.maxStudents !== undefined ? updateData.maxStudents : cls.maxStudents,
         });
-        if (motoConfigurationError) {
+        if (configurationError) {
           return res.status(400).json({
-            message: `${motoConfigurationError} No classes were changed.`,
+            message: `${configurationError} No classes were changed.`,
           });
         }
       }
@@ -4176,10 +4196,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const dayOf = (dateStr: string) => new Date(dateStr + "T00:00:00").getDay();
       const template = targets[0];
       for (const cls of targets) {
-        const motoConfigurationError = validateMotoClassConfiguration(cls);
-        if (motoConfigurationError) {
+        const configurationError = validateCourseClassConfiguration(cls);
+        if (configurationError) {
           return res.status(400).json({
-            message: `${motoConfigurationError} The series days were not changed.`,
+            message: `${configurationError} The series days were not changed.`,
           });
         }
       }
@@ -4585,15 +4605,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!existingClass) {
         return res.status(404).json({ message: "Class not found" });
       }
-      const motoConfigurationError = validateMotoClassConfiguration({
+      const configurationError = validateCourseClassConfiguration({
         courseType: updateData.courseType !== undefined ? updateData.courseType : existingClass.courseType,
         classType: updateData.classType !== undefined ? updateData.classType : existingClass.classType,
         classNumber: updateData.classNumber !== undefined ? Number(updateData.classNumber) : existingClass.classNumber,
         duration: updateData.duration !== undefined ? Number(updateData.duration) : existingClass.duration,
         maxStudents: updateData.maxStudents !== undefined ? Number(updateData.maxStudents) : existingClass.maxStudents,
       });
-      if (motoConfigurationError) {
-        return res.status(400).json({ message: motoConfigurationError });
+      if (configurationError) {
+        return res.status(400).json({ message: configurationError });
       }
       const resultingZoomLink = updateData.zoomLink !== undefined ? updateData.zoomLink : existingClass?.zoomLink;
       const resultingMaxStudents = updateData.maxStudents !== undefined ? Number(updateData.maxStudents) : existingClass?.maxStudents;
@@ -4722,15 +4742,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Class not found" });
       }
 
-      const motoConfigurationError = validateMotoClassConfiguration({
+      const configurationError = validateCourseClassConfiguration({
         courseType: updateData.courseType !== undefined ? updateData.courseType : existingClass.courseType,
         classType: updateData.classType !== undefined ? updateData.classType : existingClass.classType,
         classNumber: updateData.classNumber !== undefined ? Number(updateData.classNumber) : existingClass.classNumber,
         duration: updateData.duration !== undefined ? Number(updateData.duration) : existingClass.duration,
         maxStudents: updateData.maxStudents !== undefined ? Number(updateData.maxStudents) : existingClass.maxStudents,
       });
-      if (motoConfigurationError) {
-        return res.status(400).json({ message: motoConfigurationError });
+      if (configurationError) {
+        return res.status(400).json({ message: configurationError });
       }
 
       const resultingZoomLink = updateData.zoomLink !== undefined ? updateData.zoomLink : existingClass.zoomLink;
@@ -4937,7 +4957,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   classStatus: cls?.status ?? null,
                 };
               });
-            const completedForPhase = buildCompletedClasses(enrollmentDetailsPhase);
+            const completedForPhase = mergeScooterTransferCredits(
+              buildCompletedClasses(enrollmentDetailsPhase),
+              studentForPhase,
+            );
             // NOTE: the daily booking limit is NOT checked here — it is
             // enforced below via the max_bookings_per_day policy check (which
             // uses the policy value when set, falling back to the built-in
@@ -11497,25 +11520,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get student's evaluations
         const evaluations = await storage.getEvaluationsByStudent(student.id);
 
-        // Calculate stats from actual class data (not stored arrays which may be empty)
-        // Classified via classType (fallback to classNumber heuristic when missing)
-        // Only count classes where the STUDENT actually attended (not just class marked complete)
-        let completedTheoryClasses = 0;
-        let completedInCarSessions = 0;
-        
-        for (const classItem of studentClasses) {
-          const enrollment = enrollments.find(e => e.classId === classItem.id);
-          // Only count if student actually attended - don't use class.status as it's class-level not student-level
-          const isAttended = enrollment?.attendanceStatus === 'attended';
-          
-          if (isAttended) {
-            if (isTheoryClass(classItem.classType, classItem.classNumber)) {
-              completedTheoryClasses++;
-            } else {
-              completedInCarSessions++;
-            }
-          }
-        }
+        const completedDashboard = mergeScooterTransferCredits(
+          buildCompletedClasses(studentClasses.map((classItem) => {
+            const enrollment = enrollments.find((item) => item.classId === classItem.id);
+            return {
+              attendanceStatus: enrollment?.attendanceStatus ?? null,
+              classType: classItem.classType,
+              classNumber: classItem.classNumber,
+              date: classItem.date,
+              duration: classItem.duration,
+              maxStudents: classItem.maxStudents,
+              courseType: classItem.courseType,
+            };
+          })),
+          student,
+        );
+        const completedTheoryClasses = completedDashboard.filter((item) => item.classType === "theory").length;
+        const completedInCarSessions = completedDashboard.filter((item) => item.classType === "driving").length;
         
         const totalHoursCompleted =
           student.totalHoursCompleted || completedInCarSessions * 1; // Estimate 1 hour per session
@@ -11566,22 +11587,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Calculate completed counts based on class type and attendance
         // Classified via classType (fallback to classNumber heuristic when missing)
         // Only count classes where the STUDENT actually attended (not just class marked complete)
-        let completedTheoryClasses = 0;
-        let completedInCarSessions = 0;
-        
-        for (const classItem of studentClasses) {
-          const enrollment = enrollments.find(e => e.classId === classItem.id);
-          // Only count if student actually attended - don't use class.status as it's class-level not student-level
-          const isAttended = enrollment?.attendanceStatus === 'attended';
-          
-          if (isAttended) {
-            if (isTheoryClass(classItem.classType, classItem.classNumber)) {
-              completedTheoryClasses++;
-            } else {
-              completedInCarSessions++;
-            }
-          }
-        }
+        const completedForProgress = mergeScooterTransferCredits(
+          buildCompletedClasses(studentClasses.map((classItem) => {
+            const enrollment = enrollments.find((item) => item.classId === classItem.id);
+            return {
+              attendanceStatus: enrollment?.attendanceStatus ?? null,
+              classType: classItem.classType,
+              classNumber: classItem.classNumber,
+              date: classItem.date,
+              duration: classItem.duration,
+              maxStudents: classItem.maxStudents,
+              courseType: classItem.courseType,
+            };
+          })),
+          student,
+        );
+        const completedTheoryClasses = completedForProgress.filter((item) => item.classType === "theory").length;
+        const completedInCarSessions = completedForProgress.filter((item) => item.classType === "driving").length;
         
         const phaseProgress = calculatePhaseProgress(student, completedTheoryClasses, completedInCarSessions, enrollments);
         res.json(phaseProgress);
@@ -11696,7 +11718,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             };
           });
 
-        const completedClassesAvail = buildCompletedClasses(enrollmentDetailsAvail);
+        const completedClassesAvail = mergeScooterTransferCredits(
+          buildCompletedClasses(enrollmentDetailsAvail),
+          student,
+        );
         const studentCourseTypeAvail = (student.courseType || 'auto').toLowerCase();
 
         // Upcoming (held) bookings for the strict-progression layer.
@@ -12200,7 +12225,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             };
           });
 
-        const completedClassesForRules = buildCompletedClasses(enrollmentDetails);
+        const completedClassesForRules = mergeScooterTransferCredits(
+          buildCompletedClasses(enrollmentDetails),
+          student,
+        );
         const studentCourseType = (student.courseType || 'auto').toLowerCase();
 
         // Count same-day booked classes for the daily 2-class limit. Only

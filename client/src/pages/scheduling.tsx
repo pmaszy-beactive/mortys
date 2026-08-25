@@ -1973,7 +1973,7 @@ export default function Scheduling() {
                       progressive: false,
                       classType: "theory",
                       classNumber: "1",
-                      duration: v === "moto" ? 180 : 120,
+                      duration: v === "moto" || v === "scooter" ? 180 : 120,
                       motoTrainingStage: "closed-circuit",
                     }))}
                   >
@@ -1992,9 +1992,11 @@ export default function Scheduling() {
                     onValueChange={v => setGenForm(p => ({
                       ...p,
                       classType: v,
-                      classNumber: v === "driving" && p.courseType === "moto" ? "1" : p.classNumber,
+                       classNumber: p.courseType === "scooter" || (v === "driving" && p.courseType === "moto") ? "1" : p.classNumber,
                       duration: p.courseType === "moto"
                         ? (v === "driving" ? 240 : 180)
+                         : p.courseType === "scooter"
+                           ? 180
                         : p.duration,
                       maxStudents: v === "driving" && p.courseType === "moto" ? 1 : p.maxStudents,
                       motoTrainingStage: "closed-circuit",
@@ -2003,10 +2005,18 @@ export default function Scheduling() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="theory">
-                        {genForm.courseType === "moto" ? "Motorcycle Theory / Preparation" : "Theory Class"}
+                         {genForm.courseType === "moto"
+                           ? "Motorcycle Theory / Preparation"
+                           : genForm.courseType === "scooter"
+                             ? "Scooter Theory"
+                             : "Theory Class"}
                       </SelectItem>
                       <SelectItem value="driving">
-                        {genForm.courseType === "moto" ? "Motorcycle Practical Training" : "Driving Class"}
+                         {genForm.courseType === "moto"
+                           ? "Motorcycle Practical Training"
+                           : genForm.courseType === "scooter"
+                             ? "Scooter Practical"
+                             : "Driving Class"}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -2036,6 +2046,15 @@ export default function Scheduling() {
                 </div>
               )}
 
+              {genForm.courseType === "scooter" && (
+                <div className="rounded-md border border-blue-200 bg-blue-50 p-3" data-testid="scooter-curriculum-summary">
+                  <p className="font-medium text-blue-950">Simplified scooter course</p>
+                  <p className="text-xs text-blue-800">
+                    Exactly two sessions: Scooter Theory #1 (3 hours), then Scooter Practical #1 (3 hours).
+                  </p>
+                </div>
+              )}
+
               {/* Class Number & Duration */}
               {!genForm.fullCurriculum && <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
@@ -2049,9 +2068,10 @@ export default function Scheduling() {
                   <Input
                     type="number"
                     min={isMotoPracticalSeries && motoPracticalStage === "road" ? 5 : 1}
-                    max={isMotoPracticalSeries ? (motoPracticalStage === "road" ? 7 : 4) : 15}
+                    max={genForm.courseType === "scooter" ? 1 : isMotoPracticalSeries ? (motoPracticalStage === "road" ? 7 : 4) : 15}
                     step={1}
                     value={genForm.classNumber}
+                    disabled={genForm.courseType === "scooter"}
                     onChange={e => {
                       const nextNumber = parseInt(e.target.value, 10);
                       setGenForm(p => ({
@@ -2073,7 +2093,7 @@ export default function Scheduling() {
                   <Label>Duration</Label>
                   <Select
                     value={String(genForm.duration)}
-                    disabled={genForm.courseType === "moto"}
+                     disabled={genForm.courseType === "moto" || genForm.courseType === "scooter"}
                     onValueChange={v => setGenForm(p => ({ ...p, duration: parseInt(v) }))}
                   >
                     <SelectTrigger><SelectValue /></SelectTrigger>
@@ -2085,8 +2105,10 @@ export default function Scheduling() {
                       <SelectItem value="240">240 min</SelectItem>
                     </SelectContent>
                   </Select>
-                  {genForm.courseType === "moto" && (
-                    <p className="text-xs text-gray-500">Set automatically from the motorcycle program.</p>
+                   {(genForm.courseType === "moto" || genForm.courseType === "scooter") && (
+                     <p className="text-xs text-gray-500">
+                       Set automatically from the {genForm.courseType === "moto" ? "motorcycle" : "scooter"} program.
+                     </p>
                   )}
                 </div>
               </div>}
@@ -2135,7 +2157,7 @@ export default function Scheduling() {
               )}
 
               {/* Progressive series */}
-              {!genForm.fullCurriculum && (
+               {!genForm.fullCurriculum && genForm.courseType !== "scooter" && (
               <div className="flex items-start gap-2 rounded-md border border-gray-200 p-3">
                 <Checkbox
                   id="gen-progressive"

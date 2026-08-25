@@ -3,10 +3,12 @@ import {
   buildAutoCurriculumPlan,
   buildCandidateDates,
   getMotoClassRequirements,
+  getScooterClassRequirements,
   scheduleAutoCurriculum,
   findCurriculumConflicts,
   splitVirtualEnrollment,
   validateMotoClassConfiguration,
+  validateScooterClassConfiguration,
 } from "@shared/curriculumPlanner";
 
 describe("motorcycle class requirements", () => {
@@ -82,6 +84,42 @@ describe("motorcycle class requirements", () => {
       duration: 15,
       maxStudents: 12,
     })).toBeNull();
+  });
+});
+
+describe("scooter class requirements", () => {
+  it("allows only one 3-hour theory and one 3-hour practical session", () => {
+    expect(getScooterClassRequirements("theory", 1)).toEqual({ duration: 180, stage: "theory" });
+    expect(getScooterClassRequirements("driving", 1)).toEqual({ duration: 180, stage: "practical" });
+    expect(getScooterClassRequirements("theory", 2)).toBeNull();
+    expect(getScooterClassRequirements("driving", 2)).toBeNull();
+  });
+
+  it("rejects extra or incorrectly timed scooter sessions", () => {
+    expect(validateScooterClassConfiguration({
+      courseType: "scooter",
+      classType: "theory",
+      classNumber: 1,
+      duration: 180,
+    })).toBeNull();
+    expect(validateScooterClassConfiguration({
+      courseType: "scooter",
+      classType: "driving",
+      classNumber: 1,
+      duration: 180,
+    })).toBeNull();
+    expect(validateScooterClassConfiguration({
+      courseType: "scooter",
+      classType: "theory",
+      classNumber: 2,
+      duration: 180,
+    })).toContain("only Theory #1 and Practical #1");
+    expect(validateScooterClassConfiguration({
+      courseType: "scooter",
+      classType: "driving",
+      classNumber: 1,
+      duration: 120,
+    })).toContain("180 minutes");
   });
 });
 

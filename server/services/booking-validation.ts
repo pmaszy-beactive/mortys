@@ -27,6 +27,7 @@ export async function withStudentBookingLock<T>(
 import {
   validateClassBooking,
   buildCompletedClasses,
+  mergeScooterTransferCredits,
   type BookingValidationResult,
 } from "@shared/bookingRules";
 import { checkClassStart } from "./class-time";
@@ -113,7 +114,7 @@ export async function validateProgressionForStudent(
       phase1TimingAdvanceDays: student.phase1TimingAdvanceDays ?? 0,
       upcomingBookings,
     },
-    buildCompletedClasses(enrollmentDetails),
+    mergeScooterTransferCredits(buildCompletedClasses(enrollmentDetails), student),
     (student.courseType || "auto").toLowerCase(),
   );
 }

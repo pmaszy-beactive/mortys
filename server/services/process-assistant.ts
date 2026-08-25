@@ -5,6 +5,7 @@ import { storage } from "../storage";
 import { verifyStudentToken } from "../student-auth";
 import {
   buildCompletedClasses,
+  mergeScooterTransferCredits,
   validateClassBooking,
   getCourseClassCounts,
   getMotoPracticalDuration,
@@ -227,12 +228,12 @@ async function buildStudentProgressContext(studentId: number): Promise<string | 
           courseType: cls?.courseType ?? null,
         };
       });
-    const completed = buildCompletedClasses(enrollmentDetails);
+    const completed = mergeScooterTransferCredits(buildCompletedClasses(enrollmentDetails), student);
     const courseType = (student.courseType || "auto").toLowerCase();
     const today = new Date().toISOString().slice(0, 10);
 
     // Evaluate every not-yet-completed class through the real rules engine
-    // (course-aware counts: auto 12/15, moto 2/7, scooter 6/8).
+    // (course-aware counts: auto 12/15, moto 2/7, scooter 1/1).
     const counts = getCourseClassCounts(courseType);
     const candidates: { classType: "theory" | "driving"; classNumber: number }[] = [];
     for (let n = 1; n <= counts.theoryCount; n++) candidates.push({ classType: "theory", classNumber: n });

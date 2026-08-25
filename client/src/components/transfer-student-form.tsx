@@ -19,7 +19,7 @@ import { Loader2, BookOpen, Car, ArrowRightLeft, CheckCircle2 } from "lucide-rea
 const COURSE_STRUCTURE: Record<string, { theoryClasses: number; drivingSessions: number; theoryHoursEach: number; drivingHoursEach: number }> = {
   auto:    { theoryClasses: 12, drivingSessions: 15, theoryHoursEach: 2.5, drivingHoursEach: 1 },
   moto:    { theoryClasses: 8,  drivingSessions: 10, theoryHoursEach: 2,   drivingHoursEach: 1 },
-  scooter: { theoryClasses: 6,  drivingSessions: 8,  theoryHoursEach: 2,   drivingHoursEach: 1 },
+  scooter: { theoryClasses: 1,  drivingSessions: 1,  theoryHoursEach: 3,   drivingHoursEach: 3 },
 };
 
 const transferStudentSchema = insertStudentSchema.extend({

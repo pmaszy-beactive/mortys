@@ -33,6 +33,7 @@ describe("auto 3-hour daily cap (checkMaxHoursPerDay via validateClassBooking)",
   it("rejects a theory class on a day that already has a 2-hour in-car session", () => {
     const result = validateClassBooking(
       theoryTarget({
+        duration: 180,
         sameDayAlreadyBookedCount: 1,
         sameDayAlreadyBookedMinutes: 120,
         sameDayAlreadyBookedHasDriving: true,
@@ -135,6 +136,7 @@ describe("auto 3-hour daily cap (checkMaxHoursPerDay via validateClassBooking)",
   it("exempts scooter students from the cap", () => {
     const result = validateClassBooking(
       theoryTarget({
+        duration: 180,
         sameDayAlreadyBookedCount: 1,
         sameDayAlreadyBookedMinutes: 120,
         sameDayAlreadyBookedHasDriving: true,

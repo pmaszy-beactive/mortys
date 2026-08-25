@@ -29,6 +29,12 @@ export type MotoClassRequirements = {
   stage: "yard-preparation" | "closed-circuit" | "road-preparation" | "road";
 };
 
+export type ScooterClassRequirements = {
+  duration: number;
+  maxStudents?: number;
+  stage: "theory" | "practical";
+};
+
 /**
  * Canonical configuration for every class in the motorcycle program.
  * Returns null for an invalid class type/number pair.
@@ -87,6 +93,59 @@ export function validateMotoClassConfiguration(input: {
   ) {
     return "Motorcycle practical sessions must have exactly 1 student.";
   }
+  return null;
+}
+
+/**
+ * Canonical configuration for the simplified scooter course: one 3-hour
+ * theory session followed by one 3-hour practical session.
+ */
+export function getScooterClassRequirements(
+  classType: string | null | undefined,
+  classNumber: number | null | undefined,
+): ScooterClassRequirements | null {
+  if (classNumber !== 1) return null;
+  if (classType === "theory") return { duration: 180, stage: "theory" };
+  if (classType === "driving") return { duration: 180, stage: "practical" };
+  return null;
+}
+
+export function validateScooterClassConfiguration(input: {
+  courseType?: string | null;
+  classType?: string | null;
+  classNumber?: number | null;
+  duration?: number | null;
+  maxStudents?: number | null;
+}): string | null {
+  if ((input.courseType || "").toLowerCase() !== "scooter") return null;
+  const requirements = getScooterClassRequirements(input.classType, input.classNumber);
+  if (!requirements) {
+    return "Invalid scooter session. The scooter course has only Theory #1 and Practical #1.";
+  }
+  if (input.duration !== requirements.duration) {
+    return "Scooter theory and practical sessions must each be 180 minutes (3 hours).";
+  }
+  return null;
+}
+
+export function validateCourseClassConfiguration(input: {
+  courseType?: string | null;
+  classType?: string | null;
+  classNumber?: number | null;
+  duration?: number | null;
+  maxStudents?: number | null;
+}): string | null {
+  return validateMotoClassConfiguration(input) ?? validateScooterClassConfiguration(input);
+}
+
+export function getCourseClassRequirements(
+  courseType: string | null | undefined,
+  classType: string | null | undefined,
+  classNumber: number | null | undefined,
+): MotoClassRequirements | ScooterClassRequirements | null {
+  const normalizedCourse = (courseType || "").toLowerCase();
+  if (normalizedCourse === "moto") return getMotoClassRequirements(classType, classNumber);
+  if (normalizedCourse === "scooter") return getScooterClassRequirements(classType, classNumber);
   return null;
 }
 

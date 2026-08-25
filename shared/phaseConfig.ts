@@ -99,55 +99,38 @@ export const PHASE_DEFINITIONS: PhaseDefinition[] = [
 ];
 
 /**
- * Simplified two-phase curriculum for moto/scooter courses, generated from
- * the same class counts the booking rules and schedule generator use
- * (getCourseClassCounts). Booking rules for these courses require ALL theory
- * classes before any practical session, so the progress display must show
- * the same structure — never the auto 4-phase curriculum.
+ * Scooter has no inherited multi-phase curriculum: it is exactly one 3-hour
+ * theory session followed by one 3-hour practical session.
  */
-function buildSimplifiedPhases(theoryCount: number, drivingCount: number, practicalLabel: string): PhaseDefinition[] {
-  const theoryClasses: PhaseClassItem[] = [];
-  for (let n = 1; n <= theoryCount; n++) {
-    theoryClasses.push({
-      id: `theory_${n}`,
-      label: `Theory #${n}`,
-      classType: "theory",
-      classNumber: n,
-      mustBeFirst: n === 1,
-    });
-  }
-  const drivingClasses: PhaseClassItem[] = [];
-  for (let n = 1; n <= drivingCount; n++) {
-    drivingClasses.push({
-      id: `driving_${n}`,
-      label: `${practicalLabel} #${n}`,
-      classType: "driving",
-      classNumber: n,
-    });
-  }
-  return [
-    {
-      phase: 1,
-      label: "Phase 1",
-      minimumDays: 0,
-      classes: theoryClasses,
-      notes: `This phase MUST begin with Theory #1. All ${theoryCount} theory classes must be completed before any ${practicalLabel.toLowerCase()} can be booked.`,
-      orderingRule: "flexible_after_first",
-    },
-    {
-      phase: 2,
-      label: "Phase 2",
-      minimumDays: 0,
-      classes: drivingClasses,
-      notes: `Practical sessions unlock once all ${theoryCount} theory classes are completed.`,
-      orderingRule: "flexible_after_first",
-    },
-  ];
-}
-
-// Counts must stay in sync with getCourseClassCounts in shared/bookingRules.ts
-// (scooter: 6 theory / 8 practical).
-const SCOOTER_PHASE_DEFINITIONS = buildSimplifiedPhases(6, 8, "Riding Session");
+export const SCOOTER_PHASE_DEFINITIONS: PhaseDefinition[] = [
+  {
+    phase: 1,
+    label: "Scooter Course",
+    minimumDays: 0,
+    classes: [
+      {
+        id: "theory_1",
+        label: "Scooter Theory",
+        classType: "theory",
+        classNumber: 1,
+        mustBeFirst: true,
+        durationMinutes: 180,
+        specialNote: "(3 hours)",
+      },
+      {
+        id: "driving_1",
+        label: "Scooter Practical",
+        classType: "driving",
+        classNumber: 1,
+        mustBeLast: true,
+        durationMinutes: 180,
+        specialNote: "(3 hours)",
+      },
+    ],
+    notes: "Complete the 3-hour scooter theory session before the 3-hour practical session.",
+    orderingRule: "strict",
+  },
+];
 
 /**
  * Real Mortys motorcycle program (see the SAAQ course-steps document):

@@ -3,6 +3,7 @@ import {
   validateClassBooking,
   getCourseClassCounts,
   getMotoPracticalDuration,
+  mergeScooterTransferCredits,
   type CompletedClassRecord,
   type TargetClassInfo,
 } from "@shared/bookingRules";
@@ -310,15 +311,65 @@ describe("auto and scooter behavior unchanged", () => {
     expect(getPhaseDefinitionsForCourse("auto")).toBe(PHASE_DEFINITIONS);
   });
 
-  it("scooter: still requires ALL theory before any riding session", () => {
-    const completed = Array.from({ length: 5 }, (_, i) => attended("theory", i + 1));
-    const res = validateClassBooking(
-      { classType: "driving", classNumber: 1, date: "2026-03-01" },
-      completed,
+  it("scooter: has exactly one theory and one practical session", () => {
+    const blockedPractical = validateClassBooking(
+      { classType: "driving", classNumber: 1, date: "2026-03-01", duration: 180 },
+      [],
       "scooter",
     );
-    expect(res.allowed).toBe(false);
-    expect(res.blockingRule).toBe("theory_required_before_driving");
-    expect(getCourseClassCounts("scooter")).toEqual({ theoryCount: 6, drivingCount: 8 });
+    expect(blockedPractical.allowed).toBe(false);
+    expect(blockedPractical.blockingRule).toBe("theory_required_before_driving");
+
+    const allowedPractical = validateClassBooking(
+      { classType: "driving", classNumber: 1, date: "2026-03-01", duration: 180 },
+      [attended("theory", 1)],
+      "scooter",
+    );
+    expect(allowedPractical).toEqual({ allowed: true });
+
+    const extraTheory = validateClassBooking(
+      { classType: "theory", classNumber: 2, date: "2026-03-01", duration: 180 },
+      [attended("theory", 1)],
+      "scooter",
+    );
+    expect(extraTheory.blockingRule).toBe("invalid_course_session");
+
+    const wrongDuration = validateClassBooking(
+      { classType: "theory", classNumber: 1, date: "2026-03-01", duration: 120 },
+      [],
+      "scooter",
+    );
+    expect(wrongDuration.blockingRule).toBe("scooter_session_duration");
+    expect(getCourseClassCounts("scooter")).toEqual({ theoryCount: 1, drivingCount: 1 });
+
+    const phases = getPhaseDefinitionsForCourse("scooter");
+    expect(phases).toHaveLength(1);
+    expect(phases[0].classes).toEqual([
+      expect.objectContaining({ classType: "theory", classNumber: 1, durationMinutes: 180 }),
+      expect.objectContaining({ classType: "driving", classNumber: 1, durationMinutes: 180 }),
+    ]);
+  });
+
+  it("merges only valid scooter transfer credits without duplicating attendance", () => {
+    const theoryCredit = mergeScooterTransferCredits([], {
+      courseType: "scooter",
+      completedTheoryClasses: [1, 2],
+      completedInCarSessions: [],
+      enrollmentDate: "2026-01-10",
+    });
+    expect(theoryCredit).toEqual([
+      { classType: "theory", classNumber: 1, date: "2026-01-10", duration: 180 },
+    ]);
+
+    const bothCredits = mergeScooterTransferCredits(theoryCredit, {
+      courseType: "scooter",
+      completedTheoryClasses: [1],
+      completedInCarSessions: [1, 3],
+      enrollmentDate: "2026-01-10",
+    });
+    expect(bothCredits).toEqual([
+      { classType: "theory", classNumber: 1, date: "2026-01-10", duration: 180 },
+      { classType: "driving", classNumber: 1, date: "2026-01-10", duration: 180 },
+    ]);
   });
 });
