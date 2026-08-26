@@ -59,6 +59,7 @@ import StudentOnboarding from "@/pages/student/student-onboarding";
 import StudentForgotPassword from "@/pages/student/student-forgot-password";
 import StudentResetPassword from "@/pages/student/student-reset-password";
 import StudentOwnProfile from "@/pages/student/student-profile";
+import StudentDashboard from "@/pages/student/student-dashboard";
 import StudentClasses from "@/pages/student/student-classes";
 import StudentParents from "@/pages/student/student-parents";
 import StudentBilling from "@/pages/student/student-billing";
@@ -149,7 +150,7 @@ function Router() {
       
       {/* Student Portal - Protected routes with layout */}
       <Route path="/student/dashboard">
-        <StudentPortalLayout><StudentClasses /></StudentPortalLayout>
+        <StudentPortalLayout><StudentDashboard /></StudentPortalLayout>
       </Route>
       <Route path="/student/profile">
         <StudentPortalLayout><StudentOwnProfile /></StudentPortalLayout>

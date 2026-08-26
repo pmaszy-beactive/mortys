@@ -32,6 +32,7 @@ import versionData from "../../../version.json";
 const version: string = versionData.version;
 
 const navigation = [
+  { name: "Dashboard", href: "/student/dashboard", icon: GraduationCap },
   { name: "My Classes", href: "/student/classes", icon: Calendar },
   { name: "Module 5 Exam", href: "/student/exam", icon: ClipboardCheck },
   { name: "Extra Lessons", href: "/student/extra-lessons", icon: Sparkles },

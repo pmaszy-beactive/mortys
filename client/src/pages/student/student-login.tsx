@@ -55,7 +55,7 @@ export default function StudentLogin() {
           description: `Welcome back, ${response.student.firstName}!`,
         });
         
-        setLocation("/student/classes");
+        setLocation("/student/dashboard");
       } else {
         if (response.errorType === "account_inactive") {
           setIsAccountInactive(true);
