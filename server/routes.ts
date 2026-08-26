@@ -452,6 +452,16 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
       const start = new Date(earliestDate);
       const now = new Date();
       dayCount = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      if ((studentRow?.courseType || "auto").toLowerCase() === "auto") {
+        const timingAdvances = [
+          0,
+          studentRow?.phase1TimingAdvanceDays ?? 0,
+          studentRow?.phase2TimingAdvanceDays ?? 0,
+          studentRow?.phase3TimingAdvanceDays ?? 0,
+          studentRow?.phase4TimingAdvanceDays ?? 0,
+        ];
+        dayCount += Math.max(0, timingAdvances[phaseDef.phase] ?? 0);
+      }
     }
 
     phases.push({
@@ -630,7 +640,10 @@ async function buildRescheduleContext(studentId: number, enrollmentId: number) {
     completed: mergeScooterTransferCredits(buildCompletedClasses(enrollmentDetails), studentRow),
     upcomingBookings: computeUpcomingBookings(enrollments, allClasses),
     saaq6rKnowledgePassed: !!studentRow?.saaqKnowledgeTestDate,
-      phase1TimingAdvanceDays: studentRow?.phase1TimingAdvanceDays ?? 0,
+    phase1TimingAdvanceDays: studentRow?.phase1TimingAdvanceDays ?? 0,
+    phase2TimingAdvanceDays: studentRow?.phase2TimingAdvanceDays ?? 0,
+    phase3TimingAdvanceDays: studentRow?.phase3TimingAdvanceDays ?? 0,
+    phase4TimingAdvanceDays: studentRow?.phase4TimingAdvanceDays ?? 0,
   };
 }
 
@@ -670,7 +683,10 @@ function validateRescheduleTargetWithContext(
       sameDayAlreadyBookedHasDriving: sameDayHasDriving,
       maxClassesPerDay: dailyLimit,
       saaq6rKnowledgePassed: ctx.saaq6rKnowledgePassed,
-        phase1TimingAdvanceDays: ctx.phase1TimingAdvanceDays,
+      phase1TimingAdvanceDays: ctx.phase1TimingAdvanceDays,
+      phase2TimingAdvanceDays: ctx.phase2TimingAdvanceDays,
+      phase3TimingAdvanceDays: ctx.phase3TimingAdvanceDays,
+      phase4TimingAdvanceDays: ctx.phase4TimingAdvanceDays,
       upcomingBookings: ctx.upcomingBookings,
     },
     ctx.completed,
@@ -1829,12 +1845,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Policy Override Logs routes - Audit trail for policy overrides
   app.get("/api/policy-override-logs", authMiddleware, async (req: any, res) => {
     try {
-      const { staffUserId, studentId, startDate, endDate } = req.query;
+      const { staffUserId, studentId, startDate, endDate, policyType, actionType } = req.query;
       const filters: any = {};
       if (staffUserId) filters.staffUserId = staffUserId as string;
       if (studentId) filters.studentId = parseInt(studentId as string);
       if (startDate) filters.startDate = startDate;
       if (endDate) filters.endDate = endDate;
+      if (policyType) filters.policyType = policyType as string;
+      if (actionType) filters.actionType = actionType as string;
 
       const logs = await storage.getPolicyOverrideLogs(Object.keys(filters).length > 0 ? filters : undefined);
       
@@ -2643,15 +2661,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  const restrictedPhaseTimingOverrideFields = [1, 2, 3, 4].flatMap((phase) => [
+    `phase${phase}TimingAdvanceDays`,
+    `phase${phase}TimingOverrideReason`,
+    `phase${phase}TimingOverrideSetAt`,
+    `phase${phase}TimingOverrideSetBy`,
+  ]);
+
   app.post("/api/students", authMiddleware, async (req, res) => {
     try {
-      const restrictedOverrideFields = [
-        "phase1TimingAdvanceDays",
-        "phase1TimingOverrideReason",
-        "phase1TimingOverrideSetAt",
-        "phase1TimingOverrideSetBy",
-      ];
-      const attemptedRestrictedFields = restrictedOverrideFields.filter(
+      const attemptedRestrictedFields = restrictedPhaseTimingOverrideFields.filter(
         (field) => Object.prototype.hasOwnProperty.call(req.body, field),
       );
       if (attemptedRestrictedFields.length > 0) {
@@ -2707,13 +2726,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/students/:id", authMiddleware, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const restrictedOverrideFields = [
-        "phase1TimingAdvanceDays",
-        "phase1TimingOverrideReason",
-        "phase1TimingOverrideSetAt",
-        "phase1TimingOverrideSetBy",
-      ];
-      const attemptedRestrictedFields = restrictedOverrideFields.filter(
+      const attemptedRestrictedFields = restrictedPhaseTimingOverrideFields.filter(
         (field) => Object.prototype.hasOwnProperty.call(req.body, field),
       );
       if (attemptedRestrictedFields.length > 0) {
@@ -2740,62 +2753,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const phase1TimingOverrideSchema = z.object({
+  const phaseTimingOverrideSchema = z.object({
+    phase: z.number().int().min(1).max(4),
     advanceDays: z.number().int().min(0).max(365),
     reason: z.string().trim().min(3).max(500),
   });
 
-  app.put("/api/students/:id/phase1-timing-override", requireAdmin, async (req: any, res) => {
+  const updatePhaseTimingOverride = async (req: any, res: any) => {
     try {
       const studentId = parseInt(req.params.id);
       if (!Number.isInteger(studentId)) {
         return res.status(400).json({ message: "Invalid student ID." });
       }
 
-      const { advanceDays, reason } = phase1TimingOverrideSchema.parse(req.body);
+      const { phase, advanceDays, reason } = phaseTimingOverrideSchema.parse(req.body);
       const existing = await storage.getStudent(studentId);
       if (!existing) {
         return res.status(404).json({ message: "Student not found." });
       }
       if ((existing.courseType || "").toLowerCase() !== "auto") {
         return res.status(400).json({
-          message: "The Phase 1 elapsed-day override is only available for Auto students.",
+          message: `The Phase ${phase} elapsed-day override is only available for Auto students.`,
         });
       }
 
       const student = await db.transaction(async (tx) => {
+        const phaseFields = {
+          1: {
+            advanceColumn: students.phase1TimingAdvanceDays,
+            update: {
+              phase1TimingAdvanceDays: advanceDays,
+              phase1TimingOverrideReason: advanceDays > 0 ? reason : null,
+              phase1TimingOverrideSetAt: new Date(),
+              phase1TimingOverrideSetBy: req.user.id,
+            },
+          },
+          2: {
+            advanceColumn: students.phase2TimingAdvanceDays,
+            update: {
+              phase2TimingAdvanceDays: advanceDays,
+              phase2TimingOverrideReason: advanceDays > 0 ? reason : null,
+              phase2TimingOverrideSetAt: new Date(),
+              phase2TimingOverrideSetBy: req.user.id,
+            },
+          },
+          3: {
+            advanceColumn: students.phase3TimingAdvanceDays,
+            update: {
+              phase3TimingAdvanceDays: advanceDays,
+              phase3TimingOverrideReason: advanceDays > 0 ? reason : null,
+              phase3TimingOverrideSetAt: new Date(),
+              phase3TimingOverrideSetBy: req.user.id,
+            },
+          },
+          4: {
+            advanceColumn: students.phase4TimingAdvanceDays,
+            update: {
+              phase4TimingAdvanceDays: advanceDays,
+              phase4TimingOverrideReason: advanceDays > 0 ? reason : null,
+              phase4TimingOverrideSetAt: new Date(),
+              phase4TimingOverrideSetBy: req.user.id,
+            },
+          },
+        } as const;
+        const fields = phaseFields[phase as 1 | 2 | 3 | 4];
         const [lockedStudent] = await tx
           .select({
-            phase1TimingAdvanceDays: students.phase1TimingAdvanceDays,
+            courseType: students.courseType,
+            advanceDays: fields.advanceColumn,
           })
           .from(students)
           .where(eq(students.id, studentId))
           .for("update");
 
         if (!lockedStudent) {
-          throw new Error("Student disappeared while locking the Phase 1 timing override.");
+          throw new Error(`Student disappeared while locking the Phase ${phase} timing override.`);
         }
-        const previousDays = lockedStudent.phase1TimingAdvanceDays ?? 0;
+        if ((lockedStudent.courseType || "").toLowerCase() !== "auto") {
+          const error: any = new Error(`The Phase ${phase} elapsed-day override is only available for Auto students.`);
+          error.statusCode = 400;
+          throw error;
+        }
+        const previousDays = lockedStudent.advanceDays ?? 0;
 
         const [updatedStudent] = await tx
           .update(students)
-          .set({
-            phase1TimingAdvanceDays: advanceDays,
-            phase1TimingOverrideReason: advanceDays > 0 ? reason : null,
-            phase1TimingOverrideSetAt: new Date(),
-            phase1TimingOverrideSetBy: req.user.id,
-          })
+          .set(fields.update)
           .where(eq(students.id, studentId))
           .returning();
 
         if (!updatedStudent) {
-          throw new Error("Student disappeared while updating the Phase 1 timing override.");
+          throw new Error(`Student disappeared while updating the Phase ${phase} timing override.`);
         }
 
         await tx.insert(policyOverrideLogs).values({
           staffUserId: req.user.id,
           actionType: advanceDays > 0 ? "set" : "clear",
-          policyType: "phase1_timing",
+          policyType: `phase${phase}_timing`,
           reason,
           studentId,
           classId: null,
@@ -2814,13 +2868,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       captureRequestError(error);
       if (error?.name === "ZodError") {
         return res.status(400).json({
-          message: "Advance days must be a whole number from 0 to 365, and a reason of at least 3 characters is required.",
+          message: "Phase must be 1 through 4, advance days must be a whole number from 0 to 365, and a reason of at least 3 characters is required.",
           errors: error.errors,
         });
       }
-      console.error("Phase 1 timing override update error:", error);
-      res.status(500).json({ message: "Failed to update the Phase 1 timing override." });
+      console.error("Phase timing override update error:", error);
+      res.status(error?.statusCode || 500).json({
+        message: error?.statusCode
+          ? error.message
+          : "Failed to update the phase timing override.",
+      });
     }
+  };
+
+  app.put("/api/students/:id/phase-timing-override", requireAdmin, updatePhaseTimingOverride);
+  // Backward-compatible Phase 1 route for any older admin client still open.
+  app.put("/api/students/:id/phase1-timing-override", requireAdmin, (req: any, res) => {
+    req.body = { ...req.body, phase: 1 };
+    return updatePhaseTimingOverride(req, res);
   });
 
   app.delete("/api/students/:id", authMiddleware, async (req, res) => {
@@ -4983,6 +5048,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               sameDayAlreadyBookedHasDriving: sameDayPhase.some(d => d.classType === 'driving'),
               saaq6rKnowledgePassed: !!studentForPhase.saaqKnowledgeTestDate,
               phase1TimingAdvanceDays: studentForPhase.phase1TimingAdvanceDays ?? 0,
+              phase2TimingAdvanceDays: studentForPhase.phase2TimingAdvanceDays ?? 0,
+              phase3TimingAdvanceDays: studentForPhase.phase3TimingAdvanceDays ?? 0,
+              phase4TimingAdvanceDays: studentForPhase.phase4TimingAdvanceDays ?? 0,
               upcomingBookings: computeUpcomingBookings(studentEnrollmentsPhase, allClassesPhase),
             };
             const phaseCheck = validateClassBooking(
@@ -11799,6 +11867,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }),
               saaq6rKnowledgePassed: !!student.saaqKnowledgeTestDate,
               phase1TimingAdvanceDays: student.phase1TimingAdvanceDays ?? 0,
+              phase2TimingAdvanceDays: student.phase2TimingAdvanceDays ?? 0,
+              phase3TimingAdvanceDays: student.phase3TimingAdvanceDays ?? 0,
+              phase4TimingAdvanceDays: student.phase4TimingAdvanceDays ?? 0,
               upcomingBookings: upcomingBookingsAvail,
             };
             const validation = validateClassBooking(target, completedClassesAvail, studentCourseTypeAvail);
@@ -12274,6 +12345,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           maxClassesPerDay: dailyLimit.limit,
           saaq6rKnowledgePassed: !!student.saaqKnowledgeTestDate,
           phase1TimingAdvanceDays: student.phase1TimingAdvanceDays ?? 0,
+          phase2TimingAdvanceDays: student.phase2TimingAdvanceDays ?? 0,
+          phase3TimingAdvanceDays: student.phase3TimingAdvanceDays ?? 0,
+          phase4TimingAdvanceDays: student.phase4TimingAdvanceDays ?? 0,
           upcomingBookings: computeUpcomingBookings(studentEnrollmentsForRules, allClassesForRules),
         };
 

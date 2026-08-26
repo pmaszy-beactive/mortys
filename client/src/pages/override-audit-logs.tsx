@@ -33,7 +33,10 @@ const policyTypeLabels: Record<string, string> = {
   max_bookings_per_week: "Max Bookings/Week",
   advance_booking_days: "Advance Booking Days",
   min_booking_notice: "Min Notice",
-  phase1_timing: "Phase 1 Timing"
+  phase1_timing: "Phase 1 Timing",
+  phase2_timing: "Phase 2 Timing",
+  phase3_timing: "Phase 3 Timing",
+  phase4_timing: "Phase 4 Timing"
 };
 
 export default function OverrideAuditLogs() {
@@ -305,6 +308,9 @@ export default function OverrideAuditLogs() {
                   <SelectItem value="max_bookings_per_week">Max Bookings/Week</SelectItem>
                   <SelectItem value="advance_booking_days">Advance Booking Days</SelectItem>
                   <SelectItem value="phase1_timing">Phase 1 Timing</SelectItem>
+                   <SelectItem value="phase2_timing">Phase 2 Timing</SelectItem>
+                   <SelectItem value="phase3_timing">Phase 3 Timing</SelectItem>
+                   <SelectItem value="phase4_timing">Phase 4 Timing</SelectItem>
                 </SelectContent>
               </Select>
             </div>

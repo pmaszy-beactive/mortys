@@ -169,6 +169,13 @@
       "when": 1787540000000,
       "tag": "0023_phase1_timing_override",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1787751000000,
+      "tag": "0024_auto_phase_timing_overrides",
+      "breakpoints": true
     }
   ]
 }

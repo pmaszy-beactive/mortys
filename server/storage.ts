@@ -144,7 +144,7 @@ export interface IStorage {
   deleteBookingPolicy(id: number): Promise<void>;
   
   // Policy Override Logs
-  getPolicyOverrideLogs(filters?: { staffUserId?: string; studentId?: number; startDate?: string; endDate?: string }): Promise<PolicyOverrideLog[]>;
+  getPolicyOverrideLogs(filters?: { staffUserId?: string; studentId?: number; startDate?: string; endDate?: string; policyType?: string; actionType?: string }): Promise<PolicyOverrideLog[]>;
   getPolicyOverrideLog(id: number): Promise<PolicyOverrideLog | undefined>;
   createPolicyOverrideLog(log: InsertPolicyOverrideLog): Promise<PolicyOverrideLog>;
   updatePolicyOverrideLog(id: number, updates: Partial<InsertPolicyOverrideLog>): Promise<PolicyOverrideLog>;
@@ -1158,7 +1158,7 @@ export class MemStorage implements IStorage {
   }
 
   // Policy Override Logs - Stub implementations
-  async getPolicyOverrideLogs(filters?: { staffUserId?: string; studentId?: number; startDate?: string; endDate?: string }): Promise<PolicyOverrideLog[]> {
+  async getPolicyOverrideLogs(filters?: { staffUserId?: string; studentId?: number; startDate?: string; endDate?: string; policyType?: string; actionType?: string }): Promise<PolicyOverrideLog[]> {
     return [];
   }
 
@@ -2082,7 +2082,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Policy Override Logs
-  async getPolicyOverrideLogs(filters?: { staffUserId?: string; studentId?: number; startDate?: string; endDate?: string }): Promise<PolicyOverrideLog[]> {
+  async getPolicyOverrideLogs(filters?: { staffUserId?: string; studentId?: number; startDate?: string; endDate?: string; policyType?: string; actionType?: string }): Promise<PolicyOverrideLog[]> {
     let query = db.select().from(policyOverrideLogs);
     const conditions = [];
     
@@ -2097,6 +2097,12 @@ export class DatabaseStorage implements IStorage {
     }
     if (filters?.endDate) {
       conditions.push(lte(policyOverrideLogs.createdAt, new Date(filters.endDate)));
+    }
+    if (filters?.policyType) {
+      conditions.push(eq(policyOverrideLogs.policyType, filters.policyType));
+    }
+    if (filters?.actionType) {
+      conditions.push(eq(policyOverrideLogs.actionType, filters.actionType));
     }
     
     if (conditions.length > 0) {

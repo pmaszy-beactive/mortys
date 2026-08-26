@@ -56,6 +56,55 @@ interface StudentProfilePageProps {
   params: { id: string };
 }
 
+type AutoPhaseNumber = 1 | 2 | 3 | 4;
+type PhaseTimingDraft = { advanceDays: string; reason: string };
+
+const AUTO_PHASE_TIMING_CONFIG = [
+  {
+    phase: 1 as const,
+    minimumDays: 28,
+    gateLabel: "Theory #1 → Theory #5",
+    anchorLabel: "Theory #1",
+    advanceKey: "phase1TimingAdvanceDays" as const,
+    reasonKey: "phase1TimingOverrideReason" as const,
+    setAtKey: "phase1TimingOverrideSetAt" as const,
+  },
+  {
+    phase: 2 as const,
+    minimumDays: 28,
+    gateLabel: "Theory #6 → In-Car #4",
+    anchorLabel: "Theory #6",
+    advanceKey: "phase2TimingAdvanceDays" as const,
+    reasonKey: "phase2TimingOverrideReason" as const,
+    setAtKey: "phase2TimingOverrideSetAt" as const,
+  },
+  {
+    phase: 3 as const,
+    minimumDays: 56,
+    gateLabel: "Theory #8 → Theory #11",
+    anchorLabel: "Theory #8",
+    advanceKey: "phase3TimingAdvanceDays" as const,
+    reasonKey: "phase3TimingOverrideReason" as const,
+    setAtKey: "phase3TimingOverrideSetAt" as const,
+  },
+  {
+    phase: 4 as const,
+    minimumDays: 56,
+    gateLabel: "Theory #11 → In-Car #15",
+    anchorLabel: "Theory #11",
+    advanceKey: "phase4TimingAdvanceDays" as const,
+    reasonKey: "phase4TimingOverrideReason" as const,
+    setAtKey: "phase4TimingOverrideSetAt" as const,
+  },
+];
+
+const emptyPhaseTimingDrafts = (): Record<AutoPhaseNumber, PhaseTimingDraft> => ({
+  1: { advanceDays: "", reason: "" },
+  2: { advanceDays: "", reason: "" },
+  3: { advanceDays: "", reason: "" },
+  4: { advanceDays: "", reason: "" },
+});
+
 export default function StudentProfilePage({ params }: StudentProfilePageProps) {
   const [, setLocation] = useLocation();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -89,7 +138,7 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
   const { data: currentUser } = useQuery<StaffUser>({
     queryKey: ["/api/auth/user"],
   });
-  const canManagePhase1Timing =
+  const canManagePhaseTiming =
     currentUser?.role === "owner" || currentUser?.role === "admin";
 
   const { data: phaseProgressData, isLoading: phaseLoading } = useQuery<PhaseProgressData>({
@@ -178,23 +227,37 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
     },
   });
 
-  // Auto Phase 1 elapsed-day testing override. The server restricts this
-  // endpoint to owner/admin users and requires a reason for set and clear.
-  const [phase1AdvanceDays, setPhase1AdvanceDays] = useState("");
-  const [phase1OverrideReason, setPhase1OverrideReason] = useState("");
+  // Auto elapsed-day testing overrides. The server restricts these controls
+  // to owner/admin users and requires a reason for every set and clear.
+  const [phaseTimingDrafts, setPhaseTimingDrafts] = useState<Record<AutoPhaseNumber, PhaseTimingDraft>>(
+    emptyPhaseTimingDrafts,
+  );
   useEffect(() => {
     if (student) {
-      setPhase1AdvanceDays(
-        student.phase1TimingAdvanceDays && student.phase1TimingAdvanceDays > 0
-          ? String(student.phase1TimingAdvanceDays)
-          : "",
-      );
+      setPhaseTimingDrafts((current) => {
+        const next = { ...current };
+        for (const config of AUTO_PHASE_TIMING_CONFIG) {
+          const advanceDays = Number(student[config.advanceKey] ?? 0);
+          next[config.phase] = {
+            advanceDays: advanceDays > 0 ? String(advanceDays) : "",
+            reason: current[config.phase].reason,
+          };
+        }
+        return next;
+      });
     }
-  }, [student?.id, student?.phase1TimingAdvanceDays]);
+  }, [
+    student?.id,
+    student?.phase1TimingAdvanceDays,
+    student?.phase2TimingAdvanceDays,
+    student?.phase3TimingAdvanceDays,
+    student?.phase4TimingAdvanceDays,
+  ]);
 
-  const phase1OverrideMutation = useMutation({
-    mutationFn: ({ advanceDays, reason }: { advanceDays: number; reason: string }) =>
-      apiRequest("PUT", `/api/students/${studentId}/phase1-timing-override`, {
+  const phaseTimingOverrideMutation = useMutation({
+    mutationFn: ({ phase, advanceDays, reason }: { phase: AutoPhaseNumber; advanceDays: number; reason: string }) =>
+      apiRequest("PUT", `/api/students/${studentId}/phase-timing-override`, {
+        phase,
         advanceDays,
         reason,
       }),
@@ -202,19 +265,22 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
       queryClient.setQueryData(["/api/students", studentId], updatedStudent);
       queryClient.invalidateQueries({ queryKey: ["/api/students", studentId, "phase-progress"] });
       queryClient.invalidateQueries({ queryKey: ["/api/student/classes/available"] });
-      setPhase1OverrideReason("");
-      setPhase1AdvanceDays(
-        updatedStudent.phase1TimingAdvanceDays && updatedStudent.phase1TimingAdvanceDays > 0
-          ? String(updatedStudent.phase1TimingAdvanceDays)
-          : "",
-      );
+      const config = AUTO_PHASE_TIMING_CONFIG.find((item) => item.phase === variables.phase)!;
+      const savedDays = Number(updatedStudent[config.advanceKey] ?? 0);
+      setPhaseTimingDrafts((current) => ({
+        ...current,
+        [variables.phase]: {
+          advanceDays: savedDays > 0 ? String(savedDays) : "",
+          reason: "",
+        },
+      }));
       toast({
         title: variables.advanceDays > 0
-          ? "Phase 1 timing override active"
-          : "Phase 1 timing override cleared",
+          ? `Phase ${variables.phase} timing override active`
+          : `Phase ${variables.phase} timing override cleared`,
         description: variables.advanceDays > 0
-          ? `Phase 1 elapsed-day checks now count ${variables.advanceDays} extra day(s).`
-          : "Phase 1 elapsed-day checks now use the student's real Theory #1 attendance date.",
+          ? `Phase ${variables.phase} elapsed-day checks now count ${variables.advanceDays} extra day(s).`
+          : `Phase ${variables.phase} elapsed-day checks now use the student's real ${config.anchorLabel} attendance date.`,
       });
     },
     onError: (err: any) => {
@@ -915,122 +981,151 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
             </CardContent>
           </Card>
         )}
-        {(student.courseType || '').toLowerCase() === 'auto' && canManagePhase1Timing && (
-          <Card
-            className={`mobile-card mb-4 ${
-              (student.phase1TimingAdvanceDays ?? 0) > 0
-                ? "border-amber-400 bg-amber-50/50"
-                : ""
-            }`}
-            data-testid="card-phase1-timing-override"
-          >
-            <CardHeader className="pb-3">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <AlertTriangle className="h-5 w-5 text-amber-600" />
-                    Phase 1 Timing Test Override
-                  </CardTitle>
-                  <CardDescription className="mt-1 max-w-3xl">
-                    Artificially advances the 28-day Phase 1 wait for testing.
-                    It does not change the real Theory #1 attendance date.
-                  </CardDescription>
-                </div>
-                {(student.phase1TimingAdvanceDays ?? 0) > 0 && (
-                  <Badge className="border-amber-300 bg-amber-100 text-amber-900 hover:bg-amber-100">
-                    Active: +{student.phase1TimingAdvanceDays} day(s)
-                  </Badge>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {(student.phase1TimingAdvanceDays ?? 0) > 0 && (
-                <div
-                  className="rounded-md border border-amber-300 bg-amber-100/70 p-3 text-sm text-amber-950"
-                  role="status"
-                  data-testid="phase1-timing-override-active"
+        {(student.courseType || '').toLowerCase() === 'auto' && canManagePhaseTiming && (
+          <div className="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-2" data-testid="auto-phase-timing-overrides">
+            {AUTO_PHASE_TIMING_CONFIG.map((config) => {
+              const activeDays = Number(student[config.advanceKey] ?? 0);
+              const activeReason = student[config.reasonKey];
+              const activeSetAt = student[config.setAtKey];
+              const draft = phaseTimingDrafts[config.phase];
+              const draftDays = Number(draft.advanceDays);
+              const canSet =
+                !!draft.reason.trim() &&
+                !!draft.advanceDays &&
+                Number.isInteger(draftDays) &&
+                draftDays >= 1 &&
+                draftDays <= 365;
+              return (
+                <Card
+                  key={config.phase}
+                  className={`mobile-card ${activeDays > 0 ? "border-amber-400 bg-amber-50/50" : ""}`}
+                  data-testid={`card-phase${config.phase}-timing-override`}
                 >
-                  <p className="font-semibold">Testing override is affecting booking eligibility.</p>
-                  <p className="mt-1">
-                    Reason: {student.phase1TimingOverrideReason || "No reason recorded"}
-                    {student.phase1TimingOverrideSetAt
-                      ? ` · Last changed ${formatDate(String(student.phase1TimingOverrideSetAt))}`
-                      : ""}
-                  </p>
-                </div>
-              )}
+                  <CardHeader className="pb-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <CardTitle className="flex items-center gap-2 text-base">
+                          <AlertTriangle className="h-5 w-5 text-amber-600" />
+                          Phase {config.phase} Timing Test Override
+                        </CardTitle>
+                        <CardDescription className="mt-1">
+                          Advances the {config.minimumDays}-day {config.gateLabel} wait for testing
+                          without changing the real {config.anchorLabel} attendance date.
+                        </CardDescription>
+                      </div>
+                      {activeDays > 0 && (
+                        <Badge className="border-amber-300 bg-amber-100 text-amber-900 hover:bg-amber-100">
+                          Active: +{activeDays} day(s)
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {activeDays > 0 && (
+                      <div
+                        className="rounded-md border border-amber-300 bg-amber-100/70 p-3 text-sm text-amber-950"
+                        role="status"
+                        data-testid={`phase${config.phase}-timing-override-active`}
+                      >
+                        <p className="font-semibold">Testing override is affecting booking eligibility.</p>
+                        <p className="mt-1">
+                          Reason: {activeReason || "No reason recorded"}
+                          {activeSetAt ? ` · Last changed ${formatDate(String(activeSetAt))}` : ""}
+                        </p>
+                      </div>
+                    )}
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
-                <div className="space-y-2">
-                  <label htmlFor="phase1-advance-days" className="text-sm font-medium text-gray-900">
-                    Extra elapsed days
-                  </label>
-                  <Input
-                    id="phase1-advance-days"
-                    type="number"
-                    min={1}
-                    max={365}
-                    step={1}
-                    value={phase1AdvanceDays}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhase1AdvanceDays(e.target.value)}
-                    placeholder="Example: 28"
-                    data-testid="input-phase1-advance-days"
-                  />
-                  <p className="text-xs text-gray-500">Whole number from 1 to 365.</p>
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="phase1-override-reason" className="text-sm font-medium text-gray-900">
-                    Reason
-                  </label>
-                  <Textarea
-                    id="phase1-override-reason"
-                    value={phase1OverrideReason}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPhase1OverrideReason(e.target.value)}
-                    placeholder="Required for the audit history, including when clearing."
-                    maxLength={500}
-                    className="min-h-[80px]"
-                    data-testid="input-phase1-override-reason"
-                  />
-                </div>
-              </div>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-[160px_minmax(0,1fr)]">
+                      <div className="space-y-2">
+                        <label
+                          htmlFor={`phase${config.phase}-advance-days`}
+                          className="text-sm font-medium text-gray-900"
+                        >
+                          Extra elapsed days
+                        </label>
+                        <Input
+                          id={`phase${config.phase}-advance-days`}
+                          type="number"
+                          min={1}
+                          max={365}
+                          step={1}
+                          value={draft.advanceDays}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setPhaseTimingDrafts((current) => ({
+                              ...current,
+                              [config.phase]: {
+                                ...current[config.phase],
+                                advanceDays: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder={String(config.minimumDays)}
+                          data-testid={`input-phase${config.phase}-advance-days`}
+                        />
+                        <p className="text-xs text-gray-500">Whole number from 1 to 365.</p>
+                      </div>
+                      <div className="space-y-2">
+                        <label
+                          htmlFor={`phase${config.phase}-override-reason`}
+                          className="text-sm font-medium text-gray-900"
+                        >
+                          Reason
+                        </label>
+                        <Textarea
+                          id={`phase${config.phase}-override-reason`}
+                          value={draft.reason}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                            setPhaseTimingDrafts((current) => ({
+                              ...current,
+                              [config.phase]: {
+                                ...current[config.phase],
+                                reason: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="Required for the audit history, including when clearing."
+                          maxLength={500}
+                          className="min-h-[80px]"
+                          data-testid={`input-phase${config.phase}-override-reason`}
+                        />
+                      </div>
+                    </div>
 
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  className="bg-[#ECC462] text-black hover:bg-[#ECC462]/90"
-                  disabled={
-                    phase1OverrideMutation.isPending ||
-                    !phase1OverrideReason.trim() ||
-                    !phase1AdvanceDays ||
-                    !Number.isInteger(Number(phase1AdvanceDays)) ||
-                    Number(phase1AdvanceDays) < 1 ||
-                    Number(phase1AdvanceDays) > 365
-                  }
-                  onClick={() => phase1OverrideMutation.mutate({
-                    advanceDays: Number(phase1AdvanceDays),
-                    reason: phase1OverrideReason.trim(),
-                  })}
-                  data-testid="button-set-phase1-timing-override"
-                >
-                  Set Override
-                </Button>
-                {(student.phase1TimingAdvanceDays ?? 0) > 0 && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={phase1OverrideMutation.isPending || !phase1OverrideReason.trim()}
-                    onClick={() => phase1OverrideMutation.mutate({
-                      advanceDays: 0,
-                      reason: phase1OverrideReason.trim(),
-                    })}
-                    data-testid="button-clear-phase1-timing-override"
-                  >
-                    Clear Override
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        className="bg-[#ECC462] text-black hover:bg-[#ECC462]/90"
+                        disabled={phaseTimingOverrideMutation.isPending || !canSet}
+                        onClick={() => phaseTimingOverrideMutation.mutate({
+                          phase: config.phase,
+                          advanceDays: draftDays,
+                          reason: draft.reason.trim(),
+                        })}
+                        data-testid={`button-set-phase${config.phase}-timing-override`}
+                      >
+                        Set Override
+                      </Button>
+                      {activeDays > 0 && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={phaseTimingOverrideMutation.isPending || !draft.reason.trim()}
+                          onClick={() => phaseTimingOverrideMutation.mutate({
+                            phase: config.phase,
+                            advanceDays: 0,
+                            reason: draft.reason.trim(),
+                          })}
+                          data-testid={`button-clear-phase${config.phase}-timing-override`}
+                        >
+                          Clear Override
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         )}
         {phaseLoading ? (
           <PhaseProgressTrackerSkeleton />

@@ -98,12 +98,24 @@ export const students = pgTable("students", {
   // SAAQ 6R knowledge test (moto course): date the office recorded the pass.
   // Null = not yet passed/recorded. Gates closed-circuit booking with Theory #1.
   saaqKnowledgeTestDate: text("saaq_knowledge_test_date"),
-  // Admin-only testing override for Auto Phase 1 elapsed-day checks. This
-  // advances the computed day count without changing the real Theory #1 date.
+  // Admin-only testing overrides for Auto elapsed-day checks. Each phase
+  // advances only its own computed day count without changing attendance dates.
   phase1TimingAdvanceDays: integer("phase1_timing_advance_days").notNull().default(0),
   phase1TimingOverrideReason: text("phase1_timing_override_reason"),
   phase1TimingOverrideSetAt: timestamp("phase1_timing_override_set_at"),
   phase1TimingOverrideSetBy: varchar("phase1_timing_override_set_by").references(() => users.id),
+  phase2TimingAdvanceDays: integer("phase2_timing_advance_days").notNull().default(0),
+  phase2TimingOverrideReason: text("phase2_timing_override_reason"),
+  phase2TimingOverrideSetAt: timestamp("phase2_timing_override_set_at"),
+  phase2TimingOverrideSetBy: varchar("phase2_timing_override_set_by").references(() => users.id),
+  phase3TimingAdvanceDays: integer("phase3_timing_advance_days").notNull().default(0),
+  phase3TimingOverrideReason: text("phase3_timing_override_reason"),
+  phase3TimingOverrideSetAt: timestamp("phase3_timing_override_set_at"),
+  phase3TimingOverrideSetBy: varchar("phase3_timing_override_set_by").references(() => users.id),
+  phase4TimingAdvanceDays: integer("phase4_timing_advance_days").notNull().default(0),
+  phase4TimingOverrideReason: text("phase4_timing_override_reason"),
+  phase4TimingOverrideSetAt: timestamp("phase4_timing_override_set_at"),
+  phase4TimingOverrideSetBy: varchar("phase4_timing_override_set_by").references(() => users.id),
   finalExamScore: integer("final_exam_score"),
   roadTestDate: text("road_test_date"),
   roadTestResult: text("road_test_result"),

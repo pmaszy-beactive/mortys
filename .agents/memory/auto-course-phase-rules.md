@@ -12,8 +12,8 @@ Key rules and their homes:
 
 **Why:** the school's printed phase documents are the contract-level source; earlier confusion arose when the same documents were briefly believed to be the moto rules.
 
-For early Phase 1 testing, advance the student's **computed elapsed-day count** by an additive number of days; never rewrite Theory #1 attendance dates or class schedules. Keep the control owner/admin-only, reason-required, reversible, and audit every set/clear with accurate before/after values.
+For timing-gate testing, each Auto phase has its own additive advance to the **computed elapsed-day count**: Phase 1 T1→T5, Phase 2 T6→IC4, Phase 3 T8→T11, and Phase 4 T11→IC15. Never rewrite attendance dates or class schedules. Keep controls owner/admin-only, reason-required, independently reversible, and audit every set/clear with accurate before/after values.
 
-**Why:** test data still needs truthful attendance history, while staff need to exercise Theory #5 eligibility before the real 28-day wait has elapsed.
+**Why:** test data still needs truthful attendance history, while staff need to exercise every timing gate before the official 28/28/56/56-day waits have elapsed.
 
-**How to apply:** pass the per-student advance through every booking/progression entry point, but apply it only to the Auto Theory #5 28-day calculation unless the school explicitly expands the override's scope.
+**How to apply:** pass all four advances through every booking/progression entry point, but apply each value only to its matching Auto elapsed-day gate. Never use them for Moto or Scooter prerequisites.

@@ -162,6 +162,142 @@ describe("auto 3-hour daily cap (checkMaxHoursPerDay via validateClassBooking)",
   });
 });
 
+describe("independent Auto phase timing advances", () => {
+  const phase2Completed: CompletedClassRecord[] = [
+    { classType: "theory", classNumber: 6, date: "2026-08-01" },
+    ...[1, 2, 3].map((classNumber) => ({
+      classType: "driving" as const,
+      classNumber,
+      date: "2026-08-01",
+    })),
+  ];
+  const phase3Completed: CompletedClassRecord[] = [
+    ...[8, 9, 10].map((classNumber) => ({
+      classType: "theory" as const,
+      classNumber,
+      date: "2026-08-01",
+    })),
+    ...[5, 6, 7, 8, 9, 10].map((classNumber) => ({
+      classType: "driving" as const,
+      classNumber,
+      date: "2026-08-01",
+    })),
+  ];
+  const phase4Completed: CompletedClassRecord[] = [
+    { classType: "theory", classNumber: 11, date: "2026-08-01" },
+    { classType: "theory", classNumber: 12, date: "2026-08-01" },
+    ...[11, 12, 13, 14].map((classNumber) => ({
+      classType: "driving" as const,
+      classNumber,
+      date: "2026-08-01",
+    })),
+  ];
+
+  it.each([
+    {
+      phase: 2,
+      target: {
+        classType: "driving" as const,
+        classNumber: 4,
+        date: "2026-08-15",
+        duration: 60,
+        upcomingBookings: [],
+      },
+      completed: phase2Completed,
+      advanceKey: "phase2TimingAdvanceDays" as const,
+      advanceDays: 14,
+      blockingRule: "phase2_min_28_days",
+    },
+    {
+      phase: 3,
+      target: {
+        classType: "theory" as const,
+        classNumber: 11,
+        date: "2026-08-29",
+        duration: 120,
+        upcomingBookings: [],
+      },
+      completed: phase3Completed,
+      advanceKey: "phase3TimingAdvanceDays" as const,
+      advanceDays: 28,
+      blockingRule: "phase3_min_56_days",
+    },
+    {
+      phase: 4,
+      target: {
+        classType: "driving" as const,
+        classNumber: 15,
+        date: "2026-08-29",
+        duration: 60,
+        upcomingBookings: [],
+      },
+      completed: phase4Completed,
+      advanceKey: "phase4TimingAdvanceDays" as const,
+      advanceDays: 28,
+      blockingRule: "phase4_min_56_days",
+    },
+  ])("blocks, advances, and re-blocks Phase $phase independently", ({
+    target,
+    completed,
+    advanceKey,
+    advanceDays,
+    blockingRule,
+  }) => {
+    const blocked = validateClassBooking(target, completed, "auto");
+    expect(blocked.allowed).toBe(false);
+    expect(blocked.blockingRule).toBe(blockingRule);
+
+    const advanced = validateClassBooking(
+      { ...target, [advanceKey]: advanceDays },
+      completed,
+      "auto",
+    );
+    expect(advanced.allowed).toBe(true);
+
+    const cleared = validateClassBooking(
+      { ...target, [advanceKey]: 0 },
+      completed,
+      "auto",
+    );
+    expect(cleared.allowed).toBe(false);
+    expect(cleared.detail).toMatchObject({
+      timingAdvanceDays: 0,
+    });
+  });
+
+  it("does not apply one phase's timing advance to another phase", () => {
+    const result = validateClassBooking(
+      {
+        classType: "driving",
+        classNumber: 4,
+        date: "2026-08-15",
+        duration: 60,
+        upcomingBookings: [],
+        phase3TimingAdvanceDays: 365,
+      },
+      phase2Completed,
+      "auto",
+    );
+    expect(result.allowed).toBe(false);
+    expect(result.blockingRule).toBe("phase2_min_28_days");
+  });
+
+  it("does not use Auto timing advances for non-Auto courses", () => {
+    const result = validateClassBooking(
+      {
+        classType: "driving",
+        classNumber: 4,
+        date: "2026-08-15",
+        duration: 60,
+        phase2TimingAdvanceDays: 365,
+      },
+      phase2Completed,
+      "moto",
+    );
+    expect(result.blockingRule).not.toBe("phase2_min_28_days");
+  });
+});
+
 describe("relaxed auto sequential layer (validateSequentialProgression via validateClassBooking)", () => {
   const t1Done: CompletedClassRecord[] = [
     { classType: "theory", classNumber: 1, date: "2026-06-01" },

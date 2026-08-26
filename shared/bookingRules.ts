@@ -72,6 +72,12 @@ export interface TargetClassInfo {
    * days since Theory #1 without changing the student's attendance history.
    */
   phase1TimingAdvanceDays?: number;
+  /** Admin-only testing advance for Auto Phase 2's Theory #6 → In-Car #4 wait. */
+  phase2TimingAdvanceDays?: number;
+  /** Admin-only testing advance for Auto Phase 3's Theory #8 → Theory #11 wait. */
+  phase3TimingAdvanceDays?: number;
+  /** Admin-only testing advance for Auto Phase 4's Theory #11 → In-Car #15 wait. */
+  phase4TimingAdvanceDays?: number;
   /**
    * The student's current upcoming (not cancelled, not yet attended, class
    * still scheduled) bookings. Used for strict progression gating: the next
@@ -559,13 +565,15 @@ function validateAutoRules(
       // 56-day check from Theory 8
       const t8Date = dateOf(completed, "theory", 8);
       if (t8Date) {
-        const elapsed = daysBetween(t8Date, date);
+        const actualElapsed = daysBetween(t8Date, date);
+        const advanceDays = Math.max(0, Math.floor(target.phase3TimingAdvanceDays ?? 0));
+        const elapsed = actualElapsed + advanceDays;
         if (elapsed < 56) {
           return {
             allowed: false,
-            reason: `Phase 3 requires a minimum of 56 days. Only ${elapsed} day(s) have passed since Theory #8 (completed ${t8Date}). ${56 - elapsed} more day(s) needed before you can start Phase 4.`,
+            reason: `Phase 3 requires a minimum of 56 days. Only ${elapsed} day(s) count toward the wait since Theory #8 (completed ${t8Date}). ${56 - elapsed} more day(s) needed before you can start Phase 4.`,
             blockingRule: "phase3_min_56_days",
-            detail: { daysNeeded: 56, daysElapsed: elapsed, phaseLabel: "Phase 3" },
+            detail: { daysNeeded: 56, daysElapsed: elapsed, actualDaysElapsed: actualElapsed, timingAdvanceDays: advanceDays, phaseLabel: "Phase 3" },
           };
         }
       }
@@ -651,13 +659,15 @@ function validateAutoRules(
         }
         const t6Date = dateOf(completed, "theory", 6);
         if (t6Date) {
-          const elapsed = daysBetween(t6Date, date);
+          const actualElapsed = daysBetween(t6Date, date);
+          const advanceDays = Math.max(0, Math.floor(target.phase2TimingAdvanceDays ?? 0));
+          const elapsed = actualElapsed + advanceDays;
           if (elapsed < 28) {
             return {
               allowed: false,
-              reason: `In-Car #4 cannot be completed until at least 28 days after Theory #6. Only ${elapsed} day(s) have passed since Theory #6 (completed ${t6Date}). ${28 - elapsed} more day(s) needed.`,
+              reason: `In-Car #4 cannot be completed until at least 28 days after Theory #6. Only ${elapsed} day(s) count toward the wait since Theory #6 (completed ${t6Date}). ${28 - elapsed} more day(s) needed.`,
               blockingRule: "phase2_min_28_days",
-              detail: { daysNeeded: 28, daysElapsed: elapsed, phaseLabel: "Phase 2" },
+              detail: { daysNeeded: 28, daysElapsed: elapsed, actualDaysElapsed: actualElapsed, timingAdvanceDays: advanceDays, phaseLabel: "Phase 2" },
             };
           }
         }
@@ -769,13 +779,15 @@ function validateAutoRules(
       // 56-day check from Theory 11
       const t11Date = dateOf(completed, "theory", 11);
       if (t11Date) {
-        const elapsed = daysBetween(t11Date, date);
+        const actualElapsed = daysBetween(t11Date, date);
+        const advanceDays = Math.max(0, Math.floor(target.phase4TimingAdvanceDays ?? 0));
+        const elapsed = actualElapsed + advanceDays;
         if (elapsed < 56) {
           return {
             allowed: false,
-            reason: `Phase 4 requires a minimum of 56 days. Only ${elapsed} day(s) have passed since Theory #11 (completed ${t11Date}). ${56 - elapsed} more day(s) needed before In-Car #15 can be scheduled.`,
+            reason: `Phase 4 requires a minimum of 56 days. Only ${elapsed} day(s) count toward the wait since Theory #11 (completed ${t11Date}). ${56 - elapsed} more day(s) needed before In-Car #15 can be scheduled.`,
             blockingRule: "phase4_min_56_days",
-            detail: { daysNeeded: 56, daysElapsed: elapsed, phaseLabel: "Phase 4" },
+            detail: { daysNeeded: 56, daysElapsed: elapsed, actualDaysElapsed: actualElapsed, timingAdvanceDays: advanceDays, phaseLabel: "Phase 4" },
           };
         }
       }
