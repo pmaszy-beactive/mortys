@@ -93,6 +93,7 @@ RUN apk add --no-cache \
     bash \
     busybox-suid \
     coreutils \
+    util-linux \
     curl \
     chromium \
     nss \
@@ -140,9 +141,9 @@ ENV IMPORT_DATA_DIR=/data/migrate \
 VOLUME ["/data"]
 
 # Seed data for first boot — pre-scraped JSON placed in import-seed/ on the build
-# machine. docker-entrypoint.sh copies these onto the /data volume the first time
-# the container starts (only when the volume has no JSON yet). The folder always
-# exists (tracked .gitkeep/README); the actual data is gitignored.
+# machine. docker-entrypoint.sh copies these onto the /data volume asynchronously
+# so the web health check is not blocked by thousands of small file writes. The
+# folder always exists (tracked .gitkeep/README); the actual data is gitignored.
 COPY --from=builder /app/import-seed ./import-seed
 
 # Include legacy seed data files (needed by dist/seed-legacy.js)

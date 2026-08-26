@@ -4,6 +4,7 @@
 - [Tailwind theme alpha](tailwind-theme-alpha.md) — theme vars now raw HSL channels + `<alpha-value>`; new theme colors must follow that format or /N variants silently break.
 - [In-browser verification](browser-verification.md) — Puppeteer + system Chromium work in dev; inflated innerWidth = real horizontal overflow (flex-1 missing min-w-0), not an emulation quirk.
 - [Migration baseline](migration-baseline.md) — post-merge "relation already exists" means dev DB got schema via push before tracking; baseline the migration hash, don't replay.
+- [Docker first-boot seeding](docker-first-boot-seeding.md) — custom publish health checks allow 300s; large volume hydration must never block the web server from binding.
 - [Billing invoice lifecycle](billing-invoice-lifecycle.md) — status changes only via conditional UPDATE claims; two-step Stripe charge; legacy payments negative totals; SUBSTRING FROM param is a Drizzle trap.
 - [Registration card capture](registration-card-capture.md) — registrationId-keyed public endpoints need a capability token; SetupIntent card-only; atomic transfer at onboarding; classNumber>1 booking gate.
 - [Auto course phase rules](auto-course-phase-rules.md) — auto-only phase rules, 3h/day caller coverage, planner anchors, and additive Phase 1 testing time that never rewrites attendance.

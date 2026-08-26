@@ -16,6 +16,7 @@ dist-ssr
 # Logs and local-only tooling state.
 *.log
 npm-debug.log*
+attached_assets
 .local
 .agents
 
