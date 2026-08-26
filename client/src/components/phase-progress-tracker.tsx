@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle, Lock, BookOpen, Car, Info, Landmark, CalendarPlus } from "lucide-react";
+import { CheckCircle, Lock, BookOpen, Car, Bike, Info, Landmark, CalendarPlus } from "lucide-react";
 import { formatDate, formatTime } from "@/lib/utils";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress, ExternalMilestoneProgress } from "@shared/phaseConfig";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import type { ClassBookState } from "@/lib/class-book-state";
 
 interface PhaseProgressTrackerProps {
   phaseData: PhaseProgressData;
+  courseType?: string;
   compact?: boolean;
   /** When provided, each class row shows a right-aligned Book button. */
   getBookState?: (classItem: PhaseClassProgress, phase: PhaseProgress) => ClassBookState;
@@ -23,16 +24,19 @@ const DISABLED_LABELS: Record<Exclude<ClassBookState["status"], "available" | "c
 };
 function PhaseClassRow({
   classItem,
+  courseType,
   compact,
   bookState,
   onBookClass,
 }: {
   classItem: PhaseClassProgress;
+  courseType?: string;
   compact?: boolean;
   bookState?: ClassBookState;
   onBookClass?: (classItem: PhaseClassProgress) => void;
 }) {
   const isTheory = classItem.classType === 'theory';
+  const usesMotorbike = ['moto', 'motorcycle', 'scooter'].includes((courseType || '').toLowerCase());
 
   return (
     <div
@@ -52,6 +56,8 @@ function PhaseClassRow({
         <div className="flex items-center gap-1.5 flex-wrap">
           {isTheory ? (
             <BookOpen className="h-3 w-3 text-blue-600 flex-shrink-0" />
+          ) : usesMotorbike ? (
+            <Bike className="h-3 w-3 text-amber-600 flex-shrink-0" />
           ) : (
             <Car className="h-3 w-3 text-amber-600 flex-shrink-0" />
           )}
@@ -120,11 +126,13 @@ function PhaseClassRow({
 
 function PhaseCard({
   phase,
+  courseType,
   compact,
   getBookState,
   onBookClass,
 }: {
   phase: PhaseProgress;
+  courseType?: string;
   compact?: boolean;
   getBookState?: (classItem: PhaseClassProgress, phase: PhaseProgress) => ClassBookState;
   onBookClass?: (classItem: PhaseClassProgress) => void;
@@ -172,6 +180,7 @@ function PhaseCard({
             <PhaseClassRow
               key={classItem.id}
               classItem={classItem}
+              courseType={courseType}
               compact={compact}
               bookState={getBookState ? getBookState(classItem, phase) : undefined}
               onBookClass={onBookClass}
@@ -232,7 +241,7 @@ function ExternalMilestoneRow({ milestone }: { milestone: ExternalMilestoneProgr
   );
 }
 
-export default function PhaseProgressTracker({ phaseData, compact, getBookState, onBookClass }: PhaseProgressTrackerProps) {
+export default function PhaseProgressTracker({ phaseData, courseType, compact, getBookState, onBookClass }: PhaseProgressTrackerProps) {
   const milestones = phaseData.externalMilestones ?? [];
   return (
     <div className="space-y-3">
@@ -241,6 +250,7 @@ export default function PhaseProgressTracker({ phaseData, compact, getBookState,
           <PhaseCard
             key={phase.phase}
             phase={phase}
+            courseType={courseType}
             compact={compact}
             getBookState={getBookState}
             onBookClass={onBookClass}

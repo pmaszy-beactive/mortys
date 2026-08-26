@@ -1640,6 +1640,7 @@ export default function StudentClasses() {
           ) : phaseProgressData ? (
             <PhaseProgressTracker
               phaseData={phaseProgressData}
+              courseType={student?.courseType}
               getBookState={getBookState}
               onBookClass={handleBookPhaseClass}
             />

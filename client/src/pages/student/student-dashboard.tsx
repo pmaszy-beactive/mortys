@@ -193,7 +193,7 @@ export default function StudentDashboard() {
                     {isTheory ? (
                       <BookOpen className="h-4 w-4 text-blue-600" />
                     ) : (
-                      <Car className="h-4 w-4 text-amber-600" />
+                      <span className="text-amber-600">{getCourseIcon(classItem.courseType)}</span>
                     )}
                     <span className="text-sm font-bold text-gray-900">
                       {isTheory ? "Theory" : "Driving"} #{classItem.classNumber}
@@ -289,7 +289,10 @@ export default function StudentDashboard() {
           {phaseLoading ? (
             <PhaseProgressTrackerSkeleton />
           ) : phaseProgressData ? (
-            <PhaseProgressTracker phaseData={phaseProgressData} />
+            <PhaseProgressTracker
+              phaseData={phaseProgressData}
+              courseType={selectedCourse?.courseType}
+            />
           ) : null}
         </div>
       </div>
