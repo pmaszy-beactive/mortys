@@ -9667,7 +9667,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           to: ["info@mortysdrivingschool.com"],
           from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
           subject: `Exam question flagged for review — Q${qn} (${attempt.testCode})`,
-          uatBypass: true,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: #111111; padding: 20px; text-align: center;">

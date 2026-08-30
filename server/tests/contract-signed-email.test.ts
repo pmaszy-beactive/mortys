@@ -83,15 +83,16 @@ describe("signed contract email recipients", () => {
       expect.objectContaining({
         to: ["contracts-one@example.test"],
         subject: "Contract Signed — Test Student",
-        uatBypass: true,
       }),
     );
     expect(sendEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         to: ["contracts-two@example.test"],
         subject: "Contract Signed — Test Student",
-        uatBypass: true,
       }),
     );
+    for (const [emailParams] of vi.mocked(sendEmail).mock.calls) {
+      expect(emailParams.uatBypass).not.toBe(true);
+    }
   });
 });

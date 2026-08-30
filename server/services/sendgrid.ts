@@ -14,9 +14,9 @@ if (isConfigured) {
 
 const REPLY_TO = process.env.SENDGRID_REPLY_TO || "info@mortys.ca";
 
-// UAT email override: when UAT_EMAIL_OVERRIDE is true/1, ALL outgoing emails
-// are redirected to OFFICE_NOTIFICATION_EMAILS so no real students/parents/staff
-// receive mail during UAT with imported live data.
+// UAT email override: when UAT_EMAIL_OVERRIDE is true/1, outgoing emails are
+// redirected to OFFICE_NOTIFICATION_EMAILS so no real students, parents, or
+// staff receive mail during UAT with imported live data.
 function isUatOverrideEnabled(): boolean {
   const v = (process.env.UAT_EMAIL_OVERRIDE || "").trim().toLowerCase();
   return v === "true" || v === "1";
@@ -47,17 +47,16 @@ export function isUatOverrideEnabledForAudit(): boolean {
 // Returns the (possibly rewritten) recipients + subject, or blocked=true if the
 // override is on but no override recipients are configured (fail safe — never
 // fall back to real recipients).
-// `bypass` marks emails that must always reach the REAL recipient even during
-// UAT (login/OTP/verification codes, password resets, invitations, and
-// staff/office alerts). Class-update, billing, and bulk/scheduled emails must
-// NOT set it.
+// `bypass` marks account-access emails that must reach the REAL recipient even
+// during UAT (login/OTP/verification codes, password resets, and invitations).
+// Operational alerts and ordinary notifications must NOT set it.
 export function applyUatEmailOverride(to: string[], subject: string, bypass?: boolean): UatOverrideResult {
   if (!isUatOverrideEnabled()) {
     return { blocked: false, to, subject };
   }
   if (bypass) {
     console.log(
-      `[UAT EMAIL OVERRIDE] PASS-THROUGH (login/account or staff alert): "${subject}" sent to real recipient(s) [${to.join(", ")}]`,
+      `[UAT EMAIL OVERRIDE] PASS-THROUGH (login/account email): "${subject}" sent to real recipient(s) [${to.join(", ")}]`,
     );
     return { blocked: false, to, subject };
   }
@@ -88,8 +87,8 @@ interface EmailParams {
   html?: string;
   replyTo?: string;
   // Always deliver to the real recipient even when UAT_EMAIL_OVERRIDE is on.
-  // Reserved for login/account emails (OTP, password reset, invites) and
-  // staff/office alerts. Never set for student/parent class or billing mail.
+  // Reserved for login/account emails (OTP, password reset, invites). Never
+  // set for operational alerts, class notifications, or billing mail.
   uatBypass?: boolean;
 }
 

@@ -149,10 +149,6 @@ async function processEmailDeliveries(notificationId: number, subject: string, b
         from: SENDER_EMAIL,
         subject,
         html: generateEmailHtml(subject, body, delivery.recipientName),
-        // Staff/office alerts always go to the real staff recipient, even
-        // when the UAT email override is on. Student/parent notifications
-        // (class updates, billing, etc.) stay redirected during UAT.
-        uatBypass: delivery.recipientType === 'staff',
       });
 
       await db.update(notificationDeliveries)
@@ -553,7 +549,6 @@ export async function sendBugReportEmail(report: {
     subject: `Bug Report (${categoryLabel}) — Morty's Driving School`,
     text: message,
     html: generateEmailHtml(`Bug Report (${categoryLabel})`, message, null),
-    uatBypass: true,
   });
 }
 
