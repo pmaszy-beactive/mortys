@@ -1,7 +1,7 @@
 import type { PhaseClassProgress, PhaseProgress } from "@shared/phaseConfig";
 
 export interface ClassBookState {
-  status: "available" | "completed" | "booked" | "locked" | "blocked" | "none";
+  status: "available" | "completed" | "booked" | "in_review" | "locked" | "blocked" | "none";
   /** Human-readable reason when the class isn't bookable. */
   reason?: string;
 }
@@ -36,6 +36,7 @@ export function getPhaseClassBookState(
   availableClasses: AvailableBookStateClass[],
 ): ClassBookState {
   if (classItem.isCompleted) return { status: "completed" };
+  if (classItem.isInReview) return { status: "in_review" };
 
   const alreadyBooked = bookedClasses.some((bookedClass) =>
     bookedClass.status !== "cancelled" &&
@@ -44,23 +45,27 @@ export function getPhaseClassBookState(
   );
   if (alreadyBooked) return { status: "booked", reason: "You already have this class booked." };
 
-  if (phase.isLocked) {
-    return { status: "locked", reason: "Complete the previous phase to unlock this class." };
-  }
-
   const sessions = availableClasses.filter((availableClass) =>
     getClassType(availableClass) === classItem.classType &&
     availableClass.classNumber === classItem.classNumber,
   );
+  const openSessions = sessions.filter((session) => session.bookingAllowed !== false);
+
+  // The availability API runs the authoritative per-class progression rules.
+  // Prefer an explicitly allowed session over the phase summary so a stale or
+  // broader phase lock cannot keep Phase 3 rows locked after Theory #8.
+  if (openSessions.length > 0) {
+    return { status: "available" };
+  }
+
+  if (phase.isLocked) {
+    return { status: "locked", reason: "Complete the previous phase to unlock this class." };
+  }
+
   if (sessions.length === 0) {
     return { status: "none", reason: "No sessions are scheduled for this class yet." };
   }
 
-  const openSessions = sessions.filter((session) => session.bookingAllowed !== false);
-  if (openSessions.length === 0) {
-    const reason = sessions.find((session) => session.blockingReason)?.blockingReason;
-    return { status: "blocked", reason: reason || "Booking rules currently block this class." };
-  }
-
-  return { status: "available" };
+  const reason = sessions.find((session) => session.blockingReason)?.blockingReason;
+  return { status: "blocked", reason: reason || "Booking rules currently block this class." };
 }

@@ -1912,7 +1912,18 @@ export default function StudentClasses() {
             );
           })() : (
             <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-l-gray-300">
-              <p className="text-sm text-gray-500">Your learner's permit date has not been recorded yet. Contact your school to update this information.</p>
+              <p className="text-sm text-gray-600">
+                Your learner's permit date has not been recorded yet. Add your permit details to keep your SAAQ dates accurate and book driving classes.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3 border-[#ECC462] text-[#111111] hover:bg-[#ECC462]/10"
+                onClick={() => setLocation("/student/profile#learner-permit")}
+                data-testid="button-add-permit-info"
+              >
+                Add Permit Info
+              </Button>
             </div>
           )}
         </section>
@@ -2025,7 +2036,16 @@ export default function StudentClasses() {
                         <p className="font-semibold text-red-800 text-sm">
                           {!student.learnerPermitNumber ? "Learner's Permit Required" : !student.learnerPermitExpiryDate ? "Permit Expiry Date Missing" : "Learner's Permit Expired"}
                         </p>
-                        <Button size="sm" variant="outline" className="mt-1.5 h-7 text-xs border-red-300 text-red-700 hover:bg-red-50" onClick={() => { setBookingWizardOpen(false); setLocation("/student/profile"); }}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="mt-1.5 h-7 text-xs border-red-300 text-red-700 hover:bg-red-50"
+                          onClick={() => {
+                            setBookingWizardOpen(false);
+                            setLocation("/student/profile#learner-permit");
+                          }}
+                          data-testid="button-update-permit-required"
+                        >
                           Update Permit Info
                         </Button>
                       </div>
@@ -2046,7 +2066,7 @@ export default function StudentClasses() {
                         <p className="text-xs text-amber-700 mt-0.5">
                           Your learner's permit expires on {formatDate(student.learnerPermitExpiryDate)}. Renew it soon to keep booking driving classes.
                         </p>
-                        <Button size="sm" variant="outline" className="mt-1.5 h-7 text-xs border-amber-300 text-amber-700 hover:bg-amber-50" onClick={() => { setBookingWizardOpen(false); setLocation("/student/profile"); }} data-testid="button-update-permit-expiring">
+                        <Button size="sm" variant="outline" className="mt-1.5 h-7 text-xs border-amber-300 text-amber-700 hover:bg-amber-50" onClick={() => { setBookingWizardOpen(false); setLocation("/student/profile#learner-permit"); }} data-testid="button-update-permit-expiring">
                           Update Permit Info
                         </Button>
                       </div>

@@ -18,6 +18,7 @@ interface PhaseProgressTrackerProps {
 
 const DISABLED_LABELS: Record<Exclude<ClassBookState["status"], "available" | "completed">, string> = {
   booked: "Booked",
+  in_review: "In Review",
   locked: "Locked",
   blocked: "Locked",
   none: "None",
@@ -68,8 +69,8 @@ function PhaseClassRow({
             <span className="text-xs text-amber-700 font-medium">{classItem.specialNote}</span>
           )}
           {classItem.isCompleted && (
-            <Badge className="bg-green-100 text-green-800 border-green-200 text-[10px] px-1.5 py-0 h-4">
-              P
+            <Badge className="bg-green-100 text-green-800 border-green-200 text-[10px] px-1.5 py-0 h-5">
+              Completed
             </Badge>
           )}
         </div>
@@ -108,8 +109,8 @@ function PhaseClassRow({
               className="h-6 px-2 text-xs bg-gray-100 text-gray-400 border border-gray-200 shadow-none"
               data-testid={`button-book-${classItem.id}`}
             >
-              {bookState.status === "booked" ? (
-                "Booked"
+              {bookState.status === "booked" || bookState.status === "in_review" ? (
+                DISABLED_LABELS[bookState.status]
               ) : (
                 <>
                   <Lock className="h-3 w-3 mr-1" />
@@ -243,8 +244,41 @@ function ExternalMilestoneRow({ milestone }: { milestone: ExternalMilestoneProgr
 
 export default function PhaseProgressTracker({ phaseData, courseType, compact, getBookState, onBookClass }: PhaseProgressTrackerProps) {
   const milestones = phaseData.externalMilestones ?? [];
+  const uniqueClasses = new Map<string, PhaseClassProgress>();
+  for (const phase of phaseData.phases) {
+    for (const classItem of phase.classes) {
+      uniqueClasses.set(`${classItem.classType}:${classItem.classNumber}`, classItem);
+    }
+  }
+  const theoryTotal = [...uniqueClasses.values()].filter((item) => item.classType === "theory").length;
+  const practicalTotal = [...uniqueClasses.values()].filter((item) => item.classType === "driving").length;
+  const practicalLabel = (courseType || "").toLowerCase() === "auto" ? "in-car sessions" : "practical sessions";
+
   return (
     <div className="space-y-3">
+      {!compact && (
+        <div
+          className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm"
+          data-testid="course-class-totals"
+        >
+          <span className="font-semibold text-gray-900">Full course:</span>
+          <span className="flex items-center gap-1.5 text-gray-700">
+            <BookOpen className="h-4 w-4 text-blue-600" />
+            <strong>{theoryTotal}</strong> theory classes
+          </span>
+          <span className="flex items-center gap-1.5 text-gray-700">
+            {(courseType || "").toLowerCase() === "auto" ? (
+              <Car className="h-4 w-4 text-amber-600" />
+            ) : (
+              <Bike className="h-4 w-4 text-amber-600" />
+            )}
+            <strong>{practicalTotal}</strong> {practicalLabel}
+          </span>
+          <span className="w-full text-xs text-gray-500">
+            The cards below show how those classes are divided across each phase.
+          </span>
+        </div>
+      )}
       <div className="flex gap-4 overflow-x-auto pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {phaseData.phases.map((phase) => (
           <PhaseCard

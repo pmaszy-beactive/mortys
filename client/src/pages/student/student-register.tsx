@@ -64,16 +64,42 @@ export default function StudentRegister() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
-  const { data: startDates = [], isLoading: datesLoading } = useQuery<CourseStartDate[]>({
+  const {
+    data: startDates = [],
+    isLoading: datesLoading,
+    refetch: refetchStartDates,
+  } = useQuery<CourseStartDate[]>({
     queryKey: ["/api/course-start-dates", selectedCourseType],
     queryFn: async () => {
       if (!selectedCourseType) return [];
-      const res = await fetch(`/api/course-start-dates?courseType=${selectedCourseType}`);
+      const res = await fetch(`/api/course-start-dates?courseType=${selectedCourseType}`, {
+        cache: "no-store",
+      });
       if (!res.ok) throw new Error("Failed to fetch dates");
       return res.json();
     },
     enabled: !!selectedCourseType,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchInterval: flowStep === "startDate" ? 60_000 : false,
   });
+
+  useEffect(() => {
+    if (flowStep === "startDate" && selectedCourseType) {
+      void refetchStartDates();
+    }
+  }, [flowStep, selectedCourseType, refetchStartDates]);
+
+  useEffect(() => {
+    if (
+      selectedStartDateId !== null &&
+      !datesLoading &&
+      !startDates.some((date) => date.id === selectedStartDateId)
+    ) {
+      setSelectedStartDateId(null);
+    }
+  }, [datesLoading, selectedStartDateId, startDates]);
 
   const calculateSecondsRemaining = useCallback(() => {
     if (!expiresAt) return 0;

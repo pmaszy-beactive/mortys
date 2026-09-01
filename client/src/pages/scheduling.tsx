@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getCourseClassCounts } from "@shared/bookingRules";
+import { MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS } from "@shared/curriculumPlanner";
 import { Plus, Calendar, ChevronLeft, ChevronRight, Car, Bike, Users, Edit, Eye, X, Sparkles, CalendarClock, BookOpen, MapPin, AlertTriangle, Clock, GripVertical, Wand2, Loader2, Scissors, Link2 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -199,7 +200,7 @@ export default function Scheduling() {
       classType: "driving",
       classNumber: String(firstClassNumber),
       duration: firstClassNumber === 5 ? 120 : 240,
-      maxStudents: 1,
+      maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS,
       progressive: false,
       motoTrainingStage: stage,
     }));
@@ -1998,7 +1999,10 @@ export default function Scheduling() {
                          : p.courseType === "scooter"
                            ? 180
                         : p.duration,
-                      maxStudents: v === "driving" && p.courseType === "moto" ? 1 : p.maxStudents,
+                      maxStudents:
+                        v === "driving" && (p.courseType === "moto" || p.courseType === "scooter")
+                          ? MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS
+                          : p.maxStudents,
                       motoTrainingStage: "closed-circuit",
                     }))}
                   >
@@ -2080,7 +2084,9 @@ export default function Scheduling() {
                         duration: isMotoPracticalSeries && Number.isInteger(nextNumber)
                           ? (nextNumber === 5 ? 120 : 240)
                           : p.duration,
-                        maxStudents: isMotoPracticalSeries ? 1 : p.maxStudents,
+                        maxStudents: isMotoPracticalSeries
+                          ? MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS
+                          : p.maxStudents,
                       }));
                     }}
                     className={classNumberValid ? undefined : 'border-red-400 focus-visible:ring-red-400'}
@@ -2246,9 +2252,21 @@ export default function Scheduling() {
                   <Input
                     type="number"
                     min={1}
-                    max={50}
+                    max={
+                      genForm.classType === "driving" &&
+                      (genForm.courseType === "moto" || genForm.courseType === "scooter")
+                        ? MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS
+                        : 50
+                    }
                     value={genForm.maxStudents}
-                    onChange={e => setGenForm(p => ({ ...p, maxStudents: parseInt(e.target.value) || 15 }))}
+                    onChange={e => setGenForm(p => ({
+                      ...p,
+                      maxStudents:
+                        parseInt(e.target.value) ||
+                        (p.classType === "driving" && (p.courseType === "moto" || p.courseType === "scooter")
+                          ? MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS
+                          : 15),
+                    }))}
                   />
                 </div>
                 {genForm.classType === 'driving' && (

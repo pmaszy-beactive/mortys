@@ -77,7 +77,7 @@ export const PHASE_DEFINITIONS: PhaseDefinition[] = [
       { id: "driving_9", label: "In-Car #9", classType: "driving", classNumber: 9 },
       { id: "driving_10", label: "In-Car #10", classType: "driving", classNumber: 10 },
     ],
-    notes: "This phase MUST begin with Theory #8. Then can be completed in any order. However, the above is the recommended order by Morty's Driving School.",
+    notes: "This phase MUST begin with Theory #8. Once Theory #8 is completed, Theory #9, Theory #10, and In-Car #5–#10 are all unlocked and may be completed in any order. The order above is only Morty's recommendation.",
     orderingRule: 'flexible_after_first',
   },
   {
@@ -240,6 +240,8 @@ export interface PhaseClassProgress {
   classNumber: number;
   specialNote?: string;
   isCompleted: boolean;
+  /** The scheduled class has started, but attendance has not been finalized. */
+  isInReview?: boolean;
   date?: string;
   time?: string;
   duration?: number;

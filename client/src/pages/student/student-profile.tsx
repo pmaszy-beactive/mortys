@@ -114,6 +114,14 @@ export default function StudentProfile() {
   const [permitPhotoPreview, setPermitPhotoPreview] = useState<string | null>(null);
   const permitPhotoInputRef = useRef<HTMLInputElement>(null);
   const permitFormInitializedRef = useRef(false);
+  const permitSectionRef = useRef<HTMLDivElement>(null);
+
+  const scrollToPermit = () => {
+    permitSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
 
   // Initialize permit form values only on first load, so refetches
   // (e.g. after a photo-only upload) don't overwrite unsaved edits
@@ -128,6 +136,12 @@ export default function StudentProfile() {
       setPermitPhotoPreview(permitInfo.learnerPermitPhoto || null);
     }
   }, [permitInfo]);
+
+  useEffect(() => {
+    if (!permitInfoLoading && window.location.hash === "#learner-permit") {
+      window.requestAnimationFrame(scrollToPermit);
+    }
+  }, [permitInfoLoading]);
 
   const uploadDocumentMutation = useMutation({
     mutationFn: async ({ file, docType }: { file: File; docType: string }) => {
@@ -387,7 +401,7 @@ export default function StudentProfile() {
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-lg shadow-lg border-b border-[#ECC462]/20">
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <Link href="/student/classes">
               <Button variant="ghost" size="sm" className="text-[#111111] hover:!text-[#ECC462] hover:bg-transparent">
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -402,6 +416,18 @@ export default function StudentProfile() {
                 Manage your personal information and contact details
               </p>
             </div>
+            <Button
+              variant="outline"
+              className="border-[#ECC462] text-[#111111] hover:bg-[#ECC462]/10"
+              onClick={() => {
+                window.history.replaceState(null, "", "#learner-permit");
+                window.requestAnimationFrame(scrollToPermit);
+              }}
+              data-testid="button-jump-to-permit"
+            >
+              <CreditCard className="h-4 w-4 mr-2" />
+              Learner's Permit
+            </Button>
           </div>
         </div>
       </div>
@@ -918,14 +944,14 @@ export default function StudentProfile() {
         </Card>
 
         {/* Learner's Permit Section */}
-        <Card className="mt-8 border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+        <Card ref={permitSectionRef} id="learner-permit" className="mt-8 scroll-mt-6 border-0 shadow-xl bg-white/90 backdrop-blur-sm">
           <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 border-b border-amber-100">
             <CardTitle className="text-xl font-semibold text-[#111111] flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-[#ECC462]" />
               Learner's Permit
             </CardTitle>
             <CardDescription>
-              Manage your learner's permit information and upload a photo of your permit
+              Enter your permit number and expiry date to book driving classes. A permit photo is optional.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
@@ -938,7 +964,7 @@ export default function StudentProfile() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Permit Number (Nom de Dossier)</label>
+                    <label className="text-sm font-medium text-gray-700">Permit Number (Nom de Dossier) *</label>
                     <Input
                       value={permitNumber}
                       onChange={(e) => setPermitNumber(e.target.value)}
@@ -958,7 +984,7 @@ export default function StudentProfile() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Permit Expiry Date</label>
+                    <label className="text-sm font-medium text-gray-700">Permit Expiry Date *</label>
                     <Input
                       type="date"
                       value={permitExpiry}

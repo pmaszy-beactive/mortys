@@ -15,11 +15,11 @@ describe("motorcycle class requirements", () => {
   it.each([
     ["theory", 1, { duration: 180, stage: "yard-preparation" }],
     ["theory", 2, { duration: 180, stage: "road-preparation" }],
-    ["driving", 1, { duration: 240, maxStudents: 1, stage: "closed-circuit" }],
-    ["driving", 4, { duration: 240, maxStudents: 1, stage: "closed-circuit" }],
-    ["driving", 5, { duration: 120, maxStudents: 1, stage: "road" }],
-    ["driving", 6, { duration: 240, maxStudents: 1, stage: "road" }],
-    ["driving", 7, { duration: 240, maxStudents: 1, stage: "road" }],
+    ["driving", 1, { duration: 240, maxStudents: 5, stage: "closed-circuit" }],
+    ["driving", 4, { duration: 240, maxStudents: 5, stage: "closed-circuit" }],
+    ["driving", 5, { duration: 120, maxStudents: 5, stage: "road" }],
+    ["driving", 6, { duration: 240, maxStudents: 5, stage: "road" }],
+    ["driving", 7, { duration: 240, maxStudents: 5, stage: "road" }],
   ])("maps %s #%i to its canonical configuration", (classType, classNumber, expected) => {
     expect(getMotoClassRequirements(classType, classNumber)).toEqual(expected);
   });
@@ -43,14 +43,14 @@ describe("motorcycle class requirements", () => {
         classType: "driving",
         classNumber,
         duration: 240,
-        maxStudents: 1,
+        maxStudents: 5,
       })),
-      { classType: "driving", classNumber: 5, duration: 120, maxStudents: 1 },
+      { classType: "driving", classNumber: 5, duration: 120, maxStudents: 5 },
       ...[6, 7].map((classNumber) => ({
         classType: "driving",
         classNumber,
         duration: 240,
-        maxStudents: 1,
+        maxStudents: 5,
       })),
     ];
 
@@ -59,21 +59,28 @@ describe("motorcycle class requirements", () => {
     }
   });
 
-  it("rejects invalid practical durations and capacities", () => {
+  it("accepts 1–5 students and rejects practical capacities above the legal limit", () => {
     expect(validateMotoClassConfiguration({
       courseType: "moto",
       classType: "driving",
       classNumber: 5,
       duration: 240,
-      maxStudents: 1,
+      maxStudents: 5,
     })).toContain("120 minutes");
     expect(validateMotoClassConfiguration({
       courseType: "moto",
       classType: "driving",
       classNumber: 1,
       duration: 240,
-      maxStudents: 2,
-    })).toContain("exactly 1 student");
+      maxStudents: 6,
+    })).toContain("1–5 students");
+    expect(validateMotoClassConfiguration({
+      courseType: "moto",
+      classType: "driving",
+      classNumber: 1,
+      duration: 240,
+      maxStudents: 1,
+    })).toBeNull();
   });
 
   it("does not apply motorcycle rules to other courses", () => {
@@ -90,7 +97,7 @@ describe("motorcycle class requirements", () => {
 describe("scooter class requirements", () => {
   it("allows only one 3-hour theory and one 3-hour practical session", () => {
     expect(getScooterClassRequirements("theory", 1)).toEqual({ duration: 180, stage: "theory" });
-    expect(getScooterClassRequirements("driving", 1)).toEqual({ duration: 180, stage: "practical" });
+    expect(getScooterClassRequirements("driving", 1)).toEqual({ duration: 180, maxStudents: 5, stage: "practical" });
     expect(getScooterClassRequirements("theory", 2)).toBeNull();
     expect(getScooterClassRequirements("driving", 2)).toBeNull();
   });
@@ -107,6 +114,7 @@ describe("scooter class requirements", () => {
       classType: "driving",
       classNumber: 1,
       duration: 180,
+      maxStudents: 5,
     })).toBeNull();
     expect(validateScooterClassConfiguration({
       courseType: "scooter",
@@ -120,6 +128,20 @@ describe("scooter class requirements", () => {
       classNumber: 1,
       duration: 120,
     })).toContain("180 minutes");
+    expect(validateScooterClassConfiguration({
+      courseType: "scooter",
+      classType: "driving",
+      classNumber: 1,
+      duration: 180,
+      maxStudents: 5,
+    })).toBeNull();
+    expect(validateScooterClassConfiguration({
+      courseType: "scooter",
+      classType: "driving",
+      classNumber: 1,
+      duration: 180,
+      maxStudents: 6,
+    })).toContain("1–5 students");
   });
 });
 

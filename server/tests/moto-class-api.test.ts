@@ -131,7 +131,7 @@ function roadFiveBulkBody(overrides: Record<string, unknown> = {}) {
     time: "09:00",
     duration: 120,
     instructorId,
-    maxStudents: 1,
+    maxStudents: 5,
     startDate: monday,
     endDate: monday,
     ...overrides,
@@ -139,7 +139,7 @@ function roadFiveBulkBody(overrides: Record<string, unknown> = {}) {
 }
 
 describe("Moto class API integrity", () => {
-  it("rejects direct practical creation with a non-canonical duration or capacity", async () => {
+  it("allows up to 5 students and rejects practical capacity above that limit", async () => {
     const base = {
       courseType: "moto",
       classType: "driving",
@@ -147,16 +147,24 @@ describe("Moto class API integrity", () => {
       date: monday,
       time: "09:00",
       duration: 120,
-      maxStudents: 1,
+      maxStudents: 5,
     };
 
     const badDuration = await authenticatedPost("/api/classes", { ...base, duration: 240 });
     expect(badDuration.status).toBe(400);
     expect(badDuration.body.message).toContain("120 minutes");
 
-    const badCapacity = await authenticatedPost("/api/classes", { ...base, maxStudents: 2 });
+    const allowedCapacity = await authenticatedPost("/api/classes", { ...base, maxStudents: 2 });
+    expect(allowedCapacity.status).toBe(201);
+    classIds.push(allowedCapacity.body.id);
+
+    const badCapacity = await authenticatedPost("/api/classes", {
+      ...base,
+      time: "10:00",
+      maxStudents: 6,
+    });
     expect(badCapacity.status).toBe(400);
-    expect(badCapacity.body.message).toContain("exactly 1 student");
+    expect(badCapacity.body.message).toContain("1–5 students");
   });
 
   it("requires a matching stage for non-progressive Moto practical bulk requests", async () => {
@@ -193,7 +201,7 @@ describe("Moto class API integrity", () => {
       classType: "driving",
       classNumber: 5,
       duration: 120,
-      maxStudents: 1,
+      maxStudents: 5,
       instructorId,
       date: monday,
       time: "09:00",
@@ -221,16 +229,60 @@ describe("Moto class API integrity", () => {
     expect(badDuration.status).toBe(400);
     expect(badDuration.body.message).toContain("120 minutes");
 
-    const badCapacity = await authenticatedPost(
+    const allowedCapacity = await authenticatedPost(
       `/api/change-requests/${roadClass.id}/approve`,
       { maxStudents: 2 },
     );
+    expect(allowedCapacity.status).toBe(200);
+
+    const badCapacity = await authenticatedPost(
+      `/api/change-requests/${roadClass.id}/approve`,
+      { maxStudents: 6 },
+    );
     expect(badCapacity.status).toBe(400);
-    expect(badCapacity.body.message).toContain("exactly 1 student");
+    expect(badCapacity.body.message).toContain("1–5 students");
 
     const [unchanged] = await db.select().from(classes).where(eq(classes.id, roadClass.id));
     expect(unchanged.duration).toBe(120);
-    expect(unchanged.maxStudents).toBe(1);
+    expect(unchanged.maxStudents).toBe(2);
+  });
+
+  it("defaults Motorcycle and Scooter practical creation to 5 students", async () => {
+    const moto = await authenticatedPost("/api/classes", {
+      courseType: "moto",
+      classType: "driving",
+      classNumber: 5,
+      date: monday,
+      time: "11:00",
+      duration: 120,
+    });
+    expect(moto.status).toBe(201);
+    expect(moto.body.maxStudents).toBe(5);
+    classIds.push(moto.body.id);
+
+    const scooter = await authenticatedPost("/api/classes", {
+      courseType: "scooter",
+      classType: "driving",
+      classNumber: 1,
+      date: monday,
+      time: "12:00",
+      duration: 180,
+    });
+    expect(scooter.status).toBe(201);
+    expect(scooter.body.maxStudents).toBe(5);
+    classIds.push(scooter.body.id);
+
+    const tooLarge = await authenticatedPost("/api/classes", {
+      courseType: "scooter",
+      classType: "driving",
+      classNumber: 1,
+      date: monday,
+      time: "13:00",
+      duration: 180,
+      maxStudents: 6,
+    });
+    expect(tooLarge.status).toBe(400);
+    expect(tooLarge.body.message).toContain("1–5 students");
   });
 
   it("refuses to clone one template across a mixed full Moto curriculum series", async () => {

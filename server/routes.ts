@@ -141,10 +141,11 @@ interface PhaseDefinition {
 
 const COURSE_PHASES: Record<string, PhaseDefinition[]> = {
   auto: [
-    { name: "Theory Phase", order: 1, description: "Complete all theory classes", requiredTheoryClasses: 5, requiredInCarSessions: 0, estimatedDays: 30 },
-    { name: "In-Car Training", order: 2, description: "Complete practical driving sessions", requiredTheoryClasses: 5, requiredInCarSessions: 10, estimatedDays: 60 },
-    { name: "Road Test Prep", order: 3, description: "Prepare for your road test", requiredTheoryClasses: 5, requiredInCarSessions: 15, estimatedDays: 30 },
-    { name: "Completed", order: 4, description: "Graduation!", requiredTheoryClasses: 5, requiredInCarSessions: 15, estimatedDays: 0 },
+    { name: "Phase 1", order: 1, description: "Complete Theory #1–5", requiredTheoryClasses: 5, requiredInCarSessions: 0, estimatedDays: 28 },
+    { name: "Phase 2", order: 2, description: "Complete Theory #6–7 and In-Car #1–4", requiredTheoryClasses: 7, requiredInCarSessions: 4, estimatedDays: 28 },
+    { name: "Phase 3", order: 3, description: "Complete Theory #8–10 and In-Car #5–10", requiredTheoryClasses: 10, requiredInCarSessions: 10, estimatedDays: 56 },
+    { name: "Phase 4", order: 4, description: "Complete Theory #11–12 and In-Car #11–15", requiredTheoryClasses: 12, requiredInCarSessions: 15, estimatedDays: 56 },
+    { name: "Completed", order: 5, description: "Graduation!", requiredTheoryClasses: 12, requiredInCarSessions: 15, estimatedDays: 0 },
   ],
   // Counts must match getCourseClassCounts in shared/bookingRules.ts
   // (moto: Theory 1 yard prep + 4 closed-circuit, then Theory 2 road prep + 3 road sessions)
@@ -186,10 +187,12 @@ function calculatePhaseProgress(
   
   // Determine current phase based on cumulative requirements.
   // Each phase defines the total classes needed to COMPLETE that phase:
-  //   Phase 0 (Theory): 5 theory, 0 in-car → complete when 5 theory done
-  //   Phase 1 (In-Car): 5 theory, 10 in-car → complete when 10 in-car done
-  //   Phase 2 (Road Test Prep): 5 theory, 15 in-car → complete when 15 in-car done
-  //   Phase 3 (Completed): final state
+  // Auto phases use cumulative requirements:
+  //   Phase 1: 5 theory, 0 in-car
+  //   Phase 2: 7 theory, 4 in-car
+  //   Phase 3: 10 theory, 10 in-car
+  //   Phase 4: 12 theory, 15 in-car
+  //   Completed: final state
   // A student advances to the next phase once they meet the current phase's requirements.
   
   let currentPhaseIndex = 0;
@@ -422,6 +425,12 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
       const key = `${classItem.classType}_${classItem.classNumber}`;
       const completed = completedMap.get(key);
       const isCompleted = !!completed || transferCompletionKeys.has(key);
+      const isInReview = !isCompleted && enrollmentRows.some((row) => {
+        if (`${row.classType}_${row.classNumber}` !== key) return false;
+        if (row.attendanceStatus !== "registered" && row.attendanceStatus !== "checked_in") return false;
+        const start = getClassStartTime({ date: row.date, time: row.time });
+        return start !== null && start.getTime() <= Date.now();
+      });
 
       if (isCompleted) completedCount++;
       if (completed?.date && (!earliestDate || completed.date < earliestDate)) {
@@ -435,6 +444,7 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
         classNumber: classItem.classNumber,
         specialNote: classItem.specialNote,
         isCompleted,
+        isInReview,
         date: completed?.date || undefined,
         time: completed?.time || undefined,
         duration: completed?.duration || undefined,
@@ -3673,7 +3683,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/classes", authMiddleware, async (req, res) => {
     try {
       console.log("Class creation request body:", req.body);
-      const classData = insertClassSchema.parse(req.body);
+      const requirements = getCourseClassRequirements(
+        req.body.courseType,
+        req.body.classType,
+        Number(req.body.classNumber),
+      );
+      const classData = insertClassSchema.parse({
+        ...req.body,
+        maxStudents: req.body.maxStudents ?? requirements?.maxStudents,
+      });
       const configurationError = validateCourseClassConfiguration(classData);
       if (configurationError) {
         return res.status(400).json({ message: configurationError });
@@ -3859,12 +3877,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (courseType || '').toLowerCase() === 'moto' &&
         classType === 'driving';
       if (!req.body.fullCurriculum) {
+        const requirements = getCourseClassRequirements(courseType, classType, startNumber);
+        const normalizedMaxStudents = maxStudents ?? requirements?.maxStudents;
         const configurationError = validateCourseClassConfiguration({
           courseType,
           classType,
           classNumber: startNumber,
           duration: Number(duration),
-          maxStudents: Number(maxStudents),
+          maxStudents: Number(normalizedMaxStudents),
         });
         if (configurationError) {
           return res.status(400).json({ message: configurationError });
@@ -3971,7 +3991,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           time,
           duration: generatedDuration,
           instructorId: instructorId ? parseInt(instructorId) : null,
-          maxStudents: generatedRequirements?.maxStudents ?? (parseInt(maxStudents) || 15),
+          maxStudents: parseInt(maxStudents) || generatedRequirements?.maxStudents || 15,
           lessonType: lessonType || 'regular',
           hasTest: hasTest || false,
           zoomLink: zoomLink || null,
@@ -8356,6 +8376,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         return res.status(400).json({ message: "An account with this email already exists" });
       }
+
+      if (selectedStartDateId) {
+        const startDateId = Number(selectedStartDateId);
+        const selectedStartDate = Number.isInteger(startDateId) && startDateId > 0
+          ? await storage.getCourseStartDate(startDateId)
+          : undefined;
+        const { findAvailableTheory1Class } = await import("./services/auto-enroll");
+        const matchingClass = selectedStartDate?.status === "active"
+          ? await findAvailableTheory1Class(selectedStartDate)
+          : undefined;
+
+        if (
+          !selectedStartDate ||
+          selectedStartDate.courseType !== courseType ||
+          !matchingClass
+        ) {
+          return res.status(400).json({
+            message: "The selected class is no longer scheduled or available. Please choose another class.",
+          });
+        }
+      }
       
       // The real password is set later via the activation email link.
       // Store a random placeholder hash to satisfy the not-null column.
@@ -8955,6 +8996,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Public: available upcoming start dates (used on the registration page)
   app.get("/api/course-start-dates", async (req, res) => {
     try {
+      res.set("Cache-Control", "no-store, max-age=0");
       const courseType = req.query.courseType as string | undefined;
       await storage.syncCourseStartDatesFromClasses(courseType);
       const dates = await storage.getCourseStartDates({
@@ -8962,7 +9004,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: "active",
         upcomingOnly: true,
       });
-      res.json(dates);
+      const { findAvailableTheory1Class } = await import("./services/auto-enroll");
+      const availableDates = (
+        await Promise.all(
+          dates.map(async (date) => (
+            await findAvailableTheory1Class(date) ? date : undefined
+          )),
+        )
+      ).filter((date): date is typeof dates[number] => Boolean(date));
+      res.json(availableDates);
     } catch (error) {
       captureRequestError(error);
       console.error("[START-DATES] Error fetching public start dates:", error);

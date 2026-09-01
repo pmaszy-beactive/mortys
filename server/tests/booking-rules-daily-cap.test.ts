@@ -437,6 +437,74 @@ describe("relaxed auto sequential layer (validateSequentialProgression via valid
     expect(result.blockingRule).toBe("max_concurrent_incar_bookings");
   });
 
+  it("unlocks every remaining Phase 3 class immediately after Theory #8", () => {
+    const completedThroughTheory8: CompletedClassRecord[] = [
+      ...[1, 2, 3, 4, 5, 6, 7, 8].map((classNumber) => ({
+        classType: "theory" as const,
+        classNumber,
+        date: "2026-01-01",
+      })),
+      ...[1, 2, 3, 4].map((classNumber) => ({
+        classType: "driving" as const,
+        classNumber,
+        date: "2026-03-01",
+      })),
+    ];
+
+    const remainingPhase3Targets: TargetClassInfo[] = [
+      theoryTarget({ classNumber: 9, upcomingBookings: [] }),
+      theoryTarget({ classNumber: 10, upcomingBookings: [] }),
+      ...[5, 6, 7, 8, 9, 10].map((classNumber) => ({
+        classType: "driving" as const,
+        classNumber,
+        date: "2026-08-12",
+        duration: 60,
+        upcomingBookings: [],
+      })),
+    ];
+
+    for (const target of remainingPhase3Targets) {
+      expect(validateClassBooking(target, completedThroughTheory8, "auto")).toEqual({
+        allowed: true,
+      });
+    }
+  });
+
+  it("keeps every Phase 3 class except Theory #8 locked until Theory #8 is completed", () => {
+    const completedPhase2: CompletedClassRecord[] = [
+      ...[1, 2, 3, 4, 5, 6, 7].map((classNumber) => ({
+        classType: "theory" as const,
+        classNumber,
+        date: "2026-01-01",
+      })),
+      ...[1, 2, 3, 4].map((classNumber) => ({
+        classType: "driving" as const,
+        classNumber,
+        date: "2026-03-01",
+      })),
+    ];
+
+    const theory9 = validateClassBooking(
+      theoryTarget({ classNumber: 9, upcomingBookings: [] }),
+      completedPhase2,
+      "auto",
+    );
+    const inCar10 = validateClassBooking(
+      {
+        classType: "driving",
+        classNumber: 10,
+        date: "2026-08-12",
+        duration: 60,
+        upcomingBookings: [],
+      },
+      completedPhase2,
+      "auto",
+    );
+
+    expect(theory9.blockingRule).toBe("phase3_theory8_required");
+    expect(inCar10.blockingRule).toBe("phase3_theory8_required");
+  });
+
   it("keeps strict one-at-a-time theory ordering for simplified courses (moto)", () => {
     const result = validateClassBooking(
       theoryTarget({ classNumber: 3, upcomingBookings: [] }),

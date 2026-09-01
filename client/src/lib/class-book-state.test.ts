@@ -36,6 +36,17 @@ function session(classType: "theory" | "driving", classNumber: number, bookingAl
 }
 
 describe("per-class Book state for moto and scooter curricula", () => {
+  it("shows a past booked class awaiting attendance as in review without a no-session reason", () => {
+    const classItem = {
+      ...curriculumRow("moto", "driving", 1),
+      isInReview: true,
+    };
+
+    expect(getPhaseClassBookState(classItem, unlockedPhase, [], [])).toEqual({
+      status: "in_review",
+    });
+  });
+
   it("shows only scooter theory and practical, with practical locked until theory is complete", () => {
     const theory1 = curriculumRow("scooter", "theory", 1);
     const riding1 = curriculumRow("scooter", "driving", 1);
@@ -77,5 +88,24 @@ describe("per-class Book state for moto and scooter curricula", () => {
     ];
 
     expect(getPhaseClassBookState(circuit1, unlockedPhase, [], available)).toEqual({ status: "available" });
+  });
+
+  it("uses authoritative per-class availability when a phase summary is stale", () => {
+    const phase3Theory9: PhaseClassProgress = {
+      id: "theory_9",
+      label: "Theory #9",
+      classType: "theory",
+      classNumber: 9,
+      isCompleted: false,
+    };
+
+    expect(
+      getPhaseClassBookState(
+        phase3Theory9,
+        lockedPhase,
+        [],
+        [session("theory", 9, true)],
+      ),
+    ).toEqual({ status: "available" });
   });
 });

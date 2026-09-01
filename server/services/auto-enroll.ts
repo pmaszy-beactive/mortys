@@ -3,6 +3,8 @@ import { classes, students, classEnrollments, type CourseStartDate } from "@shar
 import { and, eq, gte, isNull, sql, isNotNull, inArray } from "drizzle-orm";
 import { storage } from "../storage";
 import { validateProgressionForStudent, withStudentBookingLock } from "./booking-validation";
+import { checkClassStart } from "./class-time";
+import { VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
 import {
   notifyAutoEnrollFailure,
   notifyStartDateReschedule,
@@ -54,6 +56,41 @@ export async function findMatchingTheory1Class(startDate: {
   // If a time was set but nothing matches it, fall back to the only class on
   // that date (there is no ambiguity), otherwise give up.
   return candidates.length === 1 ? candidates[0] : undefined;
+}
+
+/**
+ * Resolve a registration start-date option to a Theory 1 class that can still
+ * accept a student now. The final enrollment remains race-safe in bookClass;
+ * this helper prevents stale start-date metadata from being advertised.
+ */
+export async function findAvailableTheory1Class(startDate: {
+  courseType: string;
+  startDate: string;
+  startTime?: string | null;
+}) {
+  const matchingClass = await findMatchingTheory1Class(startDate);
+  if (!matchingClass) return undefined;
+
+  if (checkClassStart(matchingClass).status !== "not_started") {
+    return undefined;
+  }
+
+  const [enrollmentCount] = await db
+    .select({
+      count: sql<number>`CAST(COUNT(*) AS INTEGER)`,
+    })
+    .from(classEnrollments)
+    .where(
+      and(
+        eq(classEnrollments.classId, matchingClass.id),
+        isNull(classEnrollments.cancelledAt),
+      ),
+    );
+  const capacity = matchingClass.zoomLink?.trim()
+    ? Math.min(matchingClass.maxStudents, VIRTUAL_CLASS_MAX_STUDENTS)
+    : matchingClass.maxStudents;
+
+  return (enrollmentCount?.count ?? 0) < capacity ? matchingClass : undefined;
 }
 
 /**

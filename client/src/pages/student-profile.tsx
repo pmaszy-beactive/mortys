@@ -982,8 +982,46 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
           </Card>
         )}
         {(student.courseType || '').toLowerCase() === 'auto' && canManagePhaseTiming && (
-          <div className="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-2" data-testid="auto-phase-timing-overrides">
-            {AUTO_PHASE_TIMING_CONFIG.map((config) => {
+          <section className="mb-4 space-y-4" data-testid="auto-phase-timing-overrides">
+            <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-semibold text-gray-950">Auto Timing Test Overrides</h2>
+                  <p className="mt-1 text-sm text-gray-600">
+                    Independent testing controls are available for all four phases.
+                  </p>
+                </div>
+                <Badge variant="outline" className="border-amber-300 bg-white text-amber-900">
+                  Phases 1–4
+                </Badge>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {AUTO_PHASE_TIMING_CONFIG.map((config) => {
+                  const activeDays = Number(student[config.advanceKey] ?? 0);
+                  return (
+                    <Button
+                      key={config.phase}
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="justify-between border-amber-300 bg-white hover:bg-amber-100"
+                      onClick={() =>
+                        document
+                          .getElementById(`phase-${config.phase}-timing-override`)
+                          ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                      }
+                      data-testid={`button-jump-phase${config.phase}-timing-override`}
+                    >
+                      Phase {config.phase}
+                      {activeDays > 0 && <span className="text-amber-700">+{activeDays}d</span>}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+              {AUTO_PHASE_TIMING_CONFIG.map((config) => {
               const activeDays = Number(student[config.advanceKey] ?? 0);
               const activeReason = student[config.reasonKey];
               const activeSetAt = student[config.setAtKey];
@@ -998,7 +1036,8 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
               return (
                 <Card
                   key={config.phase}
-                  className={`mobile-card ${activeDays > 0 ? "border-amber-400 bg-amber-50/50" : ""}`}
+                  id={`phase-${config.phase}-timing-override`}
+                  className={`mobile-card scroll-mt-4 ${activeDays > 0 ? "border-amber-400 bg-amber-50/50" : ""}`}
                   data-testid={`card-phase${config.phase}-timing-override`}
                 >
                   <CardHeader className="pb-3">
@@ -1125,7 +1164,8 @@ export default function StudentProfilePage({ params }: StudentProfilePageProps) 
                 </Card>
               );
             })}
-          </div>
+            </div>
+          </section>
         )}
         {phaseLoading ? (
           <PhaseProgressTrackerSkeleton />

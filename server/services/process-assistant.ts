@@ -49,8 +49,8 @@ Phase 2 — starts with Theory #6 (requires all of Phase 1 complete):
 - In-Car #1 requires Theory #6 AND Theory #7 done. In-Car #1–#4 must be done in order (1→2→3→4) and are 60-minute sessions only.
 - In-Car #4 also requires at least 28 days since Theory #6.
 Phase 3 — starts with Theory #8 (requires all of Phase 2 complete):
-- Theory #9 and #10 require Theory #8 first; otherwise flexible ordering.
-- In-Car #5–#10 require Theory #8 first; can be 60 or 120 minutes.
+- Completing Theory #8 immediately unlocks Theory #9, Theory #10, and every In-Car #5–#10 session; all of them may then be booked and completed in any order.
+- In-Car #5–#10 can be 60 or 120 minutes.
 - Phase 3 must last at least 56 days before starting Phase 4 (measured from Theory #8).
 Phase 4 — starts with Theory #11 (requires all of Phase 3 complete, incl. Theory #8–#10 and In-Car #5–#10):
 - Theory #12 requires Theory #11 first.

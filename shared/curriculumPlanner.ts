@@ -22,6 +22,7 @@ export type ScheduledPlanItem = PlanItem & { date: string };
 
 export const AUTO_CURRICULUM_THEORY_DURATION = 120;
 export const VIRTUAL_CLASS_MAX_STUDENTS = 30;
+export const MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS = 5;
 
 export type MotoClassRequirements = {
   duration: number;
@@ -55,13 +56,13 @@ export function getMotoClassRequirements(
   }
   if (classType === "driving") {
     if (classNumber! >= 1 && classNumber! <= 4) {
-      return { duration: 240, maxStudents: 1, stage: "closed-circuit" };
+      return { duration: 240, maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS, stage: "closed-circuit" };
     }
     if (classNumber === 5) {
-      return { duration: 120, maxStudents: 1, stage: "road" };
+      return { duration: 120, maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS, stage: "road" };
     }
     if (classNumber! >= 6 && classNumber! <= 7) {
-      return { duration: 240, maxStudents: 1, stage: "road" };
+      return { duration: 240, maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS, stage: "road" };
     }
   }
   return null;
@@ -89,9 +90,11 @@ export function validateMotoClassConfiguration(input: {
   }
   if (
     requirements.maxStudents !== undefined &&
-    input.maxStudents !== requirements.maxStudents
+    (!Number.isInteger(input.maxStudents) ||
+      input.maxStudents! < 1 ||
+      input.maxStudents! > requirements.maxStudents)
   ) {
-    return "Motorcycle practical sessions must have exactly 1 student.";
+    return `Motorcycle practical sessions allow 1–${requirements.maxStudents} students per instructor.`;
   }
   return null;
 }
@@ -106,7 +109,13 @@ export function getScooterClassRequirements(
 ): ScooterClassRequirements | null {
   if (classNumber !== 1) return null;
   if (classType === "theory") return { duration: 180, stage: "theory" };
-  if (classType === "driving") return { duration: 180, stage: "practical" };
+  if (classType === "driving") {
+    return {
+      duration: 180,
+      maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS,
+      stage: "practical",
+    };
+  }
   return null;
 }
 
@@ -124,6 +133,14 @@ export function validateScooterClassConfiguration(input: {
   }
   if (input.duration !== requirements.duration) {
     return "Scooter theory and practical sessions must each be 180 minutes (3 hours).";
+  }
+  if (
+    requirements.maxStudents !== undefined &&
+    (!Number.isInteger(input.maxStudents) ||
+      input.maxStudents! < 1 ||
+      input.maxStudents! > requirements.maxStudents)
+  ) {
+    return `Scooter practical sessions allow 1–${requirements.maxStudents} students per instructor.`;
   }
   return null;
 }
@@ -216,20 +233,20 @@ export function buildAutoCurriculumPlan(theoryMaxStudents: number): PlanItem[] {
  * The 9-class moto (Mortys motorcycle program) curriculum in program order:
  * Theory 1 yard prep (3h) → 4 closed-circuit sessions (4h each) → Theory 2
  * road prep (3h) → road sessions of 2h/4h/4h. No mandated minimum phase
- * durations. Practical sessions are one student per bike/instructor.
+ * durations. Practical sessions allow up to five students per instructor.
  */
 export function buildMotoCurriculumPlan(theoryMaxStudents: number): PlanItem[] {
   const theoryMax = theoryMaxStudents;
   return [
     { classType: "theory", classNumber: 1, duration: 180, maxStudents: theoryMax },
-    { classType: "driving", classNumber: 1, duration: 240, maxStudents: 1 },
-    { classType: "driving", classNumber: 2, duration: 240, maxStudents: 1 },
-    { classType: "driving", classNumber: 3, duration: 240, maxStudents: 1 },
-    { classType: "driving", classNumber: 4, duration: 240, maxStudents: 1 },
+    { classType: "driving", classNumber: 1, duration: 240, maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS },
+    { classType: "driving", classNumber: 2, duration: 240, maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS },
+    { classType: "driving", classNumber: 3, duration: 240, maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS },
+    { classType: "driving", classNumber: 4, duration: 240, maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS },
     { classType: "theory", classNumber: 2, duration: 180, maxStudents: theoryMax },
-    { classType: "driving", classNumber: 5, duration: 120, maxStudents: 1 },
-    { classType: "driving", classNumber: 6, duration: 240, maxStudents: 1 },
-    { classType: "driving", classNumber: 7, duration: 240, maxStudents: 1 },
+    { classType: "driving", classNumber: 5, duration: 120, maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS },
+    { classType: "driving", classNumber: 6, duration: 240, maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS },
+    { classType: "driving", classNumber: 7, duration: 240, maxStudents: MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS },
   ];
 }
 
