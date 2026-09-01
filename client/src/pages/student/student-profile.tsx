@@ -994,36 +994,18 @@ export default function StudentProfile() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Driver's License Number (if any)</label>
+                    <label className="text-sm font-medium text-gray-700">Reference Number (Optional)</label>
                     <Input
                       value={licenseNumber}
                       onChange={(e) => setLicenseNumber(e.target.value)}
-                      placeholder="Enter license number (e.g. S1234-01011990-01)"
+                      placeholder="Enter a reference number, if you have one"
                       className="border-gray-200 focus:border-[#ECC462]"
                       data-testid="input-license-number"
                     />
-                    {licenseNumber && (() => {
-                      const lic = licenseNumber.toUpperCase();
-                      const errs: string[] = [];
-                      const lastName = form.getValues("lastName") || (student as any)?.lastName || "";
-                      const dob = (student as any)?.dateOfBirth || "";
-                      if (lastName && lic[0] !== lastName[0].toUpperCase()) {
-                        errs.push(`First character must be "${lastName[0].toUpperCase()}" (initial of your last name)`);
-                      }
-                      if (dob && lic.length >= 14) {
-                        const d = new Date(dob);
-                        if (!isNaN(d.getTime())) {
-                          const expected = `${d.getDate().toString().padStart(2,'0')}${(d.getMonth()+1).toString().padStart(2,'0')}${d.getFullYear()}`;
-                          if (lic.substring(6, 14) !== expected) errs.push(`Characters 7–14 must be ${expected} (your birth date as DDMMYYYY)`);
-                        }
-                      }
-                      if (errs.length === 0) return <p className="text-xs text-green-600 mt-1">✓ Format looks valid</p>;
-                      return <div className="mt-1">{errs.map((e,i) => <p key={i} className="text-xs text-red-500">✗ {e}</p>)}</div>;
-                    })()}
-                    <p className="text-xs text-gray-400">Format: L9999-DDMMYYYY-NN (first letter of last name, then 4 digits, then date of birth)</p>
+                    <p className="text-xs text-gray-400">Optional — not all applicants have a reference number.</p>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">License Expiry Date</label>
+                    <label className="text-sm font-medium text-gray-700">Reference Expiry Date (Legacy)</label>
                     <Input
                       type="date"
                       value={licenseExpiry}

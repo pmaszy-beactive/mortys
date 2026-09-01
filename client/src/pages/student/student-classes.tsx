@@ -145,6 +145,14 @@ interface PairingStatusResponse {
   activeSessions: PairingSession[];
 }
 
+interface PairingCancellationCheck {
+  policy: {
+    feeRequired: boolean;
+    feeAmount: number;
+    taxApplicable: boolean;
+  };
+}
+
 interface StudentPaymentMethodSummary {
   id: number;
   cardBrand: string | null;
@@ -1016,11 +1024,15 @@ function CancelModal({
                 )}
                 <div className="flex-1">
                   <p className={`font-semibold ${policy.feeRequired ? 'text-red-900' : 'text-green-900'}`}>
-                    {policy.feeRequired ? `$${policy.feeAmount.toFixed(2)} Cancellation Fee` : 'Free Cancellation'}
+                    {policy.feeRequired
+                      ? `$${policy.feeAmount.toFixed(2)}${policy.taxApplicable ? " + tax" : ""} Cancellation Fee`
+                      : 'Free Cancellation'}
                   </p>
                   <p className={`text-sm ${policy.feeRequired ? 'text-red-800' : 'text-green-800'}`}>
                     {policy.feeRequired 
-                      ? `This class is in ${policy.hoursUntilClass} hours (within the ${policy.restrictedWindowHours}-hour policy window). A $${policy.feeAmount.toFixed(2)} cancellation fee applies.`
+                      ? policy.canonicalIncar1213
+                        ? `This In-Car 12/13 session starts in less than 24 hours. $${policy.feeAmount.toFixed(2)} plus applicable taxes will be charged to your saved card after cancellation. If payment fails, the invoice remains due.`
+                        : `This class is in ${policy.hoursUntilClass} hours (within the ${policy.restrictedWindowHours}-hour policy window). A $${policy.feeAmount.toFixed(2)} cancellation fee applies.`
                       : `This class is in ${policy.hoursUntilClass} hours. You can cancel for free!`
                     }
                   </p>
@@ -1035,10 +1047,14 @@ function CancelModal({
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={policy.feeRequired ? handlePaidCancel : () => freeCancelMutation.mutate()}
+                  onClick={policy.feeRequired && !policy.canonicalIncar1213
+                    ? handlePaidCancel
+                    : () => freeCancelMutation.mutate()}
                   disabled={freeCancelMutation.isPending}
                 >
-                  {policy.feeRequired ? 'Continue to Payment' : 'Confirm Cancellation'}
+                  {policy.feeRequired && !policy.canonicalIncar1213
+                    ? 'Continue to Payment'
+                    : 'Confirm Cancellation'}
                 </Button>
               </DialogFooter>
             ) : (
@@ -1086,9 +1102,11 @@ export default function StudentClasses() {
   const [wizardStep, setWizardStep] = useState<2 | 3 | 4>(2);
   const [targetClass, setTargetClass] = useState<PhaseClassProgress | null>(null);
   const [selectedBookingClass, setSelectedBookingClass] = useState<AvailableClass | null>(null);
+  const [selectedPairSecondClass, setSelectedPairSecondClass] = useState<AvailableClass | null>(null);
   const [policyAccepted, setPolicyAccepted] = useState(false);
   const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
   const [pendingCardClass, setPendingCardClass] = useState<AvailableClass | null>(null);
+  const [pendingCardPairSecondClass, setPendingCardPairSecondClass] = useState<AvailableClass | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   // Task 272: remember whether the last confirmed booking entered the In-Car
   // 12/13 pairing flow so the success step shows the pairing copy.
@@ -1148,6 +1166,7 @@ export default function StudentClasses() {
       if (error?.data?.policyViolation === "card_required" && selectedBookingClass) {
         setBookingWizardOpen(false);
         setPendingCardClass(selectedBookingClass);
+        setPendingCardPairSecondClass(selectedPairSecondClass);
         setIsCardDrawerOpen(true);
         return;
       }
@@ -1157,6 +1176,25 @@ export default function StudentClasses() {
         variant: "destructive",
       });
     },
+  });
+
+  const bookInCar56PairMutation = useMutation({
+    mutationFn: async ({ first, second }: { first: AvailableClass; second: AvailableClass }) =>
+      await apiRequest("POST", "/api/student/classes/book-incar-5-6-pair", {
+        inCar5ClassId: first.id,
+        inCar6ClassId: second.id,
+      }),
+    onSuccess: () => {
+      ["/api/student/classes/available", "/api/student/classes", "/api/student/me", "/api/student/history", "/api/student/phase-progress"].forEach(queryKey =>
+        queryClient.invalidateQueries({ queryKey: [queryKey] }));
+      setLastBookingPaired(false);
+      setWizardStep(4);
+    },
+    onError: (error: any) => toast({
+      title: "Two-hour booking failed",
+      description: error?.message || "Neither In-Car #5 nor #6 was booked. Please try again.",
+      variant: "destructive",
+    }),
   });
 
   // ── Task 272: In-Car 12/13 pairing mutations ─────────────────────────────
@@ -1206,6 +1244,14 @@ export default function StudentClasses() {
       });
     },
   });
+
+  const confirmPairingCancellation = async (confirmationId?: number) => {
+    const suffix = confirmationId ? `?confirmationId=${confirmationId}` : "";
+    const check = await apiRequest("GET", `/api/student/lesson-pairing/cancellation-check${suffix}`) as PairingCancellationCheck;
+    return window.confirm(check.policy.feeRequired
+      ? "This session starts in less than 24 hours. Cancelling now will charge $100.00 plus applicable taxes to your saved card. If the charge cannot be completed, the invoice will remain due. Continue?"
+      : "This cancellation is at least 24 hours before the session, so there is no cancellation fee. Continue?");
+  };
 
   const respondOfferMutation = useMutation({
     mutationFn: async ({ offerId, action }: { offerId: number; action: "accept" | "decline" }) => {
@@ -1259,6 +1305,8 @@ export default function StudentClasses() {
     respondOfferMutation.isPending ||
     respondConfirmationMutation.isPending;
 
+  const isAutoCourse = (student?.courseType || "").toLowerCase() === "auto";
+
   // Sessions matching the specific class the student clicked "Book" on.
   const bookableClasses = useMemo(() => {
     if (!targetClass || !availableClasses.length) return [];
@@ -1270,6 +1318,18 @@ export default function StudentClasses() {
       return sessionType === targetClass.classType && c.classNumber === targetClass.classNumber;
     });
   }, [availableClasses, targetClass]);
+
+  // The server's availability rows are authoritative. Pair only rows that are
+  // currently bookable/capacious and exactly adjacent on the same instructor.
+  const inCar56Pairs = useMemo(() => {
+    if (!isAutoCourse || targetClass?.classType !== "driving" || ![5, 6].includes(targetClass.classNumber)) return [];
+    const fives = availableClasses.filter(c => c.classType === "driving" && c.classNumber === 5 && c.duration === 60 && c.bookingAllowed !== false && c.spotsRemaining > 0);
+    const sixes = availableClasses.filter(c => c.classType === "driving" && c.classNumber === 6 && c.duration === 60 && c.bookingAllowed !== false && c.spotsRemaining > 0);
+    return fives.flatMap(first => sixes.filter(second =>
+      first.date === second.date && first.instructorId === second.instructorId &&
+      new Date(`${second.date}T${second.time}`).getTime() === new Date(`${first.date}T${first.time}`).getTime() + 60 * 60 * 1000,
+    ).map(second => ({ first, second })));
+  }, [availableClasses, isAutoCourse, targetClass]);
 
   const totalPages = Math.max(1, Math.ceil(bookableClasses.length / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
@@ -1310,6 +1370,7 @@ export default function StudentClasses() {
   const handleBookPhaseClass = (classItem: PhaseClassProgress) => {
     setTargetClass(classItem);
     setSelectedBookingClass(null);
+    setSelectedPairSecondClass(null);
     setPolicyAccepted(false);
     setCurrentPage(1);
     setWizardStep(2);
@@ -1320,11 +1381,13 @@ export default function StudentClasses() {
     // Classes beyond #1 require a card on file (also enforced server-side).
     if (classItem.classNumber > 1 && !hasSavedCard) {
       setPendingCardClass(classItem);
+      setPendingCardPairSecondClass(null);
       setBookingWizardOpen(false);
       setIsCardDrawerOpen(true);
       return;
     }
     setSelectedBookingClass(classItem);
+    setSelectedPairSecondClass(null);
     setPolicyAccepted(false);
     setWizardStep(3);
   };
@@ -1340,16 +1403,16 @@ export default function StudentClasses() {
     // Resume the booking the student was attempting.
     if (pendingCardClass) {
       setSelectedBookingClass(pendingCardClass);
+      setSelectedPairSecondClass(pendingCardPairSecondClass);
       setPolicyAccepted(false);
       setWizardStep(3);
       setBookingWizardOpen(true);
       setPendingCardClass(null);
+      setPendingCardPairSecondClass(null);
     }
   };
 
   // ── Task 272: pairing eligibility & helpers ──────────────────────────────
-  const isAutoCourse = (student?.courseType || "").toLowerCase() === "auto";
-
   // Theory 11 must be attended before the combined In-Car 12/13 session opens.
   const hasAttendedTheory11 = useMemo(() => {
     if (!phaseProgressData) return false;
@@ -1422,8 +1485,25 @@ export default function StudentClasses() {
 
   const confirmBooking = () => {
     if (selectedBookingClass) {
-      bookClassMutation.mutate(selectedBookingClass.id);
+      if (selectedPairSecondClass) {
+        bookInCar56PairMutation.mutate({ first: selectedBookingClass, second: selectedPairSecondClass });
+      } else {
+        bookClassMutation.mutate(selectedBookingClass.id);
+      }
     }
+  };
+
+  const handleBackNavigation = () => {
+    const currentUrl = window.location.href;
+    window.history.back();
+
+    // Direct visits may not have an in-app history entry. If the browser
+    // remains on this page, take the student to their Dashboard instead.
+    window.setTimeout(() => {
+      if (window.location.href === currentUrl) {
+        setLocation("/student/dashboard");
+      }
+    }, 200);
   };
 
   const renderClassCard = (classItem: ClassWithDetails, isUpcoming: boolean) => {
@@ -1611,9 +1691,11 @@ export default function StudentClasses() {
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
-              onClick={() => setLocation("/student/classes")}
+              onClick={handleBackNavigation}
               className="hover:bg-[#ECC462]/10"
               data-testid="button-back"
+              aria-label="Go back"
+              title="Back"
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
@@ -1667,12 +1749,19 @@ export default function StudentClasses() {
                   In-Car 12/13
                   <Badge className="bg-amber-100 text-amber-800 border-amber-200">Paired session</Badge>
                 </CardTitle>
-                <CardDescription>
-                  A 2-hour paired session that counts as lessons 12 &amp; 13. We match you with another
-                  student to share the session.
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div
+                  className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"
+                  data-testid="disclaimer-incar-1213-pairing-panel"
+                >
+                  <p className="font-semibold">Important information about In-Car 12/13</p>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-xs sm:text-sm">
+                    <li>This lesson requires two students. Your booking remains tentative until a second student is matched and both students confirm.</li>
+                    <li>The lesson lasts two consecutive hours in a shared vehicle: one hour driving and one hour sitting in the back seat observing and evaluating.</li>
+                    <li>If your partner unexpectedly does not show up, the lesson may be adjusted to Sessions 11 and 14.</li>
+                  </ul>
+                </div>
                 {/* Pending offers — highest priority to act on */}
                 {pairingOffers.map((offer) => {
                   const schedule = formatClassSchedule(offer.classId);
@@ -1762,7 +1851,11 @@ export default function StudentClasses() {
                           variant="outline"
                           className="h-8 border-red-200 text-red-600 hover:bg-red-50"
                           disabled={isPairingActionPending}
-                          onClick={() => respondConfirmationMutation.mutate({ confirmationId: confirmation.id, action: "decline" })}
+                          onClick={async () => {
+                            if (await confirmPairingCancellation(confirmation.id)) {
+                              respondConfirmationMutation.mutate({ confirmationId: confirmation.id, action: "decline" });
+                            }
+                          }}
                           data-testid={`button-confirmation-decline-${confirmation.id}`}
                         >
                           <XCircle className="h-3.5 w-3.5 mr-1" />
@@ -1788,7 +1881,9 @@ export default function StudentClasses() {
                       variant="outline"
                       className="h-8 border-red-200 text-red-600 hover:bg-red-50 flex-shrink-0"
                       disabled={isPairingActionPending}
-                      onClick={() => leaveQueueMutation.mutate()}
+                      onClick={async () => {
+                        if (await confirmPairingCancellation()) leaveQueueMutation.mutate();
+                      }}
                       data-testid="button-leave-queue"
                     >
                       <Trash2 className="h-3.5 w-3.5 mr-1" />
@@ -1825,7 +1920,9 @@ export default function StudentClasses() {
                       variant="outline"
                       className="h-8 border-red-200 text-red-600 hover:bg-red-50 flex-shrink-0"
                       disabled={isPairingActionPending}
-                      onClick={() => leaveQueueMutation.mutate()}
+                      onClick={async () => {
+                        if (await confirmPairingCancellation()) leaveQueueMutation.mutate();
+                      }}
                       data-testid="button-leave-queue"
                     >
                       <Trash2 className="h-3.5 w-3.5 mr-1" />
@@ -1984,6 +2081,7 @@ export default function StudentClasses() {
           setWizardStep(2);
           setTargetClass(null);
           setSelectedBookingClass(null);
+          setSelectedPairSecondClass(null);
           setPolicyAccepted(false);
           setLastBookingPaired(false);
         }
@@ -2016,11 +2114,12 @@ export default function StudentClasses() {
                   <div className="flex items-start gap-2">
                     <Users className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="font-semibold text-amber-900 text-sm">In-Car 12/13 — 2-hour paired session</p>
-                      <p className="text-xs text-amber-800 mt-0.5">
-                        Booking this session counts as lessons 12 &amp; 13. We'll match you with another
-                        student to share the 2-hour drive.
-                      </p>
+                      <p className="font-semibold text-amber-900 text-sm">Important information about In-Car 12/13</p>
+                      <ul className="mt-1.5 list-disc space-y-1 pl-4 text-xs text-amber-900">
+                        <li>This lesson requires two students. Your booking remains tentative until a second student is matched and both students confirm.</li>
+                        <li>The lesson lasts two consecutive hours in a shared vehicle: one hour driving and one hour sitting in the back seat observing and evaluating.</li>
+                        <li>If your partner unexpectedly does not show up, the lesson may be adjusted to Sessions 11 and 14.</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
@@ -2088,6 +2187,40 @@ export default function StudentClasses() {
                 </div>
               ) : (
                 <>
+                    {inCar56Pairs.length > 0 && (
+                      <div className="mb-3 space-y-2" data-testid="list-incar-5-6-pairs">
+                        <p className="text-xs font-medium text-gray-600">Available two-hour appointments</p>
+                        {inCar56Pairs.map(({ first, second }) => (
+                          <button
+                            key={`${first.id}-${second.id}`}
+                            type="button"
+                            onClick={() => {
+                              if (!hasSavedCard) {
+                                setPendingCardClass(first);
+                                setPendingCardPairSecondClass(second);
+                                setBookingWizardOpen(false);
+                                setIsCardDrawerOpen(true);
+                                return;
+                              }
+                              setSelectedBookingClass(first);
+                              setSelectedPairSecondClass(second);
+                              setPolicyAccepted(false);
+                              setWizardStep(3);
+                            }}
+                            className="w-full text-left p-3 rounded-lg border border-[#ECC462] bg-[#ECC462]/10 hover:bg-[#ECC462]/20 transition-colors"
+                            data-testid={`button-book-incar-5-6-pair-${first.id}-${second.id}`}
+                          >
+                            <p className="font-semibold text-sm text-gray-900">Book In-Car 5 &amp; 6 together (2 hours)</p>
+                            <p className="text-xs text-gray-600 mt-1">
+                              {new Date(`${first.date}T${first.time}`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                              {" · "}{new Date(`${first.date}T${first.time}`).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                              {" – "}{new Date(`${second.date}T${second.time}`).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                              {" · "}{first.instructorName}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   <p className="text-xs text-gray-400 mb-2">
                     {bookableClasses.length} {bookableClasses.length === 1 ? 'session' : 'sessions'} available for {targetClass?.label}
                   </p>
@@ -2181,7 +2314,9 @@ export default function StudentClasses() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">
-                      {selectedBookingClass.pairedLesson
+                      {selectedPairSecondClass
+                        ? `${selectedBookingClass.courseType.toUpperCase()} - In-Car #5 & #6`
+                        : selectedBookingClass.pairedLesson
                         ? `${selectedBookingClass.courseType.toUpperCase()} - ${selectedBookingClass.pairedLabel || 'In-Car 12/13'}`
                         : `${selectedBookingClass.courseType.toUpperCase()} - ${selectedBookingClass.classType === 'driving' ? 'In-Car' : 'Theory'} #${selectedBookingClass.classNumber}`}
                     </h4>
@@ -2189,8 +2324,18 @@ export default function StudentClasses() {
                   </div>
                 </div>
                 {selectedBookingClass.pairedLesson && (
-                  <p className="mt-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-2 py-1.5" data-testid="note-paired-confirm">
-                    2-hour paired session — counts as lessons 12 &amp; 13. We'll find you a partner.
+                  <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-900" data-testid="note-paired-confirm">
+                    <p className="font-semibold">In-Car 12/13 booking disclaimer</p>
+                    <ul className="mt-1.5 list-disc space-y-1 pl-4">
+                      <li>This lesson requires two students and remains tentative until a second student is matched and both students confirm.</li>
+                      <li>It lasts two consecutive hours: one hour driving and one hour observing and evaluating from the back seat.</li>
+                      <li>If your partner unexpectedly does not show up, the lesson may be adjusted to Sessions 11 and 14.</li>
+                    </ul>
+                  </div>
+                )}
+                {selectedPairSecondClass && (
+                  <p className="mt-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-2 py-1.5" data-testid="note-incar-5-6-pair-confirm">
+                    Two separate 60-minute lessons booked back-to-back: In-Car #5 at {new Date(`${selectedBookingClass.date}T${selectedBookingClass.time}`).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}, then In-Car #6 at {new Date(`${selectedPairSecondClass.date}T${selectedPairSecondClass.time}`).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}.
                   </p>
                 )}
                 <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-gray-600">
@@ -2255,11 +2400,11 @@ export default function StudentClasses() {
                 <Button variant="outline" onClick={() => setWizardStep(2)}>Back</Button>
                 <Button
                   onClick={confirmBooking}
-                  disabled={!policyAccepted || bookClassMutation.isPending}
+                  disabled={!policyAccepted || bookClassMutation.isPending || bookInCar56PairMutation.isPending}
                   className="bg-[#ECC462] hover:bg-[#d4ad4f] text-[#111111]"
                   data-testid="button-confirm-booking"
                 >
-                  {bookClassMutation.isPending ? "Booking..." : "Confirm Booking"}
+                  {(bookClassMutation.isPending || bookInCar56PairMutation.isPending) ? "Booking..." : "Confirm Booking"}
                 </Button>
               </DialogFooter>
             </div>
@@ -2319,14 +2464,21 @@ export default function StudentClasses() {
       {/* Card capture drawer — required before booking classes beyond #1 */}
       <Sheet open={isCardDrawerOpen} onOpenChange={(open) => {
         setIsCardDrawerOpen(open);
-        if (!open) setPendingCardClass(null);
+        if (!open) {
+          setPendingCardClass(null);
+          setPendingCardPairSecondClass(null);
+        }
       }}>
         <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto" data-testid="sheet-card-required">
           <SheetHeader>
             <SheetTitle className="text-[#111111]">Add a Payment Card</SheetTitle>
             <SheetDescription>
               A card on file is required to book classes beyond Class #1
-              {pendingCardClass ? ` (you're booking Class #${pendingCardClass.classNumber})` : ""}.
+              {pendingCardPairSecondClass
+                ? " (you're booking In-Car #5 and #6 together)"
+                : pendingCardClass
+                  ? ` (you're booking Class #${pendingCardClass.classNumber})`
+                  : ""}.
               You won't be charged now — your booking will continue once the card is saved.
             </SheetDescription>
           </SheetHeader>

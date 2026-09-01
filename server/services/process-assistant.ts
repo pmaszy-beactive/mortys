@@ -11,6 +11,7 @@ import {
   getMotoPracticalDuration,
   type CompletedClassRecord,
 } from "@shared/bookingRules";
+import { hasQualifyingPhase4IncarOffer } from "./incar-pairing";
 
 /**
  * AI process Q&A assistant for students, parents, and instructors.
@@ -54,7 +55,8 @@ Phase 3 — starts with Theory #8 (requires all of Phase 2 complete):
 - Phase 3 must last at least 56 days before starting Phase 4 (measured from Theory #8).
 Phase 4 — starts with Theory #11 (requires all of Phase 3 complete, incl. Theory #8–#10 and In-Car #5–#10):
 - Theory #12 requires Theory #11 first.
-- In-Car #11–#14 require Theory #11 first; 60 or 120 minutes; any order among themselves.
+- In-Car #11 and #14 require Theory #11 first and are not bookable until the student has received or accepted a specific offer for a valid combined In-Car #12/13 shared session. This requirement cannot be overridden.
+- In-Car #12/#13 use the combined shared-session pairing flow after Theory #11.
 - In-Car #12 and #13 must be shared 2-student sessions.
 - In-Car #15 (final session) requires Theory #12 and In-Car #11–#14 all completed, and is 60 minutes only.
 Other course types (moto, scooter) use simplified rules — students should ask the office for specifics.
@@ -65,7 +67,7 @@ DAILY BOOKING LIMIT
 BOOKING & CANCELLATIONS
 - Students book classes through the student portal from the available-classes list; the system automatically enforces the phase rules and daily limit above.
 - If a class you expect to book isn't shown as available, it's usually because a prerequisite isn't completed yet, a minimum waiting period hasn't passed, the class is full, or the daily limit is reached.
-- Office staff with override permission can bypass a booking rule in special cases, but a reason must be recorded. Ask the office if you believe an exception applies.
+- Office staff with override permission can bypass some generic booking policies in special cases, but a reason must be recorded. The pending/accepted valid 12/13 offer requirement for In-Car #11/#14 cannot be overridden.
 - If you need to cancel or reschedule, do it in your portal or contact the office as early as possible.
 
 ATTENDANCE & CHECK-IN
@@ -229,6 +231,8 @@ async function buildStudentProgressContext(studentId: number): Promise<string | 
         };
       });
     const completed = mergeScooterTransferCredits(buildCompletedClasses(enrollmentDetails), student);
+    // One query for the entire assistant context, never one per candidate.
+    const hasPhase4IncarOffer = await hasQualifyingPhase4IncarOffer(studentId);
     const courseType = (student.courseType || "auto").toLowerCase();
     const today = new Date().toISOString().slice(0, 10);
 
@@ -264,6 +268,7 @@ async function buildStudentProgressContext(studentId: number): Promise<string | 
           phase2TimingAdvanceDays: (student as any).phase2TimingAdvanceDays ?? 0,
           phase3TimingAdvanceDays: (student as any).phase3TimingAdvanceDays ?? 0,
           phase4TimingAdvanceDays: (student as any).phase4TimingAdvanceDays ?? 0,
+          hasPhase4IncarOffer,
           maxStudents: cand.classType === "driving" && (cand.classNumber === 12 || cand.classNumber === 13) ? 2 : undefined,
           currentEnrollmentCount: 0,
           sameDayAlreadyBookedCount: 0,
@@ -302,7 +307,7 @@ ${blocked.length > 0 ? blocked.map((l) => `- ${l}`).join("\n") : "- None — eve
 
 NOTES ON THIS DATA:
 - "Bookable right now" means the phase/prerequisite rules are satisfied. An actual booking can still be limited by class availability, class capacity, the daily booking limit, or an active school policy.
-- In-Car #1–#4 and In-Car #15 must be 60-minute sessions; In-Car #12 and #13 must be shared 2-student sessions.
+- In-Car #1–#4 and In-Car #15 must be 60-minute sessions; In-Car #12 and #13 must be shared 2-student sessions. In-Car #11/#14 require a pending or accepted valid 12/13 pairing offer.
 - A class only counts once it is marked ATTENDED — a booked-but-not-yet-attended class does not unlock the next one.
 - When answering "what can I book next?", list the bookable classes above and briefly explain what unlocks the next blocked ones. Always remind them the office is the final authority.
 

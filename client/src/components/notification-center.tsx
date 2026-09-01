@@ -157,6 +157,16 @@ export function NotificationCenter({ userType }: NotificationCenterProps) {
     },
   });
 
+  const confirmCancellationDecline = async (confirmationId: number) => {
+    const check: any = await apiRequest(
+      "GET",
+      `/api/student/lesson-pairing/cancellation-check?confirmationId=${confirmationId}`,
+    );
+    return window.confirm(check?.policy?.feeRequired
+      ? "This session starts in less than 24 hours. Declining now will charge $100.00 plus applicable taxes to your saved card. If payment fails, the invoice will remain due. Continue?"
+      : "This session is at least 24 hours away, so declining has no cancellation fee. Continue?");
+  };
+
   const unreadCount = notifications.filter(n => n.status !== "read").length;
 
   const handleMarkRead = (id: number) => {
@@ -331,7 +341,19 @@ export function NotificationCenter({ userType }: NotificationCenterProps) {
                               variant="outline"
                               className="h-7 text-xs border-red-200 text-red-600 hover:bg-red-50 px-3"
                               disabled={isPairingActionPending}
-                              onClick={() => respondConfirmationMutation.mutate({ confirmationId, action: "decline", notificationId: notification.id })}
+                              onClick={async () => {
+                                try {
+                                  if (await confirmCancellationDecline(confirmationId)) {
+                                    respondConfirmationMutation.mutate({ confirmationId, action: "decline", notificationId: notification.id });
+                                  }
+                                } catch (error: any) {
+                                  toast({
+                                    title: "Unable to check cancellation fee",
+                                    description: error?.message || "Please try again.",
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
                               data-testid={`button-pairing-decline-confirmation-${notification.id}`}
                             >
                               <XCircle className="h-3 w-3 mr-1" />

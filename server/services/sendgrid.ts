@@ -282,6 +282,49 @@ export async function sendNoShowFeeFailureOfficeAlert(
   });
 }
 
+export async function sendIncarCancellationFeeEmail(
+  d: NoShowFeeEmailDetails,
+  appUrl: string,
+  charged: boolean,
+): Promise<boolean> {
+  const disposition = charged
+    ? "was charged to your saved card"
+    : "could not be charged and remains due";
+  const inner = `
+    <p style="color:#333;">Hi ${d.studentFirstName},</p>
+    <p style="color:#333;">Your In-Car 12/13 seat was cancelled less than 24 hours before its scheduled start. The $100.00 cancellation fee plus applicable taxes ${disposition}.</p>
+    <table style="width:100%;font-size:14px;color:#333;border-collapse:collapse;margin:16px 0;">
+      <tr><td style="padding:6px 12px;color:#666;">Scheduled:</td><td style="padding:6px 12px;">${d.classSchedule}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;">Invoice:</td><td style="padding:6px 12px;">${d.invoiceNumber}</td></tr>
+      <tr><td style="padding:6px 12px;color:#666;font-weight:bold;">${charged ? "Amount charged" : "Amount due"}:</td><td style="padding:6px 12px;font-weight:bold;">$${d.amount}</td></tr>
+    </table>
+    <div style="text-align:center;margin:24px 0;"><a href="${appUrl}/student/billing" style="background:#ECC462;color:#111;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;display:inline-block;">View My Billing</a></div>`;
+  return sendEmail({
+    to: [d.studentEmail],
+    from: FROM_EMAIL(),
+    subject: `In-Car 12/13 cancellation fee ${charged ? "charged" : "due"} — Invoice ${d.invoiceNumber} ($${d.amount})`,
+    text: `Hi ${d.studentFirstName},\n\nYour In-Car 12/13 seat scheduled ${d.classSchedule} was cancelled less than 24 hours before class. Invoice ${d.invoiceNumber} for $${d.amount} ${disposition}.\n\nView billing: ${appUrl}/student/billing`,
+    html: noShowEmailShell(inner),
+  });
+}
+
+export async function sendIncarCancellationFeeOfficeAlert(
+  d: NoShowFeeEmailDetails & { studentName: string; failureReason: string },
+): Promise<boolean> {
+  const office = getOfficeRecipients();
+  if (office.length === 0) {
+    console.warn("[In-Car 12/13 cancellation fee] OFFICE_NOTIFICATION_EMAILS not configured");
+    return false;
+  }
+  return sendEmail({
+    to: office,
+    from: FROM_EMAIL(),
+    subject: `[Action needed] In-Car 12/13 cancellation invoice unpaid — ${d.studentName}, ${d.invoiceNumber}`,
+    text: `The automatic cancellation-fee charge failed.\nStudent: ${d.studentName} (${d.studentEmail})\nScheduled: ${d.classSchedule}\nInvoice: ${d.invoiceNumber}\nAmount due: $${d.amount}\nReason: ${d.failureReason}`,
+    html: noShowEmailShell(`<p>An automatic In-Car 12/13 cancellation-fee charge failed and the invoice remains due.</p><p><strong>${d.studentName}</strong> — ${d.invoiceNumber}, $${d.amount}<br/>${d.classSchedule}<br/>Reason: ${d.failureReason}</p>`),
+  });
+}
+
 export async function sendBulkEmail(
   recipients: string[],
   from: string,

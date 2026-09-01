@@ -176,6 +176,20 @@
       "when": 1787751000000,
       "tag": "0024_auto_phase_timing_overrides",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1788271100000,
+      "tag": "0025_incar_1213_cancellation_fee_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1788357600000,
+      "tag": "0026_student_registration_password",
+      "breakpoints": true
     }
   ]
 }

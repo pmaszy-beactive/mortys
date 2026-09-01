@@ -44,6 +44,7 @@ import {
   leaveCombinedQueue,
   respondToOffer,
   processPairingLifecycle,
+  hasQualifyingPhase4IncarOffer,
 } from "../services/incar-pairing";
 
 // ─── Seed helpers ─────────────────────────────────────────────────────────────
@@ -274,6 +275,66 @@ describe("bookCombinedSlot (live DB)", () => {
     const res = await bookCombinedSlot({ studentId: s, classId });
     expect(res.success).toBe(false);
     expect(res.reason).toMatch(/not a valid combined/i);
+  });
+});
+
+describe("hasQualifyingPhase4IncarOffer (live DB)", () => {
+  async function seedOffer(
+    studentId: number,
+    classId: number,
+    status: string,
+  ) {
+    const [entry] = await db
+      .insert(incarPairingQueue)
+      .values({ studentId, status: "cancelled" })
+      .returning({ id: incarPairingQueue.id });
+    await db.insert(incarPairingOffers).values({
+      queueEntryId: entry.id,
+      studentId,
+      classId,
+      status,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+  }
+
+  it.each(["pending", "accepted"])(
+    "returns true for a %s offer tied to a canonical class",
+    async (status) => {
+      const studentId = await createStudent();
+      const classId = await createCombinedClass();
+      await seedOffer(studentId, classId, status);
+      expect(await hasQualifyingPhase4IncarOffer(studentId)).toBe(true);
+    },
+  );
+
+  it.each(["declined", "expired", "withdrawn"])(
+    "returns false for terminal status %s",
+    async (status) => {
+      const studentId = await createStudent();
+      const classId = await createCombinedClass();
+      await seedOffer(studentId, classId, status);
+      expect(await hasQualifyingPhase4IncarOffer(studentId)).toBe(false);
+    },
+  );
+
+  it.each([
+    { duration: 60 },
+    { maxStudents: 1 },
+    { classNumber: 13 },
+    { classType: "theory" },
+    { courseType: "moto" },
+  ])("returns false for a pending offer on noncanonical class %o", async (shape) => {
+    const studentId = await createStudent();
+    const classId = await createCombinedClass(shape);
+    await seedOffer(studentId, classId, "pending");
+    expect(await hasQualifyingPhase4IncarOffer(studentId)).toBe(false);
+  });
+
+  it("does not let another student's qualifying offer unlock the student", async () => {
+    const [studentId, otherId] = await Promise.all([createStudent(), createStudent()]);
+    const classId = await createCombinedClass();
+    await seedOffer(otherId, classId, "accepted");
+    expect(await hasQualifyingPhase4IncarOffer(studentId)).toBe(false);
   });
 });
 

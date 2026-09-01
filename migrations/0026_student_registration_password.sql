@@ -1,0 +1,1 @@
+ALTER TABLE "student_registrations" ADD COLUMN "password_set" boolean DEFAULT false NOT NULL;

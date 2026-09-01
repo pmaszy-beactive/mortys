@@ -552,6 +552,61 @@ describe("booking rules: In-Car #12 non-canonical slot blocked", () => {
   });
 });
 
+describe("booking rules: Phase 4 In-Car offer gate", () => {
+  const theory11Done = [
+    { classType: "theory" as const, classNumber: 11, date: "2025-01-01" },
+  ];
+
+  it.each([11, 14])("fails closed for In-Car #%s when proof is omitted", (classNumber) => {
+    const result = validateClassBooking(
+      { classType: "driving", classNumber, date: "2025-09-01", duration: 60 },
+      theory11Done,
+      "auto",
+    );
+    expect(result.allowed).toBe(false);
+    expect(result.blockingRule).toBe("phase4_incar_offer_required");
+  });
+
+  it.each([11, 14])("allows In-Car #%s when qualifying offer proof is true", (classNumber) => {
+    const result = validateClassBooking(
+      {
+        classType: "driving",
+        classNumber,
+        date: "2025-09-01",
+        duration: 60,
+        hasPhase4IncarOffer: true,
+      },
+      theory11Done,
+      "auto",
+    );
+    expect(result).toEqual({ allowed: true });
+  });
+
+  it("does not change the existing Theory #11 rule", () => {
+    const result = validateClassBooking(
+      { classType: "theory", classNumber: 11, date: "2025-09-01" },
+      [],
+      "auto",
+    );
+    expect(result.blockingRule).toBe("phase4_requires_phase3_complete");
+  });
+
+  it("does not require offer proof for canonical In-Car #12", () => {
+    const result = validateClassBooking(
+      {
+        classType: "driving",
+        classNumber: 12,
+        date: "2025-09-01",
+        duration: 120,
+        maxStudents: 2,
+      },
+      theory11Done,
+      "auto",
+    );
+    expect(result.allowed).toBe(true);
+  });
+});
+
 // ─── Eligibility logic (pure mirror) ─────────────────────────────────────────
 
 interface MockEnrollment {

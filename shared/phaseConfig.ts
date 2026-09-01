@@ -77,7 +77,7 @@ export const PHASE_DEFINITIONS: PhaseDefinition[] = [
       { id: "driving_9", label: "In-Car #9", classType: "driving", classNumber: 9 },
       { id: "driving_10", label: "In-Car #10", classType: "driving", classNumber: 10 },
     ],
-    notes: "This phase MUST begin with Theory #8. Once Theory #8 is completed, Theory #9, Theory #10, and In-Car #5–#10 are all unlocked and may be completed in any order. The order above is only Morty's recommendation.",
+    notes: "This phase MUST begin with Theory #8. Once Theory #8 is completed, Theory #9, Theory #10, and In-Car #5–#10 are all unlocked and may be completed in any order. A 2-hour In-Car #5/#6 appointment is booked as two separate back-to-back 1-hour classes. The order above is only Morty's recommendation.",
     orderingRule: 'flexible_after_first',
   },
   {
@@ -93,7 +93,7 @@ export const PHASE_DEFINITIONS: PhaseDefinition[] = [
       { id: "driving_14", label: "In-Car #14", classType: "driving", classNumber: 14 },
       { id: "driving_15", label: "In-Car #15", classType: "driving", classNumber: 15, mustBeLast: true, maxDurationMinutes: 60 },
     ],
-    notes: "This phase MUST begin with Theory #11. In-cars 11-14 can be completed before theory #12, however theory #12 must be completed before in-car #15. In-car #15 must be last and 1-single hour. Cannot be combined in a 2-hour.",
+    notes: "This phase MUST begin with Theory #11. In-Car #11 and #14 become bookable after a specific combined In-Car #12/13 pairing offer is received or accepted. Theory #12 must be completed before In-Car #15. In-Car #15 must be last and a single 1-hour class; it cannot be combined into a 2-hour booking.",
     orderingRule: 'flexible_with_constraints',
   },
 ];

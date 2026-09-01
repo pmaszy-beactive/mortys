@@ -1505,6 +1505,7 @@ export const studentRegistrations = pgTable("student_registrations", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
+  passwordSet: boolean("password_set").notNull().default(false),
   verificationTokenId: integer("verification_token_id").references(() => emailVerificationTokens.id),
   emailVerified: boolean("email_verified").notNull().default(false),
   onboardingCompleted: boolean("onboarding_completed").notNull().default(false),
@@ -1523,8 +1524,10 @@ export const studentRegistrations = pgTable("student_registrations", {
     province?: string;
     country?: string;
     permitNumber?: string; // Nom de dossier / permit number
+    learnerPermitNumber?: string; // Legacy in-progress onboarding alias
     permitExpiryDate?: string;
-    driverLicenseNumber?: string;
+    referenceNumber?: string;
+    driverLicenseNumber?: string; // Legacy in-progress reference-number alias
     licenseExpiryDate?: string;
     emergencyContact?: string;
     emergencyPhone?: string;

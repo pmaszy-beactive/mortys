@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,16 +10,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Loader2, GraduationCap, AlertCircle,
-  CheckCircle, Clock, RefreshCw, ChevronRight, ChevronLeft, Calendar, Mail,
+  CheckCircle, Clock, RefreshCw, ChevronRight, ChevronLeft, Mail,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation, Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import type { CourseStartDate } from "@shared/schema";
 import { CardCaptureForm } from "@/components/student/card-capture-form";
 
-type FlowStep = "courseType" | "startDate" | "account" | "card" | "verify" | "redirect";
+type FlowStep = "courseType" | "account" | "card" | "verify" | "password";
 
 const COURSE_TYPES = [
   {
@@ -49,57 +48,29 @@ const accountSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
 
+const passwordSchema = z.object({
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmation: z.string().min(1, "Please confirm your password"),
+}).refine((values) => values.password === values.confirmation, {
+  message: "Passwords do not match",
+  path: ["confirmation"],
+});
+
 type AccountFormData = z.infer<typeof accountSchema>;
+type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function StudentRegister() {
   const [flowStep, setFlowStep] = useState<FlowStep>("courseType");
   const [selectedCourseType, setSelectedCourseType] = useState<string | null>(null);
-  const [selectedStartDateId, setSelectedStartDateId] = useState<number | null>(null);
   const [registrationId, setRegistrationId] = useState<number | null>(null);
   const [cardToken, setCardToken] = useState<string | null>(null);
+  const [registrationToken, setRegistrationToken] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [expiresAt, setExpiresAt] = useState<Date | null>(null);
   const [secondsRemaining, setSecondsRemaining] = useState(0);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-
-  const {
-    data: startDates = [],
-    isLoading: datesLoading,
-    refetch: refetchStartDates,
-  } = useQuery<CourseStartDate[]>({
-    queryKey: ["/api/course-start-dates", selectedCourseType],
-    queryFn: async () => {
-      if (!selectedCourseType) return [];
-      const res = await fetch(`/api/course-start-dates?courseType=${selectedCourseType}`, {
-        cache: "no-store",
-      });
-      if (!res.ok) throw new Error("Failed to fetch dates");
-      return res.json();
-    },
-    enabled: !!selectedCourseType,
-    staleTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-    refetchInterval: flowStep === "startDate" ? 60_000 : false,
-  });
-
-  useEffect(() => {
-    if (flowStep === "startDate" && selectedCourseType) {
-      void refetchStartDates();
-    }
-  }, [flowStep, selectedCourseType, refetchStartDates]);
-
-  useEffect(() => {
-    if (
-      selectedStartDateId !== null &&
-      !datesLoading &&
-      !startDates.some((date) => date.id === selectedStartDateId)
-    ) {
-      setSelectedStartDateId(null);
-    }
-  }, [datesLoading, selectedStartDateId, startDates]);
 
   const calculateSecondsRemaining = useCallback(() => {
     if (!expiresAt) return 0;
@@ -129,17 +100,21 @@ export default function StudentRegister() {
     resolver: zodResolver(accountSchema),
     defaultValues: { email: "" },
   });
+  const passwordForm = useForm<PasswordFormData>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: { password: "", confirmation: "" },
+  });
 
   const registerMutation = useMutation({
     mutationFn: async (data: { email: string }) => {
       return await apiRequest("POST", "/api/student/register", {
         ...data,
         courseType: selectedCourseType,
-        selectedStartDateId: selectedStartDateId,
       });
     },
     onSuccess: (response) => {
       setRegistrationId(response.registrationId);
+      sessionStorage.removeItem(`student_registration_token:${response.registrationId}`);
       setEmail(form.getValues("email"));
       if (response.step === "verify") {
         if (response.expiresAt) setExpiresAt(new Date(response.expiresAt));
@@ -151,8 +126,6 @@ export default function StudentRegister() {
           // No card capability issued (e.g. resumed registration) — go verify.
           goToVerify();
         }
-      } else if (response.step === "onboarding") {
-        setLocation(`/student/onboarding/${response.registrationId}`);
       }
     },
     onError: (error: any) => {
@@ -168,9 +141,18 @@ export default function StudentRegister() {
     mutationFn: async (data: { registrationId: number; code: string }) => {
       return await apiRequest("POST", "/api/student/verify-email", data);
     },
-    onSuccess: () => {
-      setFlowStep("redirect");
-      setTimeout(() => setLocation(`/student/onboarding/${registrationId}`), 1500);
+    onSuccess: (response) => {
+      if (!registrationId || !response.registrationToken) {
+        toast({ title: "Verification failed", description: "Registration access was not issued. Please try again.", variant: "destructive" });
+        return;
+      }
+      sessionStorage.setItem(`student_registration_token:${registrationId}`, response.registrationToken);
+      setRegistrationToken(response.registrationToken);
+      if (response.passwordSet) {
+        setLocation(`/student/onboarding/${registrationId}`);
+      } else {
+        setFlowStep("password");
+      }
     },
     onError: (error: any) => {
       toast({
@@ -179,6 +161,19 @@ export default function StudentRegister() {
         variant: "destructive",
       });
     },
+  });
+
+  const passwordMutation = useMutation({
+    mutationFn: async (data: PasswordFormData) => {
+      if (!registrationId || !registrationToken) throw new Error("Please verify your email again.");
+      return apiRequest(
+        "POST",
+        `/api/student/registration/${registrationId}/password`,
+        data,
+        { "X-Registration-Token": registrationToken },
+      );
+    },
+    onSuccess: () => setLocation(`/student/onboarding/${registrationId}`),
   });
 
   const resendMutation = useMutation({
@@ -209,15 +204,14 @@ export default function StudentRegister() {
     }
   };
 
-  const selectedDate = startDates.find((d) => d.id === selectedStartDateId);
   const selectedCourseInfo = COURSE_TYPES.find((c) => c.value === selectedCourseType);
 
-  const STEPS = ["Course", "Start Date", "Account", "Card", "Verify"];
+  const STEPS = ["Course", "Email", "Card", "Verify", "Password"];
   const stepIndex =
     flowStep === "courseType" ? 0
-    : flowStep === "startDate" ? 1
-    : flowStep === "account" ? 2
-    : flowStep === "card" ? 3
+    : flowStep === "account" ? 1
+    : flowStep === "card" ? 2
+    : flowStep === "verify" ? 3
     : 4;
 
   const goToVerify = () => {
@@ -227,23 +221,6 @@ export default function StudentRegister() {
       description: "We sent a 6-digit verification code. If it expired, tap Resend.",
     });
   };
-
-  if (flowStep === "redirect") {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 flex items-center justify-center px-4">
-        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95">
-          <CardContent className="pt-8 pb-8 text-center">
-            <div className="mx-auto h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle className="h-10 w-10 text-green-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-[#111111] mb-2">Email Verified!</h2>
-            <p className="text-gray-600 mb-4">Taking you to complete your profile...</p>
-            <Loader2 className="h-6 w-6 animate-spin mx-auto text-[#ECC462]" />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 flex items-center justify-center px-4 py-8 relative overflow-hidden">
@@ -305,8 +282,7 @@ export default function StudentRegister() {
                       data-testid={`card-course-type-${ct.value}`}
                       onClick={() => {
                         setSelectedCourseType(ct.value);
-                        setSelectedStartDateId(null);
-                        setFlowStep("startDate");
+                        setFlowStep("account");
                       }}
                       className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-[#ECC462] hover:bg-amber-50 transition-all text-left group"
                     >
@@ -329,119 +305,14 @@ export default function StudentRegister() {
               </div>
             )}
 
-            {/* ── STEP 2: Start date ──────────────────────────── */}
-            {flowStep === "startDate" && (
+            {/* ── STEP 2: Account creation ────────────────────── */}
+            {flowStep === "account" && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setFlowStep("courseType")}
                     className="p-1 rounded hover:text-[#ECC462] transition-colors"
                     data-testid="button-back-to-course-type"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <div>
-                    <h2 className="text-xl font-bold text-[#111111]">Choose a Start Date</h2>
-                    <p className="text-gray-500 text-sm">
-                      {selectedCourseInfo?.icon} {selectedCourseInfo?.label} — {selectedCourseInfo?.subtitle}
-                    </p>
-                  </div>
-                </div>
-
-                {datesLoading ? (
-                  <div className="flex items-center justify-center py-10">
-                    <Loader2 className="h-6 w-6 animate-spin text-[#ECC462]" />
-                    <span className="ml-2 text-gray-500">Loading available dates...</span>
-                  </div>
-                ) : startDates.length === 0 ? (
-                  <div className="space-y-4">
-                    <div className="p-5 bg-amber-50 border border-amber-200 rounded-xl text-center">
-                      <Calendar className="h-8 w-8 text-amber-500 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-amber-800">No upcoming start dates right now</p>
-                      <p className="text-xs text-amber-600 mt-1">You can still register — we'll reach out with dates soon</p>
-                    </div>
-                    <Button
-                      onClick={() => { setSelectedStartDateId(null); setFlowStep("account"); }}
-                      className="w-full bg-[#111111] hover:bg-[#333] text-[#ECC462] font-semibold"
-                      data-testid="button-continue-no-date"
-                    >
-                      Continue without a date <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {startDates.map((sd) => {
-                      const dateObj = new Date(`${sd.startDate}T${sd.startTime || "00:00"}:00`);
-                      const isSelected = selectedStartDateId === sd.id;
-                      return (
-                        <button
-                          key={sd.id}
-                          data-testid={`card-start-date-${sd.id}`}
-                          onClick={() => setSelectedStartDateId(sd.id)}
-                          className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
-                            isSelected
-                              ? "border-[#ECC462] bg-amber-50"
-                              : "border-gray-200 hover:border-[#ECC462] hover:bg-amber-50"
-                          }`}
-                        >
-                          <div
-                            className={`h-10 w-10 rounded-full flex-shrink-0 flex items-center justify-center ${
-                              isSelected ? "bg-[#ECC462]" : "bg-gray-100"
-                            }`}
-                          >
-                            <Calendar className={`h-5 w-5 ${isSelected ? "text-[#111111]" : "text-gray-500"}`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-[#111111]">
-                              {dateObj.toLocaleDateString(undefined, {
-                                weekday: "long",
-                                month: "long",
-                                day: "numeric",
-                                year: "numeric",
-                              })}
-                            </div>
-                            {sd.startTime && (
-                              <div className="text-sm text-gray-500">Starting at {sd.startTime}</div>
-                            )}
-                            {sd.notes && <div className="text-xs text-gray-400 mt-0.5 truncate">{sd.notes}</div>}
-                          </div>
-                          {isSelected && (
-                            <CheckCircle className="h-5 w-5 text-[#ECC462] flex-shrink-0" />
-                          )}
-                        </button>
-                      );
-                    })}
-
-                    <div className="pt-1 space-y-2">
-                      <Button
-                        onClick={() => setFlowStep("account")}
-                        disabled={selectedStartDateId === null}
-                        className="w-full bg-[#111111] hover:bg-[#333] text-[#ECC462] font-semibold disabled:opacity-50"
-                        data-testid="button-continue-with-date"
-                      >
-                        Continue <ChevronRight className="h-4 w-4 ml-1" />
-                      </Button>
-                      <button
-                        onClick={() => { setSelectedStartDateId(null); setFlowStep("account"); }}
-                        className="w-full text-sm text-gray-400 hover:text-gray-600 py-2 transition-colors"
-                        data-testid="button-skip-date"
-                      >
-                        I'll choose a date later
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ── STEP 3: Account creation ────────────────────── */}
-            {flowStep === "account" && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setFlowStep("startDate")}
-                    className="p-1 rounded hover:text-[#ECC462] transition-colors"
-                    data-testid="button-back-to-start-date"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
@@ -459,17 +330,7 @@ export default function StudentRegister() {
                     <div className="text-sm text-white font-semibold">
                       {selectedCourseInfo?.label} — {selectedCourseInfo?.subtitle}
                     </div>
-                    {selectedDate ? (
-                      <div className="text-xs text-gray-400 mt-0.5 truncate">
-                        Starting{" "}
-                        {new Date(`${selectedDate.startDate}T${selectedDate.startTime || "00:00"}:00`).toLocaleDateString(
-                          undefined,
-                          { month: "long", day: "numeric", year: "numeric" }
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-xs text-gray-400 mt-0.5">No start date selected yet</div>
-                    )}
+                    <div className="text-xs text-gray-400 mt-0.5">You'll choose your class date after creating your account</div>
                   </div>
                 </div>
 
@@ -493,9 +354,7 @@ export default function StudentRegister() {
                         </FormItem>
                       )}
                     />
-                    <p className="text-xs text-gray-500">
-                      You'll create your password from the activation email we send after you finish signing up.
-                    </p>
+                    <p className="text-xs text-gray-500">We'll verify your email, then you'll create your password securely.</p>
 
                     {registerMutation.isError && (
                       <Alert variant="destructive">
@@ -533,7 +392,7 @@ export default function StudentRegister() {
               </div>
             )}
 
-            {/* ── STEP 4: Card on file ─────────────────────────── */}
+            {/* ── STEP 3: Card on file ─────────────────────────── */}
             {flowStep === "card" && (
               <div className="space-y-4">
                 <div>
@@ -557,7 +416,7 @@ export default function StudentRegister() {
               </div>
             )}
 
-            {/* ── STEP 5: Verify email ─────────────────────────── */}
+            {/* ── STEP 4: Verify email ─────────────────────────── */}
             {flowStep === "verify" && (
               <div className="space-y-5">
                 <div className="text-center">
@@ -632,6 +491,61 @@ export default function StudentRegister() {
                   )}
                   Resend code
                 </button>
+              </div>
+            )}
+
+            {flowStep === "password" && (
+              <div className="space-y-5">
+                <div>
+                  <h2 className="text-xl font-bold text-[#111111]">Create your password</h2>
+                  <p className="text-gray-500 text-sm mt-1">Use at least 8 characters. You'll use this password to sign in.</p>
+                </div>
+                <Form {...passwordForm}>
+                  <form onSubmit={passwordForm.handleSubmit((data) => passwordMutation.mutate(data))} className="space-y-4">
+                    <FormField
+                      control={passwordForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="password" autoComplete="new-password" aria-describedby="password-help" data-testid="input-password" />
+                          </FormControl>
+                          <p id="password-help" className="text-xs text-gray-500">Minimum 8 characters</p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={passwordForm.control}
+                      name="confirmation"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm Password</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="password" autoComplete="new-password" data-testid="input-password-confirmation" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {passwordMutation.isError && (
+                      <Alert variant="destructive" role="alert">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>{(passwordMutation.error as Error).message}</AlertDescription>
+                      </Alert>
+                    )}
+                    <Button
+                      type="submit"
+                      disabled={passwordMutation.isPending}
+                      className="w-full bg-[#111111] hover:bg-[#333] text-[#ECC462] font-semibold"
+                      data-testid="button-set-password"
+                    >
+                      {passwordMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {passwordMutation.isPending ? "Saving password..." : "Continue to your profile"}
+                    </Button>
+                  </form>
+                </Form>
               </div>
             )}
 

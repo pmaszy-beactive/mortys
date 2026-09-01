@@ -162,6 +162,37 @@ describe("auto 3-hour daily cap (checkMaxHoursPerDay via validateClassBooking)",
   });
 });
 
+describe("Auto Phase 3 in-car row duration configuration", () => {
+  const phase3Ready: CompletedClassRecord[] = [
+    { classType: "theory", classNumber: 8, date: "2026-01-01" },
+  ];
+
+  it.each([5, 6, 7, 8, 9, 10])(
+    "requires exactly 60 minutes for In-Car #%i",
+    (classNumber) => {
+      for (const duration of [undefined, 59, 120]) {
+        const result = validateClassBooking({
+          classType: "driving",
+          classNumber,
+          date: "2026-08-12",
+          duration,
+          upcomingBookings: [],
+        }, phase3Ready, "auto");
+        expect(result.allowed).toBe(false);
+        expect(result.blockingRule).toBe("duration_must_be_60");
+        expect(result.reason).toMatch(/misconfigured|60-minute/i);
+      }
+      expect(validateClassBooking({
+        classType: "driving",
+        classNumber,
+        date: "2026-08-12",
+        duration: 60,
+        upcomingBookings: [],
+      }, phase3Ready, "auto")).toEqual({ allowed: true });
+    },
+  );
+});
+
 describe("independent Auto phase timing advances", () => {
   const phase2Completed: CompletedClassRecord[] = [
     { classType: "theory", classNumber: 6, date: "2026-08-01" },

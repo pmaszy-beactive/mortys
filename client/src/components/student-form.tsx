@@ -491,47 +491,26 @@ export default function StudentForm({ student, onSuccess }: StudentFormProps) {
 
         {isEditing && (
           <>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mt-4">Driver's License</h3>
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mt-4">Optional Reference</h3>
             <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="driverLicenseNumber"
-                render={({ field }) => {
-                  const lastName = form.watch("lastName") || "";
-                  const dob = form.watch("dateOfBirth") || "";
-                  const license = (field.value as string) || "";
-                  const expectedFirstChar = lastName.charAt(0).toUpperCase();
-                  let warning: string | null = null;
-                  if (license.length >= 1 && expectedFirstChar && license.charAt(0).toUpperCase() !== expectedFirstChar) {
-                    warning = `First character must match first letter of last name (${expectedFirstChar}).`;
-                  } else if (license.length >= 14 && dob) {
-                    // Format: L9999-DDMMYYYY-NN, so chars 6-13 (0-indexed) = DDMMYYYY
-                    const licDob = license.substring(6, 14);
-                    const dobParts = dob.split("-");
-                    if (dobParts.length === 3) {
-                      const expectedDob = dobParts[2].padStart(2,"0") + dobParts[1].padStart(2,"0") + dobParts[0];
-                      if (licDob !== expectedDob) {
-                        warning = `Date portion (${licDob}) does not match date of birth (${expectedDob}).`;
-                      }
-                    }
-                  }
-                  return (
+                render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Driver License Number</FormLabel>
+                      <FormLabel>Reference Number (Optional)</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g., A1234-15051990-00"
+                          placeholder="Enter reference number, if available"
                           {...field}
                           value={field.value ?? ""}
                           data-testid="input-driver-license-number"
                         />
                       </FormControl>
-                      <p className="text-xs text-gray-400 mt-0.5">Format: L9999-DDMMYYYY-NN (first letter of last name, then digits, then birthdate as DDMMYYYY)</p>
-                      {warning && <p className="text-xs text-amber-600 mt-1">⚠ {warning}</p>}
+                      <p className="text-xs text-gray-400 mt-0.5">Optional — not all applicants have a reference number.</p>
                       <FormMessage />
                     </FormItem>
-                  );
-                }}
+                  )}
               />
             </div>
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mt-4">Learner's Permit</h3>

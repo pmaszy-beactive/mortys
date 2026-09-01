@@ -79,6 +79,12 @@ export interface TargetClassInfo {
   /** Admin-only testing advance for Auto Phase 4's Theory #11 → In-Car #15 wait. */
   phase4TimingAdvanceDays?: number;
   /**
+   * Auto Phase 4 only: true when a database query proved that the student has
+   * a pending or accepted offer for a canonical combined In-Car 12/13 class.
+   * This is deliberately fail-closed: omitted/false never unlocks #11 or #14.
+   */
+  hasPhase4IncarOffer?: boolean;
+  /**
    * The student's current upcoming (not cancelled, not yet attended, class
    * still scheduled) bookings. Used for strict progression gating: the next
    * theory unlocks only when the previous one is completed, in-car lessons
@@ -197,10 +203,10 @@ function isPhase3Complete(completed: CompletedClassRecord[]): boolean {
 // ─── Duration helpers ─────────────────────────────────────────────────────────
 
 function isDuration60Only(duration?: number): BookingValidationResult | null {
-  if (duration != null && duration !== 60) {
+  if (duration !== 60) {
     return {
       allowed: false,
-      reason: `This in-car session must be booked as a 1-hour (60-minute) session only. You selected ${duration} minutes.`,
+      reason: `This in-car session is misconfigured: it must be a separate 1-hour (60-minute) class row. ${duration == null ? "No duration is configured." : `This row is configured for ${duration} minutes.`}`,
       blockingRule: "duration_must_be_60",
     };
   }
@@ -675,10 +681,12 @@ function validateAutoRules(
       }
     }
 
-    // ── Phase 3: In-Car #5–#10 (60 or 120 min) ───────────────────────────────
+    // ── Phase 3: In-Car #5–#10 (60-minute rows only) ─────────────────────────
+    // A two-hour #5/#6 appointment is represented by two adjacent 60-minute
+    // class rows and two enrollments; a 120-minute row is never bookable.
 
     if (classNumber >= 5 && classNumber <= 10) {
-      const durationCheck = isDuration60Or120(duration);
+      const durationCheck = isDuration60Only(duration);
       if (durationCheck) return durationCheck;
 
       // Theory 8 must be completed
@@ -708,6 +716,25 @@ function validateAutoRules(
           reason: `In-Car #${classNumber} is a Phase 4 session. Theory #11 must be completed first to begin Phase 4.`,
           blockingRule: "phase4_theory11_required",
           detail: { prerequisitesNeeded: ["Theory #11"], phaseLabel: "Phase 4" },
+        };
+      }
+
+      // In-Car #11 and #14 are only unlocked after the student has received
+      // (pending) or accepted a specific canonical combined 12/13 offer. This
+      // evidence is loaded by server callers and is intentionally fail-closed.
+      if (
+        (classNumber === 11 || classNumber === 14) &&
+        target.hasPhase4IncarOffer !== true
+      ) {
+        return {
+          allowed: false,
+          reason:
+            `In-Car #${classNumber} is not bookable until you receive or accept an offer for a combined In-Car #12/13 shared session.`,
+          blockingRule: "phase4_incar_offer_required",
+          detail: {
+            prerequisitesNeeded: ["Pending or accepted In-Car #12/13 pairing offer"],
+            phaseLabel: "Phase 4",
+          },
         };
       }
 

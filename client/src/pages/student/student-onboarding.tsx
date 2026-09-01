@@ -10,9 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, User, MapPin, Phone, Car, Upload, CheckCircle, ChevronRight, ChevronLeft, Video, Users } from "lucide-react";
+import { Loader2, User, MapPin, Phone, Car, Bike, Upload, CheckCircle, ChevronRight, ChevronLeft, Video, Users, CalendarDays, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 const step1Schema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -34,6 +34,8 @@ const step2Schema = z.object({
 const step4Schema = z.object({
   emergencyContact: z.string().min(1, "Emergency contact name is required"),
   emergencyPhone: z.string().min(10, "Emergency phone is required"),
+  permitNumber: z.string().trim().min(1, "Permit number is required"),
+  referenceNumber: z.string().optional(),
 });
 
 const step5Schema = z.object({
@@ -62,7 +64,9 @@ type OnboardingData = {
   province?: string;
   country?: string;
   permitNumber?: string;
+  learnerPermitNumber?: string;
   permitExpiryDate?: string;
+  referenceNumber?: string;
   driverLicenseNumber?: string;
   licenseExpiryDate?: string;
   emergencyContact?: string;
@@ -94,22 +98,39 @@ export default function StudentOnboarding() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const registrationId = params?.registrationId ? parseInt(params.registrationId) : null;
+  const registrationToken = registrationId
+    ? sessionStorage.getItem(`student_registration_token:${registrationId}`)
+    : null;
   
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<OnboardingData>({});
   const [uploadedDocuments, setUploadedDocuments] = useState<{ type: string; name: string }[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [showParentFields, setShowParentFields] = useState(false);
+  const [showAllStartDates, setShowAllStartDates] = useState(false);
 
-  const { data: registration, isLoading } = useQuery({
+  const { data: registration, isLoading, error: registrationError } = useQuery({
     queryKey: ["/api/student/onboarding", registrationId],
     queryFn: async () => {
-      const res = await fetch(`/api/student/onboarding/${registrationId}`);
-      if (!res.ok) throw new Error("Failed to load registration");
+      const res = await fetch(`/api/student/onboarding/${registrationId}`, {
+        headers: { "X-Registration-Token": registrationToken! },
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => null))?.message || "Failed to load registration");
       return res.json();
     },
-    enabled: !!registrationId,
+    enabled: !!registrationId && !!registrationToken,
   });
+
+  useEffect(() => {
+    if (!registrationId || !registrationToken || registrationError) {
+      toast({
+        title: "Please verify your email",
+        description: registrationError instanceof Error ? registrationError.message : "Your secure registration session is missing.",
+        variant: "destructive",
+      });
+      setLocation("/student/register");
+    }
+  }, [registrationId, registrationToken, registrationError, setLocation, toast]);
 
   // Step/form data initialize only on first load so a background refetch
   // doesn't yank the student back a step or wipe in-progress typing.
@@ -117,6 +138,10 @@ export default function StudentOnboarding() {
   useEffect(() => {
     if (registration) {
       if (!registration.emailVerified) {
+        setLocation("/student/register");
+        return;
+      }
+      if (!registration.passwordSet) {
         setLocation("/student/register");
         return;
       }
@@ -160,6 +185,8 @@ export default function StudentOnboarding() {
     defaultValues: {
       emergencyContact: formData.emergencyContact || "",
       emergencyPhone: formData.emergencyPhone || "",
+      permitNumber: formData.permitNumber || formData.learnerPermitNumber || "",
+      referenceNumber: formData.referenceNumber ?? formData.driverLicenseNumber ?? "",
     },
   });
 
@@ -182,7 +209,7 @@ export default function StudentOnboarding() {
   const selectedCourseType = step5Form.watch("courseType");
   const selectedReferralSource = step5Form.watch("referralSource");
 
-  const { data: startDates = [] } = useQuery<CourseStartDate[]>({
+  const { data: startDates = [], isLoading: isStartDatesLoading } = useQuery<CourseStartDate[]>({
     queryKey: ["/api/course-start-dates", selectedCourseType],
     queryFn: async () => {
       const url = selectedCourseType
@@ -193,6 +220,10 @@ export default function StudentOnboarding() {
       return res.json();
     },
   });
+
+  useEffect(() => {
+    setShowAllStartDates(false);
+  }, [selectedCourseType]);
 
   useEffect(() => {
     if (formData) {
@@ -214,6 +245,8 @@ export default function StudentOnboarding() {
       step4Form.reset({
         emergencyContact: formData.emergencyContact || "",
         emergencyPhone: formData.emergencyPhone || "",
+        permitNumber: formData.permitNumber || formData.learnerPermitNumber || "",
+        referenceNumber: formData.referenceNumber ?? formData.driverLicenseNumber ?? "",
       });
       step5Form.reset({
         courseType: formData.courseType || "",
@@ -233,20 +266,28 @@ export default function StudentOnboarding() {
 
   const saveMutation = useMutation({
     mutationFn: async ({ step, data }: { step: number; data: any }) => {
-      return await apiRequest("PATCH", `/api/student/onboarding/${registrationId}`, { step, data });
+      return await apiRequest("PATCH", `/api/student/onboarding/${registrationId}`, { step, data }, {
+        "X-Registration-Token": registrationToken!,
+      });
     },
   });
 
   const completeMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest("POST", `/api/student/complete-onboarding/${registrationId}`, {});
+      return await apiRequest("POST", `/api/student/complete-onboarding/${registrationId}`, {}, {
+        "X-Registration-Token": registrationToken!,
+      });
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      localStorage.setItem("student_auth_token", response.token);
+      queryClient.setQueryData(["/api/student/me"], response.student);
+      queryClient.invalidateQueries({ queryKey: ["/api/student/me"] });
+      sessionStorage.removeItem(`student_registration_token:${registrationId}`);
       toast({
         title: "Profile complete!",
-        description: "Check your email for an activation link to set your password and log in.",
+        description: "Welcome! Your account is ready.",
       });
-      setLocation("/student/login");
+      setLocation("/student/dashboard");
     },
     onError: (error: any) => {
       toast({
@@ -324,7 +365,7 @@ export default function StudentOnboarding() {
           documentData: base64Data,
           mimeType: file.type,
           fileSize: file.size,
-        });
+        }, { "X-Registration-Token": registrationToken! });
         
         setUploadedDocuments([...uploadedDocuments, { type: documentType, name: file.name }]);
         toast({
@@ -627,6 +668,38 @@ export default function StudentOnboarding() {
                       </FormItem>
                     )}
                   />
+                  <div className="border-t pt-4 mt-4 space-y-4">
+                    <p className="text-sm text-gray-600">
+                      Enter the permit identifier issued for your application. A reference number is optional because not all motorcycle, scooter, or automobile applicants have one.
+                    </p>
+                    <FormField
+                      control={step4Form.control}
+                      name="permitNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Permit Number *</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Enter your permit number" data-testid="input-permit-number" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={step4Form.control}
+                      name="referenceNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Reference Number (Optional)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Enter a reference number, if you have one" data-testid="input-reference-number" />
+                          </FormControl>
+                          <p className="text-xs text-gray-500">Optional — not all applicants are issued a reference number.</p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <div className="flex justify-between pt-4">
                     <Button type="button" variant="outline" onClick={handleBack} data-testid="button-back">
                       <ChevronLeft className="mr-2 h-4 w-4" /> Back
@@ -645,9 +718,11 @@ export default function StudentOnboarding() {
                   {/* Show locked summary when course was selected before account creation */}
                   {formData.courseType ? (
                     <div className="p-4 bg-[#111111] rounded-xl flex items-center gap-3">
-                      <span className="text-2xl flex-shrink-0">
-                        {formData.courseType === "auto" ? "🚗" : formData.courseType === "moto" ? "🏍️" : "🛵"}
-                      </span>
+                      {formData.courseType === "auto" ? (
+                        <Car className="h-7 w-7 flex-shrink-0 text-[#ECC462]" aria-hidden="true" />
+                      ) : (
+                        <Bike className="h-7 w-7 flex-shrink-0 text-[#ECC462]" aria-hidden="true" />
+                      )}
                       <div>
                         <div className="text-xs text-[#ECC462] font-medium uppercase tracking-wide">Your selected course</div>
                         <div className="text-sm text-white font-semibold">
@@ -682,13 +757,13 @@ export default function StudentOnboarding() {
                               </SelectItem>
                               <SelectItem value="moto">
                                 <div className="flex items-center gap-2">
-                                  <span>🏍️</span>
+                                  <Bike className="h-4 w-4" />
                                   <span>Motorcycle (Licence Class 6)</span>
                                 </div>
                               </SelectItem>
                               <SelectItem value="scooter">
                                 <div className="flex items-center gap-2">
-                                  <span>🛵</span>
+                                  <Bike className="h-4 w-4" />
                                   <span>Scooter (Licence Class 6D)</span>
                                 </div>
                               </SelectItem>
@@ -708,35 +783,107 @@ export default function StudentOnboarding() {
                     </p>
                   </div>
 
-                  {startDates.length > 0 && (
-                    <FormField
-                      control={step5Form.control}
-                      name="selectedStartDateId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Preferred Module 1 Start Date</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger data-testid="select-start-date">
-                                <SelectValue placeholder="Choose a start date" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {startDates.map((sd) => (
-                                <SelectItem key={sd.id} value={String(sd.id)}>
-                                  {new Date(`${sd.startDate}T${sd.startTime || "00:00"}:00`).toLocaleDateString(undefined, {
-                                    weekday: "short", year: "numeric", month: "long", day: "numeric",
-                                  })}
-                                  {sd.startTime ? ` at ${sd.startTime}` : ""}
-                                </SelectItem>
+                  <FormField
+                    control={step5Form.control}
+                    name="selectedStartDateId"
+                    rules={{
+                      validate: (value) => startDates.length === 0 || !!value || "Please select a Module 1 start date",
+                    }}
+                    render={({ field }) => {
+                      const selectedDateIsLater = startDates.findIndex((date) => String(date.id) === field.value) >= 5;
+                      const shouldShowAllStartDates = showAllStartDates || selectedDateIsLater;
+                      const visibleStartDates = shouldShowAllStartDates ? startDates : startDates.slice(0, 5);
+                      const hasLaterDates = startDates.length > 5;
+                      const formatDate = (date: CourseStartDate) =>
+                        new Date(`${date.startDate}T12:00:00`).toLocaleDateString(undefined, {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                        });
+                      const formatMonth = (date: CourseStartDate) =>
+                        new Date(`${date.startDate}T12:00:00`).toLocaleDateString(undefined, {
+                          month: "long",
+                          year: "numeric",
+                        });
+
+                      return (
+                        <FormItem className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 sm:p-5">
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#111111] text-[#ECC462]">
+                              <CalendarDays className="h-5 w-5" aria-hidden="true" />
+                            </div>
+                            <div>
+                              <FormLabel className="text-base font-semibold text-[#111111]">Choose your Module 1 start date</FormLabel>
+                              <p className="mt-0.5 text-sm text-amber-900">Select an available class date to reserve your place.</p>
+                            </div>
+                          </div>
+
+                          {isStartDatesLoading ? (
+                            <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" aria-label="Loading available dates">
+                              {[0, 1, 2, 3].map((index) => (
+                                <div key={index} className="h-[76px] animate-pulse rounded-lg bg-amber-100" />
                               ))}
-                            </SelectContent>
-                          </Select>
+                            </div>
+                          ) : startDates.length === 0 ? (
+                            <div className="mt-4 rounded-lg border border-dashed border-amber-300 bg-white/70 px-4 py-5 text-sm text-amber-900">
+                              There are no available start dates for this course right now. Please check back soon or contact Morty&apos;s Driving School for help.
+                            </div>
+                          ) : (
+                            <>
+                              <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Available Module 1 start dates">
+                                {visibleStartDates.map((date, index) => {
+                                  const isSelected = field.value === String(date.id);
+                                  const isInitialOption = index < 5;
+                                  return (
+                                    <button
+                                      key={date.id}
+                                      type="button"
+                                      role="radio"
+                                      aria-checked={isSelected}
+                                      aria-label={`${formatDate(date)}${date.startTime ? ` at ${date.startTime}` : ""}${isSelected ? ", selected" : ""}`}
+                                      onClick={() => field.onChange(String(date.id))}
+                                      data-testid={isInitialOption ? `start-date-box-${date.id}` : `later-start-date-box-${date.id}`}
+                                      data-status={date.status}
+                                      className={`touch-manipulation min-h-[76px] rounded-lg border-2 px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-2 ${
+                                        isSelected
+                                          ? "border-[#111111] bg-[#111111] text-white"
+                                          : "border-amber-200 bg-white text-[#111111] hover:border-[#ECC462] hover:bg-amber-100"
+                                      }`}
+                                    >
+                                      <span className={`block text-xs font-semibold uppercase tracking-[0.14em] ${isSelected ? "text-[#ECC462]" : "text-amber-700"}`}>
+                                        {formatMonth(date)}
+                                      </span>
+                                      <span className="mt-0.5 flex items-center justify-between gap-3">
+                                        <span className="font-semibold">{formatDate(date)}</span>
+                                        {date.startTime && (
+                                          <span className={`inline-flex items-center gap-1 text-xs ${isSelected ? "text-amber-100" : "text-gray-600"}`}>
+                                            <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                                            {date.startTime}
+                                          </span>
+                                        )}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              {hasLaterDates && !shouldShowAllStartDates && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => setShowAllStartDates(true)}
+                                  className="mt-3 min-h-11 border-amber-300 bg-white text-[#111111] hover:bg-amber-100"
+                                  data-testid="button-choose-another-date"
+                                >
+                                  Choose another date
+                                </Button>
+                              )}
+                            </>
+                          )}
                           <FormMessage />
                         </FormItem>
-                      )}
-                    />
-                  )}
+                      );
+                    }}
+                  />
 
                   <FormField
                     control={step5Form.control}

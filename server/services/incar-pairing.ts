@@ -124,6 +124,34 @@ export const CONFIRMATION_HOURS_BEFORE = 24;
 /** Advisory lock namespace (arbitrary, must not collide with booking-validation). */
 const LOCK_NS = 823002;
 
+/**
+ * One-query proof for the Auto Phase 4 #11/#14 gate. Only pending/accepted
+ * offers tied to the strict canonical combined class count; terminal offers
+ * and legacy/wrong-shape classes never unlock progression.
+ */
+export async function hasQualifyingPhase4IncarOffer(
+  studentId: number,
+  exec: typeof db | DbTx = db,
+): Promise<boolean> {
+  const [row] = await exec
+    .select({ id: incarPairingOffers.id })
+    .from(incarPairingOffers)
+    .innerJoin(classes, eq(incarPairingOffers.classId, classes.id))
+    .where(
+      and(
+        eq(incarPairingOffers.studentId, studentId),
+        inArray(incarPairingOffers.status, ["pending", "accepted"]),
+        eq(classes.courseType, "auto"),
+        eq(classes.classType, "driving"),
+        eq(classes.classNumber, 12),
+        eq(classes.duration, 120),
+        eq(classes.maxStudents, 2),
+      ),
+    )
+    .limit(1);
+  return !!row;
+}
+
 // ─── Advisory lock ─────────────────────────────────────────────────────────────
 
 async function withLock<T>(
@@ -989,10 +1017,11 @@ export async function leaveCombinedQueue(params: {
   reason?: string;
   actorId?: string;
   actorRole?: string;
-}): Promise<{ success: boolean; reason?: string }> {
+}): Promise<{ success: boolean; reason?: string; cancelledEnrollmentId?: number }> {
   const { studentId, reason, actorId, actorRole = "student" } = params;
 
   return withLock([studentId], async (tx) => {
+    let cancelledEnrollmentId: number | undefined;
     const entries = await tx
       .select()
       .from(incarPairingQueue)
@@ -1049,6 +1078,7 @@ export async function leaveCombinedQueue(params: {
           .update(classEnrollments)
           .set({ cancelledAt: new Date() })
           .where(eq(classEnrollments.id, liveEntry.enrollmentId));
+        if (liveEntry.status === "booked_first") cancelledEnrollmentId = liveEntry.enrollmentId;
       }
 
       // Withdraw any pending offer where this student is the RECEIVER (their
@@ -1128,7 +1158,7 @@ export async function leaveCombinedQueue(params: {
       // cancels; there is nothing to pair against.
     }
 
-    return { success: true };
+    return { success: true, cancelledEnrollmentId };
   });
 }
 
@@ -1483,6 +1513,7 @@ async function _expireOffer(
 export interface ConfirmationResponseResult {
   success: boolean;
   reason?: string;
+  cancelledEnrollmentId?: number;
 }
 
 /**
@@ -1611,9 +1642,12 @@ export async function respondToConfirmation(params: {
     });
 
     // _dissolvePair re-guards the session status and re-locks the class row.
+    const cancelledEnrollmentId = session.studentIdA === studentId
+      ? session.enrollmentIdA ?? undefined
+      : session.enrollmentIdB ?? undefined;
     await _dissolvePair(tx, session.id, studentId, reason ?? "Confirmation declined", "system", "system");
 
-    return { success: true };
+    return { success: true, cancelledEnrollmentId };
   });
 }
 
@@ -3459,6 +3493,9 @@ async function sendOfferNotification(
     message:
       `You have been offered a seat in an In-Car #12/13 shared session.\n\n` +
       `Class date: ${cls?.date ?? "TBD"} at ${cls?.time ?? "TBD"}\n\n` +
+        `This two-consecutive-hour lesson requires two students and remains tentative until both students confirm. ` +
+        `You will spend one hour driving and one hour observing and evaluating from the back seat. ` +
+        `If your partner unexpectedly does not show up, the lesson may be adjusted to Sessions 11 and 14.\n\n` +
       `Please accept or decline within ${expiresIn}. If you do not respond, ` +
       `the offer will expire and you will remain in the queue.`,
     payload: { offerId, classId, studentId },
@@ -3503,6 +3540,9 @@ async function notifyPairCreated(pairedSessionId: number): Promise<void> {
       title: "In-Car #12/13 Pairing Confirmed",
       message:
         `Great news — you have been paired for your In-Car #12/13 combined session! ` +
+        `The booking remains tentative until both students confirm. This is a two-consecutive-hour shared lesson: ` +
+        `one hour driving and one hour observing and evaluating from the back seat. If your partner unexpectedly ` +
+        `does not show up, the lesson may be adjusted to Sessions 11 and 14. ` +
         `You will receive a confirmation request approximately 24 hours before the class. ` +
         `This session counts as both In-Car #12 and In-Car #13.`,
       payload: { sessionId: pairedSessionId, pairedSessionId, classId: session.classId },
@@ -3535,6 +3575,8 @@ async function notifyBothConfirmed(pairedSessionId: number): Promise<void> {
       message:
         `Both students have confirmed attendance for your In-Car #12/13 shared session` +
         `${cls?.date ? ` on ${cls.date} at ${cls.time ?? ""}` : ""}. ` +
+        `The lesson lasts two consecutive hours: one hour driving and one hour observing and evaluating from the back seat. ` +
+        `If your partner unexpectedly does not show up, the lesson may be adjusted to Sessions 11 and 14. ` +
         `See you there! This session counts as both In-Car #12 and In-Car #13.`,
       payload: { sessionId: pairedSessionId, pairedSessionId, classId: session.classId },
       recipients,

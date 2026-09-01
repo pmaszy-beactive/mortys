@@ -75,6 +75,11 @@ import { loadOrAnalyzeImportGaps } from "./services/import-gap-analysis";
 import { getNightlyScrapeLog } from "./services/nightly-scrape-log";
 import { checkInstructorAvailability } from "./services/availability";
 import { chargeNoShowFee as chargeNoShowFeeImpl } from "./services/no-show-fee";
+import {
+  chargeIncarCancellationFee,
+  getIncarCancellationPolicy,
+  type IncarCancellationFeeOutcome,
+} from "./services/incar-cancellation-fee";
 import { isPortalUserAuthenticated, handleAssistantChat } from "./services/process-assistant";
 import * as notificationService from "./services/notifications";
 // Task 272: In-Car #12/13 combined-session pairing service.
@@ -92,6 +97,7 @@ import {
   convertPresentStudentToSolo,
   completeSession,
   getActivePairedSessions,
+  hasQualifyingPhase4IncarOffer,
 } from "./services/incar-pairing";
 import {
   generateInviteToken,
@@ -645,6 +651,7 @@ async function buildRescheduleContext(studentId: number, enrollmentId: number) {
       };
     });
   const studentRow = await storage.getStudent(studentId);
+  const hasPhase4IncarOffer = await hasQualifyingPhase4IncarOffer(studentId);
   return {
     enrollmentDetails,
     completed: mergeScooterTransferCredits(buildCompletedClasses(enrollmentDetails), studentRow),
@@ -654,6 +661,7 @@ async function buildRescheduleContext(studentId: number, enrollmentId: number) {
     phase2TimingAdvanceDays: studentRow?.phase2TimingAdvanceDays ?? 0,
     phase3TimingAdvanceDays: studentRow?.phase3TimingAdvanceDays ?? 0,
     phase4TimingAdvanceDays: studentRow?.phase4TimingAdvanceDays ?? 0,
+    hasPhase4IncarOffer,
   };
 }
 
@@ -697,6 +705,7 @@ function validateRescheduleTargetWithContext(
       phase2TimingAdvanceDays: ctx.phase2TimingAdvanceDays,
       phase3TimingAdvanceDays: ctx.phase3TimingAdvanceDays,
       phase4TimingAdvanceDays: ctx.phase4TimingAdvanceDays,
+      hasPhase4IncarOffer: ctx.hasPhase4IncarOffer,
       upcomingBookings: ctx.upcomingBookings,
     },
     ctx.completed,
@@ -5020,10 +5029,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (classData && enrollmentData.studentId) {
+        // This Phase 4 gate is absolute: generic policy overrides cannot
+        // substitute for an actual pending/accepted canonical 12/13 offer.
+        // Load the proof once for this enrollment request.
+        const [hasPhase4IncarOffer, studentForAbsoluteGate] = await Promise.all([
+          hasQualifyingPhase4IncarOffer(enrollmentData.studentId, bookingTx),
+          storage.getStudent(enrollmentData.studentId),
+        ]);
+        if (
+          overridePolicy &&
+          canOverride &&
+          (studentForAbsoluteGate?.courseType || "auto").toLowerCase() === "auto" &&
+          classData.classType === "driving" &&
+          (classData.classNumber === 11 || classData.classNumber === 14) &&
+          !hasPhase4IncarOffer
+        ) {
+          return res.status(400).json({
+            message: `In-Car #${classData.classNumber} is not bookable until the student receives or accepts an offer for a combined In-Car #12/13 shared session.`,
+            policyViolation: "phase4_incar_offer_required",
+            canOverride: false,
+          });
+        }
         // ── Phase ordering & prerequisite validation (admin enrollment) ─────────
         // Admins with override permission can bypass; others must comply
         if (!overridePolicy || !canOverride) {
-          const studentForPhase = await storage.getStudent(enrollmentData.studentId);
+          const studentForPhase = studentForAbsoluteGate;
           if (studentForPhase) {
             const studentEnrollmentsPhase = await storage.getClassEnrollmentsByStudent(enrollmentData.studentId);
             const allClassesPhase = await storage.getClasses();
@@ -5071,6 +5101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               phase2TimingAdvanceDays: studentForPhase.phase2TimingAdvanceDays ?? 0,
               phase3TimingAdvanceDays: studentForPhase.phase3TimingAdvanceDays ?? 0,
               phase4TimingAdvanceDays: studentForPhase.phase4TimingAdvanceDays ?? 0,
+              hasPhase4IncarOffer,
               upcomingBookings: computeUpcomingBookings(studentEnrollmentsPhase, allClassesPhase),
             };
             const phaseCheck = validateClassBooking(
@@ -8297,12 +8328,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Student Self-Registration Routes
+  const hasValidRegistrationToken = (onboardingData: any, provided: unknown): boolean => {
+    const expected = onboardingData?.cardCaptureToken;
+    if (typeof expected !== "string" || typeof provided !== "string") return false;
+    const expectedBuffer = Buffer.from(expected);
+    const providedBuffer = Buffer.from(provided);
+    return expectedBuffer.length === providedBuffer.length
+      && timingSafeEqual(expectedBuffer, providedBuffer);
+  };
+
+  const registrationTokenFromRequest = (req: any): unknown =>
+    req.get("X-Registration-Token");
+
+  const establishStudentSession = async (req: any, studentId: number) => {
+    await new Promise<void>((resolve, reject) => {
+      req.session.regenerate((err: Error | null) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+    req.session.studentId = studentId;
+    await new Promise<void>((resolve, reject) => {
+      req.session.save((err: Error | null) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  };
+
   app.post("/api/student/register", async (req, res) => {
     try {
-      const { email, courseType, selectedStartDateId } = req.body;
+      const { email, courseType } = req.body;
       
       if (!email) {
         return res.status(400).json({ message: "Email is required" });
+      }
+      if (courseType !== undefined && !["auto", "moto", "scooter"].includes(courseType)) {
+        return res.status(400).json({ message: "Please choose a valid course type" });
       }
       
       // Check if email already exists in students table
@@ -8314,13 +8376,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if registration already exists
       const existingRegistration = await db.select().from(studentRegistrations).where(eq(studentRegistrations.email, email)).limit(1);
       if (existingRegistration.length > 0) {
-        // If verified but not completed onboarding, let them continue
+        // A resumed registration must prove email ownership again before its
+        // registration capability is disclosed.
         if (existingRegistration[0].emailVerified && !existingRegistration[0].onboardingCompleted) {
-          return res.json({ 
-            message: "Please continue with your onboarding",
+          const code = Math.floor(100000 + Math.random() * 900000).toString();
+          const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
+          const [token] = await db.insert(emailVerificationTokens).values({
+            email,
+            code,
+            expiresAt,
+          }).returning();
+          const existingData = (existingRegistration[0].onboardingData || {}) as any;
+          const capabilityToken = existingData.cardCaptureToken
+            || (await import("crypto")).randomBytes(24).toString("hex");
+          await db.update(studentRegistrations)
+            .set({
+              verificationTokenId: token.id,
+              onboardingData: {
+                ...existingData,
+                ...(courseType ? { courseType } : {}),
+                cardCaptureToken: capabilityToken,
+              },
+            })
+            .where(eq(studentRegistrations.id, existingRegistration[0].id));
+          const { sendEmail } = await import("./services/sendgrid");
+          await sendEmail({
+            to: [email],
+            from: process.env.SENDGRID_FROM_EMAIL || "info@mortysdrivingschool.com",
+            subject: "Verify your email - Morty's Driving School",
+            uatBypass: true,
+            html: `<p>Your verification code is <strong>${code}</strong>. It expires in 2 minutes.</p>`,
+          });
+          return res.json({
+            message: "Verification code sent to your email",
             registrationId: existingRegistration[0].id,
-            step: "onboarding",
-            onboardingStep: existingRegistration[0].onboardingStep
+            step: "verify",
+            expiresAt: expiresAt.toISOString(),
           });
         }
         // If not verified, resend verification
@@ -8335,8 +8426,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             expiresAt,
           }).returning();
           
+          const existingData = (existingRegistration[0].onboardingData || {}) as any;
+          const capabilityToken = existingData.cardCaptureToken
+            || (await import("crypto")).randomBytes(24).toString("hex");
           await db.update(studentRegistrations)
-            .set({ verificationTokenId: token.id })
+            .set({
+              verificationTokenId: token.id,
+              onboardingData: {
+                ...existingData,
+                ...(courseType ? { courseType } : {}),
+                cardCaptureToken: capabilityToken,
+              },
+            })
             .where(eq(studentRegistrations.id, existingRegistration[0].id));
           
           // Send verification email
@@ -8377,29 +8478,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "An account with this email already exists" });
       }
 
-      if (selectedStartDateId) {
-        const startDateId = Number(selectedStartDateId);
-        const selectedStartDate = Number.isInteger(startDateId) && startDateId > 0
-          ? await storage.getCourseStartDate(startDateId)
-          : undefined;
-        const { findAvailableTheory1Class } = await import("./services/auto-enroll");
-        const matchingClass = selectedStartDate?.status === "active"
-          ? await findAvailableTheory1Class(selectedStartDate)
-          : undefined;
-
-        if (
-          !selectedStartDate ||
-          selectedStartDate.courseType !== courseType ||
-          !matchingClass
-        ) {
-          return res.status(400).json({
-            message: "The selected class is no longer scheduled or available. Please choose another class.",
-          });
-        }
+      if (!courseType) {
+        return res.status(400).json({ message: "Course type is required" });
       }
       
-      // The real password is set later via the activation email link.
-      // Store a random placeholder hash to satisfy the not-null column.
+      // Store an unusable random placeholder until verified ownership allows
+      // the dedicated password endpoint to replace it.
       const bcrypt = await import("bcryptjs");
       const crypto = await import("crypto");
       const hashedPassword = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 10);
@@ -8415,10 +8499,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         expiresAt,
       }).returning();
       
-      // Create registration (seed course selection made before account creation)
-      const seedData: Record<string, any> = {};
-      if (courseType) seedData.courseType = courseType;
-      if (selectedStartDateId) seedData.selectedStartDateId = String(selectedStartDateId);
+      // Create registration with the selected course. Class date selection is
+      // intentionally deferred to the authenticated onboarding calendar.
+      const seedData: Record<string, any> = { courseType };
 
       // High-entropy capability token: required by the pre-verification card
       // endpoints so a numeric registration ID alone can't be used to attach
@@ -8490,14 +8573,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Registration not found" });
       }
       
-      if (registration.emailVerified) {
-        return res.json({
-          message: "Email already verified",
-          step: "onboarding",
-          onboardingStep: registration.onboardingStep
-        });
-      }
-      
       // Check verification token
       if (!registration.verificationTokenId) {
         return res.status(400).json({ message: "No verification token found. Please register again." });
@@ -8523,13 +8598,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         message: "Email verified successfully",
-        step: "onboarding",
-        onboardingStep: 1
+        step: registration.passwordSet ? "onboarding" : "password",
+        passwordSet: registration.passwordSet,
+        onboardingStep: registration.onboardingStep,
+        registrationToken: (registration.onboardingData as any)?.cardCaptureToken,
       });
     } catch (error) {
       captureRequestError(error);
       console.error("[STUDENT-VERIFY] Error:", error);
       res.status(500).json({ message: "Failed to verify email" });
+    }
+  });
+
+  app.post("/api/student/registration/:registrationId/password", async (req, res) => {
+    try {
+      const registrationId = parseInt(req.params.registrationId);
+      const { password, confirmation } = req.body || {};
+      if (typeof password !== "string" || password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters" });
+      }
+      if (password !== confirmation) {
+        return res.status(400).json({ message: "Passwords do not match" });
+      }
+      const [registration] = await db.select().from(studentRegistrations)
+        .where(eq(studentRegistrations.id, registrationId)).limit(1);
+      if (!registration) return res.status(404).json({ message: "Registration not found" });
+      if (!registration.emailVerified) {
+        return res.status(400).json({ message: "Please verify your email first" });
+      }
+      if (!hasValidRegistrationToken(
+        registration.onboardingData,
+        registrationTokenFromRequest(req),
+      )) {
+        return res.status(403).json({ message: "Registration access has expired. Please verify your email again." });
+      }
+      const bcrypt = await import("bcryptjs");
+      const passwordHash = await bcrypt.hash(password, 10);
+      await db.update(studentRegistrations)
+        .set({ passwordHash, passwordSet: true, updatedAt: new Date() })
+        .where(eq(studentRegistrations.id, registrationId));
+      return res.json({ success: true, passwordSet: true });
+    } catch (error) {
+      captureRequestError(error);
+      console.error("[STUDENT-PASSWORD] Error setting registration password:", error);
+      return res.status(500).json({ message: "Failed to set password" });
     }
   });
   
@@ -8548,8 +8660,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Registration not found" });
       }
       
-      if (registration.emailVerified) {
-        return res.json({ message: "Email already verified" });
+      if (registration.onboardingCompleted) {
+        return res.status(400).json({ message: "Registration is already complete. Please log in." });
       }
       
       // Generate new verification code
@@ -8610,14 +8722,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!registration) {
         return res.status(404).json({ message: "Registration not found" });
       }
+      if (!hasValidRegistrationToken(registration.onboardingData, registrationTokenFromRequest(req))) {
+        return res.status(403).json({ message: "Registration access has expired. Please verify your email again." });
+      }
+      const { cardCaptureToken: _token, stripeCustomerId: _customer, pendingCard: _card, ...safeData } =
+        (registration.onboardingData || {}) as any;
       
       res.json({
         id: registration.id,
         email: registration.email,
         emailVerified: registration.emailVerified,
+        passwordSet: registration.passwordSet,
         onboardingCompleted: registration.onboardingCompleted,
         onboardingStep: registration.onboardingStep,
-        onboardingData: registration.onboardingData || {},
+        onboardingData: safeData,
       });
     } catch (error) {
       captureRequestError(error);
@@ -8637,9 +8755,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!registration) {
         return res.status(404).json({ message: "Registration not found" });
       }
+      if (!hasValidRegistrationToken(registration.onboardingData, registrationTokenFromRequest(req))) {
+        return res.status(403).json({ message: "Registration access has expired. Please verify your email again." });
+      }
       
       if (!registration.emailVerified) {
         return res.status(400).json({ message: "Please verify your email first" });
+      }
+      if (!registration.passwordSet) {
+        return res.status(400).json({ message: "Please create your password first" });
       }
       
       // Merge new data with existing onboarding data
@@ -8657,7 +8781,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         message: "Onboarding progress saved",
         step,
-        onboardingData: updatedData,
+        onboardingData: data,
       });
     } catch (error) {
       captureRequestError(error);
@@ -8677,15 +8801,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Registration not found" });
       }
       
+      if (!hasValidRegistrationToken(registration.onboardingData, registrationTokenFromRequest(req))) {
+        return res.status(403).json({ message: "Registration access has expired. Please verify your email again." });
+      }
       if (!registration.emailVerified) {
         return res.status(400).json({ message: "Please verify your email first" });
       }
-      
-      if (registration.onboardingCompleted) {
-        return res.status(400).json({ message: "Onboarding already completed" });
+      if (!registration.passwordSet) {
+        return res.status(400).json({ message: "Please create your password first" });
       }
       
-      const data = registration.onboardingData;
+      if (registration.onboardingCompleted) {
+        const existingStudent = await storage.getStudentByEmail(registration.email);
+        if (!existingStudent) {
+          return res.status(409).json({ message: "Registration is complete but the student account could not be found" });
+        }
+        await establishStudentSession(req, existingStudent.id);
+        return res.json({
+          success: true,
+          token: generateStudentToken(existingStudent.id),
+          student: {
+            id: existingStudent.id,
+            firstName: existingStudent.firstName,
+            lastName: existingStudent.lastName,
+            email: existingStudent.email,
+            phone: existingStudent.phone,
+            courseType: existingStudent.courseType,
+            status: existingStudent.status,
+            progress: existingStudent.progress,
+            phase: existingStudent.phase,
+            instructorId: existingStudent.instructorId,
+          },
+        });
+      }
+      
+      const data: any = registration.onboardingData;
       
       if (!data) {
         return res.status(400).json({ message: "Onboarding data is missing" });
@@ -8694,13 +8844,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate required fields
       const requiredFields = ['firstName', 'lastName', 'phone', 'dateOfBirth', 'address', 'emergencyContact', 'emergencyPhone', 'courseType'];
       const missingFields = requiredFields.filter(field => !data[field]);
+      const permitNumber = data.permitNumber || data.learnerPermitNumber;
+      if (!permitNumber || (typeof permitNumber === "string" && !permitNumber.trim())) {
+        missingFields.push("permitNumber");
+      }
       
       if (missingFields.length > 0) {
         return res.status(400).json({ message: `Missing required fields: ${missingFields.join(', ')}` });
       }
       
       // Create the student record
-      const newStudent = await storage.createStudent({
+      // Student creation and the completed marker are one transaction. The
+      // unique email constraint makes concurrent completion attempts safe;
+      // completed retries are handled above without creating another account.
+      const newStudent = await db.transaction(async (tx) => {
+        const [createdStudent] = await tx.insert(students).values({
         firstName: data.firstName,
         lastName: data.lastName,
         email: registration.email,
@@ -8716,9 +8874,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         courseType: data.courseType,
         emergencyContact: data.emergencyContact,
         emergencyPhone: data.emergencyPhone,
-        driverLicenseNumber: data.permitNumber || null,
-        licenseExpiryDate: data.permitExpiryDate || null,
-        governmentId: data.driverLicenseNumber || null,
+        learnerPermitNumber: typeof permitNumber === "string" ? permitNumber.trim() : permitNumber,
+        learnerPermitExpiryDate: data.permitExpiryDate || null,
+        driverLicenseNumber: data.referenceNumber?.trim() || data.driverLicenseNumber?.trim() || null,
         password: registration.passwordHash,
         accountStatus: 'active',
         status: 'active',
@@ -8726,6 +8884,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         referralSource: data.referralSource || null,
         referralDetail: data.referralDetail || null,
         selectedStartDateId: data.selectedStartDateId || null,
+        }).onConflictDoNothing({ target: students.email }).returning();
+        if (!createdStudent) {
+          throw new Error("STUDENT_EMAIL_CONFLICT");
+        }
+        await tx.update(studentRegistrations)
+          .set({ onboardingCompleted: true, updatedAt: new Date() })
+          .where(and(
+            eq(studentRegistrations.id, registrationId),
+            eq(studentRegistrations.onboardingCompleted, false),
+          ));
+        return createdStudent;
       });
 
       // Optionally create/link a parent or guardian if provided during onboarding
@@ -8799,14 +8968,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("[STUDENT-COMPLETE] Failed to attach sign-up card to student:", cardErr);
       }
 
-      // Update registration as completed
-      await db.update(studentRegistrations)
-        .set({
-          onboardingCompleted: true,
-          updatedAt: new Date(),
-        })
-        .where(eq(studentRegistrations.id, registrationId));
-      
       // Transfer any documents uploaded during registration
       await db.update(studentDocuments)
         .set({ studentId: newStudent.id })
@@ -8820,15 +8981,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await autoEnrollStudentFromStartDate(newStudent.id, newStudent.selectedStartDateId);
       }
 
-      // Account starts as pending_invite — the student sets their password
-      // via the activation email before they can log in.
+      await establishStudentSession(req, newStudent.id);
       res.json({
-        message: "Profile complete! Check your email for an activation link to set your password.",
-        studentId: newStudent.id,
-        email: newStudent.email,
-        activationRequired: true,
+        success: true,
+        message: "Registration complete",
+        token: generateStudentToken(newStudent.id),
+        student: {
+          id: newStudent.id,
+          firstName: newStudent.firstName,
+          lastName: newStudent.lastName,
+          email: newStudent.email,
+          phone: newStudent.phone,
+          courseType: newStudent.courseType,
+          status: newStudent.status,
+          progress: newStudent.progress,
+          phase: newStudent.phase,
+          instructorId: newStudent.instructorId,
+        },
       });
     } catch (error) {
+      if (error instanceof Error && error.message === "STUDENT_EMAIL_CONFLICT") {
+        return res.status(409).json({ message: "A student account with this email already exists" });
+      }
       captureRequestError(error);
       console.error("[STUDENT-COMPLETE] Error:", error);
       res.status(500).json({ message: "Failed to complete registration" });
@@ -8845,14 +9019,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Capability check for the pre-verification card endpoints: numeric
   // registration IDs are guessable, so callers must present the high-entropy
   // token issued only in the register response. Constant-time comparison.
-  const hasValidCardCaptureToken = (onboardingData: any, provided: unknown): boolean => {
-    const expected = onboardingData?.cardCaptureToken;
-    if (typeof expected !== "string" || typeof provided !== "string") return false;
-    const a = Buffer.from(expected);
-    const b = Buffer.from(provided);
-    if (a.length !== b.length) return false;
-    return timingSafeEqual(a, b);
-  };
+  const hasValidCardCaptureToken = hasValidRegistrationToken;
 
   // Create (or reuse) a Stripe customer for the registration and return a
   // SetupIntent client secret for the branded in-app card form.
@@ -8956,6 +9123,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!registration) {
         return res.status(404).json({ message: "Registration not found" });
       }
+      if (!hasValidRegistrationToken(registration.onboardingData, registrationTokenFromRequest(req))) {
+        return res.status(403).json({ message: "Registration access has expired. Please verify your email again." });
+      }
       
       // Create document record first, then upload to S3 if configured
       const [document] = await db.insert(studentDocuments).values({
@@ -8971,7 +9141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const storedData = await storeDocument(
         documentData,
-        registration.studentId || 0,
+        0,
         document.id,
         documentName,
         mimeType || "image/jpeg"
@@ -11840,6 +12010,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           student,
         );
         const studentCourseTypeAvail = (student.courseType || 'auto').toLowerCase();
+        // One proof query for all candidate classes in this availability response.
+        const hasPhase4IncarOfferAvail =
+          await hasQualifyingPhase4IncarOffer(student.id);
 
         // Upcoming (held) bookings for the strict-progression layer.
         const upcomingBookingsAvail = computeUpcomingBookings(enrollments, allClasses);
@@ -11919,6 +12092,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               phase2TimingAdvanceDays: student.phase2TimingAdvanceDays ?? 0,
               phase3TimingAdvanceDays: student.phase3TimingAdvanceDays ?? 0,
               phase4TimingAdvanceDays: student.phase4TimingAdvanceDays ?? 0,
+              hasPhase4IncarOffer: hasPhase4IncarOfferAvail,
               upcomingBookings: upcomingBookingsAvail,
             };
             const validation = validateClassBooking(target, completedClassesAvail, studentCourseTypeAvail);
@@ -12281,6 +12455,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+  // Book the Phase 3 two-hour appointment.  This deliberately accepts two
+  // class ids rather than a duration: #5 and #6 remain two distinct one-hour
+  // curriculum rows/enrollments.
+  app.post(
+    "/api/student/classes/book-incar-5-6-pair",
+    isStudentAuthenticated,
+    async (req: any, res) => {
+      try {
+        const body = z.object({ inCar5ClassId: z.number().int().positive(), inCar6ClassId: z.number().int().positive() }).safeParse(req.body);
+        if (!body.success) return res.status(400).json({ message: "Both In-Car #5 and #6 class ids are required." });
+
+        const outcome = await withStudentBookingLock(req.student.id, async (bookingTx) => {
+          const student = req.student;
+          // Re-read and lock both rows inside this transaction. Sorting by id
+          // gives concurrent pair requests/admin edits a consistent lock order.
+          // Never trust discovery annotations or a client-provided schedule.
+          const lockedRows = await bookingTx
+            .select()
+            .from(classes)
+            .where(inArray(classes.id, [body.data.inCar5ClassId, body.data.inCar6ClassId]))
+            .orderBy(classes.id)
+            .for("update");
+          const lockedById = new Map(lockedRows.map(c => [c.id, c]));
+          const first = lockedById.get(body.data.inCar5ClassId);
+          const second = lockedById.get(body.data.inCar6ClassId);
+          const malformed = !first || !second ||
+            (student.courseType || "auto").toLowerCase() !== "auto" ||
+            [first, second].some(c => c.isExtra || c.status !== "scheduled" || (c.courseType || "").toLowerCase() !== "auto") ||
+            first.classType !== "driving" || first.classNumber !== 5 || first.duration !== 60 ||
+            second.classType !== "driving" || second.classNumber !== 6 || second.duration !== 60 ||
+            first.date !== second.date || first.instructorId !== second.instructorId ||
+            !first.date || !first.time || !second.time ||
+            getClassStartTime(second)?.getTime() !== (getClassStartTime(first)?.getTime() ?? NaN) + 60 * 60 * 1000;
+          if (malformed) {
+            return { status: 400, body: { message: "This is not a valid In-Car #5 and #6 back-to-back pair. Both classes must be scheduled Auto driving rows of exactly 60 minutes with the same instructor.", policyViolation: "invalid_incar_5_6_pair" } };
+          }
+          if (hasClassStarted({ date: first.date!, time: first.time! }) || hasClassStarted({ date: second.date!, time: second.time! })) {
+            return { status: 400, body: { message: "Both classes in this pair must be upcoming.", policyViolation: "class_already_started" } };
+          }
+
+          const enrollments = await storage.getClassEnrollmentsByStudent(student.id);
+          const allClasses = await storage.getClasses();
+          const details = enrollments.filter(e => !e.cancelledAt).map(e => {
+            const c = allClasses.find(x => x.id === e.classId);
+            return { attendanceStatus: e.attendanceStatus, classType: c?.classType ?? null, classNumber: c?.classNumber ?? null, date: c?.date ?? null, duration: c?.duration ?? null, maxStudents: c?.maxStudents ?? null, courseType: c?.courseType ?? null, classStatus: c?.status ?? null };
+          });
+          const completed = mergeScooterTransferCredits(buildCompletedClasses(details), student);
+          const policies = await storage.getActiveBookingPolicies("auto", "driving");
+          const dailyLimit = resolveDailyLimit(policies).limit;
+          const offer = await hasQualifyingPhase4IncarOffer(student.id, bookingTx);
+          const baseUpcoming = computeUpcomingBookings(enrollments, allClasses);
+          const validate = (c: typeof first, syntheticFirst: boolean): BookingValidationResult => {
+            const sameDay = details.filter(d => d.date === c.date && d.classStatus === "scheduled");
+            const synthetic = syntheticFirst ? { count: 1, minutes: 60, hasDriving: true } : { count: 0, minutes: 0, hasDriving: false };
+            return validateClassBooking({
+              classType: "driving", classNumber: c.classNumber!, date: c.date!, duration: c.duration ?? undefined,
+              maxStudents: c.maxStudents ?? undefined,
+              sameDayAlreadyBookedCount: sameDay.length + synthetic.count,
+              sameDayAlreadyBookedMinutes: sameDay.reduce((sum, d) => sum + (d.duration ?? (d.classType === "theory" ? 120 : 60)), 0) + synthetic.minutes,
+              sameDayAlreadyBookedHasDriving: sameDay.some(d => d.classType === "driving") || synthetic.hasDriving,
+              maxClassesPerDay: dailyLimit, saaq6rKnowledgePassed: !!student.saaqKnowledgeTestDate,
+              phase1TimingAdvanceDays: student.phase1TimingAdvanceDays ?? 0, phase2TimingAdvanceDays: student.phase2TimingAdvanceDays ?? 0,
+              phase3TimingAdvanceDays: student.phase3TimingAdvanceDays ?? 0, phase4TimingAdvanceDays: student.phase4TimingAdvanceDays ?? 0,
+              hasPhase4IncarOffer: offer,
+              upcomingBookings: syntheticFirst ? [...baseUpcoming, { classType: "driving", classNumber: 5 }] : baseUpcoming,
+            }, completed, "auto");
+          };
+          for (const [c, synthetic] of [[first, false], [second, true]] as const) {
+            const maxDuration = policies.find(p => p.policyType === "max_duration");
+            if (maxDuration && (c.duration ?? 0) > maxDuration.value) {
+              return { status: 400, body: { message: `Class duration (${c.duration} minutes) exceeds the maximum allowed (${maxDuration.value} minutes)`, policyViolation: "max_duration" } };
+            }
+            const advance = policies.find(p => p.policyType === "advance_booking_days");
+            if (advance && c.date) {
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              if (Math.ceil((new Date(c.date).getTime() - today.getTime()) / (24 * 60 * 60 * 1000)) > advance.value) {
+                return { status: 400, body: { message: `Cannot book classes more than ${advance.value} days in advance`, policyViolation: "advance_booking_days" } };
+              }
+            }
+            const verdict = validate(c, synthetic);
+            if (!verdict.allowed) return { status: 400, body: { message: verdict.reason, policyViolation: verdict.blockingRule, detail: verdict.detail } };
+          }
+          if (!student.learnerPermitNumber || !student.learnerPermitExpiryDate || new Date(student.learnerPermitExpiryDate) < new Date(first.date!)) {
+            return { status: 400, body: { message: "A valid learner's permit covering both driving classes is required.", policyViolation: "permit_required" } };
+          }
+          if ((first.classNumber ?? 0) > 1 && (await storage.getStudentPaymentMethods(student.id)).length === 0) {
+            return { status: 400, body: { message: "A payment card on file is required to book classes beyond Class #1.", policyViolation: "card_required" } };
+          }
+          // Pair policy checks are evaluated with the second synthetic booking
+          // included, preventing a two-row request from bypassing limits.
+          const existing = details.map(d => ({ date: d.date, classStatus: d.classStatus, attendanceStatus: d.attendanceStatus ?? null }));
+          for (const [c, synthetic] of [[first, false], [second, true]] as const) {
+            const violation = checkWeeklyNoticePendingPolicies(policies, { date: c.date, time: c.time }, synthetic ? [...existing, { date: first.date, classStatus: "scheduled", attendanceStatus: "registered" }] : existing);
+            if (violation) return { status: 400, body: { message: violation.message, policyViolation: violation.policyType } };
+          }
+          const firstResult = await storage.bookClass(student.id, first.id, bookingTx);
+          if (!firstResult.success) return { status: 400, body: { message: firstResult.message } };
+          const secondResult = await storage.bookClass(student.id, second.id, bookingTx);
+          if (!secondResult.success) {
+            // An exception marks the outer transaction for rollback, including #5.
+            throw Object.assign(new Error(secondResult.message || "Unable to book In-Car #6."), { bookingStatus: 400 });
+          }
+          return { status: 200, body: { message: "In-Car #5 and #6 booked together.", enrollments: [firstResult.enrollment, secondResult.enrollment] } };
+        });
+        return res.status(outcome.status).json(outcome.body);
+      } catch (error: any) {
+        captureRequestError(error);
+        if (error?.bookingStatus) return res.status(error.bookingStatus).json({ message: error.message });
+        console.error("Error booking In-Car #5/#6 pair:", error);
+        res.status(500).json({ message: "Failed to book In-Car #5 and #6 together" });
+      }
+    },
+  );
+
   // Book a class
   app.post(
     "/api/student/classes/:classId/book",
@@ -12350,6 +12639,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           student,
         );
         const studentCourseType = (student.courseType || 'auto').toLowerCase();
+        const hasPhase4IncarOffer =
+          await hasQualifyingPhase4IncarOffer(student.id, bookingTx);
 
         // Count same-day booked classes for the daily 2-class limit. Only
         // classes that are still scheduled count — enrollments in cancelled
@@ -12397,6 +12688,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           phase2TimingAdvanceDays: student.phase2TimingAdvanceDays ?? 0,
           phase3TimingAdvanceDays: student.phase3TimingAdvanceDays ?? 0,
           phase4TimingAdvanceDays: student.phase4TimingAdvanceDays ?? 0,
+          hasPhase4IncarOffer,
           upcomingBookings: computeUpcomingBookings(studentEnrollmentsForRules, allClassesForRules),
         };
 
@@ -12982,6 +13274,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "Cannot cancel past classes" });
         }
 
+        const canonicalPolicy = getIncarCancellationPolicy(classData, now);
+        if (canonicalPolicy.canonical) {
+          return res.json({
+            class: classData,
+            policy: {
+              withinRestrictedWindow: canonicalPolicy.feeRequired,
+              feeRequired: canonicalPolicy.feeRequired,
+              feeAmount: canonicalPolicy.feeAmount,
+              taxApplicable: canonicalPolicy.taxApplicable,
+              restrictedWindowHours: 24,
+              hoursUntilClass: canonicalPolicy.millisecondsUntilClass == null
+                ? null
+                : Math.floor(canonicalPolicy.millisecondsUntilClass / 3600000),
+              canonicalIncar1213: true,
+            },
+          });
+        }
         const cancelWindowHours = parseInt(await storage.getSetting('cancelWindowHours') || '24');
         const cancelFee = parseFloat(await storage.getSetting('cancelFee') || '25.00');
 
@@ -13032,6 +13341,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ message: "Class not found" });
         }
 
+        // Canonical In-Car 12/13 is invoiced after cancellation, never through
+        // the legacy pre-paid flat-fee path.
+        if (getIncarCancellationPolicy(classData).canonical) {
+          return res.status(400).json({ message: "This cancellation is billed automatically after the seat is released." });
+        }
         // Check policy
         const classDateTime = getClassStartTime(classData);
         if (!classDateTime) {
@@ -13042,9 +13356,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         const now = new Date();
         const hoursUntilClass = (classDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+        const canonicalPolicy = getIncarCancellationPolicy(classData, now);
         const cancelWindowHours = parseInt(await storage.getSetting('cancelWindowHours') || '24');
         const cancelFee = parseFloat(await storage.getSetting('cancelFee') || '25.00');
-        const feeRequired = hoursUntilClass < cancelWindowHours;
+        const feeRequired = canonicalPolicy.canonical
+          ? false
+          : hoursUntilClass < cancelWindowHours;
 
         if (!feeRequired) {
           return res.status(400).json({ message: "No fee required for this cancellation" });
@@ -13111,10 +13428,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Enforce policy - check if within restricted window
+        const canonicalPolicy = getIncarCancellationPolicy(classData, now);
         const hoursUntilClass = (classDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
         const cancelWindowHours = parseInt(await storage.getSetting('cancelWindowHours') || '24');
         const cancelFee = parseFloat(await storage.getSetting('cancelFee') || '25.00');
-        const feeRequired = hoursUntilClass < cancelWindowHours;
+        const feeRequired = canonicalPolicy.canonical
+          ? false
+          : hoursUntilClass < cancelWindowHours;
         
         if (feeRequired && !paymentIntentId) {
           return res.status(400).json({ 
@@ -13187,6 +13507,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ...(paymentIntentId ? { lastPaymentIntentId: paymentIntentId } : {}),
         });
 
+        let cancellationFee: IncarCancellationFeeOutcome = { applicable: false };
+        if (canonicalPolicy.feeRequired) {
+          cancellationFee = await chargeIncarCancellationFee(stripe, student.id, enrollmentId);
+        }
+
         // If an in-car booking was cancelled and the student still holds
         // another upcoming in-car booking, that booking becomes their next
         // lesson (slot #1) — notify them so they can keep or cancel it.
@@ -13200,6 +13525,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({
           success: true,
           message: "Class cancelled successfully",
+          cancellationFee,
         });
       } catch (error) {
         captureRequestError(error);
@@ -16718,6 +17044,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
   );
 
   // ── Student: leave the pairing queue ──────────────────────────────────────
+  app.get(
+    "/api/student/lesson-pairing/cancellation-check",
+    isStudentAuthenticated,
+    async (req: any, res) => {
+      try {
+        const status = await getStudentPairingStatus(req.student.id);
+        const confirmationId = req.query?.confirmationId
+          ? parseInt(String(req.query.confirmationId))
+          : null;
+        let enrollmentId: number | null | undefined;
+        if (confirmationId) {
+          const confirmation = status.pendingConfirmations.find((row) => row.id === confirmationId);
+          if (!confirmation) return res.status(404).json({ message: "Pending confirmation not found" });
+          const session = status.activeSessions.find((row) => row.id === confirmation.pairedSessionId);
+          if (!session) return res.status(404).json({ message: "Paired session not found" });
+          enrollmentId = session.studentIdA === req.student.id
+            ? session.enrollmentIdA
+            : session.enrollmentIdB;
+        } else {
+          enrollmentId = status.queueEntries.find((row) => row.status === "booked_first")?.enrollmentId;
+        }
+        if (!enrollmentId) {
+          return res.json({
+            policy: {
+              canonicalIncar1213: true,
+              feeRequired: false,
+              feeAmount: 0,
+              taxApplicable: false,
+              restrictedWindowHours: 24,
+            },
+          });
+        }
+        const enrollment = await storage.getClassEnrollment(enrollmentId);
+        const classData = enrollment?.classId ? await storage.getClass(enrollment.classId) : null;
+        if (!classData) return res.status(404).json({ message: "Reserved class not found" });
+        const policy = getIncarCancellationPolicy(classData);
+        res.json({
+          enrollmentId,
+          class: classData,
+          policy: {
+            ...policy,
+            canonicalIncar1213: policy.canonical,
+            restrictedWindowHours: 24,
+          },
+        });
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error checking cancellation fee:", error);
+        res.status(500).json({ message: "Failed to check cancellation fee" });
+      }
+    },
+  );
+
   app.delete(
     "/api/student/lesson-pairing/queue",
     isStudentAuthenticated,
@@ -16727,7 +17106,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!result.success) {
           return res.status(400).json({ message: result.reason ?? "Unable to leave pairing queue." });
         }
-        res.json(result);
+        let cancellationFee: IncarCancellationFeeOutcome = { applicable: false };
+        if (result.cancelledEnrollmentId) {
+          const enrollment = await storage.getClassEnrollment(result.cancelledEnrollmentId);
+          const classData = enrollment?.classId ? await storage.getClass(enrollment.classId) : null;
+          if (classData && getIncarCancellationPolicy(classData).feeRequired) {
+            cancellationFee = await chargeIncarCancellationFee(stripe, req.student.id, result.cancelledEnrollmentId);
+          }
+        }
+        res.json({ ...result, cancellationFee });
       } catch (error) {
         captureRequestError(error);
         console.error("[lesson-pairing] Error leaving queue:", error);
@@ -16789,7 +17176,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!result.success) {
           return res.status(400).json({ message: result.reason ?? "Unable to respond to confirmation." });
         }
-        res.json(result);
+        let cancellationFee: IncarCancellationFeeOutcome = { applicable: false };
+        if (action === "decline" && result.cancelledEnrollmentId) {
+          const enrollment = await storage.getClassEnrollment(result.cancelledEnrollmentId);
+          const classData = enrollment?.classId ? await storage.getClass(enrollment.classId) : null;
+          if (classData && getIncarCancellationPolicy(classData).feeRequired) {
+            cancellationFee = await chargeIncarCancellationFee(stripe, req.student.id, result.cancelledEnrollmentId);
+          }
+        }
+        res.json({ ...result, cancellationFee });
       } catch (error) {
         captureRequestError(error);
         console.error("[lesson-pairing] Error responding to confirmation:", error);

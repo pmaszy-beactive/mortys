@@ -111,6 +111,7 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  headers?: Record<string, string>,
 ): Promise<any> {
   try {
     const response: AxiosResponse = await axios({
@@ -120,6 +121,7 @@ export async function apiRequest(
       headers: {
         "Content-Type": "application/json",
         ...getStudentAuthHeader(),
+        ...headers,
       },
       withCredentials: true,
     });

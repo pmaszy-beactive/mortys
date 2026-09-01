@@ -31,6 +31,7 @@ import {
   type BookingValidationResult,
 } from "@shared/bookingRules";
 import { checkClassStart } from "./class-time";
+import { hasQualifyingPhase4IncarOffer } from "./incar-pairing";
 
 function hasClassStarted(classData: { date: string; time: string }): boolean {
   return checkClassStart(classData, 0).status === "started";
@@ -69,6 +70,7 @@ export async function validateProgressionForStudent(
       (options.excludeClassId === undefined || e.classId !== options.excludeClassId),
   );
   const allClasses = await storage.getClasses();
+  const hasPhase4IncarOffer = await hasQualifyingPhase4IncarOffer(studentId);
   const enrollmentDetails = enrollments
     .filter((e) => !e.cancelledAt)
     .map((e) => {
@@ -115,6 +117,7 @@ export async function validateProgressionForStudent(
       phase2TimingAdvanceDays: student.phase2TimingAdvanceDays ?? 0,
       phase3TimingAdvanceDays: student.phase3TimingAdvanceDays ?? 0,
       phase4TimingAdvanceDays: student.phase4TimingAdvanceDays ?? 0,
+      hasPhase4IncarOffer,
       upcomingBookings,
     },
     mergeScooterTransferCredits(buildCompletedClasses(enrollmentDetails), student),
