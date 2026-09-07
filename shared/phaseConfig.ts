@@ -9,6 +9,8 @@ export interface PhaseClassItem {
   maxDurationMinutes?: number;
   /** Fixed session length for this class, when the curriculum dictates one. */
   durationMinutes?: number;
+  /** Identifies curriculum rows represented by one shared combined appointment. */
+  pairedBookingRole?: 'primary' | 'included';
 }
 
 /**
@@ -88,8 +90,8 @@ export const PHASE_DEFINITIONS: PhaseDefinition[] = [
       { id: "theory_11", label: "Theory #11", classType: "theory", classNumber: 11, mustBeFirst: true },
       { id: "theory_12", label: "Theory #12", classType: "theory", classNumber: 12 },
       { id: "driving_11", label: "In-Car #11", classType: "driving", classNumber: 11 },
-      { id: "driving_12", label: "In-Car #12", classType: "driving", classNumber: 12 },
-      { id: "driving_13", label: "In-Car #13", classType: "driving", classNumber: 13 },
+      { id: "driving_12", label: "In-Car #12", classType: "driving", classNumber: 12, pairedBookingRole: "primary" },
+      { id: "driving_13", label: "In-Car #13", classType: "driving", classNumber: 13, pairedBookingRole: "included" },
       { id: "driving_14", label: "In-Car #14", classType: "driving", classNumber: 14 },
       { id: "driving_15", label: "In-Car #15", classType: "driving", classNumber: 15, mustBeLast: true, maxDurationMinutes: 60 },
     ],
@@ -239,6 +241,7 @@ export interface PhaseClassProgress {
   classType: 'theory' | 'driving';
   classNumber: number;
   specialNote?: string;
+  pairedBookingRole?: 'primary' | 'included';
   isCompleted: boolean;
   /** This curriculum row belongs to an active upcoming enrollment. */
   isBooked?: boolean;

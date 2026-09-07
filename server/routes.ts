@@ -490,6 +490,7 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
         classType: classItem.classType,
         classNumber: classItem.classNumber,
         specialNote: classItem.specialNote,
+        pairedBookingRole: classItem.pairedBookingRole,
         isCompleted,
         isBooked: !isCompleted && !!booked,
         isInReview,

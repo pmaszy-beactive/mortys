@@ -38,6 +38,12 @@ function PhaseClassRow({
 }) {
   const isTheory = classItem.classType === 'theory';
   const usesMotorbike = ['moto', 'motorcycle', 'scooter'].includes((courseType || '').toLowerCase());
+  const showPairedBookingSchedule =
+    !compact &&
+    !classItem.isCompleted &&
+    classItem.isBooked &&
+    !!classItem.pairedBookingRole &&
+    !!classItem.date;
 
   return (
     <div
@@ -81,6 +87,19 @@ function PhaseClassRow({
             ) : (
               <>Date: {formatDate(classItem.date)} {classItem.instructorName && `with ${classItem.instructorName}`}</>
             )}
+          </div>
+        )}
+        {showPairedBookingSchedule && (
+          <div
+            className="text-xs text-gray-500 mt-0.5 leading-tight"
+            data-testid={`text-paired-booking-schedule-${classItem.id}`}
+          >
+            {classItem.pairedBookingRole === "included" && (
+              <span className="font-medium text-gray-600">Included in the same #12/#13 booking · </span>
+            )}
+            {formatDate(classItem.date!)}
+            {classItem.time && ` at ${formatTime(classItem.time)}`}
+            {classItem.instructorName && ` with ${classItem.instructorName}`}
           </div>
         )}
         {bookState && bookState.status !== "available" && bookState.status !== "completed" && bookState.reason && (
