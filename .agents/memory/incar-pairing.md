@@ -9,6 +9,9 @@ description: Design invariants for the combined In-Car 12/13 paired-lesson queue
 - All pairing state transitions must follow one lock protocol: student advisory locks, then the class row FOR UPDATE, then re-read and status-guard before mutating; offer transitions are conditional UPDATE ... WHERE status='pending' claims — zero rows means another actor won, abort without side effects.
 - Completion requires BOTH enrollments attended; day-of solo conversion is gated on class start passed + partner marked absent/no-show, and cancels the present student's combined enrollment so 12/13 can never be awarded from a converted session.
 - Deferral returns the student to `waiting` with a priority boost (no terminal 'deferred' state) so they remain offerable.
+- A pending, unexpired offer must survive confirmation-horizon lifecycle sweeps until the school-local class start; the receiving student can accept it any time before start.
+- **Why:** withdrawing a live offer at the 24-hour horizon made the notification action fail with “Offer is no longer available” even though the class had not begun.
+- **How to apply:** preserve both queue rows while the live offer exists, reject new accepts at/after class start, and treat duplicate accepts as success only when the same offer already has a complete paired session and enrollment.
 - Auto In-Car #11 and #14 stay locked until a pending or accepted offer exists for a strict canonical combined #12 class. Terminal or malformed offers never qualify; the gate is not admin-overridable.
 - **Why:** receiving a concrete 12/13 pairing slot establishes Phase 4 scheduling priority before the student books #11 or #14.
 - **How to apply:** derive proof from the offer joined to its class, not queue status alone, and pass it through every booking, availability, reschedule, admin, and assistant validation path.

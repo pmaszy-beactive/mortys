@@ -1170,6 +1170,27 @@ export interface OfferResponseResult {
   reason?: string;
 }
 
+function logOfferRejection(input: {
+  offerId: number;
+  reason: string;
+  offerStatus?: string | null;
+  expiresAt?: Date | null;
+  classStatus?: string | null;
+  classStart?: Date | null;
+  queueStatus?: string | null;
+}): void {
+  console.warn("[incar-pairing] offer response rejected", {
+    offerId: input.offerId,
+    reason: input.reason,
+    offerStatus: input.offerStatus ?? null,
+    expiresAt: input.expiresAt?.toISOString() ?? null,
+    checkedAt: new Date().toISOString(),
+    classStatus: input.classStatus ?? null,
+    classStart: input.classStart?.toISOString() ?? null,
+    queueStatus: input.queueStatus ?? null,
+  });
+}
+
 /**
  * Student 2 responds to a pairing offer.
  * accept → enrolled in class, paired session created.
@@ -1196,12 +1217,18 @@ export async function respondToOffer(params: {
       .where(eq(incarPairingOffers.id, offerId))
       .limit(1);
 
-    if (!offer) return { success: false, reason: "Offer not found." };
-    if (offer.studentId !== studentId) {
-      return { success: false, reason: "Offer does not belong to this student." };
+    if (!offer) {
+      logOfferRejection({ offerId, reason: "not_found" });
+      return { success: false, reason: "Offer not found." };
     }
-    if (offer.status !== "pending") {
-      return { success: false, reason: `Offer is no longer available.` };
+    if (offer.studentId !== studentId) {
+      logOfferRejection({
+        offerId,
+        reason: "wrong_student",
+        offerStatus: offer.status,
+        expiresAt: offer.expiresAt,
+      });
+      return { success: false, reason: "Offer does not belong to this student." };
     }
 
     // Serialize against concurrent claimers on the same slot: lock the class
@@ -1213,7 +1240,15 @@ export async function respondToOffer(params: {
       .for("update")
       .limit(1);
 
-    if (!cls) return { success: false, reason: "Class no longer exists." };
+    if (!cls) {
+      logOfferRejection({
+        offerId,
+        reason: "class_missing",
+        offerStatus: offer.status,
+        expiresAt: offer.expiresAt,
+      });
+      return { success: false, reason: "Class no longer exists." };
+    }
 
     const [lockedOffer] = await tx
       .select()
@@ -1221,12 +1256,64 @@ export async function respondToOffer(params: {
       .where(eq(incarPairingOffers.id, offerId))
       .limit(1);
 
-    if (!lockedOffer || lockedOffer.status !== "pending") {
+    if (!lockedOffer) {
+      logOfferRejection({ offerId, reason: "offer_missing_after_lock", classStatus: cls.status });
       return { success: false, reason: "Offer is no longer available." };
     }
-    if (new Date() > lockedOffer.expiresAt) {
+    const classStart = getClassStartTime({
+      date: cls.date ?? "",
+      time: cls.time ?? "",
+    });
+
+    // An accepted offer is idempotent only when the transaction completed all
+    // of its durable effects. This handles notification-center duplicate POSTs
+    // without treating a partially-written accepted offer as successful.
+    if (response === "accept" && lockedOffer.status === "accepted" && lockedOffer.pairedSessionId) {
+      const [completedAcceptance] = await tx
+        .select({ sessionId: incarPairedSessions.id })
+        .from(incarPairedSessions)
+        .innerJoin(
+          classEnrollments,
+          eq(classEnrollments.id, incarPairedSessions.enrollmentIdB),
+        )
+        .where(
+          and(
+            eq(incarPairedSessions.id, lockedOffer.pairedSessionId),
+            eq(incarPairedSessions.classId, lockedOffer.classId),
+            eq(incarPairedSessions.studentIdB, studentId),
+            eq(classEnrollments.studentId, studentId),
+            eq(classEnrollments.classId, lockedOffer.classId),
+            isNull(classEnrollments.cancelledAt),
+          ),
+        )
+        .limit(1);
+      if (completedAcceptance) {
+        return { success: true, pairedSessionId: completedAcceptance.sessionId };
+      }
+    }
+
+    if (lockedOffer.status !== "pending") {
+      logOfferRejection({
+        offerId,
+        reason: "not_pending",
+        offerStatus: lockedOffer.status,
+        expiresAt: lockedOffer.expiresAt,
+        classStatus: cls.status,
+        classStart,
+      });
+      return { success: false, reason: "Offer is no longer available." };
+    }
+    if (Date.now() >= lockedOffer.expiresAt.getTime()) {
       // Expire it (guarded conditional inside) and abort.
       await _expireOffer(tx, lockedOffer, "system", "system");
+      logOfferRejection({
+        offerId,
+        reason: "expired",
+        offerStatus: lockedOffer.status,
+        expiresAt: lockedOffer.expiresAt,
+        classStatus: cls.status,
+        classStart,
+      });
       return { success: false, reason: "Offer has expired." };
     }
 
@@ -1266,7 +1353,31 @@ export async function respondToOffer(params: {
 
     // ── Accept ──────────────────────────────────────────────────────────────
     if (cls.status !== "scheduled") {
+      logOfferRejection({
+        offerId,
+        reason: "class_not_scheduled",
+        offerStatus: lockedOffer.status,
+        expiresAt: lockedOffer.expiresAt,
+        classStatus: cls.status,
+        classStart,
+      });
       return { success: false, reason: "Class is no longer available." };
+    }
+    if (!classStart || Date.now() >= classStart.getTime()) {
+      logOfferRejection({
+        offerId,
+        reason: classStart ? "class_started" : "invalid_class_instant",
+        offerStatus: lockedOffer.status,
+        expiresAt: lockedOffer.expiresAt,
+        classStatus: cls.status,
+        classStart,
+      });
+      return {
+        success: false,
+        reason: classStart
+          ? "The class has already started."
+          : "Class schedule is invalid.",
+      };
     }
 
     // Require the RECEIVING queue entry to still be 'offered' (checked under the
@@ -1283,6 +1394,15 @@ export async function respondToOffer(params: {
       .limit(1);
     const acceptGuard = decideAcceptGuard(receivingEntry?.status);
     if (!acceptGuard.proceed) {
+      logOfferRejection({
+        offerId,
+        reason: "stale_queue_state",
+        offerStatus: lockedOffer.status,
+        expiresAt: lockedOffer.expiresAt,
+        classStatus: cls.status,
+        classStart,
+        queueStatus: receivingEntry?.status,
+      });
       return { success: false, reason: acceptGuard.reason };
     }
 
@@ -2391,9 +2511,10 @@ async function deferBookedStudent(params: {
     await tx.execute(
       sql`SELECT pg_advisory_xact_lock(${LOCK_NS}, ${preEntry.studentId})`,
     );
+    let lockedClass: typeof classes.$inferSelect | null = null;
     if (preEntry.bookedClassId != null) {
-      const cls = await lockClassRow(tx, preEntry.bookedClassId);
-      if (!cls) return; // class vanished — nothing to defer
+      lockedClass = await lockClassRow(tx, preEntry.bookedClassId);
+      if (!lockedClass) return; // class vanished — nothing to defer
     }
 
     // Re-read the entry UNDER the class lock and status-guard: if an accept won
@@ -2406,6 +2527,38 @@ async function deferBookedStudent(params: {
     if (!entry) return;
     const guard = decideBookedFirstTeardown(entry.status, "defer");
     if (!guard.proceed) return;
+
+    // A response deadline and the confirmation horizon are independent. While
+    // a candidate still owns a pending, unexpired offer, preserve both queue
+    // rows and the first enrollment until the class actually starts. The old
+    // horizon transition withdrew this valid offer just before its recipient
+    // clicked Accept, producing the misleading "no longer available" response.
+    const now = new Date();
+    const classStart = lockedClass
+      ? getClassStartTime({
+          date: lockedClass.date ?? "",
+          time: lockedClass.time ?? "",
+        })
+      : null;
+    if (entry.bookedClassId && classStart && now < classStart) {
+      const [liveOffer] = await tx
+        .select({ id: incarPairingOffers.id })
+        .from(incarPairingOffers)
+        .innerJoin(
+          incarPairingQueue,
+          eq(incarPairingQueue.id, incarPairingOffers.queueEntryId),
+        )
+        .where(
+          and(
+            eq(incarPairingOffers.classId, entry.bookedClassId),
+            eq(incarPairingOffers.status, "pending"),
+            sql`${incarPairingOffers.expiresAt} > ${now}`,
+            eq(incarPairingQueue.status, "offered"),
+          ),
+        )
+        .limit(1);
+      if (liveOffer) return;
+    }
 
     // Cancel enrollment
     if (entry.enrollmentId) {

@@ -18,16 +18,27 @@
  * Notifications are mocked out (they are fire-and-forget in production and
  * would otherwise write notification rows / attempt email sends).
  */
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
+import express from "express";
+import request from "supertest";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 
 vi.mock("../services/notifications", () => ({
   enqueueNotification: vi.fn(async () => 0),
-  getStudentRecipients: vi.fn(async () => []),
+  getStudentRecipients: vi.fn(async (studentId: number) => [{
+    type: "student",
+    id: String(studentId),
+    email: "pairing-test@example.test",
+    name: "Pairing test",
+  }]),
   getOfficeRecipients: vi.fn(async () => []),
 }));
 
 import { db } from "../db";
+import { registerRoutes } from "../routes";
+import { generateStudentToken } from "../student-auth";
+import { enqueueNotification } from "../services/notifications";
+import { SCHOOL_TIMEZONE } from "../services/class-time";
 import {
   students,
   classes,
@@ -52,6 +63,13 @@ import {
 const createdStudentIds: number[] = [];
 const createdClassIds: number[] = [];
 let uniq = 0;
+let app: express.Express;
+
+beforeAll(async () => {
+  app = express();
+  app.use(express.json());
+  await registerRoutes(app);
+}, 60_000);
 
 /** Create an eligible auto student (Theory #11 attended). */
 async function createStudent(opts: { eligible?: boolean } = {}): Promise<number> {
@@ -69,6 +87,7 @@ async function createStudent(opts: { eligible?: boolean } = {}): Promise<number>
       courseType: "auto",
       emergencyContact: "Test Contact",
       emergencyPhone: "514-555-0001",
+      accountStatus: "active",
     })
     .returning({ id: students.id });
   createdStudentIds.push(s.id);
@@ -147,6 +166,26 @@ async function pendingOffersFor(classId: number) {
         eq(incarPairingOffers.status, "pending"),
       ),
     );
+}
+
+function schoolLocalSchedule(minutesFromNow: number): { date: string; time: string } {
+  const instant = new Date(Date.now() + minutesFromNow * 60_000);
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: SCHOOL_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts = Object.fromEntries(
+    fmt.formatToParts(instant).map((part) => [part.type, part.value]),
+  );
+  return {
+    date: `${parts.year}-${parts.month}-${parts.day}`,
+    time: `${parts.hour === "24" ? "00" : parts.hour}:${parts.minute}`,
+  };
 }
 
 afterEach(async () => {
@@ -379,7 +418,7 @@ describe("respondToOffer (live DB)", () => {
     expect(session.studentIdB).toBe(waiting);
   });
 
-  it("simultaneous accepts of the same offer produce exactly one pairing", async () => {
+  it("makes duplicate same-student accepts idempotent and produces exactly one pairing", async () => {
     const { waiting, classId, offer } = await seedBookedWithOffer();
 
     const [r1, r2] = await Promise.all([
@@ -387,7 +426,8 @@ describe("respondToOffer (live DB)", () => {
       respondToOffer({ offerId: offer.id, studentId: waiting, response: "accept" }),
     ]);
 
-    expect([r1, r2].filter((r) => r.success)).toHaveLength(1);
+    expect([r1, r2].filter((r) => r.success)).toHaveLength(2);
+    expect(r1.pairedSessionId).toBe(r2.pairedSessionId);
 
     const sessions = await db
       .select()
@@ -464,6 +504,22 @@ describe("respondToOffer (live DB)", () => {
     });
     expect(res.success).toBe(false);
     expect(res.reason).toMatch(/does not belong/i);
+  });
+
+  it("rejects a new acceptance at or after the school-local class start", async () => {
+    const { waiting, classId, offer } = await seedBookedWithOffer();
+    const started = schoolLocalSchedule(-5);
+    await db.update(classes).set(started).where(eq(classes.id, classId));
+
+    const res = await respondToOffer({
+      offerId: offer.id,
+      studentId: waiting,
+      response: "accept",
+    });
+
+    expect(res.success).toBe(false);
+    expect(res.reason).toMatch(/already started/i);
+    expect(await activeEnrollments(classId)).toHaveLength(1);
   });
 });
 
@@ -544,6 +600,61 @@ describe("leaveCombinedQueue (live DB)", () => {
 // ─── processPairingLifecycle ──────────────────────────────────────────────────
 
 describe("processPairingLifecycle (live DB)", () => {
+  it("keeps the notification offer acceptable through a pre-start sweep and HTTP accept", async () => {
+    const waiting = await createStudent();
+    const booker = await createStudent();
+    const classId = await createCombinedClass(schoolLocalSchedule(5));
+    await joinCombinedQueue({ studentId: waiting });
+    const booked = await bookCombinedSlot({ studentId: booker, classId });
+    expect(booked.success).toBe(true);
+    const [offer] = await pendingOffersFor(classId);
+
+    await vi.waitFor(() => {
+      const notification = vi.mocked(enqueueNotification).mock.calls
+        .map(([input]) => input)
+        .find((input) =>
+          input.type === "incar_pairing_offer" &&
+          input.payload?.offerId === offer.id
+        );
+      expect(notification?.payload?.offerId).toBe(offer.id);
+    });
+
+    await processPairingLifecycle();
+
+    const [offerAfterSweep] = await db
+      .select()
+      .from(incarPairingOffers)
+      .where(eq(incarPairingOffers.id, offer.id));
+    const [bookerAfterSweep] = await queueEntryFor(booker);
+    const [recipientAfterSweep] = await queueEntryFor(waiting);
+    expect(offerAfterSweep.status).toBe("pending");
+    expect(offerAfterSweep.expiresAt.getTime()).toBeGreaterThan(Date.now());
+    expect(bookerAfterSweep.status).toBe("booked_first");
+    expect(recipientAfterSweep.status).toBe("offered");
+
+    const response = await request(app)
+      .post(`/api/student/lesson-pairing/offers/${offer.id}/respond`)
+      .set("Authorization", `Bearer ${generateStudentToken(waiting)}`)
+      .send({ action: "accept" });
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+
+    const sessions = await db
+      .select()
+      .from(incarPairedSessions)
+      .where(eq(incarPairedSessions.classId, classId));
+    expect(sessions).toHaveLength(1);
+    expect(await activeEnrollments(classId)).toHaveLength(2);
+
+    const duplicate = await request(app)
+      .post(`/api/student/lesson-pairing/offers/${offer.id}/respond`)
+      .set("Authorization", `Bearer ${generateStudentToken(waiting)}`)
+      .send({ action: "accept" });
+    expect(duplicate.status).toBe(200);
+    expect(duplicate.body.pairedSessionId).toBe(sessions[0].id);
+    expect(await activeEnrollments(classId)).toHaveLength(2);
+  }, 30_000);
+
   it("expires overdue offers, returns the student to waiting, and offers the next candidate", async () => {
     const { waiting, classId, offer } = await seedBookedWithOffer();
     const nextInLine = await createStudent();
