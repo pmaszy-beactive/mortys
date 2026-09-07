@@ -44,6 +44,7 @@ import {
   insertCourseStartDateSchema,
   insertBookingPolicySchema,
   policyOverrideLogs,
+  incarPairedSessions,
 } from "@shared/schema";
 import {
   EXAM_TESTS,
@@ -395,7 +396,31 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
       )
     );
 
+  const activePairedEnrollmentClassIds = new Map(
+    (await db
+      .select({
+        classId: incarPairedSessions.classId,
+        enrollmentIdA: incarPairedSessions.enrollmentIdA,
+        enrollmentIdB: incarPairedSessions.enrollmentIdB,
+        studentIdA: incarPairedSessions.studentIdA,
+        studentIdB: incarPairedSessions.studentIdB,
+      })
+      .from(incarPairedSessions)
+      .where(
+        and(
+          inArray(incarPairedSessions.status, ["paired", "confirmed"]),
+          sql`(${incarPairedSessions.studentIdA} = ${studentId} OR ${incarPairedSessions.studentIdB} = ${studentId})`,
+        ),
+      ))
+      .flatMap((session) => {
+        const enrollmentId =
+          session.studentIdA === studentId ? session.enrollmentIdA : session.enrollmentIdB;
+        return enrollmentId == null ? [] : [[enrollmentId, session.classId] as const];
+      }),
+  );
+
   const completedMap = new Map<string, typeof enrollmentRows[0]>();
+  const bookedMap = new Map<string, typeof enrollmentRows[0]>();
   for (const row of enrollmentRows) {
     if (row.attendanceStatus === 'attended') {
       const key = `${row.classType}_${row.classNumber}`;
@@ -416,6 +441,21 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
         completedMap.set('driving_13', row);
       }
     }
+
+    if (
+      row.attendanceStatus !== "attended" &&
+      activePairedEnrollmentClassIds.get(row.enrollmentId) === row.classId &&
+      isCombined1213Class({
+        classType: row.classType,
+        classNumber: row.classNumber,
+        duration: row.duration,
+        maxStudents: row.maxStudents,
+        courseType: row.courseType,
+      })
+    ) {
+      bookedMap.set("driving_12", row);
+      bookedMap.set("driving_13", row);
+    }
   }
 
   let currentPhase = phaseDefinitions[phaseDefinitions.length - 1].phase;
@@ -430,6 +470,7 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
     for (const classItem of phaseDef.classes) {
       const key = `${classItem.classType}_${classItem.classNumber}`;
       const completed = completedMap.get(key);
+      const booked = bookedMap.get(key);
       const isCompleted = !!completed || transferCompletionKeys.has(key);
       const isInReview = !isCompleted && enrollmentRows.some((row) => {
         if (`${row.classType}_${row.classNumber}` !== key) return false;
@@ -450,15 +491,16 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
         classNumber: classItem.classNumber,
         specialNote: classItem.specialNote,
         isCompleted,
+        isBooked: !isCompleted && !!booked,
         isInReview,
-        date: completed?.date || undefined,
-        time: completed?.time || undefined,
-        duration: completed?.duration || undefined,
-        instructorName: completed?.instructorFirstName && completed?.instructorLastName
-          ? `${completed.instructorFirstName} ${completed.instructorLastName}`
+        date: completed?.date || booked?.date || undefined,
+        time: completed?.time || booked?.time || undefined,
+        duration: completed?.duration || booked?.duration || undefined,
+        instructorName: (completed || booked)?.instructorFirstName && (completed || booked)?.instructorLastName
+          ? `${(completed || booked)!.instructorFirstName} ${(completed || booked)!.instructorLastName}`
           : undefined,
-        enrollmentId: completed?.enrollmentId || undefined,
-        classId: completed?.classId || undefined,
+        enrollmentId: completed?.enrollmentId || booked?.enrollmentId || undefined,
+        classId: completed?.classId || booked?.classId || undefined,
       });
     }
 

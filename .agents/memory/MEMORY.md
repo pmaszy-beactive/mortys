@@ -12,5 +12,5 @@
 - [Auto course phase rules](auto-course-phase-rules.md) — auto-only phase rules, 3h/day caller coverage, planner anchors, and additive Phase 1 testing time that never rewrites attendance.
 - [Scooter curriculum](scooter-curriculum.md) — exactly one 3-hour theory plus one 3-hour practical; no Auto/Moto phases or extra session numbers.
 - [Moto curriculum](moto-curriculum.md) — real program 2 theory + 4 closed-circuit + 3 road; closed-circuit gated on Theory 1 AND recorded 6R pass; every rules-engine call site must pass the 6R flag.
-- [In-Car 12/13 pairing](incar-pairing.md) — combined session model: strict canonical #12 slot, maxStudents required in progress inputs, both-attended completion, deferral back to waiting.
+- [In-Car 12/13 pairing](incar-pairing.md) — strict canonical #12 slot; active paired enrollment projects booked state to both rows; both-attended completion.
 - [Class times are school-local](class-times-school-timezone.md) — never compare class date/time strings as server-local on the UTC server; use the SCHOOL_TIMEZONE helpers. Also: a migration .sql without a _journal.json entry silently never applies.

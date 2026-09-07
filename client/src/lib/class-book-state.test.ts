@@ -109,3 +109,35 @@ describe("per-class Book state for moto and scooter curricula", () => {
     ).toEqual({ status: "available" });
   });
 });
+
+describe("paired In-Car 12/13 progress state", () => {
+  const phase4: PhaseProgress = { ...unlockedPhase, phase: 4, label: "Phase 4" };
+
+  it.each([12, 13])("shows paired In-Car #%i as booked from progress data", (classNumber) => {
+    const classItem: PhaseClassProgress = {
+      id: `driving_${classNumber}`,
+      label: `In-Car #${classNumber}`,
+      classType: "driving",
+      classNumber,
+      isCompleted: false,
+      isBooked: true,
+    };
+
+    expect(getPhaseClassBookState(classItem, phase4, [], [])).toMatchObject({
+      status: "booked",
+    });
+  });
+
+  it("keeps an attended included row completed rather than booked", () => {
+    const classItem: PhaseClassProgress = {
+      id: "driving_13",
+      label: "In-Car #13",
+      classType: "driving",
+      classNumber: 13,
+      isCompleted: true,
+      isBooked: true,
+    };
+
+    expect(getPhaseClassBookState(classItem, phase4, [], [])).toEqual({ status: "completed" });
+  });
+});

@@ -240,6 +240,8 @@ export interface PhaseClassProgress {
   classNumber: number;
   specialNote?: string;
   isCompleted: boolean;
+  /** This curriculum row belongs to an active upcoming enrollment. */
+  isBooked?: boolean;
   /** The scheduled class has started, but attendance has not been finalized. */
   isInReview?: boolean;
   date?: string;

@@ -37,6 +37,14 @@ export function getPhaseClassBookState(
 ): ClassBookState {
   if (classItem.isCompleted) return { status: "completed" };
   if (classItem.isInReview) return { status: "in_review" };
+  if (classItem.isBooked) {
+    return {
+      status: "booked",
+      reason: classItem.classType === "driving" && classItem.classNumber === 13
+        ? "Included with your booked paired In-Car 12/13 session."
+        : "You already have this class booked.",
+    };
+  }
 
   const alreadyBooked = bookedClasses.some((bookedClass) =>
     bookedClass.status !== "cancelled" &&

@@ -168,6 +168,18 @@ async function pendingOffersFor(classId: number) {
     );
 }
 
+async function phaseProgressFor(studentId: number) {
+  const response = await request(app)
+    .get("/api/student/phase-progress")
+    .set("Authorization", `Bearer ${generateStudentToken(studentId)}`);
+  expect(response.status).toBe(200);
+  const rows = response.body.phases.flatMap((phase: { classes: any[] }) => phase.classes);
+  return {
+    twelve: rows.find((row: any) => row.classType === "driving" && row.classNumber === 12),
+    thirteen: rows.find((row: any) => row.classType === "driving" && row.classNumber === 13),
+  };
+}
+
 function schoolLocalSchedule(minutesFromNow: number): { date: string; time: string } {
   const instant = new Date(Date.now() + minutesFromNow * 60_000);
   const fmt = new Intl.DateTimeFormat("en-CA", {
@@ -392,6 +404,106 @@ async function seedBookedWithOffer() {
 }
 
 describe("respondToOffer (live DB)", () => {
+  it("marks both curriculum rows booked for both students only after acceptance", async () => {
+    const { waiting, booker, offer } = await seedBookedWithOffer();
+
+    for (const studentId of [booker, waiting]) {
+      const before = await phaseProgressFor(studentId);
+      expect(before.twelve.isBooked).toBe(false);
+      expect(before.thirteen.isBooked).toBe(false);
+    }
+
+    const accepted = await respondToOffer({
+      offerId: offer.id,
+      studentId: waiting,
+      response: "accept",
+    });
+    expect(accepted.success).toBe(true);
+
+    for (const studentId of [booker, waiting]) {
+      const after = await phaseProgressFor(studentId);
+      expect(after.twelve).toMatchObject({ isBooked: true, isCompleted: false });
+      expect(after.thirteen).toMatchObject({
+        isBooked: true,
+        isCompleted: false,
+        classId: after.twelve.classId,
+        enrollmentId: after.twelve.enrollmentId,
+      });
+    }
+  });
+
+  it("does not mark rows booked after the pairing is dissolved, cancelled, or malformed", async () => {
+    const { waiting, booker, classId, offer } = await seedBookedWithOffer();
+    const accepted = await respondToOffer({
+      offerId: offer.id,
+      studentId: waiting,
+      response: "accept",
+    });
+    expect(accepted.success).toBe(true);
+
+    await db
+      .update(incarPairedSessions)
+      .set({ status: "dissolved", dissolvedAt: new Date() })
+      .where(eq(incarPairedSessions.id, accepted.pairedSessionId!));
+
+    for (const studentId of [booker, waiting]) {
+      const dissolved = await phaseProgressFor(studentId);
+      expect(dissolved.twelve.isBooked).toBe(false);
+      expect(dissolved.thirteen.isBooked).toBe(false);
+    }
+
+    await db
+      .update(incarPairedSessions)
+      .set({ status: "paired", dissolvedAt: null })
+      .where(eq(incarPairedSessions.id, accepted.pairedSessionId!));
+    await db
+      .update(classEnrollments)
+      .set({ cancelledAt: new Date() })
+      .where(
+        and(
+          eq(classEnrollments.studentId, waiting),
+          eq(classEnrollments.classId, classId),
+        ),
+      );
+
+    const cancelled = await phaseProgressFor(waiting);
+    expect(cancelled.twelve.isBooked).toBe(false);
+    expect(cancelled.thirteen.isBooked).toBe(false);
+
+    await db
+      .update(classes)
+      .set({ duration: 60 })
+      .where(eq(classes.id, classId));
+    const malformed = await phaseProgressFor(booker);
+    expect(malformed.twelve.isBooked).toBe(false);
+    expect(malformed.thirteen.isBooked).toBe(false);
+  });
+
+  it("transitions both included rows from booked to completed after both students attend", async () => {
+    const { waiting, booker, classId, offer } = await seedBookedWithOffer();
+    const accepted = await respondToOffer({
+      offerId: offer.id,
+      studentId: waiting,
+      response: "accept",
+    });
+    expect(accepted.success).toBe(true);
+
+    await db
+      .update(classEnrollments)
+      .set({ attendanceStatus: "attended" })
+      .where(eq(classEnrollments.classId, classId));
+    await db
+      .update(incarPairedSessions)
+      .set({ status: "completed", completedAt: new Date() })
+      .where(eq(incarPairedSessions.id, accepted.pairedSessionId!));
+
+    for (const studentId of [booker, waiting]) {
+      const completed = await phaseProgressFor(studentId);
+      expect(completed.twelve).toMatchObject({ isBooked: false, isCompleted: true });
+      expect(completed.thirteen).toMatchObject({ isBooked: false, isCompleted: true });
+    }
+  });
+
   it("accept enrolls student 2 and creates a paired session", async () => {
     const { waiting, booker, classId, offer } = await seedBookedWithOffer();
 

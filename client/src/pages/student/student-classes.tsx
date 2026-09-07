@@ -1202,6 +1202,7 @@ export default function StudentClasses() {
     queryClient.invalidateQueries({ queryKey: ["/api/student/lesson-pairing/status"] });
     queryClient.invalidateQueries({ queryKey: ["/api/student/classes"] });
     queryClient.invalidateQueries({ queryKey: ["/api/student/classes/available"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/student/phase-progress"] });
   };
 
   const joinQueueMutation = useMutation({
@@ -1477,7 +1478,7 @@ export default function StudentClasses() {
   const getBookState = (classItem: PhaseClassProgress, phase: PhaseProgress): ClassBookState => {
     // Task 272: In-Car #13 is never bookable on its own for auto students — it
     // is awarded together with the combined In-Car 12/13 session.
-    if (isAutoCourse && classItem.classType === "driving" && classItem.classNumber === 13 && !classItem.isCompleted) {
+    if (isAutoCourse && classItem.classType === "driving" && classItem.classNumber === 13 && !classItem.isCompleted && !classItem.isBooked) {
       return { status: "blocked", reason: "Included with lesson 12 (paired In-Car 12/13 session)." };
     }
     return getPhaseClassBookState(classItem, phase, classes, availableClasses);
