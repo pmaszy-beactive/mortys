@@ -1,7 +1,21 @@
 import { defineConfig } from "vitest/config";
+import { transformWithEsbuild } from "vite";
 import path from "path";
 
 export default defineConfig({
+  plugins: [
+    {
+      name: "test-tsx-transform",
+      enforce: "pre",
+      async transform(code, id) {
+        if (!id.endsWith(".tsx")) return;
+        return transformWithEsbuild(code, id, {
+          loader: "tsx",
+          jsx: "automatic",
+        });
+      },
+    },
+  ],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
