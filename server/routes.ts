@@ -56,6 +56,8 @@ import {
   questionImagePath,
 } from "@shared/examData";
 import { getPhaseDefinitionsForCourse, getExternalMilestonesForCourse } from "@shared/phaseConfig";
+import { isAutoPaymentPlan } from "@shared/autoCoursePayment";
+import { buildAutoCourseQuote, paymentSummaryFromQuote } from "./services/auto-course-quote";
 import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum, findCurriculumConflicts, getMotoClassRequirements, getCourseClassRequirements, validateCourseClassConfiguration, splitVirtualEnrollment, VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
 import { validateClassBooking, buildCompletedClasses, mergeScooterTransferCredits, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, isCombined1213Class, type BookingValidationResult } from "@shared/bookingRules";
@@ -8383,6 +8385,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const registrationTokenFromRequest = (req: any): unknown =>
     req.get("X-Registration-Token");
 
+  const onboardingFields = new Set([
+    "firstName", "lastName", "phone", "homePhone", "dateOfBirth", "primaryLanguage",
+    "address", "city", "postalCode", "province", "country", "permitNumber",
+    "learnerPermitNumber", "permitExpiryDate", "referenceNumber", "driverLicenseNumber",
+    "licenseExpiryDate", "emergencyContact", "emergencyPhone", "courseType",
+    "referralSource", "referralDetail", "selectedStartDateId", "autoPaymentPlan",
+    "parentFirstName", "parentLastName", "parentEmail", "parentPhone",
+    "parentRelationship", "parentPermissionLevel",
+  ]);
+
+  const allowedOnboardingData = (value: unknown): Record<string, unknown> =>
+    value && typeof value === "object"
+      ? Object.fromEntries(Object.entries(value).filter(([key]) => onboardingFields.has(key)))
+      : {};
+
   const establishStudentSession = async (req: any, studentId: number) => {
     await new Promise<void>((resolve, reject) => {
       req.session.regenerate((err: Error | null) => {
@@ -8786,6 +8803,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to get onboarding status" });
     }
   });
+
+  app.get("/api/student/onboarding/:registrationId/auto-course-quote", async (req, res) => {
+    try {
+      const registrationId = parseInt(req.params.registrationId);
+      const startDateId = Number(req.query.startDateId);
+      const [registration] = await db.select().from(studentRegistrations)
+        .where(eq(studentRegistrations.id, registrationId)).limit(1);
+      if (!registration) return res.status(404).json({ message: "Registration not found" });
+      if (!hasValidRegistrationToken(registration.onboardingData, registrationTokenFromRequest(req))) {
+        return res.status(403).json({ message: "Registration access has expired. Please verify your email again." });
+      }
+      if (!registration.emailVerified || !registration.passwordSet) {
+        return res.status(400).json({ message: "Please verify your email and create your password first" });
+      }
+      if (!Number.isInteger(startDateId) || startDateId <= 0) {
+        return res.status(400).json({ message: "Please select a valid automobile course date" });
+      }
+      const quote = await buildAutoCourseQuote(startDateId, new Date());
+      if (!quote) {
+        return res.status(409).json({
+          message: "That automobile course date is no longer available. Please choose another date.",
+        });
+      }
+      res.set("Cache-Control", "no-store, max-age=0");
+      return res.json(quote);
+    } catch (error) {
+      captureRequestError(error);
+      console.error("[STUDENT-ONBOARDING] Error fetching automobile quote:", error);
+      return res.status(500).json({ message: "Failed to load automobile course details" });
+    }
+  });
   
   // Update onboarding step data
   app.patch("/api/student/onboarding/:registrationId", async (req, res) => {
@@ -8809,9 +8857,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Please create your password first" });
       }
       
-      // Merge new data with existing onboarding data
+      const acceptedData = allowedOnboardingData(data);
+      if (
+        Object.prototype.hasOwnProperty.call(acceptedData, "autoPaymentPlan") &&
+        !isAutoPaymentPlan(acceptedData.autoPaymentPlan)
+      ) {
+        return res.status(400).json({ message: "Please choose a valid payment plan" });
+      }
+      if (
+        Object.prototype.hasOwnProperty.call(acceptedData, "courseType") &&
+        !["auto", "moto", "scooter"].includes(String(acceptedData.courseType))
+      ) {
+        return res.status(400).json({ message: "Please choose a valid course type" });
+      }
+      if (Object.prototype.hasOwnProperty.call(acceptedData, "selectedStartDateId")) {
+        const selectedId = Number(acceptedData.selectedStartDateId);
+        if (!Number.isInteger(selectedId) || selectedId <= 0) {
+          return res.status(400).json({ message: "Please choose a valid course date" });
+        }
+        acceptedData.selectedStartDateId = selectedId;
+      }
+
+      // Merge only explicitly supported profile fields. Capability and Stripe
+      // metadata already on the registration cannot be overwritten by clients.
       const existingData = registration.onboardingData || {};
-      const updatedData = { ...existingData, ...data };
+      const updatedData: any = { ...existingData, ...acceptedData };
+      if (updatedData.courseType !== "auto") {
+        delete updatedData.autoPaymentPlan;
+        delete updatedData.autoPaymentSummary;
+      } else if (acceptedData.selectedStartDateId !== undefined) {
+        delete updatedData.autoPaymentSummary;
+      }
       
       await db.update(studentRegistrations)
         .set({
@@ -8824,7 +8900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         message: "Onboarding progress saved",
         step,
-        onboardingData: data,
+        onboardingData: acceptedData,
       });
     } catch (error) {
       captureRequestError(error);
@@ -8895,6 +8971,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (missingFields.length > 0) {
         return res.status(400).json({ message: `Missing required fields: ${missingFields.join(', ')}` });
       }
+
+      if (data.autoPaymentPlan !== undefined && !isAutoPaymentPlan(data.autoPaymentPlan)) {
+        return res.status(400).json({ message: "Please choose a valid payment plan" });
+      }
+      let autoPaymentSummary: ReturnType<typeof paymentSummaryFromQuote> | undefined;
+      if (data.courseType === "auto" && data.autoPaymentPlan !== undefined) {
+        if (!Number.isInteger(data.selectedStartDateId)) {
+          return res.status(400).json({ message: "Please choose an available automobile course date" });
+        }
+        const quote = await buildAutoCourseQuote(
+          data.selectedStartDateId,
+          new Date(),
+        );
+        if (!quote) {
+          return res.status(409).json({
+            message: "That automobile course date is no longer available. Please choose another date.",
+          });
+        }
+        autoPaymentSummary = paymentSummaryFromQuote(quote, data.autoPaymentPlan);
+      }
       
       // Create the student record
       // Student creation and the completed marker are one transaction. The
@@ -8927,12 +9023,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         referralSource: data.referralSource || null,
         referralDetail: data.referralDetail || null,
         selectedStartDateId: data.selectedStartDateId || null,
+        paymentPlan: data.courseType === "auto" ? data.autoPaymentPlan || null : null,
         }).onConflictDoNothing({ target: students.email }).returning();
         if (!createdStudent) {
           throw new Error("STUDENT_EMAIL_CONFLICT");
         }
         await tx.update(studentRegistrations)
-          .set({ onboardingCompleted: true, updatedAt: new Date() })
+          .set({
+            onboardingCompleted: true,
+            onboardingData: autoPaymentSummary
+              ? { ...data, autoPaymentSummary }
+              : data,
+            updatedAt: new Date(),
+          })
           .where(and(
             eq(studentRegistrations.id, registrationId),
             eq(studentRegistrations.onboardingCompleted, false),

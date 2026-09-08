@@ -1537,6 +1537,15 @@ export const studentRegistrations = pgTable("student_registrations", {
     referralDetail?: string;
     // Chosen Module 1 start date
     selectedStartDateId?: number;
+    autoPaymentPlan?: "full" | "three" | "six";
+    autoPaymentSummary?: {
+      plan: "full" | "three" | "six";
+      currency: "CAD";
+      totalCents: number;
+      selectedStartDateId: number;
+      classId: number;
+      installments: { dueDate: string; amountCents: number }[];
+    };
     // Optional parent/guardian
     parentFirstName?: string;
     parentLastName?: string;

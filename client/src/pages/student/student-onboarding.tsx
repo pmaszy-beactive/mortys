@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, User, MapPin, Phone, Car, Bike, Upload, CheckCircle, ChevronRight, ChevronLeft, Video, Users, CalendarDays, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { AutoCourseSummary, type AutoCourseQuote } from "@/components/student/auto-course-summary";
 
 const step1Schema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -43,12 +44,21 @@ const step5Schema = z.object({
   referralSource: z.string().optional(),
   referralDetail: z.string().optional(),
   selectedStartDateId: z.string().optional(),
+  autoPaymentPlan: z.enum(["full", "three", "six"]).optional(),
   parentFirstName: z.string().optional(),
   parentLastName: z.string().optional(),
   parentEmail: z.string().email("Please enter a valid email").optional().or(z.literal("")),
   parentPhone: z.string().optional(),
   parentRelationship: z.string().optional(),
   parentPermissionLevel: z.string().optional(),
+}).superRefine((data, context) => {
+  if (data.courseType === "auto" && data.selectedStartDateId && !data.autoPaymentPlan) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["autoPaymentPlan"],
+      message: "Please choose a payment plan",
+    });
+  }
 });
 
 type OnboardingData = {
@@ -75,6 +85,7 @@ type OnboardingData = {
   referralSource?: string;
   referralDetail?: string;
   selectedStartDateId?: number | string;
+  autoPaymentPlan?: "full" | "three" | "six";
   parentFirstName?: string;
   parentLastName?: string;
   parentEmail?: string;
@@ -197,6 +208,7 @@ export default function StudentOnboarding() {
       referralSource: formData.referralSource || "",
       referralDetail: formData.referralDetail || "",
       selectedStartDateId: formData.selectedStartDateId ? String(formData.selectedStartDateId) : "",
+      autoPaymentPlan: formData.autoPaymentPlan,
       parentFirstName: formData.parentFirstName || "",
       parentLastName: formData.parentLastName || "",
       parentEmail: formData.parentEmail || "",
@@ -207,6 +219,7 @@ export default function StudentOnboarding() {
   });
 
   const selectedCourseType = step5Form.watch("courseType");
+  const selectedStartDateId = step5Form.watch("selectedStartDateId");
   const selectedReferralSource = step5Form.watch("referralSource");
 
   const { data: startDates = [], isLoading: isStartDatesLoading } = useQuery<CourseStartDate[]>({
@@ -219,6 +232,26 @@ export default function StudentOnboarding() {
       if (!res.ok) return [];
       return res.json();
     },
+  });
+
+  const {
+    data: autoCourseQuote,
+    isLoading: isAutoCourseQuoteLoading,
+    error: autoCourseQuoteError,
+  } = useQuery<AutoCourseQuote>({
+    queryKey: ["/api/student/onboarding/auto-course-quote", registrationId, selectedStartDateId],
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/student/onboarding/${registrationId}/auto-course-quote?startDateId=${encodeURIComponent(selectedStartDateId!)}`,
+        { headers: { "X-Registration-Token": registrationToken! } },
+      );
+      if (!res.ok) {
+        throw new Error((await res.json().catch(() => null))?.message || "Failed to load automobile course details");
+      }
+      return res.json();
+    },
+    enabled: selectedCourseType === "auto" && !!selectedStartDateId && !!registrationToken,
+    retry: false,
   });
 
   useEffect(() => {
@@ -253,6 +286,7 @@ export default function StudentOnboarding() {
         referralSource: formData.referralSource || "",
         referralDetail: formData.referralDetail || "",
         selectedStartDateId: formData.selectedStartDateId ? String(formData.selectedStartDateId) : "",
+        autoPaymentPlan: formData.autoPaymentPlan,
         parentFirstName: formData.parentFirstName || "",
         parentLastName: formData.parentLastName || "",
         parentEmail: formData.parentEmail || "",
@@ -742,7 +776,14 @@ export default function StudentOnboarding() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Select Your Course *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              step5Form.setValue("selectedStartDateId", "");
+                              step5Form.setValue("autoPaymentPlan", undefined);
+                            }}
+                            value={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger data-testid="select-course">
                                 <SelectValue placeholder="Choose a course type" />
@@ -841,7 +882,12 @@ export default function StudentOnboarding() {
                                       role="radio"
                                       aria-checked={isSelected}
                                       aria-label={`${formatDate(date)}${date.startTime ? ` at ${date.startTime}` : ""}${isSelected ? ", selected" : ""}`}
-                                      onClick={() => field.onChange(String(date.id))}
+                                      onClick={() => {
+                                        if (field.value !== String(date.id)) {
+                                          step5Form.setValue("autoPaymentPlan", undefined);
+                                        }
+                                        field.onChange(String(date.id));
+                                      }}
                                       data-testid={isInitialOption ? `start-date-box-${date.id}` : `later-start-date-box-${date.id}`}
                                       data-status={date.status}
                                       className={`touch-manipulation min-h-[76px] rounded-lg border-2 px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-2 ${
@@ -884,6 +930,29 @@ export default function StudentOnboarding() {
                       );
                     }}
                   />
+
+                  {selectedCourseType === "auto" && selectedStartDateId && (
+                    <FormField
+                      control={step5Form.control}
+                      name="autoPaymentPlan"
+                      render={({ field }) => (
+                        <FormItem>
+                          <AutoCourseSummary
+                            quote={
+                              autoCourseQuote?.startDateId === Number(selectedStartDateId)
+                                ? autoCourseQuote
+                                : undefined
+                            }
+                            loading={isAutoCourseQuoteLoading}
+                            error={autoCourseQuoteError instanceof Error ? autoCourseQuoteError.message : undefined}
+                            selectedPlan={field.value}
+                            onPlanChange={field.onChange}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
 
                   <FormField
                     control={step5Form.control}

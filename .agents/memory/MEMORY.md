@@ -9,6 +9,7 @@
 - [Registration card capture](registration-card-capture.md) — registrationId-keyed public endpoints need a capability token; SetupIntent card-only; atomic transfer at onboarding; classNumber>1 booking gate.
 - [Registration course selection](registration-course-selection.md) — public start-date choices must resolve to a future scheduled Theory 1 class with live capacity.
 - [Registration authentication flow](registration-auth-flow.md) — OTP issues a capability, password is set before onboarding, and completion auto-authenticates without activation email.
+- [Registration payment terms](registration-payment-terms.md) — books quote rounding differs from generic tax; installment timing is a display default, not authorization to charge.
 - [Auto course phase rules](auto-course-phase-rules.md) — auto-only phase rules, 3h/day caller coverage, planner anchors, and additive Phase 1 testing time that never rewrites attendance.
 - [Scooter curriculum](scooter-curriculum.md) — exactly one 3-hour theory plus one 3-hour practical; no Auto/Moto phases or extra session numbers.
 - [Moto curriculum](moto-curriculum.md) — real program 2 theory + 4 closed-circuit + 3 road; closed-circuit gated on Theory 1 AND recorded 6R pass; every rules-engine call site must pass the 6R flag.
