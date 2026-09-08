@@ -42,7 +42,8 @@
  *       (via isCombined1213Class in buildCompletedClasses — no extra rows)
  *
  *   Day-of solo conversion (convertPresentStudentToSolo)
- *     → creates NEW 60-min class + enrollment for present student (In-Car 11|14)
+ *     → creates NEW consecutive 60-min classes + enrollments for the present
+ *       student (In-Car 11 followed by In-Car 14)
  *     → present student queue entry → converted_solo
  *     → absent student enrollment kept (no-show fee charged separately)
  *     → absent student queue entry → re-queued back to 'waiting'
@@ -2643,11 +2644,21 @@ async function deferBookedStudent(params: {
 
 export interface SoloConversionResult {
   success: boolean;
-  newClassId?: number;
-  newEnrollmentId?: number;
+  newClassIds?: number[];
+  newEnrollmentIds?: number[];
   reason?: string;
 }
 
+export function addMinutesToClassTime(time: string | null | undefined, minutes: number): string | null {
+  const match = /^(\d{1,2}):(\d{2})$/.exec(time ?? "");
+  if (!match) return null;
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+  if (hour > 23 || minute > 59) return null;
+  const total = hour * 60 + minute + minutes;
+  if (total < 0 || total >= 24 * 60) return null;
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+}
 /**
  * Pure server-side gate for day-of solo conversion (Task 272, review round 4).
  *
@@ -2655,7 +2666,8 @@ export interface SoloConversionResult {
  *  (1) The class has STARTED — conversion is valid only from the class start
  *      time onward (classStart <= now). A missing/unparseable start ⇒ blocked.
  *  (2) The present student's enrollment is still active (not cancelled).
- *  (3) The partner's enrollment is marked 'absent' or 'no-show'.
+ *  (3) The present student is marked checked-in/attended.
+ *  (4) The partner's enrollment is marked 'absent' or 'no-show'.
  *
  * Returns { ok: true } when all gates pass, else { ok: false, reason } with a
  * caller-facing message. Exported so the transactional path and tests share
@@ -2666,6 +2678,7 @@ export function evaluateSoloConversionGates(input: {
   nowMs: number;
   presentEnrollmentCancelled: boolean;
   presentEnrollmentExists: boolean;
+  presentAttendanceStatus: string | null | undefined;
   partnerAttendanceStatus: string | null | undefined;
   partnerEnrollmentExists: boolean;
 }): { ok: true } | { ok: false; reason: string } {
@@ -2674,6 +2687,12 @@ export function evaluateSoloConversionGates(input: {
   }
   if (!input.presentEnrollmentExists || input.presentEnrollmentCancelled) {
     return { ok: false, reason: "Present student enrollment is not active." };
+  }
+  if (
+    input.presentAttendanceStatus !== "checked_in" &&
+    input.presentAttendanceStatus !== "attended"
+  ) {
+    return { ok: false, reason: "Present student has not been marked as attending." };
   }
   if (
     !input.partnerEnrollmentExists ||
@@ -2688,9 +2707,9 @@ export function evaluateSoloConversionGates(input: {
 /**
  * Day-of conversion: the partner did not show.
  *
- * - Creates a NEW 60-minute solo class (same instructor, same date/time as
- *   the original) with classNumber = targetSessionNumber (11 or 14).
- * - Enrolls the present student in this new class and marks them 'attended'.
+ * - Creates two NEW 60-minute solo classes with the same instructor/date:
+ *   In-Car #11 at the original start, then In-Car #14 one hour later.
+ * - Enrolls the present student in both and marks both 'attended'.
  * - Present student queue entry → 'converted_solo'.
  * - Absent student's original enrollment is kept (no-show; fee charged
  *   separately by the caller via chargeNoShowFee).
@@ -2700,21 +2719,19 @@ export function evaluateSoloConversionGates(input: {
 export async function convertPresentStudentToSolo(params: {
   pairedSessionId: number;
   presentEnrollmentId: number;
-  targetSessionNumber: 11 | 14;
   actorId?: string;
   actorRole?: string;
+  testHooks?: {
+    beforeSecondLesson?: () => Promise<void>;
+  };
 }): Promise<SoloConversionResult> {
   const {
     pairedSessionId,
     presentEnrollmentId,
-    targetSessionNumber,
     actorId = "admin",
     actorRole = "admin",
+    testHooks,
   } = params;
-
-  if (targetSessionNumber !== 11 && targetSessionNumber !== 14) {
-    return { success: false, reason: "Solo conversion only allowed to In-Car #11 or #14." };
-  }
 
   return db.transaction(async (tx) => {
     const [session] = await tx
@@ -2749,8 +2766,25 @@ export async function convertPresentStudentToSolo(params: {
       await tx.execute(sql`SELECT pg_advisory_xact_lock(${LOCK_NS}, ${sid})`);
     }
 
-    // Verify target session not already completed by present student
-    const [alreadyDone] = await tx
+    // The first lookup identifies which students to lock. Re-read the session
+    // under a row lock after those advisory locks so two simultaneous
+    // conversions cannot both proceed from the same stale active status.
+    const [lockedSession] = await tx
+      .select()
+      .from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, pairedSessionId))
+      .for("update")
+      .limit(1);
+    if (!lockedSession || !["paired", "confirmed"].includes(lockedSession.status)) {
+      return {
+        success: false,
+        reason: `Session status is '${lockedSession?.status ?? "missing"}'; can only convert active sessions.`,
+      };
+    }
+
+    // Both credits are one atomic outcome, so reject before mutating if either
+    // lesson has already been completed.
+    const alreadyDone = await tx
       .select()
       .from(classEnrollments)
       .innerJoin(classes, eq(classEnrollments.classId, classes.id))
@@ -2758,15 +2792,16 @@ export async function convertPresentStudentToSolo(params: {
         and(
           eq(classEnrollments.studentId, presentStudentId),
           eq(classes.classType, "driving"),
-          eq(classes.classNumber, targetSessionNumber),
+          inArray(classes.classNumber, [11, 14]),
           eq(classEnrollments.attendanceStatus, "attended"),
           isNull(classEnrollments.cancelledAt),
         ),
       )
-      .limit(1);
+      .limit(2);
 
-    if (alreadyDone) {
-      return { success: false, reason: `In-Car #${targetSessionNumber} already completed.` };
+    if (alreadyDone.length > 0) {
+      const completedNumber = alreadyDone[0].classes.classNumber;
+      return { success: false, reason: `In-Car #${completedNumber} already completed.` };
     }
 
     // Load the original class to copy instructor/date/time
@@ -2805,11 +2840,17 @@ export async function convertPresentStudentToSolo(params: {
       nowMs: Date.now(),
       presentEnrollmentExists: !!presentEnrollment,
       presentEnrollmentCancelled: !!presentEnrollment?.cancelledAt,
+      presentAttendanceStatus: presentEnrollment?.attendanceStatus ?? null,
       partnerEnrollmentExists: !!absentEnrollment,
       partnerAttendanceStatus: absentEnrollment?.attendanceStatus ?? null,
     });
     if (!gate.ok) {
       return { success: false, reason: gate.reason };
+    }
+
+    const lesson14Time = addMinutesToClassTime(origClass.time, 60);
+    if (!lesson14Time) {
+      return { success: false, reason: "Original class time cannot support a second consecutive lesson." };
     }
 
     // Atomically CANCEL the present student's original combined 12/13
@@ -2822,15 +2863,18 @@ export async function convertPresentStudentToSolo(params: {
       .set({ cancelledAt: new Date(), attendanceStatus: "absent" })
       .where(eq(classEnrollments.id, presentEnrollmentId));
 
-    // Create a new 60-minute solo class
-    const [newClass] = await tx
-      .insert(classes)
-      .values({
+    const newClasses: Array<typeof classes.$inferSelect> = [];
+    const newEnrollments: Array<typeof classEnrollments.$inferSelect> = [];
+    const conversionLessons: readonly [11, 14] = [11, 14];
+    for (let index = 0; index < conversionLessons.length; index += 1) {
+      const lesson = conversionLessons[index];
+      if (index === 1) await testHooks?.beforeSecondLesson?.();
+      const [newClass] = await tx.insert(classes).values({
         courseType: origClass.courseType ?? "auto",
         classType: "driving",
-        classNumber: targetSessionNumber,
+        classNumber: lesson,
         date: origClass.date,
-        time: origClass.time,
+        time: lesson === 11 ? origClass.time : lesson14Time,
         duration: 60,
         instructorId: origClass.instructorId,
         vehicleId: origClass.vehicleId,
@@ -2839,18 +2883,15 @@ export async function convertPresentStudentToSolo(params: {
         lessonType: "regular",
         isExtra: false,
         room: origClass.room,
-      })
-      .returning();
-
-    // Enroll present student in the new class, mark attended
-    const [newEnrollment] = await tx
-      .insert(classEnrollments)
-      .values({
+      }).returning();
+      const [newEnrollment] = await tx.insert(classEnrollments).values({
         classId: newClass.id,
         studentId: presentStudentId,
         attendanceStatus: "attended",
-      })
-      .returning();
+      }).returning();
+      newClasses.push(newClass);
+      newEnrollments.push(newEnrollment);
+    }
 
     // Update present student queue entry
     await tx
@@ -2875,7 +2916,7 @@ export async function convertPresentStudentToSolo(params: {
       .set({
         status: "dissolved",
         dissolvedAt: new Date(),
-        dissolutionReason: "Day-of no-show; present student converted to solo",
+        dissolutionReason: "Day-of no-show; present student converted to In-Car 11 and 14",
         updatedAt: new Date(),
       })
       .where(eq(incarPairedSessions.id, pairedSessionId));
@@ -2885,15 +2926,15 @@ export async function convertPresentStudentToSolo(params: {
       pairedSessionId,
       queueEntryId: presentQueueEntryId,
       studentId: presentStudentId,
-      classId: newClass.id,
+      classId: newClasses[0].id,
       actorId,
       actorRole,
-      previousStatus: session.status,
+      previousStatus: lockedSession.status,
       newStatus: "converted_solo",
       details: {
-        targetSessionNumber,
-        newClassId: newClass.id,
-        newEnrollmentId: newEnrollment.id,
+        targetSessionNumbers: [11, 14],
+        newClassIds: newClasses.map((row) => row.id),
+        newEnrollmentIds: newEnrollments.map((row) => row.id),
         absentStudentId,
         originalClassId: session.classId,
       },
@@ -2913,16 +2954,15 @@ export async function convertPresentStudentToSolo(params: {
     // Notify the present student of their solo conversion (fire-and-forget).
     notifyLessonConverted({
       studentId: presentStudentId,
-      newClassId: newClass.id,
-      targetSessionNumber,
+      newClassIds: newClasses.map((row) => row.id),
     }).catch((err) =>
       console.error("[incar-pairing] lesson-converted notification error:", err),
     );
 
     return {
       success: true,
-      newClassId: newClass.id,
-      newEnrollmentId: newEnrollment.id,
+      newClassIds: newClasses.map((row) => row.id),
+      newEnrollmentIds: newEnrollments.map((row) => row.id),
     };
   });
 }
@@ -2931,11 +2971,10 @@ export async function convertPresentStudentToSolo(params: {
 export async function convertToSoloLesson(params: {
   queueEntryId: number;
   studentId: number;
-  targetSessionNumber: 11 | 14;
   actorId?: string;
   actorRole?: string;
 }): Promise<SoloConversionResult> {
-  const { queueEntryId, studentId, targetSessionNumber, actorId, actorRole } = params;
+  const { queueEntryId, studentId, actorId, actorRole } = params;
 
   // Look up the paired session for this queue entry
   const entry = await db
@@ -2975,7 +3014,6 @@ export async function convertToSoloLesson(params: {
   return convertPresentStudentToSolo({
     pairedSessionId: ps.id,
     presentEnrollmentId,
-    targetSessionNumber,
     actorId,
     actorRole,
   });
@@ -3807,28 +3845,27 @@ async function notifyDeferral(studentId: number): Promise<void> {
 /** Sent to the present student after a day-of solo conversion. */
 async function notifyLessonConverted(params: {
   studentId: number;
-  newClassId: number;
-  targetSessionNumber: 11 | 14;
+  newClassIds: number[];
 }): Promise<void> {
-  const { studentId, newClassId, targetSessionNumber } = params;
+  const { studentId, newClassIds } = params;
   const recipients = await getStudentRecipients(studentId);
   if (recipients.length === 0) return;
 
   const [cls] = await db
     .select()
     .from(classes)
-    .where(eq(classes.id, newClassId))
+    .where(eq(classes.id, newClassIds[0]))
     .limit(1);
 
   await enqueueNotification({
     type: "incar_lesson_converted",
-    title: `In-Car Lesson Converted to Solo In-Car #${targetSessionNumber}`,
+    title: "In-Car Session Converted to Lessons #11 and #14",
     message:
       `Because your pairing partner did not attend, your In-Car #12/13 session was ` +
-      `converted to a solo 60-minute In-Car #${targetSessionNumber} lesson` +
+      `converted to two solo 60-minute lessons: In-Car #11 followed by In-Car #14` +
       `${cls?.date ? ` on ${cls.date} at ${cls.time ?? ""}` : ""}. ` +
       `Your progress has been recorded accordingly.`,
-    payload: { studentId, newClassId, targetSessionNumber },
+    payload: { studentId, newClassIds, targetSessionNumbers: [11, 14] },
     recipients,
   });
 }

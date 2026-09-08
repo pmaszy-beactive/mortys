@@ -18,9 +18,10 @@
  * Notifications are mocked out (they are fire-and-forget in production and
  * would otherwise write notification rows / attempt email sends).
  */
-import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeAll, afterAll, vi } from "vitest";
 import express from "express";
 import request from "supertest";
+import bcrypt from "bcryptjs";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 
 vi.mock("../services/notifications", () => ({
@@ -48,6 +49,7 @@ import {
   incarPairingOffers,
   incarSessionConfirmations,
   incarPairingAudit,
+  users,
 } from "@shared/schema";
 import {
   bookCombinedSlot,
@@ -56,6 +58,7 @@ import {
   respondToOffer,
   processPairingLifecycle,
   hasQualifyingPhase4IncarOffer,
+  convertPresentStudentToSolo,
 } from "../services/incar-pairing";
 
 // ─── Seed helpers ─────────────────────────────────────────────────────────────
@@ -64,12 +67,36 @@ const createdStudentIds: number[] = [];
 const createdClassIds: number[] = [];
 let uniq = 0;
 let app: express.Express;
+let adminCookie: string;
+let adminUserId: string | null = null;
 
 beforeAll(async () => {
   app = express();
   app.use(express.json());
   await registerRoutes(app);
+  const tag = `${Date.now()}_${uniq++}`;
+  const [admin] = await db
+    .insert(users)
+    .values({
+      email: `incar-conversion-admin-${tag}@example.test`,
+      firstName: "Pairing",
+      lastName: "Admin",
+      role: "admin",
+      password: await bcrypt.hash("pairing-test-password", 10),
+    } as any)
+    .returning({ id: users.id, email: users.email });
+  adminUserId = admin.id;
+  const login = await request(app)
+    .post("/api/auth/login")
+    .set("X-Forwarded-Proto", "https")
+    .send({ username: admin.email, password: "pairing-test-password" });
+  expect(login.status).toBe(200);
+  adminCookie = login.headers["set-cookie"][0].split(";")[0];
 }, 60_000);
+
+afterAll(async () => {
+  if (adminUserId) await db.delete(users).where(eq(users.id, adminUserId));
+});
 
 /** Create an eligible auto student (Theory #11 attended). */
 async function createStudent(opts: { eligible?: boolean } = {}): Promise<number> {
@@ -636,6 +663,171 @@ describe("respondToOffer (live DB)", () => {
 });
 
 // ─── leaveCombinedQueue ───────────────────────────────────────────────────────
+
+async function seedStartedPairedSession() {
+  const waiting = await createStudent();
+  const booker = await createStudent();
+  const classId = await createCombinedClass({
+    date: "2026-01-10",
+    time: "10:00",
+    status: "scheduled",
+  });
+  await joinCombinedQueue({ studentId: waiting });
+  await bookCombinedSlot({ studentId: booker, classId });
+  const [offer] = await pendingOffersFor(classId);
+  const accepted = await respondToOffer({
+    offerId: offer.id,
+    studentId: waiting,
+    response: "accept",
+  });
+  const [session] = await db
+    .select()
+    .from(incarPairedSessions)
+    .where(eq(incarPairedSessions.id, accepted.pairedSessionId!));
+  await db
+    .update(classEnrollments)
+    .set({ attendanceStatus: "attended" })
+    .where(eq(classEnrollments.id, session.enrollmentIdA!));
+  await db
+    .update(classEnrollments)
+    .set({ attendanceStatus: "no-show" })
+    .where(eq(classEnrollments.id, session.enrollmentIdB!));
+  return { waiting, booker, classId, session };
+}
+
+describe("convertPresentStudentToSolo (live DB)", () => {
+  it("exposes the two-lesson conversion through the authenticated API", async () => {
+    const { session } = await seedStartedPairedSession();
+
+    const response = await request(app)
+      .post(`/api/lesson-pairing/sessions/${session.id}/convert`)
+      .set("Cookie", adminCookie)
+      .send({
+        presentEnrollmentId: session.enrollmentIdA,
+        targetLessonNumber: 11,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.newClassIds).toHaveLength(2);
+    expect(response.body.newEnrollmentIds).toHaveLength(2);
+  });
+
+  it("atomically records attended In-Car 11 followed by In-Car 14", async () => {
+    const { waiting, booker, session } = await seedStartedPairedSession();
+
+    const result = await convertPresentStudentToSolo({
+      pairedSessionId: session.id,
+      presentEnrollmentId: session.enrollmentIdA!,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.newClassIds).toHaveLength(2);
+    expect(result.newEnrollmentIds).toHaveLength(2);
+
+    const lessons = await db
+      .select({
+        classNumber: classes.classNumber,
+        time: classes.time,
+        duration: classes.duration,
+        attendanceStatus: classEnrollments.attendanceStatus,
+      })
+      .from(classEnrollments)
+      .innerJoin(classes, eq(classEnrollments.classId, classes.id))
+      .where(
+        and(
+          eq(classEnrollments.studentId, booker),
+          inArray(classes.id, result.newClassIds!),
+        ),
+      );
+    expect(lessons).toEqual([
+      { classNumber: 11, time: "10:00", duration: 60, attendanceStatus: "attended" },
+      { classNumber: 14, time: "11:00", duration: 60, attendanceStatus: "attended" },
+    ]);
+
+    const [original] = await db
+      .select()
+      .from(classEnrollments)
+      .where(eq(classEnrollments.id, session.enrollmentIdA!));
+    expect(original.cancelledAt).not.toBeNull();
+
+    const [absentEntry] = await queueEntryFor(waiting);
+    expect(absentEntry.status).toBe("waiting");
+    expect(absentEntry.priority).toBe(100);
+  });
+
+  it("allows only one winner when two conversion requests run together", async () => {
+    const { booker, session } = await seedStartedPairedSession();
+
+    const results = await Promise.all([
+      convertPresentStudentToSolo({
+        pairedSessionId: session.id,
+        presentEnrollmentId: session.enrollmentIdA!,
+      }),
+      convertPresentStudentToSolo({
+        pairedSessionId: session.id,
+        presentEnrollmentId: session.enrollmentIdA!,
+      }),
+    ]);
+
+    expect(results.filter((result) => result.success)).toHaveLength(1);
+    const creditedLessons = await db
+      .select({ classNumber: classes.classNumber })
+      .from(classEnrollments)
+      .innerJoin(classes, eq(classEnrollments.classId, classes.id))
+      .where(
+        and(
+          eq(classEnrollments.studentId, booker),
+          inArray(classes.classNumber, [11, 14]),
+          eq(classes.classType, "driving"),
+          eq(classEnrollments.attendanceStatus, "attended"),
+          isNull(classEnrollments.cancelledAt),
+        ),
+      );
+    expect(creditedLessons.map((row) => row.classNumber).sort()).toEqual([11, 14]);
+  });
+
+  it("rolls back the cancellation and first lesson if the second lesson fails", async () => {
+    const { booker, session } = await seedStartedPairedSession();
+
+    await expect(
+      convertPresentStudentToSolo({
+        pairedSessionId: session.id,
+        presentEnrollmentId: session.enrollmentIdA!,
+        testHooks: {
+          beforeSecondLesson: async () => {
+            throw new Error("forced second lesson failure");
+          },
+        },
+      }),
+    ).rejects.toThrow("forced second lesson failure");
+
+    const [original] = await db
+      .select()
+      .from(classEnrollments)
+      .where(eq(classEnrollments.id, session.enrollmentIdA!));
+    expect(original.cancelledAt).toBeNull();
+    expect(original.attendanceStatus).toBe("attended");
+
+    const createdLessons = await db
+      .select({ id: classes.id })
+      .from(classEnrollments)
+      .innerJoin(classes, eq(classEnrollments.classId, classes.id))
+      .where(
+        and(
+          eq(classEnrollments.studentId, booker),
+          inArray(classes.classNumber, [11, 14]),
+          eq(classes.classType, "driving"),
+        ),
+      );
+    expect(createdLessons).toHaveLength(0);
+
+    const [sessionAfter] = await db
+      .select()
+      .from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, session.id));
+    expect(sessionAfter.status).toBe("paired");
+  });
+});
 
 describe("leaveCombinedQueue (live DB)", () => {
   it("booked_first leaver cancels enrollment, withdraws the outstanding offer, and returns candidate to waiting", async () => {

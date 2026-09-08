@@ -25,6 +25,7 @@ import {
   decideRequeueAction,
   applyOfferTransition,
   evaluateSoloConversionGates,
+  addMinutesToClassTime,
   decideBookedFirstTeardown,
   decideAcceptGuard,
   decideBothConfirmedTransition,
@@ -780,57 +781,13 @@ describe("Offer expiry", () => {
   });
 });
 
-// ─── Solo conversion eligibility (pure) ───────────────────────────────────────
-
-describe("Solo conversion eligibility", () => {
-  function canConvert(
-    target: number,
-    enrollments: MockEnrollment[],
-  ): { allowed: boolean; reason?: string } {
-    if (target !== 11 && target !== 14) {
-      return { allowed: false, reason: "Solo conversion only allowed to In-Car #11 or #14." };
-    }
-    const done = enrollments.some(
-      (e) =>
-        e.classType === "driving" &&
-        e.classNumber === target &&
-        e.attendanceStatus === "attended" &&
-        !e.cancelledAt,
-    );
-    if (done) return { allowed: false, reason: `In-Car #${target} already completed.` };
-    return { allowed: true };
-  }
-
-  it("allows conversion to In-Car 11 when not done", () => {
-    expect(canConvert(11, []).allowed).toBe(true);
+describe("consecutive conversion lesson times", () => {
+  it("places Lesson 14 one hour after Lesson 11", () => {
+    expect(addMinutesToClassTime("10:30", 60)).toBe("11:30");
   });
 
-  it("allows conversion to In-Car 14 when not done", () => {
-    expect(canConvert(14, []).allowed).toBe(true);
-  });
-
-  it("rejects conversion to In-Car 12 (invalid target)", () => {
-    expect(canConvert(12, []).allowed).toBe(false);
-  });
-
-  it("rejects conversion to In-Car 13 (invalid target)", () => {
-    expect(canConvert(13, []).allowed).toBe(false);
-  });
-
-  it("blocks when In-Car 11 already completed", () => {
-    const enr: MockEnrollment[] = [
-      { classType: "driving", classNumber: 11, attendanceStatus: "attended", cancelledAt: null },
-    ];
-    const r = canConvert(11, enr);
-    expect(r.allowed).toBe(false);
-    expect(r.reason).toContain("already completed");
-  });
-
-  it("allows when In-Car 11 attendance is cancelled", () => {
-    const enr: MockEnrollment[] = [
-      { classType: "driving", classNumber: 11, attendanceStatus: "attended", cancelledAt: new Date() },
-    ];
-    expect(canConvert(11, enr).allowed).toBe(true);
+  it("rejects a second lesson that would cross midnight", () => {
+    expect(addMinutesToClassTime("23:30", 60)).toBeNull();
   });
 });
 
@@ -1392,6 +1349,7 @@ describe("evaluateSoloConversionGates (server-side conversion gate)", () => {
     nowMs: NOW,
     presentEnrollmentExists: true,
     presentEnrollmentCancelled: false,
+    presentAttendanceStatus: "attended",
     partnerEnrollmentExists: true,
     partnerAttendanceStatus: "no-show" as string | null,
   };
@@ -1433,6 +1391,12 @@ describe("evaluateSoloConversionGates (server-side conversion gate)", () => {
     const r = evaluateSoloConversionGates({ ...validBase, presentEnrollmentExists: false });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.reason).toBe("Present student enrollment is not active.");
+  });
+
+  it("rejects when the selected student is not marked as attending", () => {
+    const r = evaluateSoloConversionGates({ ...validBase, presentAttendanceStatus: "registered" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.reason).toBe("Present student has not been marked as attending.");
   });
 
   it("rejects when the partner has NOT been marked as a no-show (registered)", () => {

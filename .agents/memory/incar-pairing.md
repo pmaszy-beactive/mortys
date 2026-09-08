@@ -7,7 +7,7 @@ description: Design invariants for the combined In-Car 12/13 paired-lesson queue
 - **Why:** the expansion silently never fires if capacity or course type is missing from the enrollment rows fed into completed-class computation — every new call site must supply them.
 - **How to apply:** treat missing duration/maxStudents/courseType as non-canonical everywhere; never relax the predicate.
 - All pairing state transitions must follow one lock protocol: student advisory locks, then the class row FOR UPDATE, then re-read and status-guard before mutating; offer transitions are conditional UPDATE ... WHERE status='pending' claims — zero rows means another actor won, abort without side effects.
-- Completion requires BOTH enrollments attended; day-of solo conversion is gated on class start passed + partner marked absent/no-show, and cancels the present student's combined enrollment so 12/13 can never be awarded from a converted session.
+- Completion requires BOTH enrollments attended; no-show conversion requires the selected student checked-in/attended and the partner absent/no-show, then atomically awards consecutive solo #11 and #14 while cancelling combined credit.
 - Deferral returns the student to `waiting` with a priority boost (no terminal 'deferred' state) so they remain offerable.
 - A pending, unexpired offer must survive confirmation-horizon lifecycle sweeps until the school-local class start; the receiving student can accept it any time before start.
 - **Why:** withdrawing a live offer at the 24-hour horizon made the notification action fail with “Offer is no longer available” even though the class had not begun.

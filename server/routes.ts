@@ -17474,15 +17474,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!Number.isInteger(presentEnrollmentId) || presentEnrollmentId <= 0) {
           return res.status(400).json({ message: "Invalid presentEnrollmentId" });
         }
-        const targetLessonNumber = parseInt(String(req.body?.targetLessonNumber));
-        if (targetLessonNumber !== 11 && targetLessonNumber !== 14) {
-          return res.status(400).json({ message: "targetLessonNumber must be 11 or 14" });
-        }
         const actor = req.admin ?? req.instructor ?? req.user;
         const result = await convertPresentStudentToSolo({
           pairedSessionId,
           presentEnrollmentId,
-          targetSessionNumber: targetLessonNumber,
           actorId: actor?.id != null ? String(actor.id) : undefined,
           actorRole: req.instructor ? "instructor" : "admin",
         });

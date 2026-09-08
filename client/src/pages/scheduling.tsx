@@ -12,6 +12,7 @@ import { getCourseClassCounts } from "@shared/bookingRules";
 import { MOTO_SCOOTER_PRACTICAL_MAX_STUDENTS } from "@shared/curriculumPlanner";
 import { Plus, Calendar, ChevronLeft, ChevronRight, Car, Bike, Users, Edit, Eye, X, Sparkles, CalendarClock, BookOpen, MapPin, AlertTriangle, Clock, GripVertical, Wand2, Loader2, Scissors, Link2 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { buildNoShowConversionRequest } from "@/lib/incar-pairing-conversion";
 import { useToast } from "@/hooks/use-toast";
 import ClassForm from "@/components/class-form";
 import SeriesManager from "@/components/series-manager";
@@ -519,7 +520,6 @@ export default function Scheduling() {
   // Convert-to-solo dialog state
   const [convertSession, setConvertSession] = useState<PairedSession | null>(null);
   const [convertEnrollmentId, setConvertEnrollmentId] = useState<string>("");
-  const [convertLessonNumber, setConvertLessonNumber] = useState<string>("11");
 
   const invalidatePairing = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/lesson-pairing/admin"] });
@@ -552,14 +552,15 @@ export default function Scheduling() {
   });
 
   const convertMutation = useMutation({
-    mutationFn: async ({ pairedSessionId, presentEnrollmentId, targetLessonNumber }: { pairedSessionId: number; presentEnrollmentId: number; targetLessonNumber: 11 | 14 }) =>
-      apiRequest("POST", `/api/lesson-pairing/sessions/${pairedSessionId}/convert`, { presentEnrollmentId, targetLessonNumber }),
+    mutationFn: async ({ pairedSessionId, presentEnrollmentId }: { pairedSessionId: number; presentEnrollmentId: number }) => {
+      const conversionRequest = buildNoShowConversionRequest(pairedSessionId, presentEnrollmentId);
+      return apiRequest("POST", conversionRequest.url, conversionRequest.body);
+    },
     onSuccess: () => {
       invalidatePairing();
       setConvertSession(null);
       setConvertEnrollmentId("");
-      setConvertLessonNumber("11");
-      toast({ title: "Converted to Solo", description: "The present student was converted to a solo lesson." });
+      toast({ title: "Converted to Lessons 11 and 14", description: "Both consecutive 60-minute attended lessons were recorded." });
     },
     onError: (err: any) => {
       toast({ title: "Error", description: err?.data?.message || err?.message || "Failed to convert session.", variant: "destructive" });
@@ -1464,7 +1465,7 @@ export default function Scheduling() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => { setConvertSession(session); setConvertEnrollmentId(""); setConvertLessonNumber("11"); }}
+                                  onClick={() => { setConvertSession(session); setConvertEnrollmentId(""); }}
                                   data-testid={`button-convert-session-${session.id}`}
                                 >
                                   Convert to Solo
@@ -1629,12 +1630,12 @@ export default function Scheduling() {
         </Dialog>
 
         {/* Convert to Solo Dialog */}
-        <Dialog open={!!convertSession} onOpenChange={(open) => { if (!open) { setConvertSession(null); setConvertEnrollmentId(""); setConvertLessonNumber("11"); } }}>
+        <Dialog open={!!convertSession} onOpenChange={(open) => { if (!open) { setConvertSession(null); setConvertEnrollmentId(""); } }}>
           <DialogContent data-testid="dialog-convert-session">
             <DialogHeader>
-              <DialogTitle>Convert to Solo Lesson</DialogTitle>
+              <DialogTitle>Convert to Lessons 11 and 14</DialogTitle>
               <DialogDescription>
-                Convert the present student in this paired session to a solo lesson (11 or 14).
+                Record the attending student's full two-hour slot as In-Car 11 followed by In-Car 14.
               </DialogDescription>
             </DialogHeader>
             {convertSession && (
@@ -1659,22 +1660,13 @@ export default function Scheduling() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label>Target Lesson</Label>
-                  <Select value={convertLessonNumber} onValueChange={setConvertLessonNumber}>
-                    <SelectTrigger data-testid="select-convert-lesson">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="11">Lesson 11</SelectItem>
-                      <SelectItem value="14">Lesson 14</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <p className="text-sm text-gray-600">
+                  The partner must already be marked absent or no-show. The original 12/13 enrollment will be cancelled.
+                </p>
               </div>
             )}
             <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => { setConvertSession(null); setConvertEnrollmentId(""); setConvertLessonNumber("11"); }}>
+              <Button variant="outline" onClick={() => { setConvertSession(null); setConvertEnrollmentId(""); }}>
                 Cancel
               </Button>
               <Button
@@ -1685,7 +1677,6 @@ export default function Scheduling() {
                     convertMutation.mutate({
                       pairedSessionId: convertSession.id,
                       presentEnrollmentId: parseInt(convertEnrollmentId),
-                      targetLessonNumber: parseInt(convertLessonNumber) === 14 ? 14 : 11,
                     });
                   }
                 }}
