@@ -216,20 +216,7 @@ async function buildStudentProgressContext(studentId: number): Promise<string | 
 
     const enrollments = await storage.getClassEnrollmentsByStudent(studentId);
     const allClasses = await storage.getClasses();
-    const enrollmentDetails = enrollments
-      .filter((e: any) => !e.cancelledAt)
-      .map((e: any) => {
-        const cls = allClasses.find((c: any) => c.id === e.classId);
-        return {
-          attendanceStatus: e.attendanceStatus,
-          classType: cls?.classType ?? null,
-          classNumber: cls?.classNumber ?? null,
-          date: cls?.date ?? null,
-          duration: cls?.duration ?? null,
-          maxStudents: cls?.maxStudents ?? null,
-          courseType: cls?.courseType ?? null,
-        };
-      });
+    const enrollmentDetails = await storage.getEnrollmentCompletionDetailsByStudent(studentId);
     const completed = mergeScooterTransferCredits(buildCompletedClasses(enrollmentDetails), student);
     // One query for the entire assistant context, never one per candidate.
     const hasPhase4IncarOffer = await hasQualifyingPhase4IncarOffer(studentId);

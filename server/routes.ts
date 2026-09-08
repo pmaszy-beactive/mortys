@@ -60,7 +60,7 @@ import { isAutoPaymentPlan } from "@shared/autoCoursePayment";
 import { buildAutoCourseQuote, paymentSummaryFromQuote } from "./services/auto-course-quote";
 import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum, findCurriculumConflicts, getMotoClassRequirements, getCourseClassRequirements, validateCourseClassConfiguration, splitVirtualEnrollment, VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
 import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
-import { validateClassBooking, buildCompletedClasses, mergeScooterTransferCredits, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, isCombined1213Class, type BookingValidationResult } from "@shared/bookingRules";
+import { validateClassBooking, buildCompletedClasses, enrollmentCountsAsCompleted, mergeScooterTransferCredits, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, isCombined1213Class, type BookingValidationResult } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { loginUser, isAuthenticatedTraditional } from "./auth";
 import { loginInstructor, isInstructorAuthenticated } from "./instructor-auth";
@@ -98,7 +98,8 @@ import {
   manualPair,
   requeueStudent,
   convertPresentStudentToSolo,
-  completeSession,
+  saveAttendanceWithPairing,
+  AttendancePairingFinalizationError,
   getActivePairedSessions,
   hasQualifyingPhase4IncarOffer,
 } from "./services/incar-pairing";
@@ -397,6 +398,15 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
         isNull(classEnrollments.cancelledAt)
       )
     );
+  const completionDetails =
+    await storage.getEnrollmentCompletionDetailsByStudent(studentId);
+  const completionEvidenceByEnrollmentId = new Map(
+    completionDetails.flatMap((detail) =>
+      detail.enrollmentId == null
+        ? []
+        : [[detail.enrollmentId, detail] as const],
+    ),
+  );
 
   const activePairedEnrollmentClassIds = new Map(
     (await db
@@ -424,7 +434,11 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
   const completedMap = new Map<string, typeof enrollmentRows[0]>();
   const bookedMap = new Map<string, typeof enrollmentRows[0]>();
   for (const row of enrollmentRows) {
-    if (row.attendanceStatus === 'attended') {
+    const completionEvidence = completionEvidenceByEnrollmentId.get(row.enrollmentId);
+    if (
+      completionEvidence &&
+      enrollmentCountsAsCompleted(completionEvidence)
+    ) {
       const key = `${row.classType}_${row.classNumber}`;
       completedMap.set(key, row);
 
@@ -570,6 +584,25 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
   return { currentPhase, phases, externalMilestones };
 }
 
+async function getAuthoritativeCompletedHours(studentId: number): Promise<{
+  theoryHours: number;
+  drivingHours: number;
+}> {
+  const details = await storage.getEnrollmentCompletionDetailsByStudent(studentId);
+  let theoryMinutes = 0;
+  let drivingMinutes = 0;
+  for (const detail of details) {
+    if (!enrollmentCountsAsCompleted(detail)) continue;
+    const minutes = detail.duration ?? (detail.classType === "theory" ? 120 : 60);
+    if (detail.classType === "theory") theoryMinutes += minutes;
+    else if (detail.classType === "driving") drivingMinutes += minutes;
+  }
+  return {
+    theoryHours: theoryMinutes / 60,
+    drivingHours: drivingMinutes / 60,
+  };
+}
+
 async function storeDocument(
   documentData: string,
   studentId: number,
@@ -680,21 +713,9 @@ async function buildRescheduleContext(studentId: number, enrollmentId: number) {
   const enrollments = (await storage.getClassEnrollmentsByStudent(studentId))
     .filter(e => e.id !== enrollmentId);
   const allClasses = await storage.getClasses();
-  const enrollmentDetails = enrollments
-    .filter(e => !e.cancelledAt)
-    .map(e => {
-      const cls = allClasses.find(c => c.id === e.classId);
-      return {
-        attendanceStatus: e.attendanceStatus,
-        classType: cls?.classType ?? null,
-        classNumber: cls?.classNumber ?? null,
-        date: cls?.date ?? null,
-        duration: cls?.duration ?? null,
-              maxStudents: cls?.maxStudents ?? null,
-        courseType: cls?.courseType ?? null,
-        classStatus: cls?.status ?? null,
-      };
-    });
+  const enrollmentDetails =
+    (await storage.getEnrollmentCompletionDetailsByStudent(studentId))
+      .filter(e => e.enrollmentId !== enrollmentId);
   const studentRow = await storage.getStudent(studentId);
   const hasPhase4IncarOffer = await hasQualifyingPhase4IncarOffer(studentId);
   return {
@@ -2709,10 +2730,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!student) {
         return res.status(404).json({ message: "Student not found" });
       }
-      const hoursMap = await storage.getStudentsAttendedHours([student.id]);
-      const hours = hoursMap.get(student.id);
-      const theoryHoursCompleted = hours ? Math.round(hours.theoryHours * 10) / 10 : 0;
-      const practicalHoursCompleted = hours ? Math.round(hours.drivingHours * 10) / 10 : 0;
+      const hours = await getAuthoritativeCompletedHours(student.id);
+      const theoryHoursCompleted = Math.round(hours.theoryHours * 10) / 10;
+      const practicalHoursCompleted = Math.round(hours.drivingHours * 10) / 10;
       res.json({
         ...student,
         theoryHoursCompleted,
@@ -5102,21 +5122,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (studentForPhase) {
             const studentEnrollmentsPhase = await storage.getClassEnrollmentsByStudent(enrollmentData.studentId);
             const allClassesPhase = await storage.getClasses();
-            const enrollmentDetailsPhase = studentEnrollmentsPhase
-              .filter(e => !e.cancelledAt)
-              .map(e => {
-                const cls = allClassesPhase.find(c => c.id === e.classId);
-                return {
-                  attendanceStatus: e.attendanceStatus,
-                  classType: cls?.classType ?? null,
-                  classNumber: cls?.classNumber ?? null,
-                  date: cls?.date ?? null,
-                  duration: cls?.duration ?? null,
-              maxStudents: cls?.maxStudents ?? null,
-                  courseType: cls?.courseType ?? null,
-                  classStatus: cls?.status ?? null,
-                };
-              });
+            const enrollmentDetailsPhase =
+              await storage.getEnrollmentCompletionDetailsByStudent(enrollmentData.studentId);
             const completedForPhase = mergeScooterTransferCredits(
               buildCompletedClasses(enrollmentDetailsPhase),
               studentForPhase,
@@ -5554,52 +5561,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return chargeNoShowFeeImpl(stripe, studentId, classData, enrollmentId);
   }
 
-  // Task 272: find the active (paired|confirmed) In-Car 12/13 paired session
-  // for a given class, if one exists. Returns null on any lookup failure so
-  // callers never block their response on it.
-  async function findActivePairedSessionForClass(classId: number) {
-    try {
-      const sessions = await getActivePairedSessions();
-      return sessions.find((s) => s.classId === classId) ?? null;
-    } catch (err) {
-      captureRequestError(err);
-      console.error("[lesson-pairing] Failed to look up active paired session (non-critical):", err);
-      return null;
-    }
+  async function saveStaffAttendance(req: any, enrollmentId: number, changes: any) {
+    const actor = getAttendanceActor(req);
+    const result = await saveAttendanceWithPairing({
+      updates: [{ enrollmentId, changes }],
+      actorId: actor.actorId,
+      actorRole: actor.actorType,
+    });
+    return { ...result.enrollments[0], pairedFinalizations: result.pairedFinalizations };
   }
 
-  // Task 272: mark the combined 12/13 paired session for a class complete once
-  // an enrollment on that canonical slot is marked attended. Idempotent in the
-  // service; failures are logged but never block the caller.
-  async function maybeCompletePairedSessionForClass(
-    classData: { classType?: string | null; classNumber?: number | null; duration?: number | null; maxStudents?: number | null; courseType?: string | null; id?: number } | null | undefined,
-    req: any,
-  ): Promise<void> {
-    if (!classData?.id) return;
-    if (
-      !isCombined1213Class({
-        classType: classData.classType ?? null,
-        classNumber: classData.classNumber ?? null,
-        duration: classData.duration ?? null,
-        maxStudents: classData.maxStudents ?? null,
-        courseType: classData.courseType ?? null,
-      })
-    ) {
-      return;
+  function attendanceFailure(res: any, error: unknown, fallback: string, status = 500) {
+    if (error instanceof AttendancePairingFinalizationError) {
+      return res.status(error.httpStatus).json({ message: error.message, code: error.code });
     }
-    try {
-      const session = await findActivePairedSessionForClass(classData.id);
-      if (!session) return;
-      const actor = req?.instructor ?? req?.user;
-      await completeSession({
-        pairedSessionId: session.id,
-        actorId: actor?.id != null ? String(actor.id) : "system",
-        actorRole: req?.instructor ? "instructor" : req?.user ? "admin" : "system",
-      });
-    } catch (err) {
-      captureRequestError(err);
-      console.error("[lesson-pairing] Failed to complete paired session after attendance (non-critical):", err);
-    }
+    return res.status(status).json({ message: fallback });
   }
 
   app.put("/api/class-enrollments/:id", isAdminOrInstructor, async (req, res) => {
@@ -5625,13 +5601,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const prevEnrollment = await storage.getClassEnrollment(id);
       const prevAttendanceStatus = prevEnrollment?.attendanceStatus ?? null;
 
-      const enrollment = await storage.updateClassEnrollment(id, updateData);
+      const enrollment = await saveStaffAttendance(req, id, updateData);
       if (updateData.attendanceStatus === "attended" && enrollment.studentId && enrollment.classId) {
         await autoContractOnClass1(enrollment.studentId, enrollment.classId);
-        // Task 272: complete the combined 12/13 paired session for this class
-        // (idempotent, non-blocking).
-        const attendedClass = await storage.getClass(enrollment.classId);
-        await maybeCompletePairedSessionForClass(attendedClass, req);
       }
       // A missed in-car lesson promotes the student's other upcoming in-car
       // booking (if any) to slot #1 — notify them to confirm or cancel it.
@@ -5657,7 +5629,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(enrollment);
     } catch (error) {
       captureRequestError(error);
-      res.status(400).json({ message: "Failed to update enrollment" });
+      attendanceFailure(res, error, "Failed to update enrollment", 400);
     }
   });
 
@@ -5771,7 +5743,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Evaluation must be completed for this class before checking in students" });
       }
       
-      const enrollment = await storage.updateClassEnrollment(id, {
+      const enrollment = await saveStaffAttendance(req, id, {
         checkInSignature: signature,
         checkInAt: new Date(),
         attendanceStatus: "checked_in"
@@ -5788,7 +5760,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       captureRequestError(error);
       console.error("Error during check-in:", error);
-      res.status(500).json({ message: "Failed to check in student" });
+      attendanceFailure(res, error, "Failed to check in student");
     }
   });
 
@@ -5824,7 +5796,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: checkOutBlock.message });
       }
 
-      const enrollment = await storage.updateClassEnrollment(id, {
+      const enrollment = await saveStaffAttendance(req, id, {
         checkOutSignature: signature,
         checkOutAt: new Date(),
         attendanceStatus: "attended"
@@ -5841,15 +5813,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await autoContractOnClass1(existingEnrollment.studentId, existingEnrollment.classId);
       }
 
-      // Task 272: complete the combined 12/13 paired session for this class
-      // once the student is marked attended (idempotent, non-blocking).
-      await maybeCompletePairedSessionForClass(checkOutClass, req);
-
       res.json(enrollment);
     } catch (error) {
       captureRequestError(error);
       console.error("Error during check-out:", error);
-      res.status(500).json({ message: "Failed to check out student" });
+      attendanceFailure(res, error, "Failed to check out student");
     }
   });
 
@@ -5888,7 +5856,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Evaluation must be completed for this class before marking students as no-show" });
       }
       
-      const enrollment = await storage.updateClassEnrollment(id, {
+      const enrollment = await saveStaffAttendance(req, id, {
         attendanceStatus: "no-show"
       });
 
@@ -5916,38 +5884,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // NOTE (Task 272): a no-show on a combined In-Car 12/13 session is NOT
-      // automatically requeued or converted here. Conversion of the present
-      // student to a solo lesson (and any requeue of the absent student) is an
-      // explicit admin/instructor action via the pairing convert endpoint.
-      // Surface a hint so the admin UI can offer the convert action when an
-      // active paired session still exists for this class. The no-show fee
-      // flow above is unchanged.
-      let noShowResponse: Record<string, any> = { ...enrollment };
-      if (
-        isCombined1213Class({
-          classType: noShowClass.classType,
-          classNumber: noShowClass.classNumber,
-          duration: noShowClass.duration,
-          maxStudents: noShowClass.maxStudents,
-          courseType: noShowClass.courseType,
-        })
-      ) {
-        const pairedSession = await findActivePairedSessionForClass(noShowClass.id);
-        if (pairedSession) {
-          noShowResponse = {
-            ...noShowResponse,
-            pairedSessionId: pairedSession.id,
-            canConvertPresentStudent: true,
-          };
-        }
-      }
-
-      res.json(noShowResponse);
+      res.json(enrollment);
     } catch (error) {
       captureRequestError(error);
       console.error("Error marking no-show:", error);
-      res.status(500).json({ message: "Failed to mark student as no-show" });
+      attendanceFailure(res, error, "Failed to mark student as no-show");
     }
   });
 
@@ -5966,8 +5907,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Class not found" });
       }
 
-      const today = new Date();
-      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      const todayStr = getSchoolLocalDate();
       if (classData.date !== todayStr) {
         await logAttendanceAction({
           req, action: "reset_attendance", outcome: "blocked",
@@ -5979,7 +5919,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Attendance can only be corrected on the same day as the class" });
       }
 
-      const enrollment = await storage.updateClassEnrollment(id, {
+      const enrollment = await saveStaffAttendance(req, id, {
         checkInAt: null,
         checkInSignature: null,
         checkOutAt: null,
@@ -5998,7 +5938,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       captureRequestError(error);
       console.error("Error resetting attendance:", error);
-      res.status(500).json({ message: "Failed to reset attendance" });
+      attendanceFailure(res, error, "Failed to reset attendance");
     }
   });
 
@@ -6909,7 +6849,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const students = await storage.getStudents();
       const enrollments = await storage.getClassEnrollments();
-      const classes = await storage.getClasses();
       
       let filteredStudents = students;
       if (studentId) {
@@ -6919,27 +6858,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filteredStudents = filteredStudents.filter(s => s.courseType === courseType);
       }
       
-      const attendedHoursMap = await storage.getStudentsAttendedHours(filteredStudents.map(s => s.id));
+      const completionDetailsByStudent = new Map(
+        await Promise.all(filteredStudents.map(async (student) => [
+          student.id,
+          await storage.getEnrollmentCompletionDetailsByStudent(student.id),
+        ] as const)),
+      );
       
       const records = filteredStudents.map(student => {
         const studentEnrollments = enrollments.filter(e => e.studentId === student.id && !e.cancelledAt);
-        const attendedEnrollments = studentEnrollments.filter(e => e.attendanceStatus === 'attended');
-        const attendedHours = attendedHoursMap.get(student.id);
-        
-        // Count by class type
-        let theoryClassesAttended = 0;
-        let drivingClassesAttended = 0;
-        
-        for (const enrollment of attendedEnrollments) {
-          const cls = classes.find(c => c.id === enrollment.classId);
-          if (cls) {
-            if (isTheoryClass(cls.classType, cls.classNumber)) {
-              theoryClassesAttended++;
-            } else {
-              drivingClassesAttended++;
-            }
-          }
-        }
+        const completionDetails = completionDetailsByStudent.get(student.id) ?? [];
+        const completedRecords = mergeScooterTransferCredits(
+          buildCompletedClasses(completionDetails),
+          student,
+        );
+        const attendedEnrollments = completionDetails.filter(enrollmentCountsAsCompleted);
+        const theoryClassesAttended =
+          completedRecords.filter(record => record.classType === "theory").length;
+        const drivingClassesAttended =
+          completedRecords.filter(record => record.classType === "driving").length;
+        const theoryHours = attendedEnrollments
+          .filter(detail => detail.classType === "theory")
+          .reduce((sum, detail) => sum + (detail.duration ?? 120), 0) / 60;
+        const drivingHours = attendedEnrollments
+          .filter(detail => detail.classType === "driving")
+          .reduce((sum, detail) => sum + (detail.duration ?? 60), 0) / 60;
         
         return {
           studentId: student.id,
@@ -6952,8 +6895,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           totalAttended: attendedEnrollments.length,
           theoryClassesAttended,
           drivingClassesAttended,
-          theoryHoursCompleted: attendedHours ? Math.round(attendedHours.theoryHours * 10) / 10 : 0,
-          practicalHoursCompleted: attendedHours ? Math.round(attendedHours.drivingHours * 10) / 10 : 0,
+          theoryHoursCompleted: Math.round(theoryHours * 10) / 10,
+          practicalHoursCompleted: Math.round(drivingHours * 10) / 10,
           progress: student.progress || 0
         };
       });
@@ -11953,19 +11896,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get student's evaluations
         const evaluations = await storage.getEvaluationsByStudent(student.id);
 
+        const completionDetails =
+          await storage.getEnrollmentCompletionDetailsByStudent(student.id);
         const completedDashboard = mergeScooterTransferCredits(
-          buildCompletedClasses(studentClasses.map((classItem) => {
-            const enrollment = enrollments.find((item) => item.classId === classItem.id);
-            return {
-              attendanceStatus: enrollment?.attendanceStatus ?? null,
-              classType: classItem.classType,
-              classNumber: classItem.classNumber,
-              date: classItem.date,
-              duration: classItem.duration,
-              maxStudents: classItem.maxStudents,
-              courseType: classItem.courseType,
-            };
-          })),
+          buildCompletedClasses(completionDetails),
           student,
         );
         const completedTheoryClasses = completedDashboard.filter((item) => item.classType === "theory").length;
@@ -11973,8 +11907,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const totalHoursCompleted =
           student.totalHoursCompleted || completedInCarSessions * 1; // Estimate 1 hour per session
-        const classesAttended = enrollments.filter(
-          (e) => e.attendanceStatus === "attended",
+        const classesAttended = completionDetails.filter(
+          enrollmentCountsAsCompleted,
         ).length;
 
         // Calculate phase progress
@@ -12012,27 +11946,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const student = req.student;
         const enrollments = await storage.getClassEnrollmentsByStudent(student.id);
         
-        // Get actual class data to determine theory vs in-car sessions
-        const classIds = enrollments.map((e) => e.classId);
-        const allClasses = await storage.getClasses();
-        const studentClasses = allClasses.filter((c) => classIds.includes(c.id));
-        
         // Calculate completed counts based on class type and attendance
         // Classified via classType (fallback to classNumber heuristic when missing)
         // Only count classes where the STUDENT actually attended (not just class marked complete)
+        const completionDetails =
+          await storage.getEnrollmentCompletionDetailsByStudent(student.id);
         const completedForProgress = mergeScooterTransferCredits(
-          buildCompletedClasses(studentClasses.map((classItem) => {
-            const enrollment = enrollments.find((item) => item.classId === classItem.id);
-            return {
-              attendanceStatus: enrollment?.attendanceStatus ?? null,
-              classType: classItem.classType,
-              classNumber: classItem.classNumber,
-              date: classItem.date,
-              duration: classItem.duration,
-              maxStudents: classItem.maxStudents,
-              courseType: classItem.courseType,
-            };
-          })),
+          buildCompletedClasses(completionDetails),
           student,
         );
         const completedTheoryClasses = completedForProgress.filter((item) => item.classType === "theory").length;
@@ -12135,21 +12055,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const enrollments = await storage.getClassEnrollmentsByStudent(student.id);
         const allClasses = await storage.getClasses();
 
-        const enrollmentDetailsAvail = enrollments
-          .filter(e => !e.cancelledAt)
-          .map(e => {
-            const cls = allClasses.find(c => c.id === e.classId);
-            return {
-              attendanceStatus: e.attendanceStatus,
-              classType: cls?.classType ?? null,
-              classNumber: cls?.classNumber ?? null,
-              date: cls?.date ?? null,
-              duration: cls?.duration ?? null,
-              maxStudents: cls?.maxStudents ?? null,
-              courseType: cls?.courseType ?? null,
-              classStatus: cls?.status ?? null,
-            };
-          });
+        const enrollmentDetailsAvail =
+          await storage.getEnrollmentCompletionDetailsByStudent(student.id);
 
         const completedClassesAvail = mergeScooterTransferCredits(
           buildCompletedClasses(enrollmentDetailsAvail),
@@ -12643,10 +12550,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           const enrollments = await storage.getClassEnrollmentsByStudent(student.id);
           const allClasses = await storage.getClasses();
-          const details = enrollments.filter(e => !e.cancelledAt).map(e => {
-            const c = allClasses.find(x => x.id === e.classId);
-            return { attendanceStatus: e.attendanceStatus, classType: c?.classType ?? null, classNumber: c?.classNumber ?? null, date: c?.date ?? null, duration: c?.duration ?? null, maxStudents: c?.maxStudents ?? null, courseType: c?.courseType ?? null, classStatus: c?.status ?? null };
-          });
+          const details =
+            await storage.getEnrollmentCompletionDetailsByStudent(student.id);
           const completed = mergeScooterTransferCredits(buildCompletedClasses(details), student);
           const policies = await storage.getActiveBookingPolicies("auto", "driving");
           const dailyLimit = resolveDailyLimit(policies).limit;
@@ -12692,7 +12597,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           // Pair policy checks are evaluated with the second synthetic booking
           // included, preventing a two-row request from bypassing limits.
-          const existing = details.map(d => ({ date: d.date, classStatus: d.classStatus, attendanceStatus: d.attendanceStatus ?? null }));
+          const existing = details.map(d => ({ date: d.date, classStatus: d.classStatus ?? null, attendanceStatus: d.attendanceStatus ?? null }));
           for (const [c, synthetic] of [[first, false], [second, true]] as const) {
             const violation = checkWeeklyNoticePendingPolicies(policies, { date: c.date, time: c.time }, synthetic ? [...existing, { date: first.date, classStatus: "scheduled", attendanceStatus: "registered" }] : existing);
             if (violation) return { status: 400, body: { message: violation.message, policyViolation: violation.policyType } };
@@ -12764,21 +12669,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const studentEnrollmentsForRules = await storage.getClassEnrollmentsByStudent(student.id);
         const allClassesForRules = await storage.getClasses();
 
-        const enrollmentDetails = studentEnrollmentsForRules
-          .filter(e => !e.cancelledAt)
-          .map(e => {
-            const cls = allClassesForRules.find(c => c.id === e.classId);
-            return {
-              attendanceStatus: e.attendanceStatus,
-              classType: cls?.classType ?? null,
-              classNumber: cls?.classNumber ?? null,
-              date: cls?.date ?? null,
-              duration: cls?.duration ?? null,
-              maxStudents: cls?.maxStudents ?? null,
-              courseType: cls?.courseType ?? null,
-              classStatus: cls?.status ?? null,
-            };
-          });
+        const enrollmentDetails =
+          await storage.getEnrollmentCompletionDetailsByStudent(student.id);
 
         const completedClassesForRules = mergeScooterTransferCredits(
           buildCompletedClasses(enrollmentDetails),
@@ -12948,7 +12840,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           { date: classData.date, time: classData.time },
           enrollmentDetails.map(d => ({
             date: d.date,
-            classStatus: d.classStatus,
+            classStatus: d.classStatus ?? null,
             attendanceStatus: d.attendanceStatus ?? null,
           })),
         );
@@ -12993,6 +12885,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const combinedResult = await bookCombinedSlot({
             studentId: student.id,
             classId,
+            tx: bookingTx,
           });
           if (combinedResult.success) {
             logBookingDecision('allow rule=combined_12_13');
@@ -15477,7 +15370,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: any, res) => {
       try {
         const students = await storage.getInstructorStudents(req.instructor.id);
-        const hoursMap = await storage.getStudentsAttendedHours(students.map(s => s.id));
+        const hoursMap = new Map(
+          await Promise.all(students.map(async (student) => [
+            student.id,
+            await getAuthoritativeCompletedHours(student.id),
+          ] as const)),
+        );
         const enriched = students.map(s => {
           const hours = hoursMap.get(s.id);
           return {
@@ -15954,13 +15852,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: bulkBlock.message });
         }
 
-        // Update attendance for each student
-        for (const record of attendance) {
-          const prevEnrollment = await storage.getClassEnrollment(record.enrollmentId);
+        if (attendance.some((record: any) =>
+          !Number.isInteger(record.enrollmentId) || typeof record.attended !== "boolean"
+        )) {
+          return res.status(400).json({ message: "Each attendance row needs an enrollment ID and a present/absent selection." });
+        }
+        const previousEnrollments = await Promise.all(
+          attendance.map((record: any) => storage.getClassEnrollment(record.enrollmentId)),
+        );
+        // Finalize only after every roster row is written, in the same transaction.
+        const saved = await saveAttendanceWithPairing({
+          updates: attendance.map((record: any) => ({
+            enrollmentId: record.enrollmentId,
+            changes: { attendanceStatus: record.attended ? "attended" : "absent" },
+          })),
+          actorId: String(instructor.id),
+          actorRole: "instructor",
+          expectedClassId: classId,
+          classUpdate: {
+            classId,
+            changes: {
+              status: "completed",
+              attendanceSignature: signature,
+              attendanceSignedAt: new Date().toISOString(),
+              attendanceSignedBy: instructor.id,
+            },
+          },
+        });
+        for (let index = 0; index < attendance.length; index++) {
+          const record = attendance[index];
+          const prevEnrollment = previousEnrollments[index];
           const newStatus = record.attended ? 'attended' : 'absent';
-          await storage.updateClassEnrollment(record.enrollmentId, {
-            attendanceStatus: newStatus,
-          });
           await logAttendanceAction({
             req, action: "bulk_attendance", outcome: "success",
             classId, enrollmentId: record.enrollmentId,
@@ -15991,14 +15913,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
 
-        // Mark the class as completed with the attendance signature
-        await storage.updateClass(classId, { 
-          status: 'completed',
-          attendanceSignature: signature,
-          attendanceSignedAt: new Date().toISOString(),
-          attendanceSignedBy: instructor.id,
-        });
-
         await logAttendanceAction({
           req, action: "mark_complete", outcome: "success",
           classId, instructorId: classData.instructorId,
@@ -16009,13 +15923,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({ 
           success: true, 
           message: "Attendance submitted successfully",
+          pairedFinalizations: saved.pairedFinalizations,
           attendedCount: attendance.filter((a: any) => a.attended).length,
           absentCount: attendance.filter((a: any) => !a.attended).length,
         });
       } catch (error) {
         captureRequestError(error);
         console.error("Error submitting attendance:", error);
-        res.status(500).json({ message: "Failed to submit attendance" });
+        attendanceFailure(res, error, "Failed to submit attendance");
       }
     },
   );

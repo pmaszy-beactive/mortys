@@ -71,21 +71,11 @@ export async function validateProgressionForStudent(
   );
   const allClasses = await storage.getClasses();
   const hasPhase4IncarOffer = await hasQualifyingPhase4IncarOffer(studentId);
-  const enrollmentDetails = enrollments
-    .filter((e) => !e.cancelledAt)
-    .map((e) => {
-      const cls = allClasses.find((c) => c.id === e.classId);
-      return {
-        attendanceStatus: e.attendanceStatus,
-        classType: cls?.classType ?? null,
-        classNumber: cls?.classNumber ?? null,
-        date: cls?.date ?? null,
-        duration: cls?.duration ?? null,
-          maxStudents: cls?.maxStudents ?? null,
-        courseType: cls?.courseType ?? null,
-        classStatus: cls?.status ?? null,
-      };
-    });
+  const enrollmentDetails = (await storage.getEnrollmentCompletionDetailsByStudent(studentId)).filter(
+    (e) =>
+      e.enrollmentId !== options.excludeEnrollmentId &&
+      (options.excludeClassId === undefined || e.classId !== options.excludeClassId),
+  );
   const upcomingBookings: { classType: "theory" | "driving"; classNumber: number }[] = [];
   for (const e of enrollments) {
     if (

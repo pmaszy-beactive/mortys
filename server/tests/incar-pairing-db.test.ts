@@ -22,7 +22,7 @@ import { describe, it, expect, afterEach, beforeAll, afterAll, vi } from "vitest
 import express from "express";
 import request from "supertest";
 import bcrypt from "bcryptjs";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 
 vi.mock("../services/notifications", () => ({
   enqueueNotification: vi.fn(async () => 0),
@@ -33,6 +33,10 @@ vi.mock("../services/notifications", () => ({
     name: "Pairing test",
   }]),
   getOfficeRecipients: vi.fn(async () => []),
+}));
+
+vi.mock("../services/no-show-fee", () => ({
+  chargeNoShowFee: vi.fn(async () => undefined),
 }));
 
 import { db } from "../db";
@@ -49,6 +53,9 @@ import {
   incarPairingOffers,
   incarSessionConfirmations,
   incarPairingAudit,
+  attendanceAuditLogs,
+  evaluations,
+  instructors,
   users,
 } from "@shared/schema";
 import {
@@ -59,6 +66,7 @@ import {
   processPairingLifecycle,
   hasQualifyingPhase4IncarOffer,
   convertPresentStudentToSolo,
+  saveAttendanceWithPairing,
 } from "../services/incar-pairing";
 
 // ─── Seed helpers ─────────────────────────────────────────────────────────────
@@ -69,6 +77,8 @@ let uniq = 0;
 let app: express.Express;
 let adminCookie: string;
 let adminUserId: string | null = null;
+let instructorId: number | null = null;
+let instructorCookie: string;
 
 beforeAll(async () => {
   app = express();
@@ -92,9 +102,30 @@ beforeAll(async () => {
     .send({ username: admin.email, password: "pairing-test-password" });
   expect(login.status).toBe(200);
   adminCookie = login.headers["set-cookie"][0].split(";")[0];
+
+  const instructorPassword = "pairing-instructor-password";
+  const [instructor] = await db
+    .insert(instructors)
+    .values({
+      firstName: "Pairing",
+      lastName: "Instructor",
+      email: `incar-pairing-instructor-${tag}@example.test`,
+      status: "active",
+      accountStatus: "active",
+      password: await bcrypt.hash(instructorPassword, 10),
+    })
+    .returning({ id: instructors.id, email: instructors.email });
+  instructorId = instructor.id;
+  const instructorLogin = await request(app)
+    .post("/api/instructor/login")
+    .set("X-Forwarded-Proto", "https")
+    .send({ email: instructor.email, password: instructorPassword });
+  expect(instructorLogin.status).toBe(200);
+  instructorCookie = instructorLogin.headers["set-cookie"][0].split(";")[0];
 }, 60_000);
 
 afterAll(async () => {
+  if (instructorId) await db.delete(instructors).where(eq(instructors.id, instructorId));
   if (adminUserId) await db.delete(users).where(eq(users.id, adminUserId));
 });
 
@@ -207,6 +238,18 @@ async function phaseProgressFor(studentId: number) {
   };
 }
 
+async function adminPhaseProgressFor(studentId: number) {
+  const response = await request(app)
+    .get(`/api/students/${studentId}/phase-progress`)
+    .set("Cookie", adminCookie);
+  expect(response.status).toBe(200);
+  const rows = response.body.phases.flatMap((phase: { classes: any[] }) => phase.classes);
+  return {
+    twelve: rows.find((row: any) => row.classType === "driving" && row.classNumber === 12),
+    thirteen: rows.find((row: any) => row.classType === "driving" && row.classNumber === 13),
+  };
+}
+
 function schoolLocalSchedule(minutesFromNow: number): { date: string; time: string } {
   const instant = new Date(Date.now() + minutesFromNow * 60_000);
   const fmt = new Intl.DateTimeFormat("en-CA", {
@@ -231,11 +274,13 @@ afterEach(async () => {
   const sids = createdStudentIds.splice(0);
   const cids = createdClassIds.splice(0);
   if (sids.length > 0) {
+    await db.delete(attendanceAuditLogs).where(inArray(attendanceAuditLogs.studentId, sids));
     await db
       .delete(incarPairingAudit)
       .where(inArray(incarPairingAudit.studentId, sids));
   }
   if (cids.length > 0) {
+    await db.delete(attendanceAuditLogs).where(inArray(attendanceAuditLogs.classId, cids));
     await db.delete(incarPairingAudit).where(inArray(incarPairingAudit.classId, cids));
   }
   if (sids.length > 0) {
@@ -254,6 +299,7 @@ afterEach(async () => {
       .where(inArray(classEnrollments.studentId, sids));
   }
   if (cids.length > 0) {
+    await db.delete(evaluations).where(inArray(evaluations.classId, cids));
     await db.delete(classEnrollments).where(inArray(classEnrollments.classId, cids));
     await db.delete(classes).where(inArray(classes.id, cids)); 
   }
@@ -265,6 +311,95 @@ afterEach(async () => {
 // ─── bookCombinedSlot ─────────────────────────────────────────────────────────
 
 describe("bookCombinedSlot (live DB)", () => {
+  it("rejects a stale eligibility result after concurrent attendance completion", async () => {
+    const studentId = await createStudent();
+    const partnerId = await createStudent();
+    const targetClassId = await createCombinedClass();
+    const completedClassId = await createCombinedClass({
+      ...schoolLocalSchedule(-90),
+      status: "completed",
+    });
+    const completedEnrollments = await db.insert(classEnrollments).values([
+      { classId: completedClassId, studentId, attendanceStatus: "registered" },
+      { classId: completedClassId, studentId: partnerId, attendanceStatus: "registered" },
+    ]).returning({ id: classEnrollments.id });
+    const completedQueueEntries = await db.insert(incarPairingQueue).values([
+      {
+        studentId,
+        sessionNumber: 12,
+        status: "completed",
+        bookedClassId: completedClassId,
+        enrollmentId: completedEnrollments[0].id,
+      },
+      {
+        studentId: partnerId,
+        sessionNumber: 12,
+        status: "completed",
+        bookedClassId: completedClassId,
+        enrollmentId: completedEnrollments[1].id,
+      },
+    ]).returning({ id: incarPairingQueue.id });
+    const [completingSession] = await db.insert(incarPairedSessions).values({
+      queueEntryIdA: completedQueueEntries[0].id,
+      queueEntryIdB: completedQueueEntries[1].id,
+      studentIdA: studentId,
+      studentIdB: partnerId,
+      classId: completedClassId,
+      enrollmentIdA: completedEnrollments[0].id,
+      enrollmentIdB: completedEnrollments[1].id,
+      status: "paired",
+    }).returning({ id: incarPairedSessions.id });
+
+    let bookingPromise: ReturnType<typeof bookCombinedSlot> | undefined;
+    await db.transaction(async (tx) => {
+      // Hold the exact lock pair used by bookCombinedSlot. Once its backend is
+      // visibly waiting on 823001, its cheap outer eligibility read is known
+      // to be complete and therefore stale.
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(823001, ${studentId})`);
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(823002, ${studentId})`);
+      bookingPromise = bookCombinedSlot({ studentId, classId: targetClassId });
+
+      let blocked = false;
+      for (let attempt = 0; attempt < 100; attempt += 1) {
+        const result = await db.execute<{ count: number }>(sql`
+          SELECT count(*)::int AS count
+          FROM pg_locks
+          WHERE locktype = 'advisory'
+            AND granted = false
+            AND classid = 823001
+            AND objid = ${studentId}
+        `);
+        if ((result.rows[0]?.count ?? 0) > 0) {
+          blocked = true;
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+      expect(blocked).toBe(true);
+
+      await tx.update(classEnrollments)
+        .set({ attendanceStatus: "attended" })
+        .where(inArray(
+          classEnrollments.id,
+          completedEnrollments.map((enrollment) => enrollment.id),
+        ));
+      await tx.update(incarPairedSessions)
+        .set({ status: "completed", completedAt: new Date() })
+        .where(eq(incarPairedSessions.id, completingSession.id));
+    });
+
+    const booked = await bookingPromise!;
+    expect(booked.success).toBe(false);
+    expect(booked.reason).toMatch(/completed|not eligible|12|13/i);
+    expect(await queueEntryFor(studentId)).toEqual([
+      expect.objectContaining({
+        status: "completed",
+        bookedClassId: completedClassId,
+      }),
+    ]);
+    expect(await activeEnrollments(targetClassId)).toHaveLength(0);
+  });
+
   it("enrolls the first booker, sets booked_first, and offers the seat to a waiting student", async () => {
     const waiting = await createStudent();
     const booker = await createStudent();
@@ -523,6 +658,7 @@ describe("respondToOffer (live DB)", () => {
       .update(incarPairedSessions)
       .set({ status: "completed", completedAt: new Date() })
       .where(eq(incarPairedSessions.id, accepted.pairedSessionId!));
+    await db.update(classes).set(schoolLocalSchedule(-5)).where(eq(classes.id, classId));
 
     for (const studentId of [booker, waiting]) {
       const completed = await phaseProgressFor(studentId);
@@ -668,7 +804,7 @@ async function seedStartedPairedSession() {
   const waiting = await createStudent();
   const booker = await createStudent();
   const classId = await createCombinedClass({
-    date: "2026-01-10",
+    date: "2030-01-10",
     time: "10:00",
     status: "scheduled",
   });
@@ -684,6 +820,9 @@ async function seedStartedPairedSession() {
     .select()
     .from(incarPairedSessions)
     .where(eq(incarPairedSessions.id, accepted.pairedSessionId!));
+  await db.update(classes)
+    .set({ date: schoolLocalSchedule(-24 * 60).date })
+    .where(eq(classes.id, classId));
   await db
     .update(classEnrollments)
     .set({ attendanceStatus: "attended" })
@@ -694,6 +833,646 @@ async function seedStartedPairedSession() {
     .where(eq(classEnrollments.id, session.enrollmentIdB!));
   return { waiting, booker, classId, session };
 }
+
+async function seedPairedSessionForAttendance(opts: { started?: boolean } = {}) {
+  const waiting = await createStudent();
+  const booker = await createStudent();
+  const classId = await createCombinedClass({
+    instructorId,
+    status: "scheduled",
+  });
+  await joinCombinedQueue({ studentId: waiting });
+  await bookCombinedSlot({ studentId: booker, classId });
+  const [offer] = await pendingOffersFor(classId);
+  const accepted = await respondToOffer({
+    offerId: offer.id,
+    studentId: waiting,
+    response: "accept",
+  });
+  expect(accepted.success).toBe(true);
+  const [session] = await db
+    .select()
+    .from(incarPairedSessions)
+    .where(eq(incarPairedSessions.id, accepted.pairedSessionId!));
+  const schedule = schoolLocalSchedule(opts.started === false ? 90 : -90);
+  await db.update(classes).set(schedule).where(eq(classes.id, classId));
+  return { waiting, booker, classId, session };
+}
+
+function pairedAttendanceUpdates(
+  session: typeof incarPairedSessions.$inferSelect,
+  a: "registered" | "attended" | "absent" | "no-show",
+  b: "registered" | "attended" | "absent" | "no-show",
+) {
+  return [
+    { enrollmentId: session.enrollmentIdA!, attendanceStatus: a },
+    { enrollmentId: session.enrollmentIdB!, attendanceStatus: b },
+  ];
+}
+
+async function attendanceRows(session: typeof incarPairedSessions.$inferSelect) {
+  return db
+    .select()
+    .from(classEnrollments)
+    .where(inArray(classEnrollments.id, [session.enrollmentIdA!, session.enrollmentIdB!]));
+}
+
+async function convertedLessons(studentId: number) {
+  return db
+    .select({
+      classId: classes.id,
+      classNumber: classes.classNumber,
+      enrollmentId: classEnrollments.id,
+      attendanceStatus: classEnrollments.attendanceStatus,
+      cancelledAt: classEnrollments.cancelledAt,
+    })
+    .from(classEnrollments)
+    .innerJoin(classes, eq(classEnrollments.classId, classes.id))
+    .where(
+      and(
+        eq(classEnrollments.studentId, studentId),
+        eq(classes.classType, "driving"),
+        inArray(classes.classNumber, [11, 14]),
+      ),
+    );
+}
+
+describe("saveAttendanceWithPairing (live DB)", () => {
+  it.each([
+    ["first roster position present", true, false, "A"],
+    ["second roster position present", false, true, "B"],
+  ] as const)("finalizes the authenticated instructor bulk payload with %s", async (_label, a, b, present) => {
+    const { booker, waiting, classId, session } = await seedPairedSessionForAttendance();
+    const response = await request(app)
+      .post(`/api/instructor/classes/${classId}/attendance`)
+      .set("Cookie", instructorCookie)
+      .send({
+        signature: "data:image/png;base64,pairing-test-signature",
+        attendance: [
+          { enrollmentId: session.enrollmentIdA, attended: a },
+          { enrollmentId: session.enrollmentIdB, attended: b },
+        ],
+      });
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      success: true,
+      attendedCount: 1,
+      absentCount: 1,
+    });
+
+    const presentStudent = present === "A" ? booker : waiting;
+    const lessons = await convertedLessons(presentStudent);
+    expect(lessons.map((row) => row.classNumber).sort()).toEqual([11, 14]);
+    createdClassIds.push(...lessons.map((row) => row.classId));
+    const [sessionAfter] = await db.select().from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, session.id));
+    expect(sessionAfter.status).toBe("dissolved");
+  });
+
+  it("finalizes through the authenticated generic attendance update endpoint", async () => {
+    const { booker, session } = await seedPairedSessionForAttendance();
+    const missed = await request(app)
+      .put(`/api/class-enrollments/${session.enrollmentIdB}`)
+      .set("Cookie", adminCookie)
+      .send({ attendanceStatus: "absent" });
+    expect(missed.status).toBe(200);
+    expect(missed.body.pairedFinalizations).toMatchObject([{ status: "pending" }]);
+
+    const present = await request(app)
+      .put(`/api/class-enrollments/${session.enrollmentIdA}`)
+      .set("Cookie", adminCookie)
+      .send({ attendanceStatus: "attended" });
+    expect(present.status).toBe(200);
+    expect(present.body.pairedFinalizations).toMatchObject([{ status: "converted" }]);
+    const lessons = await convertedLessons(booker);
+    createdClassIds.push(...lessons.map((row) => row.classId));
+    expect(lessons.map((row) => row.classNumber).sort()).toEqual([11, 14]);
+  });
+
+  it("finalizes through the authenticated no-show endpoint", async () => {
+    const { waiting, classId, session } = await seedPairedSessionForAttendance();
+    await db.insert(evaluations).values({
+      studentId: waiting,
+      instructorId,
+      classId,
+      evaluationDate: schoolLocalSchedule(0).date,
+      sessionType: "in-car",
+      signedOff: true,
+    });
+    const present = await request(app)
+      .put(`/api/class-enrollments/${session.enrollmentIdA}`)
+      .set("Cookie", adminCookie)
+      .send({ attendanceStatus: "attended" });
+    expect(present.status).toBe(200);
+
+    const missed = await request(app)
+      .post(`/api/class-enrollments/${session.enrollmentIdB}/no-show`)
+      .set("Cookie", adminCookie);
+    expect(missed.status).toBe(200);
+    expect(missed.body).toMatchObject({
+      attendanceStatus: "no-show",
+      pairedFinalizations: [{ status: "converted" }],
+    });
+    createdClassIds.push(...(missed.body.pairedFinalizations[0].newClassIds ?? []));
+  });
+
+  it("finalizes through checkout and persists checkout evidence atomically", async () => {
+    const { booker, session } = await seedPairedSessionForAttendance();
+    const missed = await request(app)
+      .put(`/api/class-enrollments/${session.enrollmentIdB}`)
+      .set("Cookie", adminCookie)
+      .send({ attendanceStatus: "absent" });
+    expect(missed.status).toBe(200);
+
+    const checkedOut = await request(app)
+      .post(`/api/class-enrollments/${session.enrollmentIdA}/check-out`)
+      .set("Cookie", adminCookie)
+      .send({ signature: "present-student-checkout" });
+    expect(checkedOut.status).toBe(200);
+    expect(checkedOut.body).toMatchObject({
+      pairedFinalizations: [{ status: "converted" }],
+    });
+    expect(checkedOut.body.checkOutSignature).toBe("present-student-checkout");
+    expect(checkedOut.body.checkOutAt).toBeTruthy();
+    const lessons = await convertedLessons(booker);
+    createdClassIds.push(...lessons.map((row) => row.classId));
+  });
+
+  it("rejects an instructor generic update for a class they do not own", async () => {
+    const { session } = await seedPairedSessionForAttendance();
+    await db.update(classes).set({ instructorId: null }).where(eq(classes.id, session.classId));
+    const response = await request(app)
+      .put(`/api/class-enrollments/${session.enrollmentIdA}`)
+      .set("Cookie", instructorCookie)
+      .send({ attendanceStatus: "attended" });
+    expect(response.status).toBe(409);
+    expect(response.body.code).toBe("ATTENDANCE_PAIRING_FINALIZATION_FAILED");
+    const [row] = await db.select().from(classEnrollments)
+      .where(eq(classEnrollments.id, session.enrollmentIdA!));
+    expect(row.attendanceStatus).toBe("registered");
+  });
+
+  it.each([
+    ["A present/B absent", "attended", "absent", "A"],
+    ["A absent/B present", "no-show", "attended", "B"],
+  ] as const)("reproduces instructor bulk attendance exactly for %s", async (_name, a, b, present) => {
+    const { booker, waiting, session } = await seedPairedSessionForAttendance();
+    const result = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, a, b),
+      actorId: String(instructorId),
+      actorRole: "instructor",
+      expectedClassId: session.classId,
+    });
+    expect(result.pairedFinalizations).toMatchObject([{
+      pairedSessionId: session.id,
+      status: "converted",
+      presentEnrollmentId: present === "A" ? session.enrollmentIdA : session.enrollmentIdB,
+    }]);
+    createdClassIds.push(...(result.pairedFinalizations[0].newClassIds ?? []));
+
+    const rows = await attendanceRows(session);
+    const byId = new Map(rows.map((row) => [row.id, row]));
+    // Conversion intentionally changes only the present original to absent and
+    // cancels it; the instructor's absent/no-show value must remain exact.
+    const missedId = present === "A" ? session.enrollmentIdB! : session.enrollmentIdA!;
+    expect(byId.get(missedId)?.attendanceStatus).toBe(present === "A" ? b : a);
+    const presentStudent = present === "A" ? booker : waiting;
+    expect((await convertedLessons(presentStudent)).map((row) => row.classNumber).sort())
+      .toEqual([11, 14]);
+  });
+
+  it("leaves both absent/no-show positions pending without inventing solo credit", async () => {
+    const { booker, waiting, session } = await seedPairedSessionForAttendance();
+    const result = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "absent", "no-show"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    expect(result.pairedFinalizations).toMatchObject([{ status: "pending" }]);
+    expect((await attendanceRows(session)).map((row) => row.attendanceStatus).sort())
+      .toEqual(["absent", "no-show"]);
+    expect(await convertedLessons(booker)).toHaveLength(0);
+    expect(await convertedLessons(waiting)).toHaveLength(0);
+  });
+
+  it("keeps incomplete and pre-start attendance pending, then completes both-attended", async () => {
+    const prestart = await seedPairedSessionForAttendance({ started: false });
+    const early = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(prestart.session, "attended", "attended"),
+      actorId: String(instructorId),
+      actorRole: "instructor",
+    });
+    expect(early.pairedFinalizations).toMatchObject([{ status: "pending" }]);
+    let [sessionAfter] = await db.select().from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, prestart.session.id));
+    expect(sessionAfter.status).toBe("paired");
+
+    await db.update(classes).set(schoolLocalSchedule(-5))
+      .where(eq(classes.id, prestart.classId));
+    const completed = await saveAttendanceWithPairing({
+      updates: [{ enrollmentId: prestart.session.enrollmentIdA!, attendanceStatus: "attended" }],
+      actorId: String(instructorId),
+      actorRole: "instructor",
+    });
+    expect(completed.pairedFinalizations).toMatchObject([{ status: "completed" }]);
+    [sessionAfter] = await db.select().from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, prestart.session.id));
+    expect(sessionAfter.status).toBe("completed");
+  });
+
+  it("serializes concurrent/retried finalization without duplicate 11/14 credit", async () => {
+    const { booker, session } = await seedPairedSessionForAttendance();
+    const params = {
+      updates: pairedAttendanceUpdates(session, "attended", "absent"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    };
+    const [first, retry] = await Promise.all([
+      saveAttendanceWithPairing(params),
+      saveAttendanceWithPairing(params),
+    ]);
+    const generated = [...first.pairedFinalizations, ...retry.pairedFinalizations]
+      .flatMap((row) => row.newClassIds ?? []);
+    createdClassIds.push(...generated);
+    expect(await convertedLessons(booker)).toHaveLength(2);
+    expect([first, retry].flatMap((row) => row.pairedFinalizations)
+      .filter((row) => row.status === "converted")).toHaveLength(1);
+  });
+
+  it("preserves completed 11/14 credit and creates only the missing lesson", async () => {
+    const { booker, session } = await seedPairedSessionForAttendance();
+    const existing11 = await createCombinedClass({
+      classNumber: 11,
+      duration: 60,
+      maxStudents: 1,
+    });
+    await db.insert(classEnrollments).values({
+      classId: existing11,
+      studentId: booker,
+      attendanceStatus: "attended",
+    });
+    const result = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "no-show"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    expect(result.pairedFinalizations).toMatchObject([{
+      status: "converted",
+      preservedClassNumbers: [11],
+    }]);
+    createdClassIds.push(...(result.pairedFinalizations[0].newClassIds ?? []));
+    expect((await convertedLessons(booker)).map((row) => row.classNumber).sort())
+      .toEqual([11, 14]);
+  });
+
+  it("preserves both preexisting attended 11/14 credits without requiring a generated class", async () => {
+    const { booker, session } = await seedPairedSessionForAttendance();
+    for (const classNumber of [11, 14]) {
+      const existingClass = await createCombinedClass({
+        classNumber,
+        duration: 60,
+        maxStudents: 1,
+      });
+      await db.insert(classEnrollments).values({
+        classId: existingClass,
+        studentId: booker,
+        attendanceStatus: "attended",
+      });
+    }
+
+    const result = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "no-show"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    expect(result.pairedFinalizations).toMatchObject([{
+      status: "converted",
+      newClassIds: [],
+      newEnrollmentIds: [],
+    }]);
+    expect(result.pairedFinalizations[0].preservedClassNumbers?.sort()).toEqual([11, 14]);
+    const [sessionAfter] = await db.select().from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, session.id));
+    expect(sessionAfter.status).toBe("dissolved");
+  });
+
+  it("serializes simultaneous single-row A/B saves without deadlock or partial finalization", async () => {
+    const { booker, session } = await seedPairedSessionForAttendance();
+    const [a, b] = await Promise.all([
+      saveAttendanceWithPairing({
+        updates: [{ enrollmentId: session.enrollmentIdA!, changes: { attendanceStatus: "attended" } }],
+        actorId: String(adminUserId),
+        actorRole: "admin",
+      }),
+      saveAttendanceWithPairing({
+        updates: [{ enrollmentId: session.enrollmentIdB!, changes: { attendanceStatus: "absent" } }],
+        actorId: String(adminUserId),
+        actorRole: "admin",
+      }),
+    ]);
+    createdClassIds.push(
+      ...[a, b].flatMap((result) =>
+        result.pairedFinalizations.flatMap((outcome) => outcome.newClassIds ?? []),
+      ),
+    );
+    expect([a, b].flatMap((result) => result.pairedFinalizations)
+      .filter((outcome) => outcome.status === "converted")).toHaveLength(1);
+    expect((await convertedLessons(booker)).filter((row) => row.cancelledAt == null))
+      .toHaveLength(2);
+    const [sessionAfter] = await db.select().from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, session.id));
+    expect(sessionAfter.status).toBe("dissolved");
+  });
+
+  it("rolls all attendance back when an active 11/14 booking conflicts", async () => {
+    const { booker, session } = await seedPairedSessionForAttendance();
+    const existing14 = await createCombinedClass({
+      classNumber: 14,
+      duration: 60,
+      maxStudents: 1,
+    });
+    await db.insert(classEnrollments).values({
+      classId: existing14,
+      studentId: booker,
+      attendanceStatus: "registered",
+    });
+    await expect(saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "absent"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+      classUpdate: {
+        classId: session.classId,
+        changes: {
+          status: "completed",
+          attendanceSignature: "must-roll-back",
+        },
+      },
+    })).rejects.toThrow(/unrelated active booking/i);
+    expect((await attendanceRows(session)).map((row) => row.attendanceStatus))
+      .toEqual(["registered", "registered"]);
+    const [pairedClass] = await db.select().from(classes)
+      .where(eq(classes.id, session.classId));
+    expect(pairedClass).toMatchObject({
+      status: "scheduled",
+      attendanceSignature: null,
+    });
+  });
+
+  it("safely reverses a conversion on correction and fixes admin/student progress", async () => {
+    const { booker, waiting, session } = await seedPairedSessionForAttendance();
+    const converted = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "absent"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    createdClassIds.push(...(converted.pairedFinalizations[0].newClassIds ?? []));
+
+    const corrected = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "attended"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    expect(corrected.pairedFinalizations).toMatchObject([{ status: "completed" }]);
+    for (const studentId of [booker, waiting]) {
+      expect(await phaseProgressFor(studentId)).toMatchObject({
+        twelve: { isCompleted: true },
+        thirteen: { isCompleted: true },
+      });
+      expect(await adminPhaseProgressFor(studentId)).toMatchObject({
+        twelve: { isCompleted: true },
+        thirteen: { isCompleted: true },
+      });
+    }
+    expect((await convertedLessons(booker)).every((row) => row.cancelledAt != null)).toBe(true);
+  });
+
+  it("moves solo credit to the newly attending student across repeated swapped corrections", async () => {
+    const { booker, waiting, session } = await seedPairedSessionForAttendance();
+    const first = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "absent"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    createdClassIds.push(...(first.pairedFinalizations[0].newClassIds ?? []));
+
+    const swapped = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "absent", "attended"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    createdClassIds.push(...(swapped.pairedFinalizations[0].newClassIds ?? []));
+    expect(swapped.pairedFinalizations).toMatchObject([{
+      status: "converted",
+      presentEnrollmentId: session.enrollmentIdB,
+    }]);
+    expect((await convertedLessons(booker)).filter((row) => row.cancelledAt == null))
+      .toHaveLength(0);
+    expect((await convertedLessons(waiting)).filter((row) => row.cancelledAt == null))
+      .toHaveLength(2);
+
+    const swappedBack = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "no-show"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    createdClassIds.push(...(swappedBack.pairedFinalizations[0].newClassIds ?? []));
+    expect(swappedBack.pairedFinalizations).toMatchObject([{
+      status: "converted",
+      presentEnrollmentId: session.enrollmentIdA,
+    }]);
+    expect((await convertedLessons(waiting)).filter((row) => row.cancelledAt == null))
+      .toHaveLength(0);
+    expect((await convertedLessons(booker)).filter((row) => row.cancelledAt == null))
+      .toHaveLength(2);
+  });
+
+  it("rejects an old-pair correction after its absent student has paired in a new slot", async () => {
+    const { waiting, session } = await seedPairedSessionForAttendance();
+    const converted = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "absent"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    createdClassIds.push(...(converted.pairedFinalizations[0].newClassIds ?? []));
+
+    const nextBooker = await createStudent();
+    const laterClass = await createCombinedClass();
+    expect((await bookCombinedSlot({ studentId: nextBooker, classId: laterClass })).success)
+      .toBe(true);
+    const [nextOffer] = await pendingOffersFor(laterClass);
+    expect(nextOffer.studentId).toBe(waiting);
+    const nextPair = await respondToOffer({
+      offerId: nextOffer.id,
+      studentId: waiting,
+      response: "accept",
+    });
+    expect(nextPair.success).toBe(true);
+
+    await expect(saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "attended"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    })).rejects.toThrow(/queue entry|paired|reconcile/i);
+
+    const oldRows = new Map((await attendanceRows(session)).map((row) => [row.id, row]));
+    // Conversion preserves the exact submitted attendance value and uses
+    // cancelledAt (not a fabricated absence) to suppress paired 12/13 credit.
+    expect(oldRows.get(session.enrollmentIdA!)?.attendanceStatus).toBe("attended");
+    expect(oldRows.get(session.enrollmentIdA!)?.cancelledAt).not.toBeNull();
+    expect(oldRows.get(session.enrollmentIdB!)?.attendanceStatus).toBe("absent");
+    const [newSession] = await db.select().from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, nextPair.pairedSessionId!));
+    expect(newSession.status).toBe("paired");
+    expect((await queueEntryFor(waiting)).at(-1)?.status).toBe("paired");
+  });
+
+  it("rejects malformed enrollment linkage and rolls the requested write back", async () => {
+    const { session } = await seedPairedSessionForAttendance();
+    const unrelatedStudent = await createStudent();
+    const unrelatedClass = await createCombinedClass();
+    const [unrelatedEnrollment] = await db.insert(classEnrollments).values({
+      classId: unrelatedClass,
+      studentId: unrelatedStudent,
+      attendanceStatus: "registered",
+    }).returning();
+    await db.update(incarPairedSessions)
+      .set({ enrollmentIdB: unrelatedEnrollment.id })
+      .where(eq(incarPairedSessions.id, session.id));
+
+    await expect(saveAttendanceWithPairing({
+      updates: [
+        { enrollmentId: session.enrollmentIdA!, attendanceStatus: "attended" },
+        { enrollmentId: unrelatedEnrollment.id, attendanceStatus: "attended" },
+      ],
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    })).rejects.toThrow(/link|enrollment|paired session/i);
+    const [original] = await db.select().from(classEnrollments)
+      .where(eq(classEnrollments.id, session.enrollmentIdA!));
+    const [unrelated] = await db.select().from(classEnrollments)
+      .where(eq(classEnrollments.id, unrelatedEnrollment.id));
+    expect(original.attendanceStatus).toBe("registered");
+    expect(unrelated.attendanceStatus).toBe("registered");
+  });
+
+  it("does not complete a pair whose partner enrollment is cancelled", async () => {
+    const { session } = await seedPairedSessionForAttendance();
+    await db.update(classEnrollments).set({ cancelledAt: new Date() })
+      .where(eq(classEnrollments.id, session.enrollmentIdB!));
+
+    await expect(saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "attended"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    })).rejects.toThrow(/cancelled|active enrollment|link/i);
+    const rows = await attendanceRows(session);
+    expect(rows.map((row) => row.attendanceStatus)).toEqual(["registered", "registered"]);
+    const [sessionAfter] = await db.select().from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, session.id));
+    expect(sessionAfter.status).toBe("paired");
+  });
+
+  it("does not let a lifecycle sweep overwrite a concurrent attendance correction", async () => {
+    const { booker, waiting, session } = await seedPairedSessionForAttendance();
+    await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "attended"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+
+    const [corrected] = await Promise.all([
+      saveAttendanceWithPairing({
+        updates: pairedAttendanceUpdates(session, "attended", "absent"),
+        actorId: String(adminUserId),
+        actorRole: "admin",
+      }),
+      processPairingLifecycle(),
+    ]);
+    createdClassIds.push(...(corrected.pairedFinalizations[0].newClassIds ?? []));
+    const [sessionAfter] = await db.select().from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, session.id));
+    expect(sessionAfter.status).toBe("dissolved");
+    expect((await queueEntryFor(booker)).at(-1)?.status).toBe("converted_solo");
+    expect((await queueEntryFor(waiting)).at(-1)?.status).toBe("waiting");
+  });
+
+  it("emits no conversion notification when a later session conflict rolls back a multi-session save", async () => {
+    const first = await seedPairedSessionForAttendance();
+    const second = await seedPairedSessionForAttendance();
+    const conflicting11 = await createCombinedClass({
+      classNumber: 11,
+      duration: 60,
+      maxStudents: 1,
+    });
+    await db.insert(classEnrollments).values({
+      classId: conflicting11,
+      studentId: second.booker,
+      attendanceStatus: "registered",
+    });
+    vi.mocked(enqueueNotification).mockClear();
+
+    await expect(saveAttendanceWithPairing({
+      updates: [
+        ...pairedAttendanceUpdates(first.session, "attended", "absent"),
+        ...pairedAttendanceUpdates(second.session, "attended", "absent"),
+      ],
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    })).rejects.toThrow(/unrelated active booking/i);
+    // Notification delivery is asynchronous; let an incorrectly queued
+    // post-conversion task reach the mock before asserting.
+    await new Promise<void>((resolve) => setImmediate(resolve));
+
+    expect(vi.mocked(enqueueNotification).mock.calls.filter(
+      ([notification]) => notification.type === "incar_lesson_converted",
+    )).toHaveLength(0);
+    for (const seeded of [first, second]) {
+      expect((await attendanceRows(seeded.session)).map((row) => row.attendanceStatus))
+        .toEqual(["registered", "registered"]);
+      const [sessionAfter] = await db.select().from(incarPairedSessions)
+        .where(eq(incarPairedSessions.id, seeded.session.id));
+      expect(sessionAfter.status).toBe("paired");
+    }
+  });
+
+  it("lets the missed student reuse its queue entry in a later bookCombinedSlot", async () => {
+    const { waiting, session } = await seedPairedSessionForAttendance();
+    const result = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "no-show"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    createdClassIds.push(...(result.pairedFinalizations[0].newClassIds ?? []));
+    expect((await queueEntryFor(waiting)).at(-1)?.status).toBe("waiting");
+
+    const laterClass = await createCombinedClass();
+    const booked = await bookCombinedSlot({ studentId: waiting, classId: laterClass });
+    expect(booked.success).toBe(true);
+    const active = (await queueEntryFor(waiting)).filter((row) =>
+      ["waiting", "offered", "booked_first", "paired"].includes(row.status));
+    expect(active).toHaveLength(1);
+    expect(active[0]).toMatchObject({ status: "booked_first", bookedClassId: laterClass });
+  });
+
+  it("lets the attending converted student make a later exact booking too", async () => {
+    const { booker, session } = await seedPairedSessionForAttendance();
+    const result = await saveAttendanceWithPairing({
+      updates: pairedAttendanceUpdates(session, "attended", "absent"),
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    createdClassIds.push(...(result.pairedFinalizations[0].newClassIds ?? []));
+    expect((await queueEntryFor(booker)).at(-1)?.status).toBe("converted_solo");
+
+    const laterClass = await createCombinedClass();
+    const booked = await bookCombinedSlot({ studentId: booker, classId: laterClass });
+    expect(booked.success).toBe(true);
+    const active = (await queueEntryFor(booker)).filter((row) =>
+      ["waiting", "offered", "booked_first", "paired"].includes(row.status));
+    expect(active).toHaveLength(1);
+    expect(active[0]).toMatchObject({ status: "booked_first", bookedClassId: laterClass });
+  });
+});
 
 describe("convertPresentStudentToSolo (live DB)", () => {
   it("exposes the two-lesson conversion through the authenticated API", async () => {

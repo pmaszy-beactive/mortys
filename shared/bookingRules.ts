@@ -1047,6 +1047,9 @@ export function isCombined1213Class(e: {
 // ─── Utility: build CompletedClassRecord[] from enrollment data ───────────────
 
 export interface EnrollmentWithClass {
+  /** Source identifiers retained by authoritative server projections. */
+  enrollmentId?: number;
+  classId?: number | null;
   attendanceStatus: string | null;
   classType: string | null;
   classNumber: number | null;
@@ -1063,6 +1066,55 @@ export interface EnrollmentWithClass {
    * auto-course rows; a non-auto 120-min driving #12 must never expand to #13.
    */
   courseType?: string | null;
+  /** Class lifecycle status, used by booking consumers for daily limits. */
+  classStatus?: string | null;
+  /**
+   * True when the server loaded authoritative pairing metadata for this
+   * enrollment.  Older callers and historical imports omit this flag and keep
+   * the pre-pairing completion behaviour.
+   */
+  pairedCompletionEvidenceLoaded?: boolean;
+  /** The paired-session row containing this exact enrollment, when one exists. */
+  pairedSessionId?: number | null;
+  /** Current authoritative paired-session status (paired/completed/dissolved…). */
+  pairedSessionStatus?: string | null;
+  /**
+   * True only when both paired-session enrollment IDs resolve to active rows
+   * for the expected students and session class. Live pairing metadata is
+   * fail-closed when this proof is missing or inconsistent.
+   */
+  pairedEnrollmentLinksValid?: boolean;
+  /** Attendance on the other enrollment recorded on that paired session. */
+  partnerAttendanceStatus?: string | null;
+  /** A cancelled partner enrollment cannot prove paired completion. */
+  partnerEnrollmentCancelled?: boolean;
+  /** Whether the class start has passed in the school's configured timezone. */
+  classStarted?: boolean;
+}
+
+/**
+ * Decide whether an attended enrollment may contribute curriculum completion.
+ *
+ * Pairing evidence is deliberately opt-in so historical/non-paired callers do
+ * not lose valid credits. Once authoritative evidence has been loaded:
+ * - no paired-session row means this is a normal/historical enrollment;
+ * - a real paired session counts only after class start and both enrollments
+ *   are attended;
+ * - dissolved/cancelled sessions (including no-show conversions) never count.
+ */
+export function enrollmentCountsAsCompleted(e: EnrollmentWithClass): boolean {
+  if (e.attendanceStatus !== "attended") return false;
+  if (!isCombined1213Class(e)) return true;
+  if (!e.pairedCompletionEvidenceLoaded || e.pairedSessionId == null) return true;
+
+  return (
+    e.classStarted === true &&
+    e.pairedEnrollmentLinksValid === true &&
+    e.partnerAttendanceStatus === "attended" &&
+    e.partnerEnrollmentCancelled !== true &&
+    e.pairedSessionStatus !== "dissolved" &&
+    e.pairedSessionStatus !== "cancelled"
+  );
 }
 
 /**
@@ -1080,7 +1132,7 @@ export function buildCompletedClasses(
   const records: CompletedClassRecord[] = [];
   for (const e of enrollments) {
     if (
-      e.attendanceStatus !== "attended" ||
+      !enrollmentCountsAsCompleted(e) ||
       e.classType == null ||
       e.classNumber == null ||
       e.date == null

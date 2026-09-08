@@ -16,6 +16,7 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { format, startOfWeek, endOfWeek, addDays, addWeeks, subWeeks, addMonths, subMonths, startOfMonth, endOfMonth, isSameMonth, isToday, isBefore, parse, isSameDay, getDay } from "date-fns";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { describePairedFinalizations, responseMessage } from "@/lib/paired-finalizations";
 import SignaturePad, { SignaturePadRef } from "@/components/signature-pad";
 import type { Class } from "@shared/schema";
 
@@ -142,11 +143,26 @@ export default function InstructorSchedule() {
       queryClient.invalidateQueries({ queryKey: ["/api/instructor/classes"] });
       queryClient.invalidateQueries({ queryKey: ["/api/instructor/classes-needing-evaluation"] });
       queryClient.invalidateQueries({ queryKey: ["/api/instructor/dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/classes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/lesson-pairing/admin"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/lesson-pairing/status"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/classes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/classes/available"] });
+      for (const studentId of Array.from(new Set(studentAttendance.map(student => student.studentId)))) {
+        queryClient.invalidateQueries({ queryKey: ["/api/students", studentId] });
+        queryClient.invalidateQueries({ queryKey: ["/api/students", studentId, "phase-progress"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/class-enrollments", "student", studentId] });
+      }
       // Also invalidate the students query for this class
       queryClient.invalidateQueries({ queryKey: ["/api/instructor/classes", variables.classId, "students"] });
+      const attendanceSummary =
+        typeof response?.attendedCount === "number" && typeof response?.absentCount === "number"
+          ? `${response.attendedCount} students marked present, ${response.absentCount} absent.`
+          : responseMessage(response) || "Attendance was saved.";
+      const pairedSummary = describePairedFinalizations(response);
       toast({
         title: "Attendance Submitted",
-        description: `${response.attendedCount} students marked present, ${response.absentCount} absent.`,
+        description: pairedSummary ? `${attendanceSummary} ${pairedSummary}` : attendanceSummary,
       });
       setAttendanceClass(null);
       setStudentAttendance([]);
@@ -154,7 +170,7 @@ export default function InstructorSchedule() {
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error?.message || "Failed to submit attendance",
+        description: error?.data?.message || error?.message || "Failed to submit attendance",
         variant: "destructive",
       });
     },

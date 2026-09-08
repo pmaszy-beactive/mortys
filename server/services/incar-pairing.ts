@@ -70,6 +70,7 @@
 
 import { db } from "../db";
 import type { DbTx } from "../storage";
+import { storage } from "../storage";
 import {
   incarPairingQueue,
   incarPairedSessions,
@@ -79,6 +80,7 @@ import {
   students,
   classes,
   classEnrollments,
+  attendanceAuditLogs,
 } from "@shared/schema";
 import type {
   IncarPairingQueue,
@@ -104,7 +106,10 @@ import {
   getStudentRecipients,
   getOfficeRecipients,
 } from "./notifications";
-import { isCombined1213Class } from "@shared/bookingRules";
+import {
+  enrollmentCountsAsCompleted,
+  isCombined1213Class,
+} from "@shared/bookingRules";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -124,6 +129,18 @@ export const CONFIRMATION_HOURS_BEFORE = 24;
 
 /** Advisory lock namespace (arbitrary, must not collide with booking-validation). */
 const LOCK_NS = 823002;
+/** Shared with withStudentBookingLock; always acquired before LOCK_NS. */
+const BOOKING_LOCK_NS = 823001;
+
+async function acquireStudentMutationLocks(tx: DbTx, studentIds: number[]) {
+  const sorted = Array.from(new Set(studentIds)).sort((a, b) => a - b);
+  for (const sid of sorted) {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(${BOOKING_LOCK_NS}, ${sid})`);
+  }
+  for (const sid of sorted) {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(${LOCK_NS}, ${sid})`);
+  }
+}
 
 /**
  * One-query proof for the Auto Phase 4 #11/#14 gate. Only pending/accepted
@@ -162,9 +179,7 @@ async function withLock<T>(
   return db.transaction(async (tx) => {
     const sorted = Array.from(new Set(studentIds)).sort((a, b) => a - b);
     for (const sid of sorted) {
-      await tx.execute(
-        sql`SELECT pg_advisory_xact_lock(${LOCK_NS}, ${sid})`,
-      );
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(${LOCK_NS}, ${sid})`);
     }
     return fn(tx);
   });
@@ -506,8 +521,9 @@ async function findActiveQueueStatus(
 export async function checkEligibility(
   studentId: number,
   _sessionNumber: 12 | 13 = 12, // accept 12 or 13 for compat; always checks #12
+  exec: typeof db | DbTx = db,
 ): Promise<EligibilityResult> {
-  const [student] = await db
+  const [student] = await exec
     .select({ id: students.id, courseType: students.courseType })
     .from(students)
     .where(eq(students.id, studentId))
@@ -523,7 +539,7 @@ export async function checkEligibility(
   }
 
   // Theory 11 attended
-  const [t11] = await db
+  const [t11] = await exec
     .select({ id: classEnrollments.id })
     .from(classEnrollments)
     .innerJoin(classes, eq(classEnrollments.classId, classes.id))
@@ -546,38 +562,15 @@ export async function checkEligibility(
     };
   }
 
-  // Not already completed the combined session. Use the FULL canonical
-  // predicate (isCombined1213Class: auto / driving / #12 / 120 / maxStudents=2)
-  // — a noncanonical legacy 120-min #12 (e.g. capacity 1 or non-auto course)
-  // is NOT a combined 12/13 completion and must NOT block queue eligibility.
-  const attended12 = await db
-    .select({
-      classType: classes.classType,
-      classNumber: classes.classNumber,
-      duration: classes.duration,
-      maxStudents: classes.maxStudents,
-      courseType: classes.courseType,
-    })
-    .from(classEnrollments)
-    .innerJoin(classes, eq(classEnrollments.classId, classes.id))
-    .where(
-      and(
-        eq(classEnrollments.studentId, studentId),
-        eq(classes.classType, "driving"),
-        eq(classes.classNumber, 12),
-        eq(classEnrollments.attendanceStatus, "attended"),
-        isNull(classEnrollments.cancelledAt),
-      ),
-    );
-
-  const doneCombined = attended12.some((c) =>
-    isCombined1213Class({
-      classType: c.classType,
-      classNumber: c.classNumber,
-      duration: c.duration,
-      maxStudents: c.maxStudents,
-      courseType: c.courseType,
-    }),
+  // Use the same authoritative pairing evidence as Course Progress. In
+  // particular, a pre-start attended mark, one attended partner, or a
+  // dissolved conversion never blocks the student from re-entering matching.
+  const completionDetails =
+    await storage.getEnrollmentCompletionDetailsByStudent(studentId);
+  const doneCombined = completionDetails.some(
+    (enrollment) =>
+      isCombined1213Class(enrollment) &&
+      enrollmentCountsAsCompleted(enrollment),
   );
 
   if (doneCombined) {
@@ -592,7 +585,7 @@ export async function checkEligibility(
   // is still eligible to book a concrete slot, which bookCombinedSlot converts
   // to 'booked_first'. Any other active status (offered/booked_first/paired/
   // confirmed) means they are already committed elsewhere.
-  const activeStatus = await findActiveQueueStatus(db, studentId);
+  const activeStatus = await findActiveQueueStatus(exec, studentId);
   if (activeStatus && activeStatus !== "waiting") {
     return {
       eligible: false,
@@ -761,15 +754,29 @@ export async function bookCombinedSlot(params: {
   classId: number;
   actorId?: string;
   actorRole?: string;
+  /** Existing transaction whose caller already holds booking lock 823001. */
+  tx?: DbTx;
 }): Promise<BookCombinedSlotResult> {
-  const { studentId, classId, actorId = String(params.studentId), actorRole = "student" } = params;
+  const {
+    studentId,
+    classId,
+    actorId = String(params.studentId),
+    actorRole = "student",
+    tx: existingTx,
+  } = params;
 
+  // Cheap early rejection only. The authoritative result is checked again
+  // after both mutation locks are established below.
   const eligibility = await checkEligibility(studentId);
   if (!eligibility.eligible) {
     return { success: false, reason: eligibility.reason };
   }
 
-  return withLock([studentId], async (tx) => {
+  const runLocked = async (tx: DbTx): Promise<BookCombinedSlotResult> => {
+    const lockedEligibility = await checkEligibility(studentId, 12, tx);
+    if (!lockedEligibility.eligible) {
+      return { success: false, reason: lockedEligibility.reason };
+    }
     // Re-check active queue state INSIDE the lock — the eligibility check above
     // ran outside the lock and is race-prone.
     //
@@ -910,6 +917,18 @@ export async function bookCombinedSlot(params: {
       queueEntryId: queueEntry.id,
       enrollmentId: enrollment.id,
     };
+  };
+  if (existingTx) {
+    // The route owns 823001 in this transaction. Acquiring it from a separate
+    // transaction would self-deadlock; only add the pairing lock here.
+    await existingTx.execute(
+      sql`SELECT pg_advisory_xact_lock(${LOCK_NS}, ${studentId})`,
+    );
+    return runLocked(existingTx);
+  }
+  return db.transaction(async (tx) => {
+    await acquireStudentMutationLocks(tx, [studentId]);
+    return runLocked(tx);
   });
 }
 
@@ -938,7 +957,12 @@ export async function joinCombinedQueue(params: {
   const eligibility = await checkEligibility(studentId);
   if (!eligibility.eligible) return { success: false, reason: eligibility.reason };
 
-  return withLock([studentId], async (tx) => {
+  return db.transaction(async (tx) => {
+    await acquireStudentMutationLocks(tx, [studentId]);
+    const lockedEligibility = await checkEligibility(studentId, 12, tx);
+    if (!lockedEligibility.eligible) {
+      return { success: false, reason: lockedEligibility.reason };
+    }
     // Re-check ALL active statuses INSIDE the lock — eligibility ran outside
     // the lock. Idempotent for waiting/offered entries; blocks otherwise.
     const [existing] = await tx
@@ -2646,7 +2670,11 @@ export interface SoloConversionResult {
   success: boolean;
   newClassIds?: number[];
   newEnrollmentIds?: number[];
+  preservedClassNumbers?: number[];
   reason?: string;
+}
+interface SoloConversionInternalResult extends SoloConversionResult {
+  notification?: { studentId: number; newClassIds: number[] };
 }
 
 export function addMinutesToClassTime(time: string | null | undefined, minutes: number): string | null {
@@ -2688,10 +2716,7 @@ export function evaluateSoloConversionGates(input: {
   if (!input.presentEnrollmentExists || input.presentEnrollmentCancelled) {
     return { ok: false, reason: "Present student enrollment is not active." };
   }
-  if (
-    input.presentAttendanceStatus !== "checked_in" &&
-    input.presentAttendanceStatus !== "attended"
-  ) {
+  if (input.presentAttendanceStatus !== "attended") {
     return { ok: false, reason: "Present student has not been marked as attending." };
   }
   if (
@@ -2716,7 +2741,7 @@ export function evaluateSoloConversionGates(input: {
  * - Absent student queue entry → 'waiting' (re-queued).
  * - Paired session → 'dissolved'.
  */
-export async function convertPresentStudentToSolo(params: {
+interface SoloConversionParams {
   pairedSessionId: number;
   presentEnrollmentId: number;
   actorId?: string;
@@ -2724,7 +2749,12 @@ export async function convertPresentStudentToSolo(params: {
   testHooks?: {
     beforeSecondLesson?: () => Promise<void>;
   };
-}): Promise<SoloConversionResult> {
+}
+
+async function convertPresentStudentToSoloInTransaction(
+  tx: DbTx,
+  params: SoloConversionParams,
+): Promise<SoloConversionInternalResult> {
   const {
     pairedSessionId,
     presentEnrollmentId,
@@ -2733,7 +2763,6 @@ export async function convertPresentStudentToSolo(params: {
     testHooks,
   } = params;
 
-  return db.transaction(async (tx) => {
     const [session] = await tx
       .select()
       .from(incarPairedSessions)
@@ -2761,9 +2790,32 @@ export async function convertPresentStudentToSolo(params: {
     const absentEnrollmentId = isAPresent ? session.enrollmentIdB : session.enrollmentIdA;
 
     // Advisory locks
-    const sorted = [presentStudentId, absentStudentId].sort((a, b) => a - b);
-    for (const sid of sorted) {
-      await tx.execute(sql`SELECT pg_advisory_xact_lock(${LOCK_NS}, ${sid})`);
+    await acquireStudentMutationLocks(tx, [presentStudentId, absentStudentId]);
+    const [lockedOrigClass] = await tx.select().from(classes)
+      .where(eq(classes.id, session.classId))
+      .for("update")
+      .limit(1);
+    if (!lockedOrigClass) return { success: false, reason: "Original class not found." };
+    const linkedEnrollmentIds = [session.enrollmentIdA, session.enrollmentIdB]
+      .filter((id): id is number => id != null)
+      .sort((a, b) => a - b);
+    if (linkedEnrollmentIds.length !== 2) {
+      return { success: false, reason: "Paired session is missing an enrollment linkage." };
+    }
+    const linkedEnrollments = await tx.select().from(classEnrollments)
+      .where(inArray(classEnrollments.id, linkedEnrollmentIds))
+      .orderBy(asc(classEnrollments.id))
+      .for("update");
+    const enrollmentA = linkedEnrollments.find((row) => row.id === session.enrollmentIdA);
+    const enrollmentB = linkedEnrollments.find((row) => row.id === session.enrollmentIdB);
+    if (
+      linkedEnrollments.length !== 2 ||
+      enrollmentA?.studentId !== session.studentIdA ||
+      enrollmentB?.studentId !== session.studentIdB ||
+      enrollmentA.classId !== session.classId ||
+      enrollmentB.classId !== session.classId
+    ) {
+      return { success: false, reason: "Paired session enrollment ownership is inconsistent." };
     }
 
     // The first lookup identifies which students to lock. Re-read the session
@@ -2782,36 +2834,59 @@ export async function convertPresentStudentToSolo(params: {
       };
     }
 
-    // Both credits are one atomic outcome, so reject before mutating if either
-    // lesson has already been completed.
-    const alreadyDone = await tx
-      .select()
+    // Preserve legitimate completed #11/#14 credit, but never silently consume
+    // or cancel an unrelated active booking for either lesson.
+    const existingTargets = await tx
+      .select({
+        enrollmentId: classEnrollments.id,
+        attendanceStatus: classEnrollments.attendanceStatus,
+        cancelledAt: classEnrollments.cancelledAt,
+        classId: classes.id,
+        classNumber: classes.classNumber,
+      })
       .from(classEnrollments)
       .innerJoin(classes, eq(classEnrollments.classId, classes.id))
       .where(
         and(
           eq(classEnrollments.studentId, presentStudentId),
+          eq(classes.courseType, "auto"),
           eq(classes.classType, "driving"),
           inArray(classes.classNumber, [11, 14]),
-          eq(classEnrollments.attendanceStatus, "attended"),
           isNull(classEnrollments.cancelledAt),
         ),
-      )
-      .limit(2);
+      );
 
-    if (alreadyDone.length > 0) {
-      const completedNumber = alreadyDone[0].classes.classNumber;
-      return { success: false, reason: `In-Car #${completedNumber} already completed.` };
+    const unrelatedBooking = existingTargets.find(
+      (row) =>
+        row.attendanceStatus === "registered" ||
+        row.attendanceStatus === "checked_in",
+    );
+    if (unrelatedBooking) {
+      return {
+        success: false,
+        reason:
+          `Cannot convert attendance: In-Car #${unrelatedBooking.classNumber} ` +
+          `has an unrelated active booking (class ${unrelatedBooking.classId}).`,
+      };
     }
+    const completedNumbers = new Set(
+      existingTargets
+        .filter((row) => row.attendanceStatus === "attended")
+        .map((row) => row.classNumber)
+        .filter((value): value is number => value != null),
+    );
 
     // Load the original class to copy instructor/date/time
-    const [origClass] = await tx
-      .select()
-      .from(classes)
-      .where(eq(classes.id, session.classId))
-      .limit(1);
-
-    if (!origClass) return { success: false, reason: "Original class not found." };
+    const origClass = lockedOrigClass;
+    if (!isCombined1213Class(origClass)) {
+      return { success: false, reason: "Original class is not a canonical Auto In-Car 12 paired lesson." };
+    }
+    if (
+      actorRole === "instructor" &&
+      (!Number.isInteger(Number(actorId)) || origClass.instructorId !== Number(actorId))
+    ) {
+      return { success: false, reason: "Instructor may only convert a class assigned to them." };
+    }
 
     // ── Server-side conversion gates (Task 272, review round 4) ──────────────
     // Read both enrollments and the class start, then evaluate via the shared
@@ -2834,6 +2909,9 @@ export async function convertPresentStudentToSolo(params: {
           .where(eq(classEnrollments.id, absentEnrollmentId))
           .limit(1)
       : [undefined];
+    if (absentEnrollment?.cancelledAt) {
+      return { success: false, reason: "Partner enrollment is cancelled." };
+    }
 
     const gate = evaluateSoloConversionGates({
       classStartMs: classStart ? classStart.getTime() : null,
@@ -2860,12 +2938,14 @@ export async function convertPresentStudentToSolo(params: {
     // rows. This must happen before we create the new solo class/enrollment.
     await tx
       .update(classEnrollments)
-      .set({ cancelledAt: new Date(), attendanceStatus: "absent" })
+      .set({ cancelledAt: new Date() })
       .where(eq(classEnrollments.id, presentEnrollmentId));
 
     const newClasses: Array<typeof classes.$inferSelect> = [];
     const newEnrollments: Array<typeof classEnrollments.$inferSelect> = [];
-    const conversionLessons: readonly [11, 14] = [11, 14];
+    const conversionLessons = ([11, 14] as const).filter(
+      (lesson) => !completedNumbers.has(lesson),
+    );
     for (let index = 0; index < conversionLessons.length; index += 1) {
       const lesson = conversionLessons[index];
       if (index === 1) await testHooks?.beforeSecondLesson?.();
@@ -2926,13 +3006,14 @@ export async function convertPresentStudentToSolo(params: {
       pairedSessionId,
       queueEntryId: presentQueueEntryId,
       studentId: presentStudentId,
-      classId: newClasses[0].id,
+      classId: newClasses[0]?.id ?? session.classId,
       actorId,
       actorRole,
       previousStatus: lockedSession.status,
       newStatus: "converted_solo",
       details: {
         targetSessionNumbers: [11, 14],
+        preservedClassNumbers: Array.from(completedNumbers),
         newClassIds: newClasses.map((row) => row.id),
         newEnrollmentIds: newEnrollments.map((row) => row.id),
         absentStudentId,
@@ -2951,20 +3032,769 @@ export async function convertPresentStudentToSolo(params: {
       details: { reason: "Partner was present; this student no-showed" },
     });
 
-    // Notify the present student of their solo conversion (fire-and-forget).
-    notifyLessonConverted({
-      studentId: presentStudentId,
-      newClassIds: newClasses.map((row) => row.id),
-    }).catch((err) =>
-      console.error("[incar-pairing] lesson-converted notification error:", err),
-    );
-
     return {
       success: true,
       newClassIds: newClasses.map((row) => row.id),
       newEnrollmentIds: newEnrollments.map((row) => row.id),
+      preservedClassNumbers: Array.from(completedNumbers),
+      notification: {
+        studentId: presentStudentId,
+        newClassIds: newClasses.map((row) => row.id),
+      },
     };
+}
+
+export async function convertPresentStudentToSolo(
+  params: SoloConversionParams,
+): Promise<SoloConversionResult> {
+  const result = await db.transaction((tx) =>
+    convertPresentStudentToSoloInTransaction(tx, params),
+  );
+  const { notification, ...publicResult } = result;
+  if (result.success && notification) {
+    notifyLessonConverted(notification).catch((err) =>
+      console.error("[incar-pairing] lesson-converted notification error:", err),
+    );
+  }
+  return publicResult;
+}
+
+// ─── Central attendance write/finalization ────────────────────────────────────
+
+type AttendanceStatus = "registered" | "checked_in" | "attended" | "absent" | "no-show";
+
+export interface AttendanceEnrollmentChanges {
+  attendanceStatus?: AttendanceStatus;
+  testScore?: number | null;
+  paymentStatus?: string | null;
+  paidAmount?: number | null;
+  checkInAt?: Date | string | null;
+  checkOutAt?: Date | string | null;
+  /** Friendly aliases accepted by roster callers. */
+  checkInTime?: Date | string | null;
+  checkOutTime?: Date | string | null;
+  checkInSignature?: string | null;
+  checkOutSignature?: string | null;
+}
+
+export interface AttendanceUpdate extends AttendanceEnrollmentChanges {
+  enrollmentId: number;
+  /** Routes may pass a nested changes object; direct fields remain supported. */
+  changes?: AttendanceEnrollmentChanges;
+}
+
+export interface AttendanceClassUpdate {
+  classId: number;
+  changes: {
+    status?: string;
+    attendanceSignature?: string | null;
+    attendanceSignedAt?: string | null;
+    attendanceSignedBy?: number | null;
+  };
+}
+
+export type PairedAttendanceFinalizationStatus =
+  | "pending"
+  | "completed"
+  | "converted"
+  | "unchanged"
+  | "reconciled";
+
+export interface PairedAttendanceFinalization {
+  pairedSessionId: number;
+  classId: number;
+  status: PairedAttendanceFinalizationStatus;
+  message: string;
+  presentEnrollmentId?: number;
+  newClassIds?: number[];
+  newEnrollmentIds?: number[];
+  preservedClassNumbers?: number[];
+}
+
+export interface SaveAttendanceWithPairingResult {
+  enrollments: Array<typeof classEnrollments.$inferSelect>;
+  pairedFinalizations: PairedAttendanceFinalization[];
+}
+
+export class AttendancePairingFinalizationError extends Error {
+  readonly code = "ATTENDANCE_PAIRING_FINALIZATION_FAILED";
+  readonly httpStatus = 409;
+  constructor(
+    message: string,
+    readonly pairedSessionId?: number,
+  ) {
+    super(message);
+    this.name = "AttendancePairingFinalizationError";
+  }
+}
+
+function normalizedAttendanceChanges(update: AttendanceUpdate) {
+  const source = { ...update, ...(update.changes ?? {}) };
+  const changes: Record<string, unknown> = {};
+  const copy = [
+    "attendanceStatus",
+    "testScore",
+    "paymentStatus",
+    "paidAmount",
+    "checkInSignature",
+    "checkOutSignature",
+  ] as const;
+  for (const key of copy) {
+    if (source[key] !== undefined) changes[key] = source[key];
+  }
+  if (
+    changes.attendanceStatus !== undefined &&
+    !["registered", "checked_in", "attended", "absent", "no-show"].includes(
+      String(changes.attendanceStatus),
+    )
+  ) {
+    throw new AttendancePairingFinalizationError("Unsupported attendance status.");
+  }
+  const normalizeDate = (value: Date | string | null | undefined, field: string) => {
+    if (value === undefined) return;
+    if (value === null) {
+      changes[field] = null;
+      return;
+    }
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      throw new AttendancePairingFinalizationError(`${field} is not a valid date/time.`);
+    }
+    changes[field] = date;
+  };
+  normalizeDate(
+    source.checkInAt !== undefined ? source.checkInAt : source.checkInTime,
+    "checkInAt",
+  );
+  normalizeDate(
+    source.checkOutAt !== undefined ? source.checkOutAt : source.checkOutTime,
+    "checkOutAt",
+  );
+  return changes;
+}
+
+function pairedStatuses(
+  session: typeof incarPairedSessions.$inferSelect,
+  rows: Map<number, typeof classEnrollments.$inferSelect>,
+) {
+  const a = session.enrollmentIdA ? rows.get(session.enrollmentIdA) : undefined;
+  const b = session.enrollmentIdB ? rows.get(session.enrollmentIdB) : undefined;
+  return { a, b, aStatus: a?.attendanceStatus, bStatus: b?.attendanceStatus };
+}
+
+async function setSessionCompleted(
+  tx: DbTx,
+  session: typeof incarPairedSessions.$inferSelect,
+  actorId: string,
+  actorRole: string,
+) {
+  await tx.update(incarPairedSessions).set({
+    status: "completed",
+    completedAt: new Date(),
+    dissolvedAt: null,
+    dissolutionReason: null,
+    updatedAt: new Date(),
+  }).where(eq(incarPairedSessions.id, session.id));
+  await tx.update(incarPairingQueue).set({
+    status: "completed",
+    updatedAt: new Date(),
+  }).where(inArray(incarPairingQueue.id, [session.queueEntryIdA, session.queueEntryIdB]));
+  await audit(tx, {
+    eventType: "session_completed",
+    pairedSessionId: session.id,
+    classId: session.classId,
+    actorId,
+    actorRole,
+    previousStatus: session.status,
+    newStatus: "completed",
+    details: { studentIdA: session.studentIdA, studentIdB: session.studentIdB },
   });
+}
+
+async function restoreActivePairedSession(
+  tx: DbTx,
+  session: typeof incarPairedSessions.$inferSelect,
+  actorId: string,
+  actorRole: string,
+  reason: string,
+) {
+  await tx.update(incarPairedSessions).set({
+    status: "paired",
+    completedAt: null,
+    dissolvedAt: null,
+    dissolutionReason: null,
+    updatedAt: new Date(),
+  }).where(eq(incarPairedSessions.id, session.id));
+  await tx.update(incarPairingQueue).set({
+    status: "paired",
+    bookedClassId: session.classId,
+    updatedAt: new Date(),
+  }).where(inArray(incarPairingQueue.id, [session.queueEntryIdA, session.queueEntryIdB]));
+  if (session.enrollmentIdA) {
+    await tx.update(incarPairingQueue)
+      .set({ enrollmentId: session.enrollmentIdA })
+      .where(eq(incarPairingQueue.id, session.queueEntryIdA));
+  }
+  if (session.enrollmentIdB) {
+    await tx.update(incarPairingQueue)
+      .set({ enrollmentId: session.enrollmentIdB })
+      .where(eq(incarPairingQueue.id, session.queueEntryIdB));
+  }
+  await audit(tx, {
+    eventType: "attendance_finalization_reconciled",
+    pairedSessionId: session.id,
+    classId: session.classId,
+    actorId,
+    actorRole,
+    previousStatus: session.status,
+    newStatus: "paired",
+    details: { reason },
+  });
+}
+
+async function reverseSoloConversion(
+  tx: DbTx,
+  session: typeof incarPairedSessions.$inferSelect,
+  actorId: string,
+  actorRole: string,
+) {
+  const [conversion] = await tx.select()
+    .from(incarPairingAudit)
+    .where(and(
+      eq(incarPairingAudit.pairedSessionId, session.id),
+      eq(incarPairingAudit.eventType, "converted_to_solo"),
+    ))
+    .orderBy(desc(incarPairingAudit.createdAt), desc(incarPairingAudit.id))
+    .limit(1);
+  if (!conversion) {
+    throw new AttendancePairingFinalizationError(
+      "Cannot reconcile converted attendance: conversion audit linkage is missing.",
+      session.id,
+    );
+  }
+  const details = (conversion.details ?? {}) as Record<string, unknown>;
+  const generatedIds = Array.isArray(details.newEnrollmentIds)
+    ? details.newEnrollmentIds.filter((id): id is number => Number.isInteger(id))
+    : [];
+  const presentEnrollmentId =
+    session.enrollmentIdA != null && session.studentIdA === conversion.studentId
+      ? session.enrollmentIdA
+      : session.enrollmentIdB;
+  const absentQueueId =
+    session.studentIdA === conversion.studentId ? session.queueEntryIdB : session.queueEntryIdA;
+  const presentQueueId =
+    session.studentIdA === conversion.studentId ? session.queueEntryIdA : session.queueEntryIdB;
+  const absentStudentId =
+    session.studentIdA === conversion.studentId ? session.studentIdB : session.studentIdA;
+
+  const queueRows = await tx.select().from(incarPairingQueue)
+    .where(inArray(incarPairingQueue.id, [presentQueueId, absentQueueId]))
+    .orderBy(asc(incarPairingQueue.id))
+    .for("update");
+  const presentQueue = queueRows.find((row) => row.id === presentQueueId);
+  const absentQueue = queueRows.find((row) => row.id === absentQueueId);
+  if (
+    !presentQueue ||
+    !absentQueue ||
+    presentQueue.studentId !== conversion.studentId ||
+    absentQueue.studentId !== absentStudentId
+  ) {
+    throw new AttendancePairingFinalizationError(
+      "Cannot reconcile converted attendance because its queue ownership is inconsistent.",
+      session.id,
+    );
+  }
+  if (
+    presentQueue.status !== "converted_solo" ||
+    absentQueue.status !== "waiting" ||
+    absentQueue.bookedClassId != null ||
+    absentQueue.enrollmentId != null
+  ) {
+    throw new AttendancePairingFinalizationError(
+      `Cannot reconcile converted attendance because the absent student's queue entry is now '${absentQueue.status}'.`,
+      session.id,
+    );
+  }
+  const [otherSession] = await tx.select({ id: incarPairedSessions.id })
+    .from(incarPairedSessions)
+    .where(and(
+      or(
+        inArray(incarPairedSessions.queueEntryIdA, [presentQueueId, absentQueueId]),
+        inArray(incarPairedSessions.queueEntryIdB, [presentQueueId, absentQueueId]),
+      ),
+      inArray(incarPairedSessions.status, ["paired", "confirmed", "completed"]),
+    ))
+    .limit(1);
+  if (otherSession) {
+    throw new AttendancePairingFinalizationError(
+      `Cannot reconcile converted attendance because queue ownership moved to paired session ${otherSession.id}.`,
+      session.id,
+    );
+  }
+
+  if (generatedIds.length) {
+    const generated = await tx.select({
+      enrollment: classEnrollments,
+      class: classes,
+    }).from(classEnrollments)
+      .innerJoin(classes, eq(classEnrollments.classId, classes.id))
+      .where(inArray(classEnrollments.id, generatedIds))
+      .for("update");
+    const unsafe = generated.find(({ enrollment, class: lesson }) =>
+      enrollment.studentId !== conversion.studentId ||
+      (enrollment.cancelledAt == null && enrollment.attendanceStatus !== "attended") ||
+      enrollment.checkInAt != null ||
+      enrollment.checkOutAt != null ||
+      lesson.courseType !== "auto" ||
+      lesson.classType !== "driving" ||
+      ![11, 14].includes(lesson.classNumber) ||
+      lesson.duration !== 60 ||
+      lesson.maxStudents !== 1
+    );
+    if (generated.length !== generatedIds.length || unsafe) {
+      throw new AttendancePairingFinalizationError(
+        "Cannot reconcile converted attendance because a generated In-Car 11/14 credit was modified.",
+        session.id,
+      );
+    }
+    const generatedClassIds = generated.map(({ class: lesson }) => lesson.id);
+    const otherActiveEnrollments = generatedClassIds.length
+      ? await tx.select({ id: classEnrollments.id }).from(classEnrollments)
+          .where(and(
+            inArray(classEnrollments.classId, generatedClassIds),
+            isNull(classEnrollments.cancelledAt),
+          ))
+      : [];
+    if (otherActiveEnrollments.some((row) => !generatedIds.includes(row.id))) {
+      throw new AttendancePairingFinalizationError(
+        "Cannot reconcile converted attendance because a generated lesson now has another enrollment.",
+        session.id,
+      );
+    }
+    await tx.update(classEnrollments)
+      .set({ cancelledAt: new Date() })
+      .where(inArray(classEnrollments.id, generatedIds));
+    if (generatedClassIds.length) {
+      await tx.update(classes).set({ status: "cancelled" })
+        .where(inArray(classes.id, generatedClassIds));
+    }
+  }
+  if (presentEnrollmentId) {
+    await tx.update(classEnrollments).set({ cancelledAt: null })
+      .where(eq(classEnrollments.id, presentEnrollmentId));
+  }
+  await restoreActivePairedSession(
+    tx,
+    session,
+    actorId,
+    actorRole,
+    "Attendance correction reversed generated solo credits",
+  );
+  await audit(tx, {
+    eventType: "solo_conversion_reversed",
+    pairedSessionId: session.id,
+    classId: session.classId,
+    studentId: conversion.studentId,
+    actorId,
+    actorRole,
+    previousStatus: "converted_solo",
+    newStatus: "paired",
+    details: {
+      conversionAuditId: conversion.id,
+      reversedEnrollmentIds: generatedIds,
+      preservedClassNumbers: details.preservedClassNumbers ?? [],
+    },
+  });
+}
+
+/**
+ * Atomically writes one or many attendance rows and finalizes every affected
+ * canonical paired 12/13 session. A finalization conflict throws
+ * AttendancePairingFinalizationError and rolls back the whole write.
+ */
+export async function saveAttendanceWithPairing(params: {
+  updates: AttendanceUpdate[];
+  actorId: string;
+  actorRole: string;
+  expectedClassId?: number;
+  classUpdate?: AttendanceClassUpdate;
+  /** Internal read-only invocation used by lifecycle/legacy completion. */
+  finalizeOnly?: boolean;
+}): Promise<SaveAttendanceWithPairingResult> {
+  const { updates, actorId, actorRole, expectedClassId, classUpdate, finalizeOnly = false } = params;
+  if (!updates.length) {
+    throw new AttendancePairingFinalizationError("At least one attendance update is required.");
+  }
+  const ids = updates.map((update) => update.enrollmentId);
+  if (new Set(ids).size !== ids.length) {
+    throw new AttendancePairingFinalizationError("Each enrollment may only be updated once.");
+  }
+
+  const conversionNotifications: Array<{ studentId: number; newClassIds: number[] }> = [];
+  const result = await db.transaction(async (tx) => {
+    const initialRows = await tx.select().from(classEnrollments)
+      .where(inArray(classEnrollments.id, ids));
+    if (initialRows.length !== ids.length) {
+      throw new AttendancePairingFinalizationError("One or more attendance enrollments were not found.");
+    }
+    const submittedStudentIds = initialRows
+      .map((row) => row.studentId)
+      .filter((id): id is number => id != null);
+    const submittedClassIds = Array.from(new Set(
+      initialRows.map((row) => row.classId).filter((id): id is number => id != null),
+    ));
+    const possibleSessions = submittedClassIds.length
+      ? await tx.select().from(incarPairedSessions)
+          .where(or(
+            inArray(incarPairedSessions.enrollmentIdA, ids),
+            inArray(incarPairedSessions.enrollmentIdB, ids),
+            inArray(incarPairedSessions.classId, submittedClassIds),
+          ))
+      : [];
+    const discoveredSessions = possibleSessions.filter((session) =>
+      ids.includes(session.enrollmentIdA ?? -1) ||
+      ids.includes(session.enrollmentIdB ?? -1) ||
+      (
+        (session.enrollmentIdA == null || session.enrollmentIdB == null) &&
+        submittedClassIds.includes(session.classId) &&
+        submittedStudentIds.some(
+          (studentId) => studentId === session.studentIdA || studentId === session.studentIdB,
+        )
+      ),
+    );
+    const allStudentIds = [
+      ...submittedStudentIds,
+      ...discoveredSessions.flatMap((session) => [session.studentIdA, session.studentIdB]),
+    ];
+    await acquireStudentMutationLocks(tx, allStudentIds);
+    const sessionsAfterLock = submittedClassIds.length
+      ? await tx.select().from(incarPairedSessions)
+          .where(or(
+            inArray(incarPairedSessions.enrollmentIdA, ids),
+            inArray(incarPairedSessions.enrollmentIdB, ids),
+            inArray(incarPairedSessions.classId, submittedClassIds),
+          ))
+      : [];
+    const discoveredIds = new Set(discoveredSessions.map((session) => session.id));
+    const newlyRelevantSession = sessionsAfterLock.find((session) =>
+      !discoveredIds.has(session.id) &&
+      (
+        ids.includes(session.enrollmentIdA ?? -1) ||
+        ids.includes(session.enrollmentIdB ?? -1) ||
+        (
+          (session.enrollmentIdA == null || session.enrollmentIdB == null) &&
+          submittedClassIds.includes(session.classId) &&
+          submittedStudentIds.some(
+            (studentId) => studentId === session.studentIdA || studentId === session.studentIdB,
+          )
+        )
+      )
+    );
+    if (newlyRelevantSession) {
+      throw new AttendancePairingFinalizationError(
+        "Pairing changed concurrently; retry the attendance save.",
+        newlyRelevantSession.id,
+      );
+    }
+
+    const classIds = Array.from(new Set([
+      ...submittedClassIds,
+      ...discoveredSessions.map((session) => session.classId),
+    ])).sort((a, b) => a - b);
+    const affectedClasses = classIds.length
+      ? await tx.select().from(classes).where(inArray(classes.id, classIds))
+          .orderBy(asc(classes.id)).for("update")
+      : [];
+    const allEnrollmentIds = Array.from(new Set([
+      ...ids,
+      ...discoveredSessions.flatMap((session) =>
+        [session.enrollmentIdA, session.enrollmentIdB]
+          .filter((id): id is number => id != null)
+      ),
+    ])).sort((a, b) => a - b);
+    const allLockedRows = await tx.select().from(classEnrollments)
+      .where(inArray(classEnrollments.id, allEnrollmentIds))
+      .orderBy(asc(classEnrollments.id))
+      .for("update");
+    const lockedRows = allLockedRows.filter((row) => ids.includes(row.id));
+    const classesById = new Map(affectedClasses.map((row) => [row.id, row]));
+
+    if (expectedClassId != null && lockedRows.some((row) => row.classId !== expectedClassId)) {
+      throw new AttendancePairingFinalizationError("An enrollment does not belong to the expected class.");
+    }
+    if (classUpdate && !classIds.includes(classUpdate.classId)) {
+      throw new AttendancePairingFinalizationError("The class update is unrelated to these attendance rows.");
+    }
+    if (actorRole === "instructor") {
+      const instructorId = Number(actorId);
+      if (!Number.isInteger(instructorId) ||
+          affectedClasses.some((row) => row.instructorId !== instructorId)) {
+        throw new AttendancePairingFinalizationError(
+          "Instructor may only save attendance for classes assigned to them.",
+        );
+      }
+    }
+
+    // Generated solo credits are immutable through ordinary attendance APIs;
+    // staff correct the linked original paired enrollment instead.
+    const generatedEdit = await tx.select({ id: incarPairingAudit.id })
+      .from(incarPairingAudit)
+      .where(and(
+        eq(incarPairingAudit.eventType, "converted_to_solo"),
+        sql`(${sql.join(
+          ids.map((id) =>
+            sql`${incarPairingAudit.details} @> ${JSON.stringify({ newEnrollmentIds: [id] })}::jsonb`
+          ),
+          sql` OR `,
+        )})`,
+      ))
+      .limit(1);
+    if (generatedEdit.length) {
+      throw new AttendancePairingFinalizationError(
+        "Generated In-Car 11/14 attendance must be corrected through its original paired lesson.",
+      );
+    }
+
+    const previousById = new Map(lockedRows.map((row) => [row.id, row]));
+    const updated: Array<typeof classEnrollments.$inferSelect> = [];
+    for (const update of updates) {
+      const changes = normalizedAttendanceChanges(update);
+      if (!Object.keys(changes).length) {
+        if (finalizeOnly) {
+          const existing = previousById.get(update.enrollmentId);
+          if (!existing) {
+            throw new AttendancePairingFinalizationError(
+              `Enrollment ${update.enrollmentId} disappeared during finalization.`,
+            );
+          }
+          updated.push(existing);
+          continue;
+        }
+        throw new AttendancePairingFinalizationError(
+          `No attendance changes were supplied for enrollment ${update.enrollmentId}.`,
+        );
+      }
+      const [row] = await tx.update(classEnrollments).set(changes)
+        .where(eq(classEnrollments.id, update.enrollmentId)).returning();
+      updated.push(row);
+      const prior = previousById.get(row.id);
+      const assignedClass = row.classId ? classesById.get(row.classId) : undefined;
+      await tx.insert(attendanceAuditLogs).values({
+        actorType: actorRole,
+        actorId,
+        actorName: null,
+        action: updates.length > 1 ? "bulk_attendance" : "save_attendance",
+        outcome: "success",
+        classId: row.classId,
+        enrollmentId: row.id,
+        studentId: row.studentId,
+        instructorId: assignedClass?.instructorId ?? null,
+        previousStatus: prior?.attendanceStatus ?? null,
+        newStatus: row.attendanceStatus,
+        details: "Saved atomically with paired-attendance finalization",
+      });
+    }
+    if (classUpdate) {
+      await tx.update(classes).set(classUpdate.changes)
+        .where(eq(classes.id, classUpdate.classId));
+    }
+    const currentLockedRows = await tx.select().from(classEnrollments)
+      .where(inArray(classEnrollments.id, allEnrollmentIds))
+      .orderBy(asc(classEnrollments.id));
+
+    const sessionIds = discoveredSessions.map((session) => session.id).sort((a, b) => a - b);
+    const sessions = sessionIds.length
+      ? await tx.select().from(incarPairedSessions)
+          .where(inArray(incarPairedSessions.id, sessionIds))
+          .orderBy(asc(incarPairedSessions.id))
+          .for("update")
+      : [];
+    const outcomes: PairedAttendanceFinalization[] = [];
+
+    for (let session of sessions) {
+      const [pairedClass] = await tx.select().from(classes)
+        .where(eq(classes.id, session.classId)).limit(1);
+      if (!pairedClass || !isCombined1213Class(pairedClass)) continue;
+      const enrollmentIds = [session.enrollmentIdA, session.enrollmentIdB]
+        .filter((id): id is number => id != null);
+      if (enrollmentIds.length !== 2) {
+        throw new AttendancePairingFinalizationError(
+          "Paired session is missing an enrollment linkage.",
+          session.id,
+        );
+      }
+      let allRows = currentLockedRows.filter((row) => enrollmentIds.includes(row.id));
+      let rowMap = new Map(allRows.map((row) => [row.id, row]));
+      const rowA = session.enrollmentIdA ? rowMap.get(session.enrollmentIdA) : undefined;
+      const rowB = session.enrollmentIdB ? rowMap.get(session.enrollmentIdB) : undefined;
+      if (
+        allRows.length !== 2 ||
+        !rowA ||
+        !rowB ||
+        rowA.studentId !== session.studentIdA ||
+        rowB.studentId !== session.studentIdB ||
+        rowA.classId !== session.classId ||
+        rowB.classId !== session.classId
+      ) {
+        throw new AttendancePairingFinalizationError(
+          "Paired session enrollment ownership does not match its linked students and class.",
+          session.id,
+        );
+      }
+      let status = pairedStatuses(session, rowMap);
+      let bothAttended = false;
+      let soloA = false;
+      let soloB = false;
+      const deriveFinalState = () => {
+        const a = status.a;
+        const b = status.b;
+        const aMissed = status.aStatus === "absent" || status.aStatus === "no-show";
+        const bMissed = status.bStatus === "absent" || status.bStatus === "no-show";
+        bothAttended =
+          status.aStatus === "attended" && status.bStatus === "attended" &&
+          a?.cancelledAt == null && b?.cancelledAt == null;
+        soloA =
+          status.aStatus === "attended" && bMissed &&
+          a?.cancelledAt == null && b?.cancelledAt == null;
+        soloB =
+          status.bStatus === "attended" && aMissed &&
+          a?.cancelledAt == null && b?.cancelledAt == null;
+      };
+      deriveFinalState();
+      const start = getClassStartTime({ date: pairedClass.date, time: pairedClass.time });
+      const hasStarted = !!start && start.getTime() <= Date.now();
+
+      if (session.status === "dissolved") {
+        const [conversion] = await tx.select({
+          id: incarPairingAudit.id,
+          studentId: incarPairingAudit.studentId,
+        })
+          .from(incarPairingAudit)
+          .where(and(
+            eq(incarPairingAudit.pairedSessionId, session.id),
+            eq(incarPairingAudit.eventType, "converted_to_solo"),
+          ))
+          .orderBy(desc(incarPairingAudit.createdAt), desc(incarPairingAudit.id))
+          .limit(1);
+        const convertedEnrollmentId =
+          conversion?.studentId === session.studentIdA
+            ? session.enrollmentIdA
+            : session.enrollmentIdB;
+        const absentEnrollmentId =
+          conversion?.studentId === session.studentIdA
+            ? session.enrollmentIdB
+            : session.enrollmentIdA;
+        const convertedStatus = convertedEnrollmentId
+          ? rowMap.get(convertedEnrollmentId)?.attendanceStatus
+          : null;
+        const absentStatus = absentEnrollmentId
+          ? rowMap.get(absentEnrollmentId)?.attendanceStatus
+          : null;
+        const correctionContradictsConversion = !!conversion && (
+          (ids.includes(convertedEnrollmentId!) && convertedStatus !== "attended") ||
+          (ids.includes(absentEnrollmentId!) &&
+            absentStatus !== "absent" && absentStatus !== "no-show")
+        );
+        if (conversion && correctionContradictsConversion) {
+          await reverseSoloConversion(tx, session, actorId, actorRole);
+          [session] = await tx.select().from(incarPairedSessions)
+            .where(eq(incarPairedSessions.id, session.id)).limit(1);
+          allRows = await tx.select().from(classEnrollments)
+            .where(inArray(classEnrollments.id, enrollmentIds));
+          rowMap = new Map(allRows.map((row) => [row.id, row]));
+          status = pairedStatuses(session, rowMap);
+          deriveFinalState();
+        } else {
+          outcomes.push({
+            pairedSessionId: session.id,
+            classId: session.classId,
+            status: "unchanged",
+            message: "The existing 11/14 conversion remains consistent with attendance.",
+          });
+          continue;
+        }
+      }
+
+      const rawAMissed = status.aStatus === "absent" || status.aStatus === "no-show";
+      const rawBMissed = status.bStatus === "absent" || status.bStatus === "no-show";
+      const rawTerminal =
+        (status.aStatus === "attended" && status.bStatus === "attended") ||
+        (status.aStatus === "attended" && rawBMissed) ||
+        (status.bStatus === "attended" && rawAMissed);
+      if (rawTerminal && !bothAttended && !soloA && !soloB) {
+        throw new AttendancePairingFinalizationError(
+          "Paired attendance cannot finalize because a linked enrollment is cancelled.",
+          session.id,
+        );
+      }
+      if (session.status === "completed" && !bothAttended) {
+        await restoreActivePairedSession(
+          tx, session, actorId, actorRole, "Attendance correction reversed paired completion",
+        );
+        session = { ...session, status: "paired", completedAt: null };
+      }
+      if (!hasStarted) {
+        outcomes.push({
+          pairedSessionId: session.id,
+          classId: session.classId,
+          status: "pending",
+          message: "Paired attendance is saved but cannot finalize before the school-local class start.",
+        });
+      } else if (bothAttended) {
+        if (session.status !== "completed") {
+          await setSessionCompleted(tx, session, actorId, actorRole);
+        }
+        outcomes.push({
+          pairedSessionId: session.id,
+          classId: session.classId,
+          status: session.status === "completed" ? "unchanged" : "completed",
+          message: "Both students attended; the paired 12/13 session is complete.",
+        });
+      } else if (soloA || soloB) {
+        const presentEnrollmentId = soloA ? session.enrollmentIdA! : session.enrollmentIdB!;
+        const conversion = await convertPresentStudentToSoloInTransaction(tx, {
+          pairedSessionId: session.id,
+          presentEnrollmentId,
+          actorId,
+          actorRole,
+        });
+        if (!conversion.success) {
+          throw new AttendancePairingFinalizationError(
+            conversion.reason ?? "Paired no-show conversion failed.",
+            session.id,
+          );
+        }
+        if (conversion.notification) conversionNotifications.push(conversion.notification);
+        outcomes.push({
+          pairedSessionId: session.id,
+          classId: session.classId,
+          status: "converted",
+          message: "The attending student received In-Car 11 and 14 credit.",
+          presentEnrollmentId,
+          newClassIds: conversion.newClassIds,
+          newEnrollmentIds: conversion.newEnrollmentIds,
+          preservedClassNumbers: conversion.preservedClassNumbers,
+        });
+      } else {
+        outcomes.push({
+          pairedSessionId: session.id,
+          classId: session.classId,
+          status: "pending",
+          message: "Paired attendance is not final yet.",
+        });
+      }
+    }
+
+    const resultRows = await tx.select().from(classEnrollments)
+      .where(inArray(classEnrollments.id, ids));
+    return { enrollments: resultRows, pairedFinalizations: outcomes };
+  });
+  for (const notification of conversionNotifications) {
+    notifyLessonConverted(notification).catch((err) =>
+      console.error("[incar-pairing] lesson-converted notification error:", err),
+    );
+  }
+  return result;
 }
 
 /** Legacy alias for routes.ts */
@@ -3033,91 +3863,44 @@ export async function completeSession(params: {
   actorRole?: string;
 }): Promise<{ success: boolean; reason?: string }> {
   const { pairedSessionId, actorId = "system", actorRole = "system" } = params;
-
-  return db.transaction(async (tx) => {
-    const [session] = await tx
-      .select()
-      .from(incarPairedSessions)
-      .where(eq(incarPairedSessions.id, pairedSessionId))
-      .limit(1);
-
-    if (!session) return { success: false, reason: "Paired session not found." };
-    if (session.status === "completed") return { success: true };
-    if (!["paired", "confirmed"].includes(session.status)) {
-      return { success: false, reason: `Cannot complete session from status '${session.status}'.` };
-    }
-
-    const sorted = [session.studentIdA, session.studentIdB].sort((a, b) => a - b);
-    for (const sid of sorted) {
-      await tx.execute(sql`SELECT pg_advisory_xact_lock(${LOCK_NS}, ${sid})`);
-    }
-
-    // Both students must have actually attended. A session where only one
-    // student showed up must NOT be completed (that student should be handled
-    // via day-of solo conversion instead). Verify both enrollment rows are
-    // 'attended' and not cancelled inside the transaction.
-    const enrollmentIds = [
-      session.enrollmentIdA,
-      session.enrollmentIdB,
-    ].filter((id): id is number => id != null);
-
-    if (enrollmentIds.length !== 2) {
-      // Missing an enrollment row — cannot verify both attended.
-      return { success: false, reason: "both_not_attended" };
-    }
-
-    const enrollmentRows = await tx
-      .select({
-        id: classEnrollments.id,
-        attendanceStatus: classEnrollments.attendanceStatus,
-        cancelledAt: classEnrollments.cancelledAt,
-      })
-      .from(classEnrollments)
-      .where(inArray(classEnrollments.id, enrollmentIds));
-
-    const bothAttended =
-      enrollmentRows.length === 2 &&
-      enrollmentRows.every(
-        (r) => r.attendanceStatus === "attended" && r.cancelledAt == null,
-      );
-
-    if (!bothAttended) {
-      // Silent failure — callers ignore this reason.
-      return { success: false, reason: "both_not_attended" };
-    }
-
-    await tx
-      .update(incarPairedSessions)
-      .set({ status: "completed", completedAt: new Date(), updatedAt: new Date() })
-      .where(eq(incarPairedSessions.id, pairedSessionId));
-
-    await tx
-      .update(incarPairingQueue)
-      .set({ status: "completed", updatedAt: new Date() })
-      .where(
-        inArray(incarPairingQueue.id, [
-          session.queueEntryIdA,
-          session.queueEntryIdB,
-        ]),
-      );
-
-    await audit(tx, {
-      eventType: "session_completed",
-      pairedSessionId,
-      classId: session.classId,
+  const [session] = await db.select().from(incarPairedSessions)
+    .where(eq(incarPairedSessions.id, pairedSessionId))
+    .limit(1);
+  if (!session) return { success: false, reason: "Paired session not found." };
+  if (session.status === "completed") return { success: true };
+  if (!["paired", "confirmed"].includes(session.status)) {
+    return { success: false, reason: `Cannot finalize session from status '${session.status}'.` };
+  }
+  const enrollmentIds = [session.enrollmentIdA, session.enrollmentIdB]
+    .filter((id): id is number => id != null);
+  if (enrollmentIds.length !== 2) {
+    return { success: false, reason: "both_not_attended" };
+  }
+  try {
+    const result = await saveAttendanceWithPairing({
+      updates: enrollmentIds.map((enrollmentId) => ({
+        enrollmentId,
+        changes: {},
+      })),
       actorId,
       actorRole,
-      previousStatus: session.status,
-      newStatus: "completed",
-      details: {
-        studentIdA: session.studentIdA,
-        studentIdB: session.studentIdB,
-        note: "Counts as both In-Car #12 and #13 for both students (via buildCompletedClasses expansion)",
-      },
+      expectedClassId: session.classId,
+      finalizeOnly: true,
     });
-
-    return { success: true };
-  });
+    const outcome = result.pairedFinalizations.find(
+      (item) => item.pairedSessionId === pairedSessionId,
+    );
+    return outcome?.status === "completed" ||
+      outcome?.status === "converted" ||
+      outcome?.status === "unchanged"
+      ? { success: true }
+      : { success: false, reason: "both_not_attended" };
+  } catch (error) {
+    return {
+      success: false,
+      reason: error instanceof Error ? error.message : "Paired attendance finalization failed.",
+    };
+  }
 }
 
 // ─── processPairingLifecycle ───────────────────────────────────────────────────
@@ -3323,6 +4106,51 @@ export async function processPairingLifecycle(): Promise<{
     } catch (err) {
       console.error(
         `[incar-pairing] Failed to repair stale confirmed session ${session.id}:`,
+        err,
+      );
+    }
+  }
+
+  // 5. Attendance-finalization safety net. Routes normally finalize in the
+  // same transaction as their write; this catches attendance imported or
+  // committed by an older worker between deployments. The central service
+  // re-reads and locks both rows, so a concurrent route save/conversion has one
+  // winner and this retry becomes an idempotent no-op.
+  const unfinishedAttendance = await db
+    .select({ session: incarPairedSessions, class: classes })
+    .from(incarPairedSessions)
+    .innerJoin(classes, eq(incarPairedSessions.classId, classes.id))
+    .where(inArray(incarPairedSessions.status, ["paired", "confirmed"]));
+  for (const { session, class: pairedClass } of unfinishedAttendance) {
+    if (!isCombined1213Class(pairedClass)) continue;
+    const classStart = getClassStartTime({
+      date: pairedClass.date,
+      time: pairedClass.time,
+    });
+    if (!classStart || classStart.getTime() > now.getTime()) continue;
+    const enrollmentIds = [session.enrollmentIdA, session.enrollmentIdB]
+      .filter((id): id is number => id != null);
+    if (enrollmentIds.length !== 2) continue;
+    const attendance = await db.select({
+      attendanceStatus: classEnrollments.attendanceStatus,
+    }).from(classEnrollments).where(inArray(classEnrollments.id, enrollmentIds));
+    if (attendance.length !== 2) continue;
+    const statuses = attendance.map((row) => row.attendanceStatus);
+    const attended = statuses.filter((status) => status === "attended").length;
+    const missed = statuses.filter(
+      (status) => status === "absent" || status === "no-show",
+    ).length;
+    if (!(attended === 2 || (attended === 1 && missed === 1))) continue;
+    try {
+      const finalized = await completeSession({
+        pairedSessionId: session.id,
+        actorId: "scheduler",
+        actorRole: "system",
+      });
+      if (finalized.success) sessionsRepaired++;
+    } catch (err) {
+      console.error(
+        `[incar-pairing] Failed attendance-finalization retry for session ${session.id}:`,
         err,
       );
     }

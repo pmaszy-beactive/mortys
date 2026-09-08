@@ -48,8 +48,9 @@ import { db } from "./db";
  * externally-owned transaction (e.g. the per-student booking lock). */
 export type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 import { eq, and, sql, gte, lte, isNotNull, isNull, inArray, ne } from "drizzle-orm";
-import { isTheoryClass } from "@shared/bookingRules";
+import { isTheoryClass, type EnrollmentWithClass } from "@shared/bookingRules";
 import { VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
+import { checkClassStart } from "./services/class-time";
 
 export interface IStorage {
   // Users - Basic Auth methods
@@ -227,6 +228,13 @@ export interface IStorage {
   getClassEnrollmentsByClass(classId: number): Promise<ClassEnrollment[]>;
   countClassEnrollmentHistory(classId: number): Promise<number>;
   getClassEnrollmentsByStudent(studentId: number): Promise<ClassEnrollment[]>;
+  /**
+   * Authoritative completion projection. In addition to class fields it proves
+   * whether an enrollment belongs to a paired session and carries the
+   * partner's current attendance, preventing one attended row from awarding
+   * combined 12/13 credit.
+   */
+  getEnrollmentCompletionDetailsByStudent(studentId: number): Promise<EnrollmentWithClass[]>;
   createClassEnrollment(enrollment: InsertClassEnrollment, txc?: DbTx): Promise<ClassEnrollment>;
   updateClassEnrollment(id: number, enrollment: Partial<InsertClassEnrollment>, txc?: DbTx): Promise<ClassEnrollment>;
   deleteClassEnrollment(id: number): Promise<void>;
@@ -1412,9 +1420,52 @@ export class MemStorage implements IStorage {
     return Array.from(this.classEnrollments.values()).filter(e => e.studentId === studentId);
   }
 
+  async getEnrollmentCompletionDetailsByStudent(studentId: number): Promise<EnrollmentWithClass[]> {
+    return Array.from(this.classEnrollments.values())
+      .filter((e) => e.studentId === studentId && !e.cancelledAt)
+      .map((e) => {
+        const cls = e.classId == null ? undefined : this.classes.get(e.classId);
+        return {
+          enrollmentId: e.id,
+          classId: e.classId,
+          attendanceStatus: e.attendanceStatus,
+          classType: cls?.classType ?? null,
+          classNumber: cls?.classNumber ?? null,
+          date: cls?.date ?? null,
+          duration: cls?.duration ?? null,
+          maxStudents: cls?.maxStudents ?? null,
+          courseType: cls?.courseType ?? null,
+          classStatus: cls?.status ?? null,
+          pairedCompletionEvidenceLoaded: true,
+          pairedSessionId: null,
+          pairedSessionStatus: null,
+          pairedEnrollmentLinksValid: false,
+          partnerAttendanceStatus: null,
+          partnerEnrollmentCancelled: false,
+          classStarted: cls?.date && cls?.time
+            ? checkClassStart({ date: cls.date, time: cls.time }, 0).status === "started"
+            : false,
+        };
+      });
+  }
+
   async createClassEnrollment(insertEnrollment: InsertClassEnrollment): Promise<ClassEnrollment> {
     const id = this.currentId++;
-    const enrollment: ClassEnrollment = { ...insertEnrollment, id };
+    const enrollment: ClassEnrollment = {
+      id,
+      classId: insertEnrollment.classId ?? null,
+      studentId: insertEnrollment.studentId ?? null,
+      attendanceStatus: insertEnrollment.attendanceStatus ?? "registered",
+      testScore: insertEnrollment.testScore ?? null,
+      cancelledAt: insertEnrollment.cancelledAt ?? null,
+      lastPaymentIntentId: insertEnrollment.lastPaymentIntentId ?? null,
+      paymentStatus: insertEnrollment.paymentStatus ?? "not_required",
+      paidAmount: insertEnrollment.paidAmount ?? null,
+      checkInSignature: insertEnrollment.checkInSignature ?? null,
+      checkInAt: insertEnrollment.checkInAt ?? null,
+      checkOutSignature: insertEnrollment.checkOutSignature ?? null,
+      checkOutAt: insertEnrollment.checkOutAt ?? null,
+    };
     this.classEnrollments.set(id, enrollment);
     return enrollment;
   }
@@ -2714,6 +2765,166 @@ export class DatabaseStorage implements IStorage {
         isNull(classEnrollments.cancelledAt)
       )
     );
+  }
+
+  async getEnrollmentCompletionDetailsByStudent(studentId: number): Promise<EnrollmentWithClass[]> {
+    const rows = await db
+      .select({
+        enrollmentId: classEnrollments.id,
+        classId: classEnrollments.classId,
+        attendanceStatus: classEnrollments.attendanceStatus,
+        classType: classes.classType,
+        classNumber: classes.classNumber,
+        date: classes.date,
+        time: classes.time,
+        duration: classes.duration,
+        maxStudents: classes.maxStudents,
+        courseType: classes.courseType,
+        classStatus: classes.status,
+        pairedSessionId: sql<number | null>`(
+          select ps.id from incar_paired_sessions ps
+          where ps.enrollment_id_a = ${classEnrollments.id}
+             or ps.enrollment_id_b = ${classEnrollments.id}
+             or (
+               ps.class_id = ${classEnrollments.classId}
+               and (
+                 ps.student_id_a = ${classEnrollments.studentId}
+                 or ps.student_id_b = ${classEnrollments.studentId}
+               )
+             )
+          order by ps.id desc limit 1
+        )`,
+        pairedSessionStatus: sql<string | null>`(
+          select ps.status from incar_paired_sessions ps
+          where ps.enrollment_id_a = ${classEnrollments.id}
+             or ps.enrollment_id_b = ${classEnrollments.id}
+             or (
+               ps.class_id = ${classEnrollments.classId}
+               and (
+                 ps.student_id_a = ${classEnrollments.studentId}
+                 or ps.student_id_b = ${classEnrollments.studentId}
+               )
+             )
+          order by ps.id desc limit 1
+        )`,
+        pairedEnrollmentLinksValid: sql<boolean>`exists(
+          select 1
+          from incar_paired_sessions ps
+          join class_enrollments enrollment_a
+            on enrollment_a.id = ps.enrollment_id_a
+          join class_enrollments enrollment_b
+            on enrollment_b.id = ps.enrollment_id_b
+          where ps.id = (
+              select ps_latest.id
+              from incar_paired_sessions ps_latest
+              where ps_latest.enrollment_id_a = ${classEnrollments.id}
+                 or ps_latest.enrollment_id_b = ${classEnrollments.id}
+                 or (
+                   ps_latest.class_id = ${classEnrollments.classId}
+                   and (
+                      ps_latest.student_id_a = ${classEnrollments.studentId}
+                      or ps_latest.student_id_b = ${classEnrollments.studentId}
+                   )
+                 )
+              order by ps_latest.id desc
+              limit 1
+            )
+            and (
+              ps.enrollment_id_a = ${classEnrollments.id}
+              or ps.enrollment_id_b = ${classEnrollments.id}
+              or (
+                ps.class_id = ${classEnrollments.classId}
+                and (
+                   ps.student_id_a = ${classEnrollments.studentId}
+                   or ps.student_id_b = ${classEnrollments.studentId}
+                )
+              )
+            )
+            and enrollment_a.student_id = ps.student_id_a
+            and enrollment_b.student_id = ps.student_id_b
+            and ps.student_id_a <> ps.student_id_b
+            and ps.enrollment_id_a <> ps.enrollment_id_b
+            and enrollment_a.class_id = ps.class_id
+            and enrollment_b.class_id = ps.class_id
+            and enrollment_a.cancelled_at is null
+            and enrollment_b.cancelled_at is null
+            and (
+              (ps.student_id_a = ${classEnrollments.studentId}
+                and ps.enrollment_id_a = ${classEnrollments.id})
+              or
+              (ps.student_id_b = ${classEnrollments.studentId}
+                and ps.enrollment_id_b = ${classEnrollments.id})
+            )
+        )`,
+        partnerAttendanceStatus: sql<string | null>`(
+          select partner.attendance_status
+          from incar_paired_sessions ps
+          left join class_enrollments partner
+            on partner.id = case
+              when ps.student_id_a = ${classEnrollments.studentId}
+                then ps.enrollment_id_b
+              else ps.enrollment_id_a
+            end
+          where ps.enrollment_id_a = ${classEnrollments.id}
+             or ps.enrollment_id_b = ${classEnrollments.id}
+             or (
+               ps.class_id = ${classEnrollments.classId}
+               and (
+                 ps.student_id_a = ${classEnrollments.studentId}
+                 or ps.student_id_b = ${classEnrollments.studentId}
+               )
+             )
+          order by ps.id desc limit 1
+        )`,
+        partnerEnrollmentCancelled: sql<boolean>`exists(
+          select 1
+          from incar_paired_sessions ps
+          join class_enrollments partner
+            on partner.id = case
+              when ps.student_id_a = ${classEnrollments.studentId}
+                then ps.enrollment_id_b
+              else ps.enrollment_id_a
+            end
+          where (ps.enrollment_id_a = ${classEnrollments.id}
+             or ps.enrollment_id_b = ${classEnrollments.id}
+             or (
+               ps.class_id = ${classEnrollments.classId}
+               and (
+                 ps.student_id_a = ${classEnrollments.studentId}
+                 or ps.student_id_b = ${classEnrollments.studentId}
+               )
+             ))
+            and partner.cancelled_at is not null
+        )`,
+      })
+      .from(classEnrollments)
+      .innerJoin(classes, eq(classEnrollments.classId, classes.id))
+      .where(and(
+        eq(classEnrollments.studentId, studentId),
+        isNull(classEnrollments.cancelledAt),
+      ));
+
+    return rows.map((row) => ({
+      enrollmentId: row.enrollmentId,
+      classId: row.classId,
+      attendanceStatus: row.attendanceStatus,
+      classType: row.classType,
+      classNumber: row.classNumber,
+      date: row.date,
+      duration: row.duration,
+      maxStudents: row.maxStudents,
+      courseType: row.courseType,
+      classStatus: row.classStatus,
+      pairedCompletionEvidenceLoaded: true,
+      pairedSessionId: row.pairedSessionId,
+      pairedSessionStatus: row.pairedSessionStatus,
+      pairedEnrollmentLinksValid: row.pairedEnrollmentLinksValid,
+      partnerAttendanceStatus: row.partnerAttendanceStatus,
+      partnerEnrollmentCancelled: row.partnerEnrollmentCancelled,
+      classStarted: row.date && row.time
+        ? checkClassStart({ date: row.date, time: row.time }, 0).status === "started"
+        : false,
+    }));
   }
 
   async createClassEnrollment(insertEnrollment: InsertClassEnrollment, txc?: DbTx): Promise<ClassEnrollment> {

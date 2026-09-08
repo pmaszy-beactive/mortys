@@ -21,3 +21,9 @@ description: Design invariants for the combined In-Car 12/13 paired-lesson queue
 - A student-originated release of an enrolled canonical 12/13 seat strictly under 24 hours before start incurs a taxable CAD $100 fee; exactly 24 hours or earlier is free.
 - **Why:** late cancellations disrupt both students and the replacement queue, while school/system actions are outside the student's control.
 - **How to apply:** create one idempotent invoice per cancelled enrollment after the cancellation transaction commits. Missing/failed payment leaves the invoice due; never bill offer declines, deferrals, or staff/system actions.
+- Final paired attendance is decided atomically from both roster rows after the school-local start: both attended awards 12/13; one attended plus one absent/no-show awards the attendee solo 11 and 14 instead.
+- **Why:** finalizing one row at a time granted premature combined credit and made save order or concurrent requests change the result.
+- **How to apply:** serialize attendance with booking and pairing mutations, fail the whole save on unsafe 11/14 conflicts, preserve legitimate prior credits, and emit notifications only after commit.
+- Live paired completion requires exact session-to-enrollment links, two distinct active enrollments, both attended, and a started canonical class; only records with no paired-session metadata retain historical behavior.
+- **Why:** treating malformed live metadata as legacy lets one attended enrollment masquerade as valid 12/13 completion.
+- **How to apply:** load authoritative pairing evidence for every progress and booking consumer; fail closed when a live session is incomplete or contradictory, without rewriting unrelated historical records.

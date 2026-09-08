@@ -210,6 +210,90 @@ describe("buildCompletedClasses — combined 12/13 expansion", () => {
     expect(result.length).toBe(2);
   });
 
+  it("does not count either credit when an authoritative paired partner has not attended", () => {
+    const result = buildCompletedClasses([{
+      ...base12,
+      pairedCompletionEvidenceLoaded: true,
+      pairedSessionId: 41,
+      pairedSessionStatus: "paired",
+      partnerAttendanceStatus: "absent",
+      classStarted: true,
+    }]);
+    expect(result).toEqual([]);
+  });
+
+  it("does not count a paired session before its school-local start", () => {
+    const result = buildCompletedClasses([{
+      ...base12,
+      pairedCompletionEvidenceLoaded: true,
+      pairedSessionId: 41,
+      pairedSessionStatus: "confirmed",
+      partnerAttendanceStatus: "attended",
+      classStarted: false,
+    }]);
+    expect(result).toEqual([]);
+  });
+
+  it("counts both credits only when both paired students attended after start", () => {
+    const result = buildCompletedClasses([{
+      ...base12,
+      pairedCompletionEvidenceLoaded: true,
+      pairedSessionId: 41,
+      pairedSessionStatus: "completed",
+      pairedEnrollmentLinksValid: true,
+      partnerAttendanceStatus: "attended",
+      classStarted: true,
+    }]);
+    expect(result.map((record) => record.classNumber)).toEqual([12, 13]);
+  });
+
+  it("excludes a dissolved converted paired session even if stale attendance says attended", () => {
+    const result = buildCompletedClasses([{
+      ...base12,
+      pairedCompletionEvidenceLoaded: true,
+      pairedSessionId: 41,
+      pairedSessionStatus: "dissolved",
+      partnerAttendanceStatus: "attended",
+      classStarted: true,
+    }]);
+    expect(result).toEqual([]);
+  });
+
+  it("fails closed when live paired metadata cannot prove both enrollment links", () => {
+    const result = buildCompletedClasses([{
+      ...base12,
+      pairedCompletionEvidenceLoaded: true,
+      pairedSessionId: 41,
+      pairedSessionStatus: "completed",
+      pairedEnrollmentLinksValid: false,
+      partnerAttendanceStatus: "attended",
+      classStarted: true,
+    }]);
+    expect(result).toEqual([]);
+  });
+
+  it("fails closed when live paired enrollment-link proof is missing", () => {
+    const result = buildCompletedClasses([{
+      ...base12,
+      pairedCompletionEvidenceLoaded: true,
+      pairedSessionId: 41,
+      pairedSessionStatus: "completed",
+      partnerAttendanceStatus: "attended",
+      classStarted: true,
+    }]);
+    expect(result).toEqual([]);
+  });
+
+  it("preserves authoritative non-paired and legacy completion behaviour", () => {
+    const authoritativeNonPaired = {
+      ...base12,
+      pairedCompletionEvidenceLoaded: true,
+      pairedSessionId: null,
+    };
+    expect(buildCompletedClasses([authoritativeNonPaired])).toHaveLength(2);
+    expect(buildCompletedClasses([base12])).toHaveLength(2);
+  });
+
   it("both expanded records have classType=driving", () => {
     const result = buildCompletedClasses([base12]);
     expect(result.every((r) => r.classType === "driving")).toBe(true);

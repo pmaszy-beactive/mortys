@@ -12,6 +12,7 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { describePairedFinalizations, responseMessage } from "@/lib/paired-finalizations";
 import SignaturePad, { SignaturePadRef } from "@/components/signature-pad";
 import type { Class, ClassEnrollment } from "@shared/schema";
 
@@ -79,42 +80,70 @@ export default function LessonCheckIn() {
     );
   }, [evaluations, classId]);
 
+  const invalidateAttendanceQueries = (response?: unknown) => {
+    queryClient.invalidateQueries({ queryKey: ["/api/classes"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/instructor/classes"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/instructor/classes-needing-evaluation"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/instructor/dashboard"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/lesson-pairing/admin"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/student/lesson-pairing/status"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/student/classes"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/student/classes/available"] });
+    if (response && typeof response === "object") {
+      const enrollment = (response as { enrollment?: unknown }).enrollment;
+      if (enrollment && typeof enrollment === "object") {
+        const studentId = (enrollment as { studentId?: unknown }).studentId;
+        if (typeof studentId === "number" && Number.isFinite(studentId)) {
+          queryClient.invalidateQueries({ queryKey: ["/api/students", studentId] });
+          queryClient.invalidateQueries({ queryKey: ["/api/students", studentId, "phase-progress"] });
+          queryClient.invalidateQueries({ queryKey: ["/api/class-enrollments", "student", studentId] });
+        }
+      }
+    }
+  };
+
+  const successDescription = (response: unknown, fallback: string) => {
+    const attendanceMessage = responseMessage(response) || fallback;
+    const pairedMessage = describePairedFinalizations(response);
+    return pairedMessage ? `${attendanceMessage} ${pairedMessage}` : attendanceMessage;
+  };
+
   const checkInMutation = useMutation({
     mutationFn: ({ enrollmentId, signature }: { enrollmentId: number; signature: string }) =>
       apiRequest("POST", `/api/class-enrollments/${enrollmentId}/check-in`, { signature }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/classes", classId, "attendance"] });
-      toast({ title: "Success", description: "Student checked in successfully" });
+    onSuccess: (response) => {
+      invalidateAttendanceQueries(response);
+      toast({ title: "Success", description: successDescription(response, "Student checked in successfully.") });
       setSignatureDialog(null);
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to check in student", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ title: "Error", description: error?.data?.message || error?.message || "Failed to check in student", variant: "destructive" });
     },
   });
 
   const checkOutMutation = useMutation({
     mutationFn: ({ enrollmentId, signature }: { enrollmentId: number; signature: string }) =>
       apiRequest("POST", `/api/class-enrollments/${enrollmentId}/check-out`, { signature }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/classes", classId, "attendance"] });
-      toast({ title: "Success", description: "Student checked out successfully" });
+    onSuccess: (response) => {
+      invalidateAttendanceQueries(response);
+      toast({ title: "Attendance Updated", description: successDescription(response, "Student checked out successfully.") });
       setSignatureDialog(null);
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to check out student", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ title: "Error", description: error?.data?.message || error?.message || "Failed to check out student", variant: "destructive" });
     },
   });
 
   const noShowMutation = useMutation({
     mutationFn: (enrollmentId: number) =>
       apiRequest("POST", `/api/class-enrollments/${enrollmentId}/no-show`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/classes", classId, "attendance"] });
-      toast({ title: "Marked as No-Show", description: "Student has been marked as a no-show for this lesson." });
+    onSuccess: (response) => {
+      invalidateAttendanceQueries(response);
+      toast({ title: "Marked as No-Show", description: successDescription(response, "Student has been marked as a no-show for this lesson.") });
       setNoShowConfirm(null);
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to mark student as no-show", variant: "destructive" });
+    onError: (error: any) => {
+      toast({ title: "Error", description: error?.data?.message || error?.message || "Failed to mark student as no-show", variant: "destructive" });
     },
   });
 
@@ -131,9 +160,9 @@ export default function LessonCheckIn() {
       }
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/classes", classId, "attendance"] });
-      toast({ title: "Attendance Reset", description: "Student attendance has been reset. You can now re-do the sign-in." });
+    onSuccess: (response) => {
+      invalidateAttendanceQueries(response);
+      toast({ title: "Attendance Reset", description: successDescription(response, "Student attendance has been reset. You can now re-do the sign-in.") });
       setUndoConfirm(null);
     },
     onError: (error: Error) => {
