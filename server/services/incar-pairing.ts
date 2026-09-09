@@ -101,6 +101,7 @@ import {
   desc,
 } from "drizzle-orm";
 import { SCHOOL_TIMEZONE, getClassStartTime } from "./class-time";
+import { createHash } from "crypto";
 import {
   enqueueNotification,
   getStudentRecipients,
@@ -4475,6 +4476,537 @@ export async function getPairingAuditHistory(params: {
     details: (r.details ?? null) as Record<string, unknown> | null,
     createdAt: r.createdAt,
   }));
+}
+
+// ─── Historical enrollment-link audit and repair ──────────────────────────────
+
+export type PairedSessionLinkIssue =
+  | "missing"
+  | "duplicate"
+  | "cross_class"
+  | "cancelled"
+  | "wrong_student";
+
+export interface PairedSessionLinkAuditRecord {
+  pairedSessionId: number;
+  status: string;
+  class: {
+    id: number;
+    date: string | null;
+    time: string | null;
+    status: string | null;
+  };
+  students: Array<{
+    side: "A" | "B";
+    id: number;
+    name: string | null;
+    queueEntryId: number;
+    queueStatus: string | null;
+    queueStudentId: number | null;
+    queueBookedClassId: number | null;
+    queueEnrollmentId: number | null;
+    linkedEnrollmentId: number | null;
+    linkedEnrollment: {
+      classId: number | null;
+      studentId: number | null;
+      attendanceStatus: string | null;
+      cancelledAt: Date | null;
+      paymentStatus: string | null;
+      paidAmount: number | null;
+      lastPaymentIntentId: string | null;
+    } | null;
+    matchingActiveEnrollmentIds: number[];
+    matchingActiveEnrollments: Array<{
+      id: number;
+      attendanceStatus: string | null;
+      paymentStatus: string | null;
+      paidAmount: number | null;
+      lastPaymentIntentId: string | null;
+    }>;
+    proposedEnrollment: {
+      id: number;
+      attendanceStatus: string | null;
+      paymentStatus: string | null;
+      paidAmount: number | null;
+      lastPaymentIntentId: string | null;
+    } | null;
+  }>;
+  issues: PairedSessionLinkIssue[];
+  repairable: boolean;
+  proposedRepair: {
+    enrollmentIdA: number;
+    enrollmentIdB: number;
+  } | null;
+}
+
+export interface PairedSessionLinkAuditReport {
+  fingerprint: string;
+  generatedAt: Date;
+  records: PairedSessionLinkAuditRecord[];
+  summary: {
+    affectedSessions: number;
+    repairableSessions: number;
+    issueCounts: Record<PairedSessionLinkIssue, number>;
+  };
+}
+
+type PairingReadDb = typeof db | DbTx;
+
+async function buildPairedSessionLinkAuditReport(
+  dbc: PairingReadDb,
+): Promise<PairedSessionLinkAuditReport> {
+  const sessions = await dbc.select().from(incarPairedSessions).orderBy(asc(incarPairedSessions.id));
+  const studentIds = Array.from(new Set(sessions.flatMap((s) => [s.studentIdA, s.studentIdB])));
+  const classIds = Array.from(new Set(sessions.map((s) => s.classId)));
+  const queueIds = Array.from(
+    new Set(sessions.flatMap((s) => [s.queueEntryIdA, s.queueEntryIdB])),
+  );
+  const linkedEnrollmentIds = Array.from(
+    new Set(
+      sessions
+        .flatMap((s) => [s.enrollmentIdA, s.enrollmentIdB])
+        .filter((id): id is number => id != null),
+    ),
+  );
+
+  const [studentRows, classRows, queueRows, candidateEnrollments, linkedEnrollments] =
+    await Promise.all([
+      studentIds.length
+        ? dbc
+            .select({ id: students.id, firstName: students.firstName, lastName: students.lastName })
+            .from(students)
+            .where(inArray(students.id, studentIds))
+        : [],
+      classIds.length
+        ? dbc
+            .select({
+              id: classes.id,
+              date: classes.date,
+              time: classes.time,
+              status: classes.status,
+            })
+            .from(classes)
+            .where(inArray(classes.id, classIds))
+        : [],
+      queueIds.length
+        ? dbc.select().from(incarPairingQueue).where(inArray(incarPairingQueue.id, queueIds))
+        : [],
+      studentIds.length && classIds.length
+        ? dbc
+            .select()
+            .from(classEnrollments)
+            .where(
+              and(
+                inArray(classEnrollments.studentId, studentIds),
+                inArray(classEnrollments.classId, classIds),
+                isNull(classEnrollments.cancelledAt),
+              ),
+            )
+        : [],
+      linkedEnrollmentIds.length
+        ? dbc
+            .select()
+            .from(classEnrollments)
+            .where(inArray(classEnrollments.id, linkedEnrollmentIds))
+        : [],
+    ]);
+
+  const names = new Map(
+    studentRows.map((s) => [
+      s.id,
+      `${s.firstName ?? ""} ${s.lastName ?? ""}`.trim() || null,
+    ]),
+  );
+  const classesById = new Map(classRows.map((c) => [c.id, c]));
+  const queuesById = new Map(queueRows.map((q) => [q.id, q]));
+  const linkedById = new Map(linkedEnrollments.map((e) => [e.id, e]));
+  const candidatesByPair = new Map<string, typeof candidateEnrollments>();
+  for (const enrollment of candidateEnrollments) {
+    if (enrollment.studentId == null || enrollment.classId == null) continue;
+    const key = `${enrollment.studentId}:${enrollment.classId}`;
+    const rows = candidatesByPair.get(key) ?? [];
+    rows.push(enrollment);
+    candidatesByPair.set(key, rows);
+  }
+
+  const records: PairedSessionLinkAuditRecord[] = [];
+  for (const session of sessions) {
+    const issues = new Set<PairedSessionLinkIssue>();
+    const sides = [
+      {
+        side: "A" as const,
+        studentId: session.studentIdA,
+        queueEntryId: session.queueEntryIdA,
+        enrollmentId: session.enrollmentIdA,
+      },
+      {
+        side: "B" as const,
+        studentId: session.studentIdB,
+        queueEntryId: session.queueEntryIdB,
+        enrollmentId: session.enrollmentIdB,
+      },
+    ];
+    const studentDetails = sides.map((side) => {
+      const linked = side.enrollmentId == null ? undefined : linkedById.get(side.enrollmentId);
+      const matchingActiveEnrollments =
+        candidatesByPair.get(`${side.studentId}:${session.classId}`) ?? [];
+      const matchingActiveEnrollmentIds = matchingActiveEnrollments.map(
+        (enrollment) => enrollment.id,
+      );
+      if (!linked) issues.add("missing");
+      if (linked && linked.classId !== session.classId) issues.add("cross_class");
+      if (linked && linked.studentId !== side.studentId) issues.add("wrong_student");
+      if (linked?.cancelledAt != null) issues.add("cancelled");
+      if (matchingActiveEnrollmentIds.length > 1) issues.add("duplicate");
+      const queue = queuesById.get(side.queueEntryId);
+      return {
+        side: side.side,
+        id: side.studentId,
+        name: names.get(side.studentId) ?? null,
+        queueEntryId: side.queueEntryId,
+        queueStatus: queue?.status ?? null,
+        queueStudentId: queue?.studentId ?? null,
+        queueBookedClassId: queue?.bookedClassId ?? null,
+        queueEnrollmentId: queue?.enrollmentId ?? null,
+        linkedEnrollmentId: side.enrollmentId,
+        linkedEnrollment: linked
+          ? {
+              classId: linked.classId,
+              studentId: linked.studentId,
+              attendanceStatus: linked.attendanceStatus,
+              cancelledAt: linked.cancelledAt,
+              paymentStatus: linked.paymentStatus,
+              paidAmount: linked.paidAmount,
+              lastPaymentIntentId: linked.lastPaymentIntentId,
+            }
+          : null,
+        matchingActiveEnrollmentIds,
+        matchingActiveEnrollments: matchingActiveEnrollments.map((enrollment) => ({
+          id: enrollment.id,
+          attendanceStatus: enrollment.attendanceStatus,
+          paymentStatus: enrollment.paymentStatus,
+          paidAmount: enrollment.paidAmount,
+          lastPaymentIntentId: enrollment.lastPaymentIntentId,
+        })),
+        proposedEnrollment:
+          matchingActiveEnrollments.length === 1
+            ? {
+                id: matchingActiveEnrollments[0].id,
+                attendanceStatus: matchingActiveEnrollments[0].attendanceStatus,
+                paymentStatus: matchingActiveEnrollments[0].paymentStatus,
+                paidAmount: matchingActiveEnrollments[0].paidAmount,
+                lastPaymentIntentId: matchingActiveEnrollments[0].lastPaymentIntentId,
+              }
+            : null,
+      };
+    });
+    if (
+      session.enrollmentIdA != null &&
+      session.enrollmentIdA === session.enrollmentIdB
+    ) {
+      issues.add("duplicate");
+    }
+    if (issues.size === 0) continue;
+
+    const [aCandidates, bCandidates] = studentDetails.map(
+      (student) => student.matchingActiveEnrollmentIds,
+    );
+    const repairable =
+      ["paired", "confirmed", "completed"].includes(session.status) &&
+      aCandidates.length === 1 &&
+      bCandidates.length === 1 &&
+      aCandidates[0] !== bCandidates[0] &&
+      studentDetails[0].queueStudentId === session.studentIdA &&
+      studentDetails[0].queueEnrollmentId === aCandidates[0] &&
+      studentDetails[1].queueStudentId === session.studentIdB &&
+      studentDetails[1].queueEnrollmentId === bCandidates[0];
+    const cls = classesById.get(session.classId);
+    records.push({
+      pairedSessionId: session.id,
+      status: session.status,
+      class: {
+        id: session.classId,
+        date: cls?.date ?? null,
+        time: cls?.time ?? null,
+        status: cls?.status ?? null,
+      },
+      students: studentDetails,
+      issues: Array.from(issues).sort(),
+      repairable,
+      proposedRepair: repairable
+        ? { enrollmentIdA: aCandidates[0], enrollmentIdB: bCandidates[0] }
+        : null,
+    });
+  }
+
+  const issueCounts: Record<PairedSessionLinkIssue, number> = {
+    missing: 0,
+    duplicate: 0,
+    cross_class: 0,
+    cancelled: 0,
+    wrong_student: 0,
+  };
+  for (const record of records) {
+    for (const issue of record.issues) issueCounts[issue] += 1;
+  }
+  return {
+    fingerprint: createHash("sha256")
+      .update(JSON.stringify(records))
+      .digest("hex"),
+    generatedAt: new Date(),
+    records,
+    summary: {
+      affectedSessions: records.length,
+      repairableSessions: records.filter((record) => record.repairable).length,
+      issueCounts,
+    },
+  };
+}
+
+/** Read-only review report. This function performs no writes. */
+export async function getPairedSessionLinkAuditReport(): Promise<PairedSessionLinkAuditReport> {
+  return db.transaction(
+    (tx) => buildPairedSessionLinkAuditReport(tx),
+    { isolationLevel: "repeatable read", accessMode: "read only" },
+  );
+}
+
+export class PairingRepairApprovalError extends Error {}
+
+async function snapshotAffectedAttendanceAndBilling(
+  tx: DbTx,
+  studentIds: number[],
+  classIds: number[],
+): Promise<unknown[]> {
+  const studentsSql = sql.join(studentIds.map((id) => sql`${id}`), sql`, `);
+  const classesSql = sql.join(classIds.map((id) => sql`${id}`), sql`, `);
+  const result = await tx.execute(sql`
+    SELECT source, id, digest
+    FROM (
+      SELECT 'class_enrollments' AS source, ce.id, md5(row_to_json(ce)::text) AS digest
+      FROM class_enrollments ce
+      WHERE ce.student_id IN (${studentsSql}) OR ce.class_id IN (${classesSql})
+      UNION ALL
+      SELECT 'classes', c.id, md5(row_to_json(c)::text)
+      FROM classes c
+      WHERE c.id IN (${classesSql})
+      UNION ALL
+      SELECT 'attendance_audit_logs', aal.id, md5(row_to_json(aal)::text)
+      FROM attendance_audit_logs aal
+      WHERE aal.student_id IN (${studentsSql}) OR aal.class_id IN (${classesSql})
+      UNION ALL
+      SELECT 'evaluations', e.id, md5(row_to_json(e)::text)
+      FROM evaluations e
+      WHERE e.student_id IN (${studentsSql}) OR e.class_id IN (${classesSql})
+      UNION ALL
+      SELECT 'lesson_records', lr.id, md5(row_to_json(lr)::text)
+      FROM lesson_records lr
+      WHERE lr.student_id IN (${studentsSql})
+      UNION ALL
+      SELECT 'student_transactions', st.id, md5(row_to_json(st)::text)
+      FROM student_transactions st
+      WHERE st.student_id IN (${studentsSql})
+      UNION ALL
+      SELECT 'payment_transactions', pt.id, md5(row_to_json(pt)::text)
+      FROM payment_transactions pt
+      WHERE pt.student_id IN (${studentsSql})
+      UNION ALL
+      SELECT 'invoices', i.id, md5(row_to_json(i)::text)
+      FROM invoices i
+      WHERE i.student_id IN (${studentsSql})
+      UNION ALL
+      SELECT 'student_payment_methods', spm.id, md5(row_to_json(spm)::text)
+      FROM student_payment_methods spm
+      WHERE spm.student_id IN (${studentsSql})
+      UNION ALL
+      SELECT 'billing_customers', bc.id, md5(row_to_json(bc)::text)
+      FROM billing_customers bc
+      WHERE bc.student_id IN (${studentsSql})
+      UNION ALL
+      SELECT 'student_credits', sc.id, md5(row_to_json(sc)::text)
+      FROM student_credits sc
+      WHERE sc.student_id IN (${studentsSql})
+      UNION ALL
+      SELECT 'payment_intakes', pi.id, md5(row_to_json(pi)::text)
+      FROM payment_intakes pi
+      WHERE pi.student_id IN (${studentsSql})
+      UNION ALL
+      SELECT 'payment_allocations', pa.id, md5(row_to_json(pa)::text)
+      FROM payment_allocations pa
+      WHERE pa.student_id IN (${studentsSql})
+      UNION ALL
+      SELECT 'billing_receipts', br.id, md5(row_to_json(br)::text)
+      FROM billing_receipts br
+      JOIN student_transactions st ON st.id = br.transaction_id
+      WHERE st.student_id IN (${studentsSql})
+      UNION ALL
+      SELECT 'payment_audit_logs', pal.id, md5(row_to_json(pal)::text)
+      FROM payment_audit_logs pal
+      JOIN payment_intakes pi ON pi.id = pal.payment_intake_id
+      WHERE pi.student_id IN (${studentsSql})
+    ) snapshots
+    ORDER BY source, id
+  `);
+  return result.rows;
+}
+
+export async function repairPairedSessionEnrollmentLinks(params: {
+  fingerprint: string;
+  pairedSessionIds: number[];
+  approved: boolean;
+  actorId: string;
+  actorRole: "admin";
+}): Promise<{
+  repairedSessionIds: number[];
+  report: PairedSessionLinkAuditReport;
+}> {
+  if (!params.approved) {
+    throw new PairingRepairApprovalError("Office approval is required before repair.");
+  }
+  const requestedIds = Array.from(new Set(params.pairedSessionIds)).sort((a, b) => a - b);
+  if (requestedIds.length === 0) {
+    throw new PairingRepairApprovalError("Select at least one reviewed session to repair.");
+  }
+
+  try {
+    return await db.transaction(async (tx) => {
+    const preliminary = await tx
+      .select({
+        id: incarPairedSessions.id,
+        studentIdA: incarPairedSessions.studentIdA,
+        studentIdB: incarPairedSessions.studentIdB,
+        classId: incarPairedSessions.classId,
+      })
+      .from(incarPairedSessions)
+      .where(inArray(incarPairedSessions.id, requestedIds));
+    if (preliminary.length !== requestedIds.length) {
+      throw new PairingRepairApprovalError("One or more reviewed sessions no longer exist.");
+    }
+    const affectedStudentIds = Array.from(
+      new Set(preliminary.flatMap((session) => [session.studentIdA, session.studentIdB])),
+    ).sort((a, b) => a - b);
+    const affectedClassIds = Array.from(
+      new Set(preliminary.map((session) => session.classId)),
+    ).sort((a, b) => a - b);
+    for (const studentId of affectedStudentIds) {
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(${LOCK_NS}, ${studentId})`);
+    }
+    const locked = await tx.execute(sql`
+      SELECT id FROM incar_paired_sessions
+      WHERE id IN (${sql.join(requestedIds.map((id) => sql`${id}`), sql`, `)})
+      ORDER BY id
+      FOR UPDATE
+    `);
+    if (locked.rows.length !== requestedIds.length) {
+      throw new PairingRepairApprovalError("One or more reviewed sessions no longer exist.");
+    }
+    await tx.execute(sql`
+      SELECT q.id
+      FROM incar_pairing_queue q
+      JOIN incar_paired_sessions ps
+        ON q.id IN (ps.queue_entry_id_a, ps.queue_entry_id_b)
+      WHERE ps.id IN (${sql.join(requestedIds.map((id) => sql`${id}`), sql`, `)})
+      ORDER BY q.id
+      FOR UPDATE OF q
+    `);
+    await tx.execute(sql`
+      SELECT ce.id
+      FROM class_enrollments ce
+      WHERE EXISTS (
+        SELECT 1
+        FROM incar_paired_sessions ps
+        LEFT JOIN incar_pairing_queue qa ON qa.id = ps.queue_entry_id_a
+        LEFT JOIN incar_pairing_queue qb ON qb.id = ps.queue_entry_id_b
+        WHERE ps.id IN (${sql.join(requestedIds.map((id) => sql`${id}`), sql`, `)})
+          AND (
+            (ce.class_id = ps.class_id AND ce.student_id IN (ps.student_id_a, ps.student_id_b))
+            OR ce.id IN (ps.enrollment_id_a, ps.enrollment_id_b, qa.enrollment_id, qb.enrollment_id)
+          )
+      )
+      ORDER BY ce.id
+      FOR UPDATE OF ce
+    `);
+    const report = await buildPairedSessionLinkAuditReport(tx);
+    if (report.fingerprint !== params.fingerprint) {
+      throw new PairingRepairApprovalError(
+        "The audit report changed after review. Re-run it before approving repairs.",
+      );
+    }
+    const recordsById = new Map(report.records.map((record) => [record.pairedSessionId, record]));
+    const selected = requestedIds.map((id) => recordsById.get(id));
+    if (selected.some((record) => !record?.repairable || !record.proposedRepair)) {
+      throw new PairingRepairApprovalError(
+        "The reviewed set contains a missing, ambiguous, or no-longer-repairable session.",
+      );
+    }
+    const protectedBefore = await snapshotAffectedAttendanceAndBilling(
+      tx,
+      affectedStudentIds,
+      affectedClassIds,
+    );
+
+    for (const record of selected as PairedSessionLinkAuditRecord[]) {
+      const proposal = record.proposedRepair!;
+      const before = record.students.map((student) => ({
+        side: student.side,
+        enrollmentId: student.linkedEnrollmentId,
+        attendanceStatus: student.linkedEnrollment?.attendanceStatus ?? null,
+        cancelledAt: student.linkedEnrollment?.cancelledAt ?? null,
+        paymentStatus: student.linkedEnrollment?.paymentStatus ?? null,
+        paidAmount: student.linkedEnrollment?.paidAmount ?? null,
+        lastPaymentIntentId: student.linkedEnrollment?.lastPaymentIntentId ?? null,
+      }));
+      await tx
+        .update(incarPairedSessions)
+        .set({
+          enrollmentIdA: proposal.enrollmentIdA,
+          enrollmentIdB: proposal.enrollmentIdB,
+          updatedAt: new Date(),
+        })
+        .where(eq(incarPairedSessions.id, record.pairedSessionId));
+      await audit(tx, {
+        eventType: "historical_enrollment_links_repaired",
+        pairedSessionId: record.pairedSessionId,
+        classId: record.class.id,
+        actorId: params.actorId,
+        actorRole: params.actorRole,
+        details: {
+          approvedFingerprint: params.fingerprint,
+          issues: record.issues,
+          before,
+          proposedRepair: proposal,
+          attendanceAndBillingChanged: false,
+        },
+      });
+    }
+
+    const after = await buildPairedSessionLinkAuditReport(tx);
+    const remainingIds = new Set(after.records.map((record) => record.pairedSessionId));
+    for (const id of requestedIds) {
+      if (remainingIds.has(id)) {
+        throw new Error(`Paired session ${id} remained malformed after repair.`);
+      }
+    }
+    const protectedAfter = await snapshotAffectedAttendanceAndBilling(
+      tx,
+      affectedStudentIds,
+      affectedClassIds,
+    );
+    if (JSON.stringify(protectedAfter) !== JSON.stringify(protectedBefore)) {
+      throw new Error(
+        "Attendance or billing data changed during paired-session link repair; rolled back.",
+      );
+    }
+    return { repairedSessionIds: requestedIds, report: after };
+    }, { isolationLevel: "serializable" });
+  } catch (error: any) {
+    if (error?.code === "40001" || error?.code === "40P01") {
+      throw new PairingRepairApprovalError(
+        "Pairing data changed during repair. Re-run the audit before approving again.",
+      );
+    }
+    throw error;
+  }
 }
 
 // ─── Notification helpers ──────────────────────────────────────────────────────

@@ -55,6 +55,9 @@ import {
   incarPairingAudit,
   attendanceAuditLogs,
   evaluations,
+  lessonRecords,
+  studentTransactions,
+  paymentTransactions,
   instructors,
   users,
 } from "@shared/schema";
@@ -67,6 +70,9 @@ import {
   hasQualifyingPhase4IncarOffer,
   convertPresentStudentToSolo,
   saveAttendanceWithPairing,
+  getPairedSessionLinkAuditReport,
+  repairPairedSessionEnrollmentLinks,
+  PairingRepairApprovalError,
 } from "../services/incar-pairing";
 
 // ─── Seed helpers ─────────────────────────────────────────────────────────────
@@ -274,6 +280,9 @@ afterEach(async () => {
   const sids = createdStudentIds.splice(0);
   const cids = createdClassIds.splice(0);
   if (sids.length > 0) {
+    await db.delete(paymentTransactions).where(inArray(paymentTransactions.studentId, sids));
+    await db.delete(studentTransactions).where(inArray(studentTransactions.studentId, sids));
+    await db.delete(lessonRecords).where(inArray(lessonRecords.studentId, sids));
     await db.delete(attendanceAuditLogs).where(inArray(attendanceAuditLogs.studentId, sids));
     await db
       .delete(incarPairingAudit)
@@ -896,6 +905,351 @@ async function convertedLessons(studentId: number) {
       ),
     );
 }
+
+describe("historical paired-session enrollment-link audit and repair", () => {
+  it("reports wrong-student and cross-class links without mutating any rows", async () => {
+    const { session } = await seedPairedSessionForAttendance();
+    const unrelatedStudent = await createStudent();
+    const unrelatedClass = await createCombinedClass();
+    const [unrelatedEnrollment] = await db
+      .insert(classEnrollments)
+      .values({
+        classId: unrelatedClass,
+        studentId: unrelatedStudent,
+        attendanceStatus: "attended",
+        paymentStatus: "paid",
+        paidAmount: 12345,
+        lastPaymentIntentId: "pi_historical_link_audit",
+      })
+      .returning();
+    await db
+      .update(incarPairedSessions)
+      .set({ enrollmentIdB: unrelatedEnrollment.id })
+      .where(eq(incarPairedSessions.id, session.id));
+
+    const beforeAuditCount = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(incarPairingAudit)
+      .where(eq(incarPairingAudit.pairedSessionId, session.id));
+    const report = await getPairedSessionLinkAuditReport();
+    const record = report.records.find((row) => row.pairedSessionId === session.id);
+
+    expect(record).toMatchObject({
+      issues: expect.arrayContaining(["cross_class", "wrong_student"]),
+      repairable: true,
+      proposedRepair: {
+        enrollmentIdA: session.enrollmentIdA,
+        enrollmentIdB: session.enrollmentIdB,
+      },
+    });
+    expect(record?.students[1]).toMatchObject({
+      queueStatus: "paired",
+      linkedEnrollmentId: unrelatedEnrollment.id,
+      linkedEnrollment: {
+        attendanceStatus: "attended",
+        paymentStatus: "paid",
+        paidAmount: 12345,
+      },
+      proposedEnrollment: {
+        id: session.enrollmentIdB,
+        attendanceStatus: "registered",
+        paymentStatus: "not_required",
+      },
+    });
+    const [unchangedSession] = await db
+      .select()
+      .from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, session.id));
+    expect(unchangedSession.enrollmentIdB).toBe(unrelatedEnrollment.id);
+    const afterAuditCount = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(incarPairingAudit)
+      .where(eq(incarPairingAudit.pairedSessionId, session.id));
+    expect(afterAuditCount).toEqual(beforeAuditCount);
+  });
+
+  it("requires approval and a current reviewed fingerprint", async () => {
+    const { session } = await seedPairedSessionForAttendance();
+    await db
+      .update(incarPairedSessions)
+      .set({ enrollmentIdA: null })
+      .where(eq(incarPairedSessions.id, session.id));
+    const report = await getPairedSessionLinkAuditReport();
+
+    await expect(
+      repairPairedSessionEnrollmentLinks({
+        fingerprint: report.fingerprint,
+        pairedSessionIds: [session.id],
+        approved: false,
+        actorId: String(adminUserId),
+        actorRole: "admin",
+      }),
+    ).rejects.toBeInstanceOf(PairingRepairApprovalError);
+
+    await db
+      .update(incarPairedSessions)
+      .set({ enrollmentIdB: null })
+      .where(eq(incarPairedSessions.id, session.id));
+    await expect(
+      repairPairedSessionEnrollmentLinks({
+        fingerprint: report.fingerprint,
+        pairedSessionIds: [session.id],
+        approved: true,
+        actorId: String(adminUserId),
+        actorRole: "admin",
+      }),
+    ).rejects.toThrow(/report changed/i);
+  });
+
+  it("repairs only unambiguous links, records approval, and preserves attendance and billing", async () => {
+    const { booker, session } = await seedPairedSessionForAttendance();
+    await db
+      .update(classEnrollments)
+      .set({
+        attendanceStatus: "checked_in",
+        paymentStatus: "paid",
+        paidAmount: 9876,
+        lastPaymentIntentId: "pi_preserve_during_link_repair",
+      })
+      .where(eq(classEnrollments.id, session.enrollmentIdA!));
+    await db
+      .update(incarPairedSessions)
+      .set({ enrollmentIdA: null, enrollmentIdB: session.enrollmentIdA })
+      .where(eq(incarPairedSessions.id, session.id));
+    const [lessonRecord] = await db
+      .insert(lessonRecords)
+      .values({
+        studentId: booker,
+        lessonDate: "2030-06-10",
+        lessonType: "practical",
+        duration: 120,
+        status: "completed",
+        notes: "must remain unchanged",
+      })
+      .returning();
+    const [studentTransaction] = await db
+      .insert(studentTransactions)
+      .values({
+        studentId: booker,
+        date: "2030-06-10",
+        description: "Protected billing row",
+        amount: "100.00",
+        total: "100.00",
+        transactionType: "charge",
+      })
+      .returning();
+    const [paymentTransaction] = await db
+      .insert(paymentTransactions)
+      .values({
+        studentId: booker,
+        transactionDate: "2030-06-10",
+        amount: "50.00",
+        paymentMethod: "cash",
+        transactionType: "payment",
+        notes: "must remain unchanged",
+      })
+      .returning();
+
+    const report = await getPairedSessionLinkAuditReport();
+    const record = report.records.find((row) => row.pairedSessionId === session.id);
+    expect(record).toMatchObject({
+      issues: expect.arrayContaining(["missing", "wrong_student"]),
+      repairable: true,
+    });
+    const before = await db
+      .select()
+      .from(classEnrollments)
+      .where(inArray(classEnrollments.id, [session.enrollmentIdA!, session.enrollmentIdB!]));
+    const [classBefore] = await db
+      .select()
+      .from(classes)
+      .where(eq(classes.id, session.classId));
+
+    const result = await repairPairedSessionEnrollmentLinks({
+      fingerprint: report.fingerprint,
+      pairedSessionIds: [session.id],
+      approved: true,
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+
+    expect(result.repairedSessionIds).toEqual([session.id]);
+    expect(result.report.records.some((row) => row.pairedSessionId === session.id)).toBe(false);
+    const [repaired] = await db
+      .select()
+      .from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, session.id));
+    expect(repaired).toMatchObject({
+      enrollmentIdA: session.enrollmentIdA,
+      enrollmentIdB: session.enrollmentIdB,
+    });
+    const after = await db
+      .select()
+      .from(classEnrollments)
+      .where(inArray(classEnrollments.id, [session.enrollmentIdA!, session.enrollmentIdB!]));
+    expect(after).toEqual(before);
+    expect(
+      await db.select().from(classes).where(eq(classes.id, session.classId)),
+    ).toEqual([classBefore]);
+    expect(
+      await db.select().from(lessonRecords).where(eq(lessonRecords.id, lessonRecord.id)),
+    ).toEqual([lessonRecord]);
+    expect(
+      await db
+        .select()
+        .from(studentTransactions)
+        .where(eq(studentTransactions.id, studentTransaction.id)),
+    ).toEqual([studentTransaction]);
+    expect(
+      await db
+        .select()
+        .from(paymentTransactions)
+        .where(eq(paymentTransactions.id, paymentTransaction.id)),
+    ).toEqual([paymentTransaction]);
+    const [auditRow] = await db
+      .select()
+      .from(incarPairingAudit)
+      .where(
+        and(
+          eq(incarPairingAudit.pairedSessionId, session.id),
+          eq(incarPairingAudit.eventType, "historical_enrollment_links_repaired"),
+        ),
+      );
+    expect(auditRow).toMatchObject({
+      actorId: String(adminUserId),
+      actorRole: "admin",
+    });
+    expect(auditRow.details).toMatchObject({
+      approvedFingerprint: report.fingerprint,
+      attendanceAndBillingChanged: false,
+    });
+  });
+
+  it("keeps duplicate active enrollments read-only because the repair is ambiguous", async () => {
+    const { booker, session } = await seedPairedSessionForAttendance();
+    await db.insert(classEnrollments).values({
+      classId: session.classId,
+      studentId: booker,
+      attendanceStatus: "registered",
+    });
+    await db
+      .update(incarPairedSessions)
+      .set({ enrollmentIdA: null })
+      .where(eq(incarPairedSessions.id, session.id));
+
+    const report = await getPairedSessionLinkAuditReport();
+    const record = report.records.find((row) => row.pairedSessionId === session.id);
+    expect(record).toMatchObject({
+      issues: expect.arrayContaining(["missing", "duplicate"]),
+      repairable: false,
+      proposedRepair: null,
+    });
+    await expect(
+      repairPairedSessionEnrollmentLinks({
+        fingerprint: report.fingerprint,
+        pairedSessionIds: [session.id],
+        approved: true,
+        actorId: String(adminUserId),
+        actorRole: "admin",
+      }),
+    ).rejects.toBeInstanceOf(PairingRepairApprovalError);
+  });
+
+  it("rejects queue-provenance mismatches and terminal historical sessions", async () => {
+    const { session } = await seedPairedSessionForAttendance();
+    await db
+      .update(incarPairedSessions)
+      .set({ enrollmentIdA: null })
+      .where(eq(incarPairedSessions.id, session.id));
+    await db
+      .update(incarPairingQueue)
+      .set({ enrollmentId: null })
+      .where(eq(incarPairingQueue.id, session.queueEntryIdA));
+
+    let report = await getPairedSessionLinkAuditReport();
+    expect(report.records.find((row) => row.pairedSessionId === session.id)).toMatchObject({
+      repairable: false,
+      proposedRepair: null,
+    });
+
+    await db
+      .update(incarPairingQueue)
+      .set({ enrollmentId: session.enrollmentIdA })
+      .where(eq(incarPairingQueue.id, session.queueEntryIdA));
+    await db
+      .update(incarPairedSessions)
+      .set({ status: "dissolved" })
+      .where(eq(incarPairedSessions.id, session.id));
+    report = await getPairedSessionLinkAuditReport();
+    expect(report.records.find((row) => row.pairedSessionId === session.id)).toMatchObject({
+      status: "dissolved",
+      repairable: false,
+      proposedRepair: null,
+    });
+  });
+
+  it("rejects a concurrent queue change made after office review", async () => {
+    const { session } = await seedPairedSessionForAttendance();
+    await db
+      .update(incarPairedSessions)
+      .set({ enrollmentIdA: null })
+      .where(eq(incarPairedSessions.id, session.id));
+    const report = await getPairedSessionLinkAuditReport();
+
+    let repairPromise:
+      | ReturnType<typeof repairPairedSessionEnrollmentLinks>
+      | undefined;
+    await db.transaction(async (tx) => {
+      await tx
+        .select()
+        .from(incarPairingQueue)
+        .where(eq(incarPairingQueue.id, session.queueEntryIdA))
+        .for("update");
+      repairPromise = repairPairedSessionEnrollmentLinks({
+        fingerprint: report.fingerprint,
+        pairedSessionIds: [session.id],
+        approved: true,
+        actorId: String(adminUserId),
+        actorRole: "admin",
+      });
+      await new Promise((resolve) => setTimeout(resolve, 75));
+      await tx
+        .update(incarPairingQueue)
+        .set({ enrollmentId: null })
+        .where(eq(incarPairingQueue.id, session.queueEntryIdA));
+    });
+
+    await expect(repairPromise!).rejects.toBeInstanceOf(PairingRepairApprovalError);
+    const [unchanged] = await db
+      .select()
+      .from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, session.id));
+    expect(unchanged.enrollmentIdA).toBeNull();
+  });
+
+  it("reserves both review and repair approval for office admins", async () => {
+    const instructorReview = await request(app)
+      .get("/api/lesson-pairing/admin/enrollment-link-audit")
+      .set("Cookie", instructorCookie);
+    expect([401, 403]).toContain(instructorReview.status);
+
+    const review = await request(app)
+      .get("/api/lesson-pairing/admin/enrollment-link-audit")
+      .set("Cookie", adminCookie);
+    expect(review.status).toBe(200);
+    expect(review.body).toHaveProperty("fingerprint");
+
+    const repair = await request(app)
+      .post("/api/lesson-pairing/admin/enrollment-link-audit/repair")
+      .set("Cookie", instructorCookie)
+      .send({
+        fingerprint: review.body.fingerprint,
+        pairedSessionIds: [1],
+        approved: true,
+      });
+    expect([401, 403]).toContain(repair.status);
+  });
+});
 
 describe("saveAttendanceWithPairing (live DB)", () => {
   it.each([

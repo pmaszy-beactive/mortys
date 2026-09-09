@@ -102,6 +102,9 @@ import {
   AttendancePairingFinalizationError,
   getActivePairedSessions,
   hasQualifyingPhase4IncarOffer,
+  getPairedSessionLinkAuditReport,
+  repairPairedSessionEnrollmentLinks,
+  PairingRepairApprovalError,
 } from "./services/incar-pairing";
 import {
   generateInviteToken,
@@ -17308,6 +17311,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
         captureRequestError(error);
         console.error("[lesson-pairing] Error fetching pairing history:", error);
         res.status(500).json({ message: "Failed to fetch pairing history" });
+      }
+    },
+  );
+
+  // Office-only because the review includes enrollment billing state.
+  app.get(
+    "/api/lesson-pairing/admin/enrollment-link-audit",
+    requireAdmin,
+    async (_req: any, res) => {
+      try {
+        res.json(await getPairedSessionLinkAuditReport());
+      } catch (error) {
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error auditing historical enrollment links:", error);
+        res.status(500).json({ message: "Failed to audit paired-session enrollment links" });
+      }
+    },
+  );
+
+  app.post(
+    "/api/lesson-pairing/admin/enrollment-link-audit/repair",
+    requireAdmin,
+    async (req: any, res) => {
+      try {
+        const fingerprint = String(req.body?.fingerprint ?? "");
+        const pairedSessionIds = Array.isArray(req.body?.pairedSessionIds)
+          ? req.body.pairedSessionIds.map((id: unknown) => Number(id))
+          : [];
+        if (!/^[a-f0-9]{64}$/.test(fingerprint)) {
+          return res.status(400).json({ message: "Invalid report fingerprint" });
+        }
+        if (
+          pairedSessionIds.some(
+            (id: number) => !Number.isInteger(id) || id <= 0,
+          )
+        ) {
+          return res.status(400).json({ message: "Invalid pairedSessionIds" });
+        }
+        const actor = req.admin ?? req.user;
+        const result = await repairPairedSessionEnrollmentLinks({
+          fingerprint,
+          pairedSessionIds,
+          approved: req.body?.approved === true,
+          actorId: String(actor.id),
+          actorRole: "admin",
+        });
+        res.json(result);
+      } catch (error) {
+        if (error instanceof PairingRepairApprovalError) {
+          return res.status(409).json({ message: error.message });
+        }
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error repairing historical enrollment links:", error);
+        res.status(500).json({ message: "Failed to repair paired-session enrollment links" });
       }
     },
   );
