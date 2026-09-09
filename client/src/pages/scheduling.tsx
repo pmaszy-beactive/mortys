@@ -391,6 +391,7 @@ export default function Scheduling() {
     offered: PairingQueueEntry[];
     paired: PairingQueueEntry[];
     activeSessions: PairedSession[];
+    recentSessions: PairedSession[];
     pendingConfirmations: SessionConfirmation[];
     stats: { waiting: number; bookedFirst: number; offered: number; activeSessionsTotal: number };
   }
@@ -407,7 +408,7 @@ export default function Scheduling() {
     for (const e of [...pairingOverview.waiting, ...pairingOverview.bookedFirst, ...pairingOverview.offered, ...pairingOverview.paired]) {
       if (e.studentName) map.set(e.studentId, e.studentName);
     }
-    for (const s of pairingOverview.activeSessions) {
+    for (const s of [...pairingOverview.activeSessions, ...(pairingOverview.recentSessions ?? [])]) {
       if (s.studentNameA) map.set(s.studentIdA, s.studentNameA);
       if (s.studentNameB) map.set(s.studentIdB, s.studentNameB);
     }
@@ -422,7 +423,7 @@ export default function Scheduling() {
         map.set(e.bookedClassId, { date: e.classDate, time: e.classTime });
       }
     }
-    for (const s of pairingOverview.activeSessions) {
+    for (const s of [...pairingOverview.activeSessions, ...(pairingOverview.recentSessions ?? [])]) {
       if (s.classDate || s.classTime) {
         map.set(s.classId, { date: s.classDate, time: s.classTime });
       }
@@ -520,6 +521,10 @@ export default function Scheduling() {
   // Convert-to-solo dialog state
   const [convertSession, setConvertSession] = useState<PairedSession | null>(null);
   const [convertEnrollmentId, setConvertEnrollmentId] = useState<string>("");
+  const [correctionSession, setCorrectionSession] = useState<PairedSession | null>(null);
+  const [correctionStudentId, setCorrectionStudentId] = useState("");
+  const [correctionReason, setCorrectionReason] = useState("");
+  const [correctionConfirmed, setCorrectionConfirmed] = useState(false);
 
   const invalidatePairing = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/lesson-pairing/admin"] });
@@ -564,6 +569,45 @@ export default function Scheduling() {
     },
     onError: (err: any) => {
       toast({ title: "Error", description: err?.data?.message || err?.message || "Failed to convert session.", variant: "destructive" });
+    },
+  });
+
+  const correctionMutation = useMutation({
+    mutationFn: async (input: {
+      pairedSessionId: number;
+      attendingStudentId: number;
+      reason: string;
+    }) => apiRequest(
+      "POST",
+      `/api/lesson-pairing/admin/sessions/${input.pairedSessionId}/correct-attendance`,
+      {
+        attendingStudentId: input.attendingStudentId,
+        reason: input.reason,
+        confirmed: true,
+      },
+    ),
+    onSuccess: (response: any) => {
+      invalidatePairing();
+      queryClient.invalidateQueries({ queryKey: ["/api/classes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/class-enrollments"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/students"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/student/classes"] });
+      setCorrectionSession(null);
+      setCorrectionStudentId("");
+      setCorrectionReason("");
+      setCorrectionConfirmed(false);
+      toast({
+        title: response?.duplicate ? "Attendance already corrected" : "Paired attendance corrected",
+        description: response?.pairedFinalization?.message ||
+          "The selected student was marked attended, the other was marked no-show, and 11/14 credit was finalized.",
+      });
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Correction not applied",
+        description: err?.data?.message || err?.message || "Failed to correct paired attendance.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -1478,6 +1522,52 @@ export default function Scheduling() {
                     </ul>
                   )}
                 </div>
+
+                {/* Recent canonical sessions, including finalized and dissolved sessions. */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Recent paired sessions</h3>
+                  {(pairingOverview.recentSessions ?? []).length === 0 ? (
+                    <p className="text-sm text-gray-500">No recent paired sessions.</p>
+                  ) : (
+                    <ul className="space-y-2" data-testid="list-correctable-pairing-sessions">
+                      {(pairingOverview.recentSessions ?? []).map((session) => (
+                        <li
+                          key={session.id}
+                          className="flex items-center justify-between gap-3 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                          data-testid={`correctable-pairing-session-${session.id}`}
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-gray-800">
+                                {pairingStudentName(session.studentIdA)} &amp; {pairingStudentName(session.studentIdB)}
+                              </span>
+                              <Badge variant="outline" className="text-xs">{session.status}</Badge>
+                            </div>
+                            <div className="text-xs text-gray-500">{pairingClassLabel(session.classId)}</div>
+                            <div className="text-xs text-gray-400">
+                              Enrollments #{session.enrollmentIdA ?? "missing"} / #{session.enrollmentIdB ?? "missing"}
+                            </div>
+                          </div>
+                          {session.status === "completed" &&
+                            session.enrollmentIdA != null &&
+                            session.enrollmentIdB != null && <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setCorrectionSession(session);
+                              setCorrectionStudentId("");
+                              setCorrectionReason("");
+                              setCorrectionConfirmed(false);
+                            }}
+                            data-testid={`button-correct-paired-attendance-${session.id}`}
+                          >
+                            Correct attendance
+                          </Button>}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             )}
           </CardContent>
@@ -1683,6 +1773,104 @@ export default function Scheduling() {
                 data-testid="button-confirm-convert"
               >
                 {convertMutation.isPending ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Converting…</>) : "Convert"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Admin-only correction of an incorrectly completed paired session. */}
+        <Dialog
+          open={!!correctionSession}
+          onOpenChange={(open) => {
+            if (!open && !correctionMutation.isPending) {
+              setCorrectionSession(null);
+              setCorrectionStudentId("");
+              setCorrectionReason("");
+              setCorrectionConfirmed(false);
+            }
+          }}
+        >
+          <DialogContent data-testid="dialog-correct-paired-attendance">
+            <DialogHeader>
+              <DialogTitle>Correct paired attendance</DialogTitle>
+              <DialogDescription>
+                Select the student who actually attended. The other student will be recorded as a no-show,
+                and the incorrect paired 12/13 completion will be replaced with canonical 11/14 credit.
+                This does not change billing.
+              </DialogDescription>
+            </DialogHeader>
+            {correctionSession && (
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <Label>Student who attended</Label>
+                  <Select value={correctionStudentId} onValueChange={setCorrectionStudentId}>
+                    <SelectTrigger data-testid="select-correction-attending-student">
+                      <SelectValue placeholder="Select the attending student" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {correctionSession.enrollmentIdA != null && <SelectItem value={String(correctionSession.studentIdA)}>
+                        {pairingStudentName(correctionSession.studentIdA)}
+                      </SelectItem>}
+                      {correctionSession.enrollmentIdB != null && <SelectItem value={String(correctionSession.studentIdB)}>
+                        {pairingStudentName(correctionSession.studentIdB)}
+                      </SelectItem>}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="paired-attendance-correction-reason">Correction reason</Label>
+                  <Input
+                    id="paired-attendance-correction-reason"
+                    value={correctionReason}
+                    onChange={(event) => setCorrectionReason(event.target.value)}
+                    placeholder="Explain why the finalized attendance is incorrect"
+                    data-testid="input-correction-reason"
+                  />
+                </div>
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="confirm-paired-attendance-correction"
+                    checked={correctionConfirmed}
+                    onCheckedChange={(checked) => setCorrectionConfirmed(checked === true)}
+                    data-testid="checkbox-confirm-correction"
+                  />
+                  <Label htmlFor="confirm-paired-attendance-correction" className="font-normal leading-5">
+                    I confirm that only the selected student attended and understand this correction is final.
+                  </Label>
+                </div>
+              </div>
+            )}
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                disabled={correctionMutation.isPending}
+                onClick={() => setCorrectionSession(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={
+                  !correctionSession ||
+                  !correctionStudentId ||
+                  !correctionReason.trim() ||
+                  !correctionConfirmed ||
+                  correctionMutation.isPending
+                }
+                onClick={() => {
+                  if (correctionSession) {
+                    correctionMutation.mutate({
+                      pairedSessionId: correctionSession.id,
+                      attendingStudentId: Number(correctionStudentId),
+                      reason: correctionReason.trim(),
+                    });
+                  }
+                }}
+                data-testid="button-confirm-correction"
+              >
+                {correctionMutation.isPending
+                  ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Correcting…</>)
+                  : "Apply correction"}
               </Button>
             </DialogFooter>
           </DialogContent>

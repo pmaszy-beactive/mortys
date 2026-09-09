@@ -2747,6 +2747,7 @@ interface SoloConversionParams {
   presentEnrollmentId: number;
   actorId?: string;
   actorRole?: string;
+  auditDetails?: Record<string, unknown>;
   testHooks?: {
     beforeSecondLesson?: () => Promise<void>;
   };
@@ -2761,6 +2762,7 @@ async function convertPresentStudentToSoloInTransaction(
     presentEnrollmentId,
     actorId = "admin",
     actorRole = "admin",
+    auditDetails,
     testHooks,
   } = params;
 
@@ -3019,6 +3021,7 @@ async function convertPresentStudentToSoloInTransaction(
         newEnrollmentIds: newEnrollments.map((row) => row.id),
         absentStudentId,
         originalClassId: session.classId,
+         ...auditDetails,
       },
     });
 
@@ -3117,6 +3120,12 @@ export interface SaveAttendanceWithPairingResult {
   pairedFinalizations: PairedAttendanceFinalization[];
 }
 
+export interface CorrectPairedAttendanceResult {
+  success: true;
+  duplicate: boolean;
+  pairedFinalization: PairedAttendanceFinalization;
+}
+
 export class AttendancePairingFinalizationError extends Error {
   readonly code = "ATTENDANCE_PAIRING_FINALIZATION_FAILED";
   readonly httpStatus = 409;
@@ -3127,6 +3136,296 @@ export class AttendancePairingFinalizationError extends Error {
     super(message);
     this.name = "AttendancePairingFinalizationError";
   }
+}
+
+/**
+ * Office-only repair for the narrow historical case where a canonical paired
+ * 12/13 session was completed with both students marked attended, although
+ * only one attended. This deliberately reuses the normal conversion primitive
+ * so generated 11/14 credits retain the same conflict and de-duplication rules.
+ */
+export async function correctFinalizedPairedAttendance(params: {
+  pairedSessionId: number;
+  attendingStudentId: number;
+  reason: string;
+  confirmed: boolean;
+  actorId: string;
+  actorRole: string;
+}): Promise<CorrectPairedAttendanceResult> {
+  const reason = params.reason.trim();
+  if (params.actorRole !== "admin") {
+    throw new AttendancePairingFinalizationError("Only an administrator may correct paired attendance.");
+  }
+  if (!params.confirmed) {
+    throw new AttendancePairingFinalizationError("Explicit confirmation is required.");
+  }
+  if (reason.length < 3) {
+    throw new AttendancePairingFinalizationError("A correction reason is required.");
+  }
+
+  const notifications: Array<{ studentId: number; newClassIds: number[] }> = [];
+  const result = await db.transaction(async (tx) => {
+    const [initialSession] = await tx.select().from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, params.pairedSessionId)).limit(1);
+    if (!initialSession) {
+      throw new AttendancePairingFinalizationError("Paired session not found.", params.pairedSessionId);
+    }
+    if (![initialSession.studentIdA, initialSession.studentIdB].includes(params.attendingStudentId)) {
+      throw new AttendancePairingFinalizationError(
+        "The selected attending student does not belong to this paired session.",
+        initialSession.id,
+      );
+    }
+
+    await acquireStudentMutationLocks(tx, [initialSession.studentIdA, initialSession.studentIdB]);
+    const [pairedClass] = await tx.select().from(classes)
+      .where(eq(classes.id, initialSession.classId)).for("update").limit(1);
+    const initialEnrollmentIds = [initialSession.enrollmentIdA, initialSession.enrollmentIdB]
+      .filter((id): id is number => id != null).sort((a, b) => a - b);
+    const enrollments = initialEnrollmentIds.length
+      ? await tx.select().from(classEnrollments)
+          .where(inArray(classEnrollments.id, initialEnrollmentIds))
+          .orderBy(asc(classEnrollments.id)).for("update")
+      : [];
+    const [session] = await tx.select().from(incarPairedSessions)
+      .where(eq(incarPairedSessions.id, initialSession.id)).for("update").limit(1);
+    if (!session || !pairedClass || !isCombined1213Class(pairedClass)) {
+      throw new AttendancePairingFinalizationError(
+        "Correction is only supported for a canonical two-seat, 120-minute Auto In-Car 12/13 session.",
+        initialSession.id,
+      );
+    }
+    if (
+      session.enrollmentIdA !== initialSession.enrollmentIdA ||
+      session.enrollmentIdB !== initialSession.enrollmentIdB ||
+      session.classId !== initialSession.classId
+    ) {
+      throw new AttendancePairingFinalizationError(
+        "Paired-session ownership changed concurrently; retry the correction.",
+        session.id,
+      );
+    }
+
+    const [priorCorrection] = await tx.select().from(incarPairingAudit)
+      .where(and(
+        eq(incarPairingAudit.pairedSessionId, session.id),
+        eq(incarPairingAudit.eventType, "paired_attendance_corrected"),
+      ))
+      .orderBy(desc(incarPairingAudit.createdAt), desc(incarPairingAudit.id))
+      .limit(1);
+    if (priorCorrection) {
+      const details = (priorCorrection.details ?? {}) as Record<string, unknown>;
+      if (details.attendingStudentId !== params.attendingStudentId) {
+        throw new AttendancePairingFinalizationError(
+          "This attendance correction was already finalized for the other student.",
+          session.id,
+        );
+      }
+      const [conversion] = await tx.select().from(incarPairingAudit)
+        .where(and(
+          eq(incarPairingAudit.pairedSessionId, session.id),
+          eq(incarPairingAudit.eventType, "converted_to_solo"),
+        ))
+        .orderBy(desc(incarPairingAudit.createdAt), desc(incarPairingAudit.id))
+        .limit(1);
+      if (!conversion) {
+        throw new AttendancePairingFinalizationError(
+          "The prior correction is incomplete and requires manual review; no new credits were created.",
+          session.id,
+        );
+      }
+      const conversionDetails = (conversion.details ?? {}) as Record<string, unknown>;
+      if (conversion.studentId !== params.attendingStudentId) {
+        throw new AttendancePairingFinalizationError(
+          "The prior conversion belongs to a different student; correction is unsafe.",
+          session.id,
+        );
+      }
+      const generatedIds = Array.isArray(conversionDetails.newEnrollmentIds)
+        ? conversionDetails.newEnrollmentIds.filter((id): id is number => Number.isInteger(id))
+        : [];
+      if (generatedIds.length) {
+        const generated = await tx.select({
+          enrollment: classEnrollments,
+          class: classes,
+        }).from(classEnrollments)
+          .innerJoin(classes, eq(classEnrollments.classId, classes.id))
+          .where(inArray(classEnrollments.id, generatedIds))
+          .for("update");
+        const unsafe = generated.length !== generatedIds.length || generated.some(({ enrollment, class: lesson }) =>
+          enrollment.studentId !== params.attendingStudentId ||
+          enrollment.cancelledAt != null ||
+          enrollment.attendanceStatus !== "attended" ||
+          lesson.courseType !== "auto" ||
+          lesson.classType !== "driving" ||
+          ![11, 14].includes(lesson.classNumber) ||
+          lesson.duration !== 60 ||
+          lesson.maxStudents !== 1
+        );
+        if (unsafe) {
+          throw new AttendancePairingFinalizationError(
+            "Generated In-Car 11/14 credit was modified; duplicate correction is unsafe.",
+            session.id,
+          );
+        }
+      }
+      return {
+        success: true as const,
+        duplicate: true,
+        pairedFinalization: {
+          pairedSessionId: session.id,
+          classId: session.classId,
+          status: "unchanged" as const,
+          message: "Paired attendance was already corrected; no duplicate 11/14 credits were created.",
+          presentEnrollmentId:
+            params.attendingStudentId === session.studentIdA
+              ? session.enrollmentIdA ?? undefined
+              : session.enrollmentIdB ?? undefined,
+          newClassIds: Array.isArray(conversionDetails.newClassIds)
+            ? conversionDetails.newClassIds.filter((id): id is number => Number.isInteger(id))
+            : [],
+          newEnrollmentIds: Array.isArray(conversionDetails.newEnrollmentIds)
+            ? conversionDetails.newEnrollmentIds.filter((id): id is number => Number.isInteger(id))
+            : [],
+        },
+      };
+    }
+
+    if (session.status !== "completed") {
+      throw new AttendancePairingFinalizationError(
+        `Only a completed paired session can be corrected (current status: '${session.status}').`,
+        session.id,
+      );
+    }
+    const enrollmentIds = [session.enrollmentIdA, session.enrollmentIdB]
+      .filter((id): id is number => id != null).sort((a, b) => a - b);
+    if (enrollmentIds.length !== 2) {
+      throw new AttendancePairingFinalizationError("Paired session is missing an enrollment linkage.", session.id);
+    }
+    const enrollmentA = enrollments.find((row) => row.id === session.enrollmentIdA);
+    const enrollmentB = enrollments.find((row) => row.id === session.enrollmentIdB);
+    if (
+      enrollments.length !== 2 ||
+      enrollmentA?.studentId !== session.studentIdA ||
+      enrollmentB?.studentId !== session.studentIdB ||
+      enrollmentA.classId !== session.classId ||
+      enrollmentB.classId !== session.classId
+    ) {
+      throw new AttendancePairingFinalizationError(
+        "Paired session enrollment ownership does not match its students and class.",
+        session.id,
+      );
+    }
+    const queueRows = await tx.select().from(incarPairingQueue)
+      .where(inArray(incarPairingQueue.id, [session.queueEntryIdA, session.queueEntryIdB]))
+      .orderBy(asc(incarPairingQueue.id)).for("update");
+    const queueA = queueRows.find((row) => row.id === session.queueEntryIdA);
+    const queueB = queueRows.find((row) => row.id === session.queueEntryIdB);
+    if (
+      queueRows.length !== 2 ||
+      queueA?.studentId !== session.studentIdA ||
+      queueB?.studentId !== session.studentIdB ||
+      queueA.enrollmentId !== session.enrollmentIdA ||
+      queueB.enrollmentId !== session.enrollmentIdB ||
+      queueA.status !== "completed" ||
+      queueB.status !== "completed"
+    ) {
+      throw new AttendancePairingFinalizationError(
+        "Paired-session queue ownership was modified; correction is unsafe.",
+        session.id,
+      );
+    }
+    if (
+      enrollmentA.cancelledAt || enrollmentB.cancelledAt ||
+      enrollmentA.attendanceStatus !== "attended" ||
+      enrollmentB.attendanceStatus !== "attended"
+    ) {
+      throw new AttendancePairingFinalizationError(
+        "Correction requires both original enrollments to be active and previously marked attended.",
+        session.id,
+      );
+    }
+
+    const presentEnrollment =
+      params.attendingStudentId === session.studentIdA ? enrollmentA : enrollmentB;
+    const absentEnrollment = presentEnrollment.id === enrollmentA.id ? enrollmentB : enrollmentA;
+    await tx.update(classEnrollments).set({ attendanceStatus: "no-show" })
+      .where(eq(classEnrollments.id, absentEnrollment.id));
+    await tx.insert(attendanceAuditLogs).values({
+      actorType: "admin",
+      actorId: params.actorId,
+      actorName: null,
+      action: "correct_paired_attendance",
+      outcome: "success",
+      classId: session.classId,
+      enrollmentId: absentEnrollment.id,
+      studentId: absentEnrollment.studentId,
+      instructorId: pairedClass.instructorId,
+      previousStatus: "attended",
+      newStatus: "no-show",
+      details: reason,
+    });
+    await restoreActivePairedSession(
+      tx, session, params.actorId, "admin", `Admin correction: ${reason}`,
+    );
+    const conversion = await convertPresentStudentToSoloInTransaction(tx, {
+      pairedSessionId: session.id,
+      presentEnrollmentId: presentEnrollment.id,
+      actorId: params.actorId,
+      actorRole: "admin",
+    });
+    if (!conversion.success) {
+      throw new AttendancePairingFinalizationError(
+        conversion.reason ?? "Paired attendance correction conversion failed.",
+        session.id,
+      );
+    }
+    if (conversion.notification) notifications.push(conversion.notification);
+
+    // Unlike ordinary day-of conversion, this repair cancels both erroneous
+    // original 12/13 rows. It does not touch payment fields or assess fees.
+    await tx.update(classEnrollments).set({ cancelledAt: new Date() })
+      .where(inArray(classEnrollments.id, enrollmentIds));
+    await audit(tx, {
+      eventType: "paired_attendance_corrected",
+      pairedSessionId: session.id,
+      classId: session.classId,
+      studentId: params.attendingStudentId,
+      actorId: params.actorId,
+      actorRole: "admin",
+      previousStatus: "completed",
+      newStatus: "converted_solo",
+      details: {
+        reason,
+        attendingStudentId: params.attendingStudentId,
+        noShowStudentId: absentEnrollment.studentId,
+        originalEnrollmentIds: enrollmentIds,
+        newClassIds: conversion.newClassIds ?? [],
+        newEnrollmentIds: conversion.newEnrollmentIds ?? [],
+      },
+    });
+    return {
+      success: true as const,
+      duplicate: false,
+      pairedFinalization: {
+        pairedSessionId: session.id,
+        classId: session.classId,
+        status: "converted" as const,
+        message:
+          "Paired attendance was corrected. The attending student received canonical In-Car 11/14 credit; both students may rebook 12/13.",
+        presentEnrollmentId: presentEnrollment.id,
+        newClassIds: conversion.newClassIds,
+        newEnrollmentIds: conversion.newEnrollmentIds,
+        preservedClassNumbers: conversion.preservedClassNumbers,
+      },
+    };
+  });
+  for (const notification of notifications) {
+    notifyLessonConverted(notification).catch((err) =>
+      console.error("[incar-pairing] lesson-converted notification error:", err),
+    );
+  }
+  return result;
 }
 
 function normalizedAttendanceChanges(update: AttendanceUpdate) {
@@ -3421,8 +3720,18 @@ export async function saveAttendanceWithPairing(params: {
   classUpdate?: AttendanceClassUpdate;
   /** Internal read-only invocation used by lifecycle/legacy completion. */
   finalizeOnly?: boolean;
+  /** Extra context recorded on both attendance and pairing audit events. */
+  auditDetails?: Record<string, unknown>;
 }): Promise<SaveAttendanceWithPairingResult> {
-  const { updates, actorId, actorRole, expectedClassId, classUpdate, finalizeOnly = false } = params;
+  const {
+    updates,
+    actorId,
+    actorRole,
+    expectedClassId,
+    classUpdate,
+    finalizeOnly = false,
+    auditDetails,
+  } = params;
   if (!updates.length) {
     throw new AttendancePairingFinalizationError("At least one attendance update is required.");
   }
@@ -3592,7 +3901,9 @@ export async function saveAttendanceWithPairing(params: {
         instructorId: assignedClass?.instructorId ?? null,
         previousStatus: prior?.attendanceStatus ?? null,
         newStatus: row.attendanceStatus,
-        details: "Saved atomically with paired-attendance finalization",
+        details: auditDetails
+          ? `Saved atomically with paired-attendance finalization: ${JSON.stringify(auditDetails)}`
+          : "Saved atomically with paired-attendance finalization",
       });
     }
     if (classUpdate) {
@@ -3758,6 +4069,7 @@ export async function saveAttendanceWithPairing(params: {
           presentEnrollmentId,
           actorId,
           actorRole,
+           auditDetails,
         });
         if (!conversion.success) {
           throw new AttendancePairingFinalizationError(
@@ -4298,11 +4610,15 @@ export async function getAdminPairingOverview(): Promise<{
   offered: AdminPairingQueueEntry[];
   paired: AdminPairingQueueEntry[];
   activeSessions: AdminPairedSession[];
+  recentSessions: AdminPairedSession[];
   pendingConfirmations: IncarSessionConfirmation[];
   stats: { waiting: number; bookedFirst: number; offered: number; activeSessionsTotal: number };
 }> {
   const allActive = await getQueue();
   const rawActiveSessions = await getActivePairedSessions();
+  const rawRecentSessions = await db.select().from(incarPairedSessions)
+    .orderBy(desc(incarPairedSessions.updatedAt), desc(incarPairedSessions.id))
+    .limit(50);
 
   // Batch-load student names and class date/time for everything referenced,
   // so the client doesn't need per-id lookups.
@@ -4312,7 +4628,7 @@ export async function getAdminPairingOverview(): Promise<{
     studentIds.add(e.studentId);
     if (e.bookedClassId != null) classIds.add(e.bookedClassId);
   }
-  for (const s of rawActiveSessions) {
+  for (const s of [...rawActiveSessions, ...rawRecentSessions]) {
     studentIds.add(s.studentIdA);
     studentIds.add(s.studentIdB);
     classIds.add(s.classId);
@@ -4366,6 +4682,16 @@ export async function getAdminPairingOverview(): Promise<{
       classTime: cls?.time ?? null,
     };
   });
+  const recentSessions: AdminPairedSession[] = rawRecentSessions.map((s) => {
+    const cls = classById.get(s.classId);
+    return {
+      ...s,
+      studentNameA: nameById.get(s.studentIdA) ?? null,
+      studentNameB: nameById.get(s.studentIdB) ?? null,
+      classDate: cls?.date ?? null,
+      classTime: cls?.time ?? null,
+    };
+  });
 
   const sessionStudentIds = Array.from(
     new Set(rawActiveSessions.flatMap((s) => [s.studentIdA, s.studentIdB])),
@@ -4381,6 +4707,7 @@ export async function getAdminPairingOverview(): Promise<{
     offered,
     paired,
     activeSessions,
+    recentSessions,
     pendingConfirmations,
     stats: {
       waiting: waiting.length,

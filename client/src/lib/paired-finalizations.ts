@@ -24,8 +24,15 @@ const statuses = new Set<PairedFinalizationStatus>([
 export function getPairedFinalizations(response: unknown): PairedFinalization[] {
   if (!response || typeof response !== "object") return [];
 
-  const value = (response as { pairedFinalizations?: unknown }).pairedFinalizations;
-  if (!Array.isArray(value)) return [];
+  const source = response as {
+    pairedFinalization?: unknown;
+    pairedFinalizations?: unknown;
+  };
+  const value = Array.isArray(source.pairedFinalizations)
+    ? source.pairedFinalizations
+    : source.pairedFinalization != null
+      ? [source.pairedFinalization]
+      : [];
 
   return value.flatMap((outcome): PairedFinalization[] => {
     if (!outcome || typeof outcome !== "object") return [];

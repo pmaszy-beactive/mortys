@@ -98,6 +98,7 @@ import {
   manualPair,
   requeueStudent,
   convertPresentStudentToSolo,
+  correctFinalizedPairedAttendance,
   saveAttendanceWithPairing,
   AttendancePairingFinalizationError,
   getActivePairedSessions,
@@ -17432,7 +17433,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
-  // ── Admin/Instructor: convert present student to a solo lesson ────────────
+  // ── Admin-only: correct a canonical paired session's attendance ──────────
+  app.post(
+    "/api/lesson-pairing/admin/sessions/:pairedSessionId/correct-attendance",
+    requireAdmin,
+    async (req: any, res) => {
+      try {
+        const pairedSessionId = Number(req.params.pairedSessionId);
+        const attendingStudentId = Number(req.body?.attendingStudentId);
+        if (!Number.isInteger(pairedSessionId) || pairedSessionId <= 0) {
+          return res.status(400).json({ message: "Invalid pairedSessionId" });
+        }
+        if (!Number.isInteger(attendingStudentId) || attendingStudentId <= 0) {
+          return res.status(400).json({ message: "Invalid attendingStudentId" });
+        }
+        const reason = typeof req.body?.reason === "string" ? req.body.reason.trim() : "";
+        if (reason.length < 3) {
+          return res.status(400).json({ message: "A correction reason is required" });
+        }
+        if (req.body?.confirmed !== true) {
+          return res.status(400).json({ message: "Explicit confirmation is required" });
+        }
+        const actor = req.admin ?? req.user;
+        const result = await correctFinalizedPairedAttendance({
+          pairedSessionId,
+          attendingStudentId,
+          reason,
+          confirmed: true,
+          actorId: String(actor?.id ?? "unknown"),
+          actorRole: "admin",
+        });
+        res.json(result);
+      } catch (error) {
+        if (error instanceof AttendancePairingFinalizationError) {
+          return res.status(error.httpStatus).json({
+            code: error.code,
+            message: error.message,
+            pairedSessionId: error.pairedSessionId,
+          });
+        }
+        captureRequestError(error);
+        console.error("[lesson-pairing] Error correcting paired attendance:", error);
+        res.status(500).json({ message: "Failed to correct paired attendance" });
+      }
+    },
+  );
+
   app.post(
     "/api/lesson-pairing/sessions/:pairedSessionId/convert",
     isAdminOrInstructor,

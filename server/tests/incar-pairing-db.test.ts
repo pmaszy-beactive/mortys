@@ -83,6 +83,8 @@ let uniq = 0;
 let app: express.Express;
 let adminCookie: string;
 let adminUserId: string | null = null;
+let nonAdminCookie: string;
+let nonAdminUserId: string | null = null;
 let instructorId: number | null = null;
 let instructorCookie: string;
 
@@ -109,6 +111,24 @@ beforeAll(async () => {
   expect(login.status).toBe(200);
   adminCookie = login.headers["set-cookie"][0].split(";")[0];
 
+  const [nonAdmin] = await db
+    .insert(users)
+    .values({
+      email: `incar-conversion-user-${tag}@example.test`,
+      firstName: "Pairing",
+      lastName: "User",
+      role: "user",
+      password: await bcrypt.hash("pairing-test-password", 10),
+    } as any)
+    .returning({ id: users.id, email: users.email });
+  nonAdminUserId = nonAdmin.id;
+  const nonAdminLogin = await request(app)
+    .post("/api/auth/login")
+    .set("X-Forwarded-Proto", "https")
+    .send({ username: nonAdmin.email, password: "pairing-test-password" });
+  expect(nonAdminLogin.status).toBe(200);
+  nonAdminCookie = nonAdminLogin.headers["set-cookie"][0].split(";")[0];
+
   const instructorPassword = "pairing-instructor-password";
   const [instructor] = await db
     .insert(instructors)
@@ -132,6 +152,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (instructorId) await db.delete(instructors).where(eq(instructors.id, instructorId));
+  if (nonAdminUserId) await db.delete(users).where(eq(users.id, nonAdminUserId));
   if (adminUserId) await db.delete(users).where(eq(users.id, adminUserId));
 });
 
@@ -905,6 +926,196 @@ async function convertedLessons(studentId: number) {
       ),
     );
 }
+
+async function seedCompletedBothAttendedPairedSession() {
+  const waiting = await createStudent();
+  const booker = await createStudent();
+  const classId = await createCombinedClass({
+    ...schoolLocalSchedule(-90),
+    instructorId,
+    status: "scheduled",
+  });
+  const [enrollmentA] = await db.insert(classEnrollments).values({
+    classId,
+    studentId: booker,
+    attendanceStatus: "attended",
+  }).returning();
+  const [enrollmentB] = await db.insert(classEnrollments).values({
+    classId,
+    studentId: waiting,
+    attendanceStatus: "attended",
+  }).returning();
+  const [queueA] = await db.insert(incarPairingQueue).values({
+    studentId: booker,
+    status: "completed",
+    bookedClassId: classId,
+    enrollmentId: enrollmentA.id,
+  }).returning();
+  const [queueB] = await db.insert(incarPairingQueue).values({
+    studentId: waiting,
+    status: "completed",
+    bookedClassId: classId,
+    enrollmentId: enrollmentB.id,
+  }).returning();
+  const [session] = await db.insert(incarPairedSessions).values({
+    queueEntryIdA: queueA.id,
+    queueEntryIdB: queueB.id,
+    studentIdA: booker,
+    studentIdB: waiting,
+    classId,
+    enrollmentIdA: enrollmentA.id,
+    enrollmentIdB: enrollmentB.id,
+    status: "completed",
+    completedAt: new Date(),
+  }).returning();
+  return { waiting, booker, classId, session };
+}
+
+describe("admin paired-attendance correction endpoint (live DB)", () => {
+  const endpoint = (sessionId: number) =>
+    `/api/lesson-pairing/admin/sessions/${sessionId}/correct-attendance`;
+
+  it("replaces erroneous completed 12/13 credit with selected student's attended 11/14", async () => {
+    const { booker, waiting, session } = await seedCompletedBothAttendedPairedSession();
+    const beforeBooker = await phaseProgressFor(booker);
+    const beforeWaiting = await phaseProgressFor(waiting);
+    expect(beforeBooker.twelve.isCompleted).toBe(true);
+    expect(beforeBooker.thirteen.isCompleted).toBe(true);
+    expect(beforeWaiting.twelve.isCompleted).toBe(true);
+    expect(beforeWaiting.thirteen.isCompleted).toBe(true);
+
+    const response = await request(app)
+      .post(endpoint(session.id))
+      .set("Cookie", adminCookie)
+      .send({
+        attendingStudentId: booker,
+        reason: "Office verified the signed attendance sheet",
+        confirmed: true,
+      });
+    createdClassIds.push(...(response.body?.pairedFinalization?.newClassIds ?? []));
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      success: true,
+      duplicate: false,
+      pairedFinalization: {
+        pairedSessionId: session.id,
+        status: "converted",
+        presentEnrollmentId: session.enrollmentIdA,
+      },
+    });
+    const generated = await convertedLessons(booker);
+    expect(generated.map((row) => row.classNumber).sort()).toEqual([11, 14]);
+    expect(generated.every((row) =>
+      row.attendanceStatus === "attended" && row.cancelledAt == null
+    )).toBe(true);
+    expect(await convertedLessons(waiting)).toHaveLength(0);
+
+    const originals = await attendanceRows(session);
+    const originalsById = new Map(originals.map((row) => [row.id, row]));
+    expect(originals.every((row) => row.cancelledAt != null)).toBe(true);
+    expect(originalsById.get(session.enrollmentIdB!)?.attendanceStatus).toBe("no-show");
+
+    for (const studentId of [booker, waiting]) {
+      const progress = await phaseProgressFor(studentId);
+      expect(progress.twelve.isCompleted).toBe(false);
+      expect(progress.thirteen.isCompleted).toBe(false);
+    }
+
+    const attendanceAudit = await db.select().from(attendanceAuditLogs)
+      .where(and(
+        eq(attendanceAuditLogs.enrollmentId, session.enrollmentIdB!),
+        eq(attendanceAuditLogs.action, "correct_paired_attendance"),
+      ));
+    expect(attendanceAudit.at(-1)?.details).toContain("signed attendance sheet");
+    const pairingAudit = await db.select().from(incarPairingAudit)
+      .where(and(
+        eq(incarPairingAudit.pairedSessionId, session.id),
+        eq(incarPairingAudit.eventType, "paired_attendance_corrected"),
+      ));
+    expect((pairingAudit.at(-1)?.details as any)?.reason)
+      .toBe("Office verified the signed attendance sheet");
+  });
+
+  it("requires a reason and explicit confirmation without mutating attendance", async () => {
+    const { booker, session } = await seedCompletedBothAttendedPairedSession();
+    const missingReason = await request(app)
+      .post(endpoint(session.id))
+      .set("Cookie", adminCookie)
+      .send({ attendingStudentId: booker, reason: "  ", confirmed: true });
+    expect(missingReason.status).toBe(400);
+    expect(missingReason.body.message).toMatch(/reason/i);
+
+    const missingConfirmation = await request(app)
+      .post(endpoint(session.id))
+      .set("Cookie", adminCookie)
+      .send({ attendingStudentId: booker, reason: "Verified correction" });
+    expect(missingConfirmation.status).toBe(400);
+    expect(missingConfirmation.body.message).toMatch(/confirmation/i);
+    expect((await attendanceRows(session)).map((row) => row.attendanceStatus))
+      .toEqual(["attended", "attended"]);
+  });
+
+  it("rejects instructor and authenticated non-admin callers", async () => {
+    const { booker, session } = await seedCompletedBothAttendedPairedSession();
+    const body = {
+      attendingStudentId: booker,
+      reason: "Verified correction",
+      confirmed: true,
+    };
+    const instructorResponse = await request(app)
+      .post(endpoint(session.id))
+      .set("Cookie", instructorCookie)
+      .send(body);
+    expect([401, 403]).toContain(instructorResponse.status);
+    const nonAdminResponse = await request(app)
+      .post(endpoint(session.id))
+      .set("Cookie", nonAdminCookie)
+      .send(body);
+    expect(nonAdminResponse.status).toBe(403);
+    expect((await attendanceRows(session)).map((row) => row.attendanceStatus))
+      .toEqual(["attended", "attended"]);
+  });
+
+  it("is idempotent for the same selection and rejects a conflicting selection", async () => {
+    const { booker, waiting, session } = await seedCompletedBothAttendedPairedSession();
+    const body = {
+      attendingStudentId: booker,
+      reason: "Verified correction",
+      confirmed: true,
+    };
+    const first = await request(app)
+      .post(endpoint(session.id))
+      .set("Cookie", adminCookie)
+      .send(body);
+    createdClassIds.push(...(first.body?.pairedFinalization?.newClassIds ?? []));
+    expect(first.status).toBe(200);
+
+    const duplicate = await request(app)
+      .post(endpoint(session.id))
+      .set("Cookie", adminCookie)
+      .send(body);
+    expect(duplicate.status).toBe(200);
+    expect(duplicate.body).toMatchObject({
+      success: true,
+      duplicate: true,
+      pairedFinalization: { status: "unchanged" },
+    });
+    expect(await convertedLessons(booker)).toHaveLength(2);
+
+    const conflicting = await request(app)
+      .post(endpoint(session.id))
+      .set("Cookie", adminCookie)
+      .send({
+        attendingStudentId: waiting,
+        reason: "Attempt conflicting correction",
+        confirmed: true,
+      });
+    expect(conflicting.status).toBe(409);
+    expect(conflicting.body.message).toMatch(/other student/i);
+    expect(await convertedLessons(booker)).toHaveLength(2);
+    expect(await convertedLessons(waiting)).toHaveLength(0);
+  });
+});
 
 describe("historical paired-session enrollment-link audit and repair", () => {
   it("reports wrong-student and cross-class links without mutating any rows", async () => {
