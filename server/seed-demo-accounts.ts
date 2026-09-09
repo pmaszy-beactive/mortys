@@ -1,6 +1,5 @@
 import { db } from "./db";
 import { instructors, students } from "@shared/schema";
-import bcrypt from "bcryptjs";
 
 /**
  * Idempotently seed the demo instructor and demo student accounts.
@@ -15,8 +14,8 @@ import bcrypt from "bcryptjs";
  * dedicated dist/seed-demo.js script the Docker entrypoint runs on every deploy.
  */
 export async function seedDemoAccounts() {
-  // Demo instructor — login: demo.instructor@example.com / instructor123
-  const instructorPassword = await bcrypt.hash("instructor123", 10);
+  // Demo records intentionally have no password. Use the authorized password
+  // reset flow when interactive access to one of these accounts is required.
   const insertedInstructor = await db
     .insert(instructors)
     .values({
@@ -30,7 +29,7 @@ export async function seedDemoAccounts() {
       certificationExpiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
       status: "active",
       accountStatus: "active",
-      password: instructorPassword,
+      password: null,
       emergencyContact: "Demo Emergency Contact",
       emergencyPhone: "(514) 555-5678",
       specializations: JSON.stringify(["auto", "moto"]),
@@ -43,8 +42,6 @@ export async function seedDemoAccounts() {
       : "[seed-demo] Demo instructor account already exists",
   );
 
-  // Demo student — login: demo.student@example.com / demo123
-  const studentPassword = await bcrypt.hash("demo123", 10);
   const insertedStudent = await db
     .insert(students)
     .values({
@@ -59,7 +56,7 @@ export async function seedDemoAccounts() {
       courseType: "auto",
       status: "active",
       accountStatus: "active",
-      password: studentPassword,
+      password: null,
       enrollmentDate: new Date().toISOString(),
     })
     .onConflictDoNothing({ target: students.email })
