@@ -54,6 +54,11 @@ import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-
 import { getStripePromise } from "@/lib/stripe";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPhaseClassBookState } from "@/lib/class-book-state";
+import {
+  AVAILABLE_CLASSES_REFRESH_INTERVAL_MS,
+  isActionablePairingOffer,
+  PAIRING_STATUS_REFRESH_INTERVAL_MS,
+} from "@/lib/incar-pairing-status";
 import { isPermitExpired, isPermitExpiringSoon, formatDate } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -1110,7 +1115,10 @@ export default function StudentClasses() {
   const [currentPage, setCurrentPage] = useState(1);
   // Task 272: remember whether the last confirmed booking entered the In-Car
   // 12/13 pairing flow so the success step shows the pairing copy.
-  const [lastBookingPaired, setLastBookingPaired] = useState(false);
+  const [lastBookingPairingDisposition, setLastBookingPairingDisposition] = useState<
+    "booked_first" | "offer_pending" | "waiting" | null
+  >(null);
+  const lastBookingPaired = lastBookingPairingDisposition !== null;
 
   const { data: classes = [], isLoading: classesLoading } = useQuery<ClassWithDetails[]>({
     queryKey: ["/api/student/classes"],
@@ -1123,8 +1131,16 @@ export default function StudentClasses() {
   });
 
   const { data: classesResponse, isLoading: availableClassesLoading } = useQuery<AvailableClassesResponse>({
-    queryKey: ["/api/student/classes/available"],
+    // Keep the URL at key[0] for the shared queryFn, while scoping cached
+    // availability by authenticated student.
+    queryKey: ["/api/student/classes/available", student?.id],
     enabled: isAuthenticated,
+    // Query defaults use staleTime=Infinity and disable focus refresh. Explicit
+    // refresh is required here or a class scheduled after this page/query was
+    // first loaded (including a canonical 12/13 slot) remains invisible.
+    refetchInterval: AVAILABLE_CLASSES_REFRESH_INTERVAL_MS,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const availableClasses = classesResponse?.classes || [];
@@ -1139,8 +1155,9 @@ export default function StudentClasses() {
   // Task 272: In-Car 12/13 pairing status. Auto students may queue for and be
   // paired into the combined 2-hour session.
   const { data: pairingStatus } = useQuery<PairingStatusResponse>({
-    queryKey: ["/api/student/lesson-pairing/status"],
+    queryKey: ["/api/student/lesson-pairing/status", student?.id],
     enabled: isAuthenticated,
+    refetchInterval: PAIRING_STATUS_REFRESH_INTERVAL_MS,
   });
 
   const bookClassMutation = useMutation({
@@ -1153,9 +1170,11 @@ export default function StudentClasses() {
       queryClient.invalidateQueries({ queryKey: ["/api/student/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/student/history"] });
       queryClient.invalidateQueries({ queryKey: ["/api/student/phase-progress"] });
-      const isPaired = response?.pairedLesson === true;
-      setLastBookingPaired(isPaired);
-      if (isPaired) {
+      const pairingDisposition = response?.pairedLesson === true
+        ? (response?.pairingDisposition ?? "booked_first")
+        : null;
+      setLastBookingPairingDisposition(pairingDisposition);
+      if (pairingDisposition) {
         queryClient.invalidateQueries({ queryKey: ["/api/student/lesson-pairing/status"] });
       }
       setWizardStep(4);
@@ -1187,7 +1206,7 @@ export default function StudentClasses() {
     onSuccess: () => {
       ["/api/student/classes/available", "/api/student/classes", "/api/student/me", "/api/student/history", "/api/student/phase-progress"].forEach(queryKey =>
         queryClient.invalidateQueries({ queryKey: [queryKey] }));
-      setLastBookingPaired(false);
+      setLastBookingPairingDisposition(null);
       setWizardStep(4);
     },
     onError: (error: any) => toast({
@@ -1446,7 +1465,9 @@ export default function StudentClasses() {
   };
 
   const pairingQueueEntries = pairingStatus?.queueEntries ?? [];
-  const pairingOffers = pairingStatus?.pendingOffers ?? [];
+  const pairingOffers = (pairingStatus?.pendingOffers ?? []).filter((offer) =>
+    isActionablePairingOffer(offer),
+  );
   const pairingConfirmations = pairingStatus?.pendingConfirmations ?? [];
   const pairingSessions = pairingStatus?.activeSessions ?? [];
 
@@ -2066,8 +2087,16 @@ export default function StudentClasses() {
           if (wizardStep === 4) {
             if (lastBookingPaired) {
               toast({
-                title: "In-Car 12/13 reserved",
-                description: "We're finding you a partner for your paired session.",
+                title: lastBookingPairingDisposition === "offer_pending"
+                  ? "Pairing offer available"
+                  : lastBookingPairingDisposition === "waiting"
+                    ? "Joined the pairing queue"
+                    : "In-Car 12/13 reserved",
+                description: lastBookingPairingDisposition === "offer_pending"
+                  ? "Review and accept the In-Car 12/13 offer in the pairing panel."
+                  : lastBookingPairingDisposition === "waiting"
+                    ? "The open seat will be offered in queue order."
+                    : "We're finding you a partner for your paired session.",
                 variant: "success",
               });
             } else {
@@ -2084,7 +2113,7 @@ export default function StudentClasses() {
           setSelectedBookingClass(null);
           setSelectedPairSecondClass(null);
           setPolicyAccepted(false);
-          setLastBookingPaired(false);
+          setLastBookingPairingDisposition(null);
         }
       }}>
         <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
@@ -2096,7 +2125,13 @@ export default function StudentClasses() {
             <DialogDescription>
               {wizardStep === 2 && "Pick an available session for this class"}
               {wizardStep === 3 && "Review the booking policy before confirming"}
-              {wizardStep === 4 && "Your class has been booked!"}
+              {wizardStep === 4 && (
+                lastBookingPairingDisposition === "offer_pending"
+                  ? "A second-seat offer is ready for your response"
+                  : lastBookingPairingDisposition === "waiting"
+                    ? "Your pairing-queue request was received"
+                    : "Your class has been booked!"
+              )}
             </DialogDescription>
           </DialogHeader>
 
@@ -2417,12 +2452,22 @@ export default function StudentClasses() {
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-1">
-                {lastBookingPaired ? "In-Car 12/13 Reserved!" : "You're All Set!"}
+                {lastBookingPairingDisposition === "offer_pending"
+                  ? "Pairing Offer Available!"
+                  : lastBookingPairingDisposition === "waiting"
+                    ? "You're in the Pairing Queue!"
+                    : lastBookingPaired
+                      ? "In-Car 12/13 Reserved!"
+                      : "You're All Set!"}
               </h3>
               <p className="text-sm text-gray-600 mb-4">
-                {lastBookingPaired
-                  ? "We're finding you a partner for your paired session."
-                  : "Your class has been added to your schedule."}
+                {lastBookingPairingDisposition === "offer_pending"
+                  ? "This second seat has been offered to you. Review and accept it in the pairing panel below."
+                  : lastBookingPairingDisposition === "waiting"
+                    ? "Another student is ahead of you for this seat. It remains protected for them while their offer is active."
+                    : lastBookingPaired
+                      ? "We're finding you a partner for your paired session."
+                      : "Your class has been added to your schedule."}
               </p>
 
               <div className="p-4 rounded-lg bg-green-50 border border-green-200 text-left mb-4">

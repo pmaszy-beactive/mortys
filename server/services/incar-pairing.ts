@@ -95,6 +95,7 @@ import {
   inArray,
   isNull,
   not,
+  notExists,
   lt,
   sql,
   asc,
@@ -671,6 +672,17 @@ async function offerNextCandidate(
     .where(
       and(
         eq(incarPairingQueue.status, "waiting"),
+        notExists(
+          tx
+            .select({ id: incarPairingOffers.id })
+            .from(incarPairingOffers)
+            .where(
+              and(
+                eq(incarPairingOffers.queueEntryId, incarPairingQueue.id),
+                eq(incarPairingOffers.status, "pending"),
+              ),
+            ),
+        ),
         ...(excludedIds.length > 0
           ? [not(inArray(incarPairingQueue.studentId, excludedIds))]
           : []),
@@ -684,36 +696,39 @@ async function offerNextCandidate(
   const candidate = candidates[0];
   const expiresAt = new Date(Date.now() + OFFER_DEADLINE_HOURS * 60 * 60 * 1000);
 
-  let offer: IncarPairingOffer;
-  try {
-    const [inserted] = await tx
-      .insert(incarPairingOffers)
-      .values({
-        queueEntryId: candidate.id,
-        studentId: candidate.studentId,
-        classId,
-        status: "pending",
-        expiresAt,
-      })
-      .returning();
-    offer = inserted;
-  } catch (err: any) {
-    // Idempotent handling of the unique-partial-index race: another concurrent
-    // path created a pending offer for this class/entry first. Treat as no-op.
-    const msg = String(err?.message ?? err ?? "");
-    if (/unique|duplicate/i.test(msg)) {
-      console.warn(
-        `[incar-pairing] offerNextCandidate: pending offer race for class ${classId}; skipping.`,
-      );
-      return;
-    }
-    throw err;
-  }
+  // DO NOTHING avoids poisoning the surrounding PostgreSQL transaction if a
+  // concurrent class flow offered this candidate after our selection. The
+  // partial unique indexes remain the final concurrency guard.
+  const [offer] = await tx
+    .insert(incarPairingOffers)
+    .values({
+      queueEntryId: candidate.id,
+      studentId: candidate.studentId,
+      classId,
+      status: "pending",
+      expiresAt,
+    })
+    .onConflictDoNothing()
+    .returning();
+  if (!offer) return;
 
-  await tx
+  const [claimedEntry] = await tx
     .update(incarPairingQueue)
     .set({ status: "offered", updatedAt: new Date() })
-    .where(eq(incarPairingQueue.id, candidate.id));
+    .where(
+      and(
+        eq(incarPairingQueue.id, candidate.id),
+        eq(incarPairingQueue.status, "waiting"),
+      ),
+    )
+    .returning({ id: incarPairingQueue.id });
+  if (!claimedEntry) {
+    // Another class flow paired/cancelled this queue entry after candidate
+    // selection. Do not leave an actionable offer attached to that stale
+    // state, and never overwrite the winning transition.
+    await applyOfferTransition(tx, offer.id, "pending", "withdrawn");
+    return;
+  }
 
   await audit(tx, {
     eventType: "offer_sent",
@@ -740,6 +755,7 @@ export interface BookCombinedSlotResult {
   success: boolean;
   queueEntryId?: number;
   enrollmentId?: number;
+  disposition?: "booked_first" | "offer_pending" | "waiting";
   reason?: string;
 }
 
@@ -815,10 +831,17 @@ export async function bookCombinedSlot(params: {
       };
     }
 
-    // Reject if this class already has an active queue entry (booked_first,
-    // paired, or confirmed). Only ONE first-booker may own a given class slot.
+    // Only ONE first-booker may own a class. When a booked_first owner already
+    // exists, however, this request is the student-2 path: put the requester in
+    // the global queue and let offerNextCandidate choose the fair next student.
+    // Never directly hand the seat to the requester, since another waiting
+    // student (or an existing pending offer) may have priority.
     const [classOwner] = await tx
-      .select({ id: incarPairingQueue.id, status: incarPairingQueue.status })
+      .select({
+        id: incarPairingQueue.id,
+        studentId: incarPairingQueue.studentId,
+        status: incarPairingQueue.status,
+      })
       .from(incarPairingQueue)
       .where(
         and(
@@ -828,6 +851,77 @@ export async function bookCombinedSlot(params: {
       )
       .limit(1);
     if (classOwner) {
+      if (classOwner.status === "booked_first") {
+        const activeEnrollments = await tx
+          .select({ id: classEnrollments.id })
+          .from(classEnrollments)
+          .where(
+            and(
+              eq(classEnrollments.classId, classId),
+              isNull(classEnrollments.cancelledAt),
+            ),
+          );
+        if (activeEnrollments.length !== 1) {
+          return {
+            success: false,
+            reason:
+              activeEnrollments.length >= (cls.maxStudents ?? 2)
+                ? "Class is full."
+                : "This pairing slot is temporarily unavailable. Please refresh and try again.",
+          };
+        }
+
+        let queueEntry = await tx
+          .select()
+          .from(incarPairingQueue)
+          .where(
+            and(
+              eq(incarPairingQueue.studentId, studentId),
+              eq(incarPairingQueue.status, "waiting"),
+            ),
+          )
+          .limit(1)
+          .then((rows) => rows[0]);
+
+        if (!queueEntry) {
+          [queueEntry] = await tx
+            .insert(incarPairingQueue)
+            .values({
+              studentId,
+              sessionNumber: 12,
+              status: "waiting",
+            })
+            .returning();
+          await audit(tx, {
+            eventType: "enqueued",
+            queueEntryId: queueEntry.id,
+            studentId,
+            actorId,
+            actorRole,
+            newStatus: "waiting",
+            details: { requestedClassId: classId },
+          });
+        }
+
+        await offerNextCandidate(tx, classId, "system", "system");
+        const [ownOffer] = await tx
+          .select({ id: incarPairingOffers.id })
+          .from(incarPairingOffers)
+          .where(
+            and(
+              eq(incarPairingOffers.classId, classId),
+              eq(incarPairingOffers.studentId, studentId),
+              eq(incarPairingOffers.status, "pending"),
+            ),
+          )
+          .limit(1);
+
+        return {
+          success: true,
+          queueEntryId: queueEntry.id,
+          disposition: ownOffer ? "offer_pending" : "waiting",
+        };
+      }
       return {
         success: false,
         reason:
@@ -917,6 +1011,7 @@ export async function bookCombinedSlot(params: {
       success: true,
       queueEntryId: queueEntry.id,
       enrollmentId: enrollment.id,
+      disposition: "booked_first",
     };
   };
   if (existingTx) {

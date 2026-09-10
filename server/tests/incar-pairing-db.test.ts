@@ -456,7 +456,68 @@ describe("bookCombinedSlot (live DB)", () => {
     expect(await activeEnrollments(classId)).toHaveLength(1);
   });
 
-  it("allows exactly one winner when two students book the same slot concurrently", async () => {
+  it("offers a reserved slot to an eligible second student, who can accept it", async () => {
+    const first = await createStudent();
+    const second = await createStudent();
+    const classId = await createCombinedClass();
+
+    expect((await bookCombinedSlot({ studentId: first, classId })).disposition)
+      .toBe("booked_first");
+    const requested = await bookCombinedSlot({ studentId: second, classId });
+    expect(requested).toEqual(expect.objectContaining({
+      success: true,
+      disposition: "offer_pending",
+    }));
+    expect(await activeEnrollments(classId)).toHaveLength(1);
+
+    const [offer] = await pendingOffersFor(classId);
+    expect(offer.studentId).toBe(second);
+    const statusResponse = await request(app)
+      .get("/api/student/lesson-pairing/status")
+      .set("Authorization", `Bearer ${generateStudentToken(second)}`);
+    expect(statusResponse.status).toBe(200);
+    expect(statusResponse.body.pendingOffers).toEqual([
+      expect.objectContaining({
+        id: offer.id,
+        studentId: second,
+        classId,
+        status: "pending",
+      }),
+    ]);
+    expect(await respondToOffer({
+      offerId: offer.id,
+      studentId: second,
+      response: "accept",
+    })).toEqual(expect.objectContaining({ success: true }));
+    expect(await activeEnrollments(classId)).toHaveLength(2);
+    expect((await queueEntryFor(second))[0].status).toBe("paired");
+  });
+
+  it("does not displace a live offer when another student requests its reserved slot", async () => {
+    const offeredStudent = await createStudent();
+    const first = await createStudent();
+    const laterStudent = await createStudent();
+    const classId = await createCombinedClass();
+
+    await joinCombinedQueue({ studentId: offeredStudent });
+    await bookCombinedSlot({ studentId: first, classId });
+    const [protectedOffer] = await pendingOffersFor(classId);
+    expect(protectedOffer.studentId).toBe(offeredStudent);
+
+    const laterRequest = await bookCombinedSlot({ studentId: laterStudent, classId });
+    expect(laterRequest).toEqual(expect.objectContaining({
+      success: true,
+      disposition: "waiting",
+    }));
+    const offersAfter = await pendingOffersFor(classId);
+    expect(offersAfter).toHaveLength(1);
+    expect(offersAfter[0].id).toBe(protectedOffer.id);
+    expect(offersAfter[0].studentId).toBe(offeredStudent);
+    expect((await queueEntryFor(laterStudent))[0].status).toBe("waiting");
+    expect(await activeEnrollments(classId)).toHaveLength(1);
+  });
+
+  it("serializes two students requesting the same slot into first-booker and fair offer", async () => {
     const [a, b] = await Promise.all([createStudent(), createStudent()]);
     const classId = await createCombinedClass();
 
@@ -465,10 +526,14 @@ describe("bookCombinedSlot (live DB)", () => {
       bookCombinedSlot({ studentId: b, classId }),
     ]);
 
-    const successes = [ra, rb].filter((r) => r.success);
-    expect(successes).toHaveLength(1);
+    expect([ra, rb].every((r) => r.success)).toBe(true);
+    expect([ra.disposition, rb.disposition].sort()).toEqual([
+      "booked_first",
+      "offer_pending",
+    ]);
 
-    // Exactly one booked_first entry owns the class; exactly one enrollment.
+    // Exactly one booked_first entry owns the class and the other student only
+    // holds an offer, so capacity is unchanged until acceptance.
     const owners = await db
       .select()
       .from(incarPairingQueue)

@@ -27,3 +27,6 @@ description: Design invariants for the combined In-Car 12/13 paired-lesson queue
 - Live paired completion requires exact session-to-enrollment links, two distinct active enrollments, both attended, and a started canonical class; only records with no paired-session metadata retain historical behavior.
 - **Why:** treating malformed live metadata as legacy lets one attended enrollment masquerade as valid 12/13 completion.
 - **How to apply:** load authoritative pairing evidence for every progress and booking consumer; fail closed when a live session is incomplete or contradictory, without rewriting unrelated historical records.
+- A second student's request for a first-booker-reserved slot must enter normal offer matching, not bypass FIFO or displace another student's live offer.
+- **Why:** the first reservation intentionally holds the paired slot; treating that hold as ordinary full capacity prevented later students from ever receiving an offer.
+- **How to apply:** keep enrollment creation at offer acceptance and distinguish receiving an offer from waiting behind another candidate.

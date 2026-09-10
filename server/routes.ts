@@ -12892,12 +12892,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
             tx: bookingTx,
           });
           if (combinedResult.success) {
-            logBookingDecision('allow rule=combined_12_13');
+            logBookingDecision(`allow rule=combined_12_13 disposition=${combinedResult.disposition ?? 'booked_first'}`);
+            const message =
+              combinedResult.disposition === "offer_pending"
+                ? "This In-Car 12/13 slot already has its first student. The second seat has been offered to you through the pairing queue."
+                : combinedResult.disposition === "waiting"
+                  ? "This In-Car 12/13 slot already has its first student. You joined the pairing queue; the open seat remains with the student who is first in line."
+                  : "You are booked into the In-Car 12/13 shared session. A second student will be matched with you.";
             return res.json({
-              message: "You are booked into the In-Car 12/13 shared session. A second student will be matched with you.",
+              message,
               enrollmentId: combinedResult.enrollmentId,
               queueEntryId: combinedResult.queueEntryId,
               pairedLesson: true,
+              pairingDisposition: combinedResult.disposition ?? "booked_first",
             });
           }
           logBookingDecision('deny rule=combined_12_13', combinedResult.reason);

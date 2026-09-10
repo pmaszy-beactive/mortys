@@ -36,6 +36,26 @@ function session(classType: "theory" | "driving", classNumber: number, bookingAl
 }
 
 describe("per-class Book state for moto and scooter curricula", () => {
+  it("shows an explicitly available canonical In-Car 12/13 slot on the In-Car #12 row", () => {
+    const classItem: PhaseClassProgress = {
+      id: "driving_12",
+      label: "In-Car #12",
+      classType: "driving",
+      classNumber: 12,
+      isCompleted: false,
+      pairedBookingRole: "primary",
+    };
+    const available = [{
+      classType: "driving",
+      classNumber: 12,
+      bookingAllowed: true,
+    }];
+
+    expect(
+      getPhaseClassBookState(classItem, unlockedPhase, [], available),
+    ).toEqual({ status: "available" });
+  });
+
   it("shows a past booked class awaiting attendance as in review without a no-session reason", () => {
     const classItem = {
       ...curriculumRow("moto", "driving", 1),
