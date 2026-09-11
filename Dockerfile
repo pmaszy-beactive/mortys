@@ -2,7 +2,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package*.json .npmrc ./
+COPY scripts/check-lockfile-portability.mjs ./scripts/check-lockfile-portability.mjs
 # Force devDependencies (vite, esbuild) even when the deploy environment sets
 # NODE_ENV=production — otherwise `npm ci` omits them and the build can't find vite.
 # PUPPETEER_SKIP_DOWNLOAD=true so the builder doesn't download Chromium (~150MB)
@@ -14,18 +15,10 @@ ENV NODE_ENV=development \
     NPM_CONFIG_FUND=false \
     NPM_CONFIG_AUDIT=false
 
-# ROOT CAUSE of the build failures: the committed package-lock.json pins every
-# tarball to Replit's internal package proxy (http://package-firewall.replit.local/),
-# which only resolves INSIDE Replit. On this external build host that hostname is
-# unreachable, so `npm ci` can't fetch the tarballs and dies with the misleading
-# "Exit handler never called!" (exiting 0, leaving node_modules incomplete).
-# Rewrite those URLs to the public npm registry for the build ONLY — the committed
-# lockfile is left untouched so Replit development keeps working.
-RUN sed -i 's#http://package-firewall.replit.local/npm/#https://registry.npmjs.org/#g' package-lock.json
-
 # Install (incl. devDeps), then verify the build tools actually got linked so an
 # incomplete install fails the layer loudly instead of being cached.
-RUN npm ci --include=dev --registry=https://registry.npmjs.org/ \
+RUN npm run check:lockfile-portability \
+    && npm ci --include=dev \
     && test -x node_modules/.bin/vite \
     && test -x node_modules/.bin/esbuild
 
@@ -106,11 +99,10 @@ RUN apk add --no-cache \
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-COPY package*.json ./
-# Same registry rewrite as the builder stage: the committed lockfile pins tarballs
-# to Replit's internal proxy, which is unreachable from this build host.
-RUN sed -i 's#http://package-firewall.replit.local/npm/#https://registry.npmjs.org/#g' package-lock.json
-RUN npm ci --omit=dev --registry=https://registry.npmjs.org/
+COPY package*.json .npmrc ./
+COPY scripts/check-lockfile-portability.mjs ./scripts/check-lockfile-portability.mjs
+RUN npm run check:lockfile-portability \
+    && npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
