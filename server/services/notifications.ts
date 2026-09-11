@@ -31,6 +31,7 @@ export type NotificationType =
   | 'start_date_change'
   | 'series_days_change'
   | 'exam_result_corrected'
+  | 'meeting_bot_dispatch_failed'
   // In-Car 12/13 combined pairing queue
   | 'incar_pairing_offer'
   | 'incar_pairing_offer_expired'
@@ -65,6 +66,7 @@ interface NotificationPayload {
 
 interface EnqueueNotificationParams {
   type: NotificationType;
+  dedupeKey?: string;
   title: string;
   message: string;
   payload?: NotificationPayload;
@@ -73,16 +75,33 @@ interface EnqueueNotificationParams {
   channels?: ('email' | 'in_app')[];
 }
 
-export async function enqueueNotification(params: EnqueueNotificationParams): Promise<number> {
-  const { type, title, message, payload, recipients, triggeredBy, channels = ['email', 'in_app'] } = params;
+async function enqueueNotificationInternal(
+  params: EnqueueNotificationParams,
+): Promise<{ id: number; created: boolean }> {
+  const { type, dedupeKey, title, message, payload, recipients, triggeredBy, channels = ['email', 'in_app'] } = params;
 
-  const [notification] = await db.insert(notifications).values({
-    notificationType: type,
-    title,
-    message,
-    payload: payload as any,
-    triggeredBy,
-  }).returning();
+  const [notification] = await db
+    .insert(notifications)
+    .values({
+      notificationType: type,
+      dedupeKey,
+      title,
+      message,
+      payload: payload as any,
+      triggeredBy,
+    })
+    .onConflictDoNothing({ target: notifications.dedupeKey })
+    .returning();
+  if (!notification) {
+    const [existing] = await db
+      .select({ id: notifications.id })
+      .from(notifications)
+      .where(eq(notifications.dedupeKey, dedupeKey!));
+    if (!existing) {
+      throw new Error(`Notification deduplication failed for key "${dedupeKey}"`);
+    }
+    return { id: existing.id, created: false };
+  }
 
   const deliveries: {
     notificationId: number;
@@ -120,7 +139,11 @@ export async function enqueueNotification(params: EnqueueNotificationParams): Pr
 
   await processEmailDeliveries(notification.id, title, message);
 
-  return notification.id;
+  return { id: notification.id, created: true };
+}
+
+export async function enqueueNotification(params: EnqueueNotificationParams): Promise<number> {
+  return (await enqueueNotificationInternal(params)).id;
 }
 
 async function processEmailDeliveries(notificationId: number, subject: string, body: string) {
@@ -319,6 +342,47 @@ export async function getOfficeRecipients(): Promise<NotificationRecipient[]> {
       email: u.email!,
       name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Office',
     }));
+}
+
+export async function notifyMeetingBotDispatchFailure(details: {
+  meetingBotMeetingId: number;
+  dispatchGeneration: number;
+  classId: number;
+  className: string;
+  dispatchUncertain: boolean;
+  errorMessage?: string | null;
+}): Promise<"sent" | "deduped" | "no_recipients"> {
+  const recipients = await getOfficeRecipients();
+  if (recipients.length === 0) {
+    console.error(
+      `[meeting-bot] Dispatch failed for class #${details.classId}, but there are no office recipients to notify.`,
+    );
+    return "no_recipients";
+  }
+
+  const action = details.dispatchUncertain
+    ? "Do not retry yet. Verify in Backbone whether a bot was created before using the recovery actions in the class admin panel."
+    : "Backbone confirmed the dispatch failed, so staff may retry it from the class admin panel.";
+  const message =
+    `A meeting bot could not be safely dispatched for ${details.className}.\n\n` +
+    `Class: ${details.className}\n` +
+    `Dispatch result: ${details.dispatchUncertain ? "Uncertain" : "Failed"}\n` +
+    (details.errorMessage ? `Error: ${details.errorMessage}\n\n` : "\n") +
+    action;
+
+  const result = await enqueueNotificationInternal({
+    type: 'meeting_bot_dispatch_failed',
+    dedupeKey: `meeting-bot-dispatch:${details.meetingBotMeetingId}:${details.dispatchGeneration}`,
+    title: `Meeting Bot ${details.dispatchUncertain ? "Needs Verification" : "Failed"} — ${details.className}`,
+    message,
+    payload: {
+      classId: details.classId,
+      dispatchUncertain: details.dispatchUncertain,
+    },
+    recipients,
+    channels: ['email', 'in_app'],
+  });
+  return result.created ? "sent" : "deduped";
 }
 
 // Build the office recipient list for scrape alerts, always including the

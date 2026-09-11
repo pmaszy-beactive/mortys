@@ -23,6 +23,7 @@ import {
   type JobLogger,
 } from "../job-queue";
 import { getClassStartTime } from "./class-time";
+import { notifyMeetingBotDispatchFailure } from "./notifications";
 
 export function normalizeName(name: string): string {
   return name
@@ -63,6 +64,14 @@ export interface NameCandidate {
   firstName: string;
   lastName: string;
   normalizedName: string;
+}
+
+export function isDispatchOutcomeUncertain(error: unknown): boolean {
+  if (!(error instanceof MeetingBotApiError)) return true;
+  // Only responses that definitively reject the submitted request are safe to
+  // retry. Request timeout (408), rate limiting, and server errors can arrive
+  // after Backbone has already created the bot.
+  return ![400, 401, 403, 404, 422].includes(error.statusCode);
 }
 
 /**
@@ -154,6 +163,38 @@ export async function listMeetingBotMeetings(): Promise<MeetingBotMeeting[]> {
     .select()
     .from(meetingBotMeetings)
     .orderBy(sql`${meetingBotMeetings.createdAt} DESC`);
+}
+
+function meetingBotClassName(classData: typeof classes.$inferSelect): string {
+  const course = classData.courseType
+    ? classData.courseType.charAt(0).toUpperCase() + classData.courseType.slice(1)
+    : "";
+  const type = classData.classType
+    ? classData.classType.charAt(0).toUpperCase() + classData.classType.slice(1)
+    : "Class";
+  const number = classData.classNumber ? ` ${classData.classNumber}` : "";
+  return `${course ? `${course} ` : ""}${type}${number} on ${classData.date} at ${classData.time} (#${classData.id})`;
+}
+
+export async function notifyOfficeOfMeetingBotDispatchFailure(
+  meetingBotMeetingId: number,
+): Promise<"sent" | "deduped" | "no_recipients"> {
+  const meeting = await getMeetingBotMeeting(meetingBotMeetingId);
+  if (!meeting || meeting.status !== "failed") return "deduped";
+  const [classData] = await db
+    .select()
+    .from(classes)
+    .where(eq(classes.id, meeting.classId));
+  return notifyMeetingBotDispatchFailure({
+    meetingBotMeetingId: meeting.id,
+    dispatchGeneration: meeting.dispatchGeneration,
+    classId: meeting.classId,
+    className: classData
+      ? meetingBotClassName(classData)
+      : `class #${meeting.classId}`,
+    dispatchUncertain: meeting.dispatchUncertain,
+    errorMessage: meeting.errorMessage,
+  });
 }
 
 type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -547,8 +588,8 @@ registerJobHandler("meeting-bot:dispatch", async (payload: any, log) => {
     await enqueueReconciliation(id, scheduledFor);
     await log(`Dispatched meeting ${dispatched.meeting_id}`);
   } catch (error: any) {
-    const dispatchUncertain = !(error instanceof MeetingBotApiError);
-    await db
+    const dispatchUncertain = isDispatchOutcomeUncertain(error);
+    const [failed] = await db
       .update(meetingBotMeetings)
       .set({
         status: "failed",
@@ -561,7 +602,17 @@ registerJobHandler("meeting-bot:dispatch", async (payload: any, log) => {
           eq(meetingBotMeetings.id, id),
           eq(meetingBotMeetings.dispatchGeneration, generation),
         ),
+      )
+      .returning();
+    if (failed) {
+      await notifyOfficeOfMeetingBotDispatchFailure(failed.id).catch(
+        (notificationError) =>
+          console.error(
+            `[meeting-bot] Failed to notify office for session ${failed.id}:`,
+            notificationError,
+          ),
       );
+    }
     throw error;
   }
 });

@@ -255,6 +255,17 @@ export interface PhaseClassProgress {
   classId?: number;
 }
 
+export function isAttendanceAwaitingReview(
+  attendanceStatus: string | null | undefined,
+): boolean {
+  return (
+    attendanceStatus == null ||
+    attendanceStatus === "pending" ||
+    attendanceStatus === "registered" ||
+    attendanceStatus === "checked_in"
+  );
+}
+
 export interface PhaseProgress {
   phase: number;
   label: string;

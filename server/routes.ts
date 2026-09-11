@@ -59,7 +59,12 @@ import { getPhaseDefinitionsForCourse, getExternalMilestonesForCourse } from "@s
 import { isAutoPaymentPlan } from "@shared/autoCoursePayment";
 import { buildAutoCourseQuote, paymentSummaryFromQuote } from "./services/auto-course-quote";
 import { buildAutoCurriculumPlan, buildMotoCurriculumPlan, buildCandidateDates, scheduleAutoCurriculum, findCurriculumConflicts, getMotoClassRequirements, getCourseClassRequirements, validateCourseClassConfiguration, splitVirtualEnrollment, VIRTUAL_CLASS_MAX_STUDENTS } from "@shared/curriculumPlanner";
-import type { PhaseProgressData, PhaseProgress, PhaseClassProgress } from "@shared/phaseConfig";
+import {
+  isAttendanceAwaitingReview,
+  type PhaseProgressData,
+  type PhaseProgress,
+  type PhaseClassProgress,
+} from "@shared/phaseConfig";
 import { validateClassBooking, buildCompletedClasses, enrollmentCountsAsCompleted, mergeScooterTransferCredits, MAX_CLASSES_PER_DAY, isTheoryClass, getCourseClassCounts, isCombined1213Class, type BookingValidationResult } from "@shared/bookingRules";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { loginUser, isAuthenticatedTraditional } from "./auth";
@@ -495,9 +500,12 @@ async function buildPhaseProgress(studentId: number): Promise<PhaseProgressData>
       const isCompleted = !!completed || transferCompletionKeys.has(key);
       const isInReview = !isCompleted && enrollmentRows.some((row) => {
         if (`${row.classType}_${row.classNumber}` !== key) return false;
-        if (row.attendanceStatus !== "registered" && row.attendanceStatus !== "checked_in") return false;
+        if (!isAttendanceAwaitingReview(row.attendanceStatus)) return false;
         const start = getClassStartTime({ date: row.date, time: row.time });
-        return start !== null && start.getTime() <= Date.now();
+        const end = start
+          ? start.getTime() + Math.max(row.duration ?? 0, 0) * 60_000
+          : null;
+        return end !== null && end <= Date.now();
       });
 
       if (isCompleted) completedCount++;

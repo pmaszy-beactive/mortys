@@ -54,6 +54,7 @@ import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-
 import { getStripePromise } from "@/lib/stripe";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPhaseClassBookState } from "@/lib/class-book-state";
+import { getClassCountdownDisplay } from "@/lib/class-countdown";
 import {
   AVAILABLE_CLASSES_REFRESH_INTERVAL_MS,
   isActionablePairingOffer,
@@ -526,36 +527,7 @@ const CountdownTimer = ({ targetDate, durationMinutes }: { targetDate: Date; dur
   
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const now = new Date();
-      const diff = targetDate.getTime() - now.getTime();
-      const endTime = targetDate.getTime() + (durationMinutes ?? 0) * 60 * 1000;
-      
-      if (diff <= 0) {
-        if (durationMinutes && now.getTime() < endTime) {
-          setDisplay({ caption: "Status", label: "In progress" });
-        } else if (durationMinutes) {
-          setDisplay({ caption: "Status", label: "Ended" });
-        } else {
-          setDisplay({ caption: "Status", label: "Starting soon!" });
-        }
-        return;
-      }
-      
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      
-      let label: string;
-      if (days > 0) {
-        label = `${days}d ${hours}h`;
-      } else if (hours > 0) {
-        label = `${hours}h ${minutes}m`;
-      } else if (minutes > 0) {
-        label = `${minutes}m`;
-      } else {
-        label = "Starting soon!";
-      }
-      setDisplay({ caption: "Starts in", label });
+      setDisplay(getClassCountdownDisplay(targetDate, durationMinutes));
     };
     
     calculateTimeLeft();

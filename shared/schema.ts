@@ -1412,6 +1412,7 @@ export const notificationPreferences = pgTable("notification_preferences", {
 export const notifications = pgTable("notifications", {
   id: serial("id").primaryKey(),
   notificationType: text("notification_type").notNull(), // upcoming_class, schedule_change, payment_due, payment_received, policy_override
+  dedupeKey: text("dedupe_key").unique(),
   title: text("title").notNull(),
   message: text("message").notNull(),
   payload: json("payload"), // Additional context data (classId, paymentAmount, etc.)

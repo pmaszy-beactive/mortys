@@ -11,6 +11,7 @@ import {
   getMeetingBotMeeting,
   getMeetingBotMeetingByClass,
   listMeetingBotMeetings,
+  notifyOfficeOfMeetingBotDispatchFailure,
   syncMeetingStatus,
 } from "../services/meeting-bot";
 import {
@@ -78,6 +79,13 @@ export function registerMeetingBotAdminRoutes(
               })
               .where(eq(meetingBotMeetings.id, row.id))
               .returning();
+            await notifyOfficeOfMeetingBotDispatchFailure(failed.id).catch(
+              (notificationError) =>
+                console.error(
+                  `[meeting-bot] Failed to notify office for recovered session ${failed.id}:`,
+                  notificationError,
+                ),
+            );
             return res.json(failed);
           }
         }

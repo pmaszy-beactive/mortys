@@ -204,6 +204,13 @@
       "when": 1788959400000,
       "tag": "0028_meeting_bot",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1789131600000,
+      "tag": "0029_meeting_bot_dispatch_alert",
+      "breakpoints": true
     }
   ]
 }

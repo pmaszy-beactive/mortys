@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db";
 import {
@@ -6,10 +6,32 @@ import {
   jobs,
   meetingBotMeetings,
 } from "@shared/schema";
-import { dispatchBotForClass } from "../services/meeting-bot";
+import { MeetingBotApiError } from "../services/meeting-bot-client";
+import { __testing as jobQueueTesting } from "../job-queue";
+const notifyDispatchFailure = vi.hoisted(() => vi.fn(async () => "sent"));
+const dispatchMeetingBot = vi.hoisted(() => vi.fn());
+
+vi.mock("../services/notifications", () => ({
+  notifyMeetingBotDispatchFailure: notifyDispatchFailure,
+}));
+vi.mock("../services/meeting-bot-client", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../services/meeting-bot-client")>();
+  return { ...actual, dispatchMeetingBot };
+});
+
+import {
+  dispatchBotForClass,
+  notifyOfficeOfMeetingBotDispatchFailure,
+} from "../services/meeting-bot";
 
 const createdClassIds: number[] = [];
 const createdJobIds: number[] = [];
+
+beforeEach(() => {
+  notifyDispatchFailure.mockClear();
+  dispatchMeetingBot.mockReset();
+});
 
 afterEach(async () => {
   if (createdClassIds.length === 0) return;
@@ -105,4 +127,105 @@ describe("meeting bot dispatch persistence", () => {
     expect(meeting.dispatchGeneration).toBe(2);
     expect(meeting.dispatchJobId).not.toBe(initial.dispatchJobId);
   });
+
+  it.each([
+    {
+      dispatchUncertain: false,
+      expectedName: "Failed",
+    },
+    {
+      dispatchUncertain: true,
+      expectedName: "Uncertain",
+    },
+  ])(
+    "passes $expectedName dispatch details to the office alert",
+    async ({ dispatchUncertain }) => {
+      const classRow = await createZoomClass();
+      const meeting = await dispatchBotForClass(
+        classRow.id,
+        classRow.zoomLink!,
+      );
+      await db
+        .update(meetingBotMeetings)
+        .set({
+          status: "failed",
+          dispatchUncertain,
+          errorMessage: "Dispatch test failure",
+        })
+        .where(eq(meetingBotMeetings.id, meeting.id));
+
+      const result =
+        await notifyOfficeOfMeetingBotDispatchFailure(meeting.id);
+
+      expect(result).toBe("sent");
+      expect(notifyDispatchFailure).toHaveBeenCalledTimes(1);
+      expect(notifyDispatchFailure).toHaveBeenCalledWith(
+        expect.objectContaining({
+          meetingBotMeetingId: meeting.id,
+          dispatchGeneration: meeting.dispatchGeneration,
+          classId: classRow.id,
+          dispatchUncertain,
+          errorMessage: "Dispatch test failure",
+        }),
+      );
+    },
+  );
+
+  it.each([
+    {
+      label: "definitive validation rejection",
+      error: new MeetingBotApiError(422, "Invalid Zoom meeting"),
+      expectedUncertain: false,
+    },
+    {
+      label: "request timeout response",
+      error: new MeetingBotApiError(408, "Request timeout"),
+      expectedUncertain: true,
+    },
+    {
+      label: "Backbone server error",
+      error: new MeetingBotApiError(503, "Service unavailable"),
+      expectedUncertain: true,
+    },
+    {
+      label: "network failure",
+      error: new Error("socket closed"),
+      expectedUncertain: true,
+    },
+  ])(
+    "persists safe retry guidance for a $label",
+    async ({ error, expectedUncertain }) => {
+      const classRow = await createZoomClass();
+      const meeting = await dispatchBotForClass(
+        classRow.id,
+        classRow.zoomLink!,
+      );
+      const [runningJob] = await db
+        .update(jobs)
+        .set({
+          status: "running",
+          attempts: 1,
+          lockedBy: jobQueueTesting.workerId(),
+          leaseExpiresAt: new Date(Date.now() + 60_000),
+        })
+        .where(eq(jobs.id, meeting.dispatchJobId!))
+        .returning();
+      dispatchMeetingBot.mockRejectedValueOnce(error);
+
+      await jobQueueTesting.runJob(runningJob);
+
+      const [failed] = await db
+        .select()
+        .from(meetingBotMeetings)
+        .where(eq(meetingBotMeetings.id, meeting.id));
+      expect(failed.status).toBe("failed");
+      expect(failed.dispatchUncertain).toBe(expectedUncertain);
+      expect(notifyDispatchFailure).toHaveBeenCalledWith(
+        expect.objectContaining({
+          meetingBotMeetingId: meeting.id,
+          dispatchUncertain: expectedUncertain,
+        }),
+      );
+    },
+  );
 });

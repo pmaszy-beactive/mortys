@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { getPhaseDefinitionsForCourse, type PhaseClassProgress, type PhaseProgress } from "@shared/phaseConfig";
+import {
+  getPhaseDefinitionsForCourse,
+  isAttendanceAwaitingReview,
+  type PhaseClassProgress,
+  type PhaseProgress,
+} from "@shared/phaseConfig";
 import { getPhaseClassBookState, type AvailableBookStateClass } from "./class-book-state";
 
 const unlockedPhase: PhaseProgress = {
@@ -36,6 +41,20 @@ function session(classType: "theory" | "driving", classNumber: number, bookingAl
 }
 
 describe("per-class Book state for moto and scooter curricula", () => {
+  it.each([null, undefined, "pending", "registered", "checked_in"])(
+    "treats unmarked attendance status %s as awaiting review",
+    (status) => {
+      expect(isAttendanceAwaitingReview(status)).toBe(true);
+    },
+  );
+
+  it.each(["attended", "absent", "no-show"])(
+    "does not treat finalized attendance status %s as awaiting review",
+    (status) => {
+      expect(isAttendanceAwaitingReview(status)).toBe(false);
+    },
+  );
+
   it("shows an explicitly available canonical In-Car 12/13 slot on the In-Car #12 row", () => {
     const classItem: PhaseClassProgress = {
       id: "driving_12",
