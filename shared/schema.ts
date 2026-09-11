@@ -324,6 +324,9 @@ export const classEnrollments = pgTable("class_enrollments", {
   checkInAt: timestamp("check_in_at"), // When student checked in
   checkOutSignature: text("check_out_signature"), // Base64 encoded student signature on check-out
   checkOutAt: timestamp("check_out_at"), // When student checked out
+  attendanceManuallyOverridden: boolean("attendance_manually_overridden").notNull().default(false),
+  attendanceOverrideAt: timestamp("attendance_override_at"),
+  attendanceOverrideBy: varchar("attendance_override_by").references(() => users.id),
 });
 
 // Transfer Credits System - DriveTraqr Style
@@ -1734,7 +1737,14 @@ export const insertJobSchema = createInsertSchema(jobs).omit({
 export type Job = typeof jobs.$inferSelect;
 export type InsertJob = z.infer<typeof insertJobSchema>;
 
-// Auth types
+export const MEETING_BOT_STATUSES = [
+  "pending",
+  "joining",
+  "active",
+  "completed",
+  "failed",
+  "stopped",
+] as const;
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
@@ -1974,3 +1984,73 @@ export type InsertIncarPairedSession = z.infer<typeof insertIncarPairedSessionSc
 export type InsertIncarPairingOffer = z.infer<typeof insertIncarPairingOfferSchema>;
 export type InsertIncarSessionConfirmation = z.infer<typeof insertIncarSessionConfirmationSchema>;
 export type InsertIncarPairingAudit = z.infer<typeof insertIncarPairingAuditSchema>;
+
+export const meetingBotMeetings = pgTable(
+  "meeting_bot_meetings",
+  {
+    id: serial("id").primaryKey(),
+    classId: integer("class_id")
+      .notNull()
+      .references(() => classes.id)
+      .unique(),
+    zoomNativeMeetingId: text("zoom_native_meeting_id").notNull(),
+    zoomPasscode: text("zoom_passcode"),
+    meetingId: text("meeting_id").unique(),
+    sessionId: text("session_id"),
+    status: text("status").notNull().default("pending"),
+    dispatchedAt: timestamp("dispatched_at"),
+    endedAt: timestamp("ended_at"),
+    transcript: jsonb("transcript"),
+    recordingAvailable: boolean("recording_available").notNull().default(false),
+    reconcileReport: jsonb("reconcile_report").$type<ReconcileReport>(),
+    reconciledAt: timestamp("reconciled_at"),
+    dispatchJobId: integer("dispatch_job_id").references(() => jobs.id),
+    reconcileJobId: integer("reconcile_job_id").references(() => jobs.id),
+    dispatchGeneration: integer("dispatch_generation").notNull().default(0),
+    dispatchUncertain: boolean("dispatch_uncertain").notNull().default(false),
+    errorMessage: text("error_message"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("IDX_mbm_class_id").on(table.classId),
+    index("IDX_mbm_status").on(table.status),
+  ],
+);
+
+export interface ReconcileReport {
+  matched: ReconcileEntry[];
+  unmatched: ReconcileEntry[];
+  /** Speaker names from transcript that could not be matched to any enrolled student */
+  unknownSpeakers: string[];
+}
+
+export type MeetingBotMeeting = typeof meetingBotMeetings.$inferSelect;
+
+export type MeetingBotStatus = (typeof MEETING_BOT_STATUSES)[number];
+
+export type InsertMeetingBotMeeting = z.infer<typeof insertMeetingBotMeetingSchema>;
+
+export const insertMeetingBotMeetingSchema = createInsertSchema(meetingBotMeetings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+/** One entry in the reconcile report per enrolled student. */
+export interface ReconcileEntry {
+  studentId: number;
+  enrollmentId: number;
+  firstName: string;
+  lastName: string;
+  /** Normalised full name used during matching */
+  normalizedName: string;
+  /** Speaker label from the transcript that was matched, or null */
+  matchedSpeaker: string | null;
+  /** Whether reconciler updated the enrollment's attendanceStatus */
+  attendanceUpdated: boolean;
+  /** The attendance status written (or already present if not updated) */
+  attendanceStatus: string;
+  /** True when the admin had already manually overridden attendance */
+  skippedDueToOverride: boolean;
+}

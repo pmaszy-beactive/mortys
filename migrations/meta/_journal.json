@@ -197,6 +197,13 @@
       "when": 1788873000000,
       "tag": "0027_remove_compromised_demo_passwords",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1788959400000,
+      "tag": "0028_meeting_bot",
+      "breakpoints": true
     }
   ]
 }

@@ -85,6 +85,7 @@ import {
 } from "./services/incar-cancellation-fee";
 import { isPortalUserAuthenticated, handleAssistantChat } from "./services/process-assistant";
 import * as notificationService from "./services/notifications";
+import { registerMeetingBotAdminRoutes } from "./routes/meeting-bot";
 // Task 272: In-Car #12/13 combined-session pairing service.
 import {
   bookCombinedSlot,
@@ -5567,8 +5568,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   async function saveStaffAttendance(req: any, enrollmentId: number, changes: any) {
     const actor = getAttendanceActor(req);
+    const attendanceChanges =
+      changes.attendanceStatus === undefined
+        ? changes
+        : {
+            ...changes,
+            attendanceManuallyOverridden: true,
+            attendanceOverrideAt: new Date(),
+            attendanceOverrideBy: actor.actorId,
+          };
     const result = await saveAttendanceWithPairing({
-      updates: [{ enrollmentId, changes }],
+      updates: [{ enrollmentId, changes: attendanceChanges }],
       actorId: actor.actorId,
       actorRole: actor.actorType,
     });
@@ -15875,7 +15885,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const saved = await saveAttendanceWithPairing({
           updates: attendance.map((record: any) => ({
             enrollmentId: record.enrollmentId,
-            changes: { attendanceStatus: record.attended ? "attended" : "absent" },
+            changes: {
+              attendanceStatus: record.attended ? "attended" : "absent",
+              attendanceManuallyOverridden: true,
+              attendanceOverrideAt: new Date(),
+              attendanceOverrideBy: String(instructor.id),
+            },
           })),
           actorId: String(instructor.id),
           actorRole: "instructor",
@@ -17517,6 +17532,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     },
   );
+
+  registerMeetingBotAdminRoutes(app, requireAdmin);
 
   // Catch-all for unmatched API routes: return 404 JSON instead of falling
   // through to the SPA handler (which would return 200 with HTML and make

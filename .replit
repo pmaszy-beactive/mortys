@@ -94,6 +94,7 @@ timeoutMs = 20000
 
 [userenv.shared]
 SENDGRID_FROM_EMAIL = "info@mortysdrivingschool.com"
+MEETING_BOT_BASE_URL = "https://backbone.activeaidemo.com/meeting-bot"
 
 [userenv.production]
 APP_URL = "https://mortys.activeaidemo.com"

@@ -125,5 +125,23 @@ app.use((req, res, next) => {
 
     // Daily cleanup of error logs older than 30 days
     startErrorLogCleanup();
+
+    // Meeting-bot: scan now and every minute for Zoom classes reaching start time.
+    const scanForMeetingBots = () => {
+      import("./services/meeting-bot")
+        .then(({ scanAndDispatchForUpcomingClasses }) =>
+          scanAndDispatchForUpcomingClasses(5),
+        )
+        .then(({ dispatched, errors }) => {
+          if (dispatched > 0 || errors > 0) {
+            console.log(`[meeting-bot] Scanner: dispatched=${dispatched} errors=${errors}`);
+          }
+        })
+        .catch((err) =>
+          console.error("[meeting-bot] Scanner error:", err),
+        );
+    };
+    scanForMeetingBots();
+    setInterval(scanForMeetingBots, 60_000);
   });
 })();

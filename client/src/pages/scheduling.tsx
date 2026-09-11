@@ -20,6 +20,7 @@ import VirtualClassSplitDialog from "@/components/virtual-class-split-dialog";
 import { Repeat } from "lucide-react";
 import type { Class, Instructor } from "@shared/schema";
 import { startOfWeek, endOfWeek, parse, format, addDays } from "date-fns";
+import MeetingBotAdmin from "@/components/meeting-bot-admin";
 
 function getSchedulingClassLabel(
   cls: Pick<Class, "courseType" | "classType" | "classNumber">,
@@ -2100,6 +2101,7 @@ export default function Scheduling() {
                 classData={editingClass} 
                 onSuccess={() => setEditingClass(null)} 
               />
+              {editingClass.zoomLink && <MeetingBotAdmin classId={editingClass.id} />}
             </DialogContent>
           </Dialog>
         )}
